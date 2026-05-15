@@ -1,0 +1,110 @@
+---
+version: 2026-05-r1
+target: find-skills (third-party skill)
+purpose: 评审样例，展示 skill-reviewer 对第三方轻量级 Skill 的评审过程与问题发现，不作权威结论。
+role: example-only
+---
+
+# 评审样例：find-skills
+
+### 1. 一句话结论
+
+该 Skill 当前处在「执行说明」阶段，最强项是**职责内聚且步骤链路清晰**，最大短板是**缺少 Gotchas、触发条件不规范且无验证闭环**。
+
+### 2. 复杂度判断
+
+**结论**：中等
+
+**判断依据**：
+- [阶段性产物] 仅 1 类（SKILL.md 文档），无脚本/模板/数据 → 未触发
+- [执行链阶段] 6 步流程（理解需求 → 查排行榜 → 搜索 → 验证质量 → 呈现选项 → 安装）→ 触发
+- [运行时依赖] 依赖外部 `npx skills` CLI → 触发
+- [数据时变性] 排行榜数据动态但技能不管理 → 未触发
+- [触发与入口] 单一入口 → 未触发
+- [脚本生态] 无 `scripts/` 目录 → 未触发
+
+2 项触发 → 中等复杂度，建议拆出 `references/`。
+
+### 3. 主要优点
+
+1. **职责高度内聚** —— 整个技能只做一件事（发现与安装技能），不掺杂无关能力，Agent 加载后不会因范围发散而误触发。参考：`SKILL.md`
+2. **步骤链路清晰、编号有序** —— Step 1-6 递进式引导，从理解需求到最终安装，每步有输入/输出预期，Agent 可按序执行无需猜测。参考：`SKILL.md`
+3. **主文档精简** —— 142 行，远低于 500 行硬限，上下文预算控制良好。参考：`SKILL.md`
+4. **方法论优于死指令** —— Step 4 "Verify Quality Before Recommending" 教 Agent 不要盲目推荐搜索结果，而是验证安装量/来源/星标，这比"推荐第一个结果"的硬编码指令更能适应变化。参考：`SKILL.md`
+5. **Frontmatter 合规** —— 包含必需的 `name` 和 `description` 字段，且字段简洁不过度。参考：`SKILL.md`
+
+### 4. 主要问题
+
+**P0（阻塞使用）**
+
+- **无 Gotchas 段** —— Agent 遇到 `npx skills` 未安装、网络不通、skills.sh 宕机等场景时会卡死或输出无意义重试。长期后果：Agent 在异常路径上无纠正信号，用户需手动干预。证据：`SKILL.md`
+- **description 非动词开头** —— 当前 "Helps users discover" 是被动句式，Agent 意图匹配时权重低。应改为动词开头的主动句式（如 "Discover and install agent skills..."）。长期后果：触发率偏低，用户表达相关意图时技能可能不被激活。证据：`SKILL.md` L3
+- **三维触发缺失** —— description 仅覆盖意图维度（"how do I do X"），缺少技术特征维度（如 `npx skills`、`skills.sh`）和项目环境维度（如技能生态、Trae IDE）。长期后果：用户提到技术关键词或环境上下文时无法触发。证据：`SKILL.md` L3
+- **无 metadata.triggers 字段** —— 触发短语仅散落在 description 中，未结构化到 frontmatter 的 `metadata.triggers` 中，Agent 无法做精准的触发匹配。证据：`SKILL.md` L2-4
+
+**P1（维护风险）**
+
+- **包含 Agent 已知的通用知识** —— "What is the Skills CLI?" 段落解释 npx 概念、Common Skill Categories 表格列举通用分类，这些是 Agent 训练数据中已有的知识，占用上下文但不增加决策质量。证据：`SKILL.md` L22-32, L107-119
+- **无 references/ 下沉** —— 所有内容平铺在主文档中，示例响应（L85-94）、搜索技巧（L121-125）等可下沉到 `references/`，主文档仅保留路由与核心流程。证据：`SKILL.md`
+- **无显式输出模板** —— Step 5 的输出格式以散文+示例描述，缺少结构化模板（如 JSON schema 或 markdown 模板），Agent 输出格式不一致。证据：`SKILL.md` L75-94
+- **多步工作流无 Checklist** —— 6 步流程缺少依赖标注和验证关卡，Agent 无法自检"当前在哪一步、前置条件是否满足"。证据：`SKILL.md`
+- **无 Validation Loop** —— 搜索/安装操作无成功判定标准（如"搜索结果为空时如何处理"仅在末尾简述，未形成闭环）。证据：`SKILL.md`
+- **description 未声明边界** —— 未说明不处理的场景（如"不适用于已安装技能的管理""不适用于技能开发"），Agent 可能误触发到技能创建/开发场景。证据：`SKILL.md` L3
+
+**P2（演进风险）**
+
+- **npx skills 未固定版本** —— `npx skills find`、`npx skills add` 等命令未指定版本号，未来主版本升级可能导致行为变更。证据：`SKILL.md` L27-30
+- **无 Non-Goals 段** —— 未显式列出非目标（如技能开发、技能评审、技能卸载），职责边界依赖隐式理解。证据：`SKILL.md`
+- **无运行时要求声明** —— 未声明 Node.js 版本要求、网络环境要求，Agent 在离线环境或低版本 Node 下可能执行失败。证据：`SKILL.md`
+- **无评估测试集** —— 缺少正面/负面触发测试集，description 修改后无法回归验证触发率。证据：`SKILL.md`
+- **无 metadata.origin 字段** —— 无法追溯技能来源（是否从真实任务提炼、是否经过迭代）。证据：`SKILL.md`
+
+### 5. 拆分需求识别
+
+| 拆分候选 | 当前耦合的职责 | 拆分理由 | 优先级 | 建议转交 |
+| -------- | -------------- | -------- | ------ | -------- |
+| `references/search-examples.md` | 主文档中的示例响应 + 搜索技巧 + 分类表 | 示例与参考数据占用主文档上下文，Agent 仅在执行搜索时才需加载 | P1 | skill-creator |
+| `references/quality-criteria.md` | Step 4 验证质量标准 | 质量判定标准可能随生态演进变化，独立维护可避免主文档频繁改动 | P2 | skill-creator |
+
+### 6. 整改方向
+
+**第一优先级（必须先做）**
+
+- **重写 description 为动词开头的主动句式，补充三维触发与边界声明** —— 当前被动句式导致触发率低，缺少技术/环境维度导致场景覆盖不足（命中：T1、T2、T3）
+- **添加 Gotchas 段** —— 列出 `npx skills` 未安装、网络不通、搜索结果为空、skills.sh 宕机等反直觉陷阱（命中：M1）
+- **在 frontmatter 添加 metadata.triggers** —— 将触发短语结构化，从 description 中提取关键触发词放入 triggers 列表（命中：B3）
+
+**第二优先级**
+
+- **删除 Agent 已知的通用知识，下沉示例到 references/** —— "What is the Skills CLI?" 段落和分类表占用上下文但不提升决策质量（命中：C1、C3）
+- **添加结构化输出模板** —— 替换散文式示例为可复用的 markdown/JSON 模板（命中：M2）
+- **为 6 步流程添加 Checklist 与验证关卡** —— 每步标注前置依赖和通过条件（命中：M3、M4）
+
+**第三优先级**
+
+- **固定 npx skills 版本号** —— 防止未来主版本升级导致行为变更（命中：P1）
+- **添加 Non-Goals 段与运行时要求** —— 明确职责边界与环境依赖（命中：B4、B1）
+
+**转交建议**
+
+以下整改方向建议转交 skill-creator 执行具体优化：
+- `T1`/`T3`/`T5`：description 重写与触发率校准（skill-creator 可提供数据驱动的触发率校准与迭代优化）
+- `V4`：评估测试集创建（skill-creator 可基于 intent-calibration.md 生成正面/负面测试集）
+
+### 7. 结构性问题总结
+
+**当前结构的核心问题**：
+1. **单文件承载全部职责** —— 主文档同时承担路由、知识库、示例库三重职责，142 行虽未超限但内容密度不均，通用知识与关键指令混杂。证据：`SKILL.md`
+2. **触发机制不完整** —— 仅依赖 description 中的自然语言触发短语，缺少结构化 triggers 字段和三维覆盖，Agent 在技术关键词/环境上下文场景下无法激活。证据：`SKILL.md` L2-4
+
+**优化方向**（不设计目标架构，具体方案由 skill-creator 制定）：
+1. 主文档精简为路由+核心流程，示例/参考/分类表下沉到 `references/`
+2. Frontmatter 补充 `metadata.triggers`，description 重写为主动句式+三维触发+边界声明
+
+### 8. 总评
+
+**产品方向**：任务边界收敛，"发现与安装技能"是真实且高频的场景，技能生态持续增长使该需求具有长期价值。
+
+**工程化程度**：基于 Checklist 覆盖率，约 30 项未命中（排除 N/A 项），处于「执行说明」阶段。最强项是职责内聚与步骤清晰，最大短板是触发机制不规范且无验证闭环。
+
+> 若目标是自己看懂 + 偶尔手动搜索技能，当前已足够；若目标是长期维护 + 稳定复用 + Agent 可靠自动触发，则现在是推进到正式 Skill 的时机点。
