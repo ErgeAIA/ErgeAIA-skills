@@ -68,6 +68,10 @@ MIT License — 详见 [LICENSE](LICENSE)。
 3. 确保测试通过
 4. 提交 Pull Request
 
+## 致谢
+
+本项目参考了 [base44/skills](https://github.com/base44/skills) 项目的资源。具体来说，文件 `skill-reviewer/references/specs/spec-zh.md` 改编自 [spec.md](https://github.com/base44/skills/blob/ec420cf2edd2c7e9a523d5afe2e71498a6357fa4/.claude/skills/review-skills/references/spec.md)。我们衷心感谢原作者的开源贡献。
+
 ## 相关链接
 
 - [Agent Skills 规范](https://agentskills.io/)

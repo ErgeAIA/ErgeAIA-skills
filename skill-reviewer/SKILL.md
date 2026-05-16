@@ -128,7 +128,7 @@ metadata:
 - **V2 完整性检查**：执行 `scripts/validate_review.py --checklist .` 必须返回 `Checklist PASS`。
 - **V3 产出检查**：合规模式输出必须严格遵循 `**Validation**: [PASS/FAIL]` 格式。
 - **V4 评估测试集**：检查被评审 Skill 是否有正面/负面触发测试集（参考 `references/templates/trigger-test-set.md`），用于 description 修改后的回归验证。本 Skill 自身测试集：`references/trigger-test-set.md`（正面 12 条 + 负面 8 条）。
-- **V5 评估断言可机器判定**：检查评估断言是否可机器判定（非主观评分），确保验证结果可客观复现。`validate_review.py --checklist` 已机器化的检查项：S2（结构化标记）、B3（triggers 位置）、B4（Non-Goals）、C4（参考文件 trigger-when）、I2（可运行脚本）、M1（Gotchas）、M6（方法论）、M8（P-V-H）、P3–P7（脚本设计）、T3（三维触发）、V1–V5（验证闭环）、版本一致性。
+- **V5 评估断言可机器判定**：检查评估断言是否可机器判定（非主观评分），确保验证结果可客观复现。`validate_review.py --checklist` 已机器化的检查项：S2（结构化标记）、B3（触发关键词覆盖）、B4（Non-Goals）、C4（参考文件 trigger-when）、I2（可运行脚本）、M1（Gotchas）、M6（方法论）、M8（P-V-H）、P3–P7（脚本设计）、T3（三维触发）、V1–V5（验证闭环）、版本一致性。
 - **V6 证据链检查**：评审报告中 W5 的每条建议必须包含 checklist 编号标注（如 `命中：S1、P3`），否则视为断链。
 - **V7 术语一致性检查**：执行 `scripts/validate_review.py --consistency .` 扫描全仓库 Markdown 文件，检测旧术语残留（如 P-V-E、工作流拆分、优化建议等 v4.0 前的命名）。
 

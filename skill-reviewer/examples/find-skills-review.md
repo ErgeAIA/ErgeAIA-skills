@@ -40,7 +40,7 @@ role: example-only
 - **无 Gotchas 段** —— Agent 遇到 `npx skills` 未安装、网络不通、skills.sh 宕机等场景时会卡死或输出无意义重试。长期后果：Agent 在异常路径上无纠正信号，用户需手动干预。证据：`SKILL.md`
 - **description 非动词开头** —— 当前 "Helps users discover" 是被动句式，Agent 意图匹配时权重低。应改为动词开头的主动句式（如 "Discover and install agent skills..."）。长期后果：触发率偏低，用户表达相关意图时技能可能不被激活。证据：`SKILL.md` L3
 - **三维触发缺失** —— description 仅覆盖意图维度（"how do I do X"），缺少技术特征维度（如 `npx skills`、`skills.sh`）和项目环境维度（如技能生态、Trae IDE）。长期后果：用户提到技术关键词或环境上下文时无法触发。证据：`SKILL.md` L3
-- **无 metadata.triggers 字段** —— 触发短语仅散落在 description 中，未结构化到 frontmatter 的 `metadata.triggers` 中，Agent 无法做精准的触发匹配。证据：`SKILL.md` L2-4
+- **description 未结构化触发短语** —— 触发短语散落在 description 中，未提取为清晰的触发关键词列表。虽然官方规范无独立 `triggers` 字段，但良好的 description 应包含明确的触发场景和关键词。证据：`SKILL.md` L2-4
 
 **P1（维护风险）**
 
@@ -72,7 +72,7 @@ role: example-only
 
 - **重写 description 为动词开头的主动句式，补充三维触发与边界声明** —— 当前被动句式导致触发率低，缺少技术/环境维度导致场景覆盖不足（命中：T1、T2、T3）
 - **添加 Gotchas 段** —— 列出 `npx skills` 未安装、网络不通、搜索结果为空、skills.sh 宕机等反直觉陷阱（命中：M1）
-- **在 frontmatter 添加 metadata.triggers** —— 将触发短语结构化，从 description 中提取关键触发词放入 triggers 列表（命中：B3）
+- **优化 description 的触发关键词覆盖** —— 将触发短语更清晰地组织在 description 中，确保覆盖意图、技术特征、环境上下文三个维度（命中：B3）
 
 **第二优先级**
 
@@ -95,11 +95,11 @@ role: example-only
 
 **当前结构的核心问题**：
 1. **单文件承载全部职责** —— 主文档同时承担路由、知识库、示例库三重职责，142 行虽未超限但内容密度不均，通用知识与关键指令混杂。证据：`SKILL.md`
-2. **触发机制不完整** —— 仅依赖 description 中的自然语言触发短语，缺少结构化 triggers 字段和三维覆盖，Agent 在技术关键词/环境上下文场景下无法激活。证据：`SKILL.md` L2-4
+2. **触发机制不完整** —— 仅依赖 description 中的自然语言触发短语，缺少三维覆盖（意图、技术特征、环境上下文），Agent 在技术关键词/环境上下文场景下可能无法激活。证据：`SKILL.md` L2-4
 
 **优化方向**（不设计目标架构，具体方案由 skill-creator 制定）：
 1. 主文档精简为路由+核心流程，示例/参考/分类表下沉到 `references/`
-2. Frontmatter 补充 `metadata.triggers`，description 重写为主动句式+三维触发+边界声明
+2. Description 重写为主动句式+三维触发+边界声明，优化触发关键词覆盖
 
 ### 8. 总评
 

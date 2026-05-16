@@ -177,7 +177,7 @@
 - **P5 可操作错误信息**：所有错误信息追加 `| 修复建议：...` 段，Agent 可直接行动
 - **P6 stdout/stderr 分离**：错误信息输出到 `sys.stderr`，数据输出到 `stdout`
 - **P7 输出截断**：新增 `--offset` / `--output` 参数，支持大量错误翻页
-- **V5 --checklist 扩展覆盖**：新增 B3（triggers 位置）、B4（Non-Goals）、P6（stdout/stderr 分离）检查项
+- **V5 --checklist 扩展覆盖**：新增 B3（触发关键词覆盖）、B4（Non-Goals）、P6（stdout/stderr 分离）检查项
 - **新增 --consistency 模式**：术语漂移检查机制，扫描全仓库 Markdown 文件，检测 v4.0 重构后的旧术语残留（P-V-E / 工作流拆分 / 优化建议 / 改写建议 / 建议的重构方向）
 
 #### 产物路径约定
@@ -235,14 +235,13 @@
 ## v3.5 (2026-05-14)
 
 ### 修复
-- **B3 检查项强化**：补充 triggers 字段位置检查（必须在 metadata 内部）
-  - 从 P1 升级为 P0 硬限
-  - 明确检查步骤：1) triggers 存在性 2) 位置是否正确
-  - 添加判定规则：triggers 在顶层直接判定 B3 不通过
+- **B3 检查项修正**：移除错误的 triggers 字段要求，改为检查 description 是否包含触发关键词
+  - 官方规范无 triggers 字段，触发信息应直接写入 description
+  - 检查步骤改为：1) description 是否描述做什么与何时使用 2) 是否包含触发关键词
 
 ### 原因
-- 批量审查时遗漏了 triggers 顶层问题（brand-guidelines、tauri-review）
-- 根因：规范说明有但检查项没有对应验证逻辑
+- 官方 `spec.md` 仅定义 6 个 frontmatter 字段，`triggers` 不是官方字段
+- 根因：早期错误理解规范，自行添加了 triggers 字段要求
 
 ---
 

@@ -46,22 +46,22 @@ contract: |
 
 | 字段 | 说明 |
 |------|------|
-| `triggers` | 触发短语列表 |
 | `tags` | 标签列表 |
 | `origin` | 技能来源 |
 | `repo` | 仓库地址 |
 | `updated` | 更新时间 |
 
+> **注意**：`triggers` 不是官方字段，触发信息应直接写入 `description` 中。
+
 ### B3 触发条件说明
 
-- 触发条件有两种实现方式：
-  1. `metadata.triggers`：推荐，放置触发短语列表
-  2. `description` 内包含触发短语
-
+- 官方规范中 `description` 是主要触发机制，无独立 `triggers` 字段
 - 评审时应检查：
-  1. `metadata.triggers` 是否存在，或 `description` 是否包含触发短语
-  2. **triggers 字段必须在 metadata 内部，严禁放在顶层**（P0 硬限）
-  3. 如果 triggers 在顶层，直接判定 B3 不通过
+  1. `description` 是否同时描述「做什么」与「何时使用」（官方要求）
+  2. `description` 是否包含帮助 Agent 识别相关任务的关键词
+  3. `description` 是否声明不处理的边界场景（最佳实践，非官方硬限）
+
+> **注意**：官方 `spec.md` 仅定义 6 个 frontmatter 字段（name, description, license, compatibility, metadata, allowed-tools）。`triggers` 不是官方字段，评审时不应将其作为合规要求。
 
 ---
 
@@ -159,7 +159,7 @@ contract: |
 | ---- | ------------------------------------------ | ------ | ---------- |
 | B1   | 是否声明运行时要求 (Python 版本、系统依赖) | P2     | W3         |
 | B2   | 非执行性材料（复盘 / 故事）是否被显式标注  | P2     | W3         |
-| B3   | 触发条件是否清晰可判定，且 triggers 字段在 metadata 内部 | P0     | W3         |
+| B3   | 触发条件是否清晰可判定，description 是否包含触发关键词 | P0     | W3         |
 | B4   | 非目标 (Non-Goals) 是否被显式列出          | P2     | W3         |
 
 ---

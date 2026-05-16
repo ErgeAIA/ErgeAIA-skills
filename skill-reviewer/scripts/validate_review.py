@@ -32,6 +32,8 @@ SECTION_CONTENT_RES = [
 ]
 NON_GOALS_RE = re.compile(r"##\s*(\d+\.)?\s*(非目标|Non-Goals)", re.I)
 TRIGGERS_TOPLEVEL_RE = re.compile(r"^triggers:\s*", re.M)
+# 注意：官方规范无 triggers 字段，此正则仅用于检测误用的顶层 triggers 字段
+# 触发信息应直接写入 description 中
 METADATA_TRIGGERS_RE = re.compile(r"metadata:.*?triggers:", re.S)
 NEXT_KEY_CANDIDATES = ["license", "compatibility", "allowed-tools", "metadata"]
 VERSION_FIELD_RE = re.compile(r'^\s*version:\s*"?([^"\n]+)"?', re.M)
@@ -50,6 +52,7 @@ REQUIRED_SECTIONS = [
 SECTION_REQS = [(name, re.compile(re.escape(name))) for name in REQUIRED_SECTIONS]
 
 # ---------- 顶层不允许的字段 ----------
+# 注意：官方规范无 triggers 字段，此处仅检测误用的顶层 triggers
 FORBIDDEN_ROOT_KEYS = {"triggers", "tags"}
 
 # ---------- 术语一致性规则 ----------
@@ -284,12 +287,13 @@ def check_checklist(repo: Path) -> list[str]:
             "在 SKILL.md 中添加 '## N. 非目标 (Non-Goals)' 段落，明确列出本 Skill 不处理的场景"
         ))
 
+    # 注意：官方规范无 triggers 字段，触发信息应直接写入 description
+    # 此处仅检测误用的顶层 triggers 字段（不应出现在 frontmatter 顶层）
     if TRIGGERS_TOPLEVEL_RE.search(skill_text):
-        if not METADATA_TRIGGERS_RE.search(skill_text):
-            errors.append(_err(
-                "[B3] triggers 字段在顶层，必须在 metadata 内部",
-                "将 triggers 字段移入 metadata 内部，如 'metadata:\\n  triggers: [...]'"
-            ))
+        errors.append(_err(
+            "[B3] frontmatter 顶层出现 triggers 字段",
+            "官方规范无 triggers 字段，触发信息应直接写入 description 中。如确需结构化存储，可放入 metadata.triggers"
+        ))
 
     if not H2_RE.search(skill_text):
         errors.append(_err(
