@@ -21,19 +21,6 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer
 ```
 
-### 使用 skill-reviewer
-
-```bash
-# 评审一个技能目录
-npx skill-reviewer /path/to/your-skill
-
-# 仅做合规校验
-npx skill-reviewer --spec /path/to/your-skill
-
-# 完整审计（合规 + 检查清单 + 术语一致性）
-npx skill-reviewer --spec --checklist --consistency /path/to/your-skill
-```
-
 ## 规范合规
 
 本仓库中的所有技能均符合以下要求：

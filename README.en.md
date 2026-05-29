@@ -21,19 +21,6 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer
 ```
 
-### Use skill-reviewer
-
-```bash
-# Review a skill directory
-npx skill-reviewer /path/to/your-skill
-
-# Check compliance only
-npx skill-reviewer --spec /path/to/your-skill
-
-# Full audit with checklist and consistency checks
-npx skill-reviewer --spec --checklist --consistency /path/to/your-skill
-```
-
 ## Specification Compliance
 
 All skills in this repository comply with:
