@@ -6,7 +6,8 @@
 
 | 技能 | 说明 | 版本 |
 |------|------|------|
-| [skill-reviewer](skill-reviewer/) | 九维 48 项结构化评审与合规校验 | v4.5 |
+| [skill-reviewer](skill-reviewer/) | 九维 48 项结构化评审与合规校验 | v4.6 |
+| [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v1.1.0 |
 
 ## 快速开始
 

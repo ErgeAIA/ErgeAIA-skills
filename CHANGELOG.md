@@ -1,0 +1,38 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.0.0] - 2026-05-29
+
+### Added
+
+- **skill-reviewer v4.6** - 九维 48 项结构化评审与合规校验
+  - 新增指导自由度分级声明（§5），明确三种模式的约束强度
+  - 新增评测驱动迭代纪律（V4.1），规范 description 修改后的回归流程
+  - 调整段落编号以保持结构一致性
+
+- **changelog-manager v1.1.0** - 基于 Keep a Changelog 规范的更新日志维护助手
+  - 支持从 git 提交记录自动生成变更
+  - 支持手动追加条目和版本发布归档
+  - 内置规范化检查功能
+
+### Changed
+
+- 将中文 README 设为默认版本，英文版更名为 README.en.md
+- 同步更新项目根目录和 skill-reviewer 的 README 文件
+- skill-reviewer 版本号更新至 v4.6
+
+### Docs
+
+- 添加 README.md（中文）和 README.en.md（英文）
+- 添加对 base44/skills 项目的致谢
+- 格式化评审检查清单表格并添加扩展字段指南
+
+### Deprecated
+
+- README.zh-CN.md 已合并至 README.md（中文版作为默认）

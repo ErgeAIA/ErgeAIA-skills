@@ -6,7 +6,8 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 | Skill | Description | Version |
 |-------|-------------|---------|
-| [skill-reviewer](skill-reviewer/) | Structured 9-dimension audit & compliance validation for Agent Skills | v4.5 |
+| [skill-reviewer](skill-reviewer/) | Structured 9-dimension audit & compliance validation for Agent Skills | v4.6 |
+| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v1.1.0 |
 
 ## Getting Started
 
