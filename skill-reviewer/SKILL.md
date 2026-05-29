@@ -1,11 +1,10 @@
 ---
 name: skill-reviewer
-description: |
-  Review and validate local Agent Skill repositories against a 9-dimension, 48-item checklist. Produces structured reports with prioritized issues (P0/P1/P2) and actionable remediation directions. Two modes: full review (8-section report) and compliance validation (PASS/FAIL). Use this skill whenever the user wants to review, audit, evaluate, validate, or diagnose a skill — including checking skill quality, compliance, engineering maturity, or getting improvement suggestions. Also triggers on Chinese phrases: skill审查, skill评审, skill校验, skill合规, skill诊断, skill质量检查, skill规范检查, 帮我看看这个skill, 这个skill有什么问题. Not for: creating new skills (use skill-creator), optimizing trigger rates (use skill-creator), general code review/debugging, writing documentation/blogs, agent framework development.
+description: "Review and validate local Agent Skill repositories against a 9-dimension, 48-item checklist. Produces structured reports with prioritized issues (P0/P1/P2) and actionable remediation directions. Two modes: full review (8-section report) and compliance validation (PASS/FAIL). Use this skill whenever the user wants to review, audit, evaluate, validate, or diagnose a skill — including checking skill quality, compliance, engineering maturity, or getting improvement suggestions. Also triggers on Chinese phrases: skill审查, skill评审, skill校验, skill合规, skill诊断, skill质量检查, skill规范检查, 帮我看看这个skill, 这个skill有什么问题. Not for: creating new skills (use skill-creator), optimizing trigger rates (use skill-creator), general code review/debugging, writing documentation/blogs, agent framework development."
 compatibility: Requires Python ≥ 3.10. PyYAML optional (for external consistency rules; script degrades gracefully without it).
 metadata:
   author: ErgeAIA
-  version: "4.5"
+  version: "4.6"
 ---
 
 # skill-reviewer
@@ -82,7 +81,21 @@ metadata:
 
 ---
 
-## 5. Plan-Validate-Handoff (P-V-H) 模式
+## 5. 指导自由度分级
+
+本 Skill 对模型的约束强度因模式而异：
+
+| 模式       | 自由度 | 约束方式                                  | 原因                                   |
+| ---------- | ------ | ----------------------------------------- | -------------------------------------- |
+| W0 澄清    | 高     | 给原则（启发式提问）                      | 依赖上下文判断用户意图，无法预设模板   |
+| V0 合规    | 低     | 给代码（`validate_review.py` 判定）       | 合规结果确定，不允许模型自由发挥       |
+| W1–W7 评审 | 中     | 给模板（`output-template.md` + 检查清单） | 有首选输出结构，但判定过程需结合上下文 |
+
+> 评审模式下，Agent 应严格遵循检查清单的判定标准（低自由度），但在优缺点的措辞和组织上有一定灵活空间（中自由度）。
+
+---
+
+## 6. Plan-Validate-Handoff (P-V-H) 模式
 
 当用户请求对现有 Skill 进行「重构」或「批量修改」等破坏性操作时：
 - **Plan**：先输出重构计划表（参考 `workflows/W4-workflow-split.md`）。
@@ -93,7 +106,7 @@ metadata:
 
 ---
 
-## 6. 渐进式披露纪律
+## 7. 渐进式披露纪律
 
 **严禁全量预加载。必须按需读取单个文件：​**
 
@@ -108,7 +121,7 @@ metadata:
 
 ---
 
-## 7. Gotchas（评审坑点）
+## 8. Gotchas（评审坑点）
 
 - **路径假设**：脚本 `validate_review.py` 必须在 Skill 根目录运行，否则 Windows 下的 `resolve().name` 可能返回空或父目录名。
 - **正则误报**：自检脚本对 `in` + `put` 极为敏感，开发脚本时须使用过滤函数（如 `_is_real_input_call()` 排除注释行和正则定义行）或十六进制转义（如 `\x69\x6e\x70\x75\x74`）规避。
@@ -122,19 +135,20 @@ metadata:
 
 ---
 
-## 8. 验证闭环（自检标准）
+## 9. 验证闭环（自检标准）
 
 - **V1 成功判定**：评审报告必须包含 `### 8. 总评` 段落。
 - **V2 完整性检查**：执行 `scripts/validate_review.py --checklist .` 必须返回 `Checklist PASS`。
 - **V3 产出检查**：合规模式输出必须严格遵循 `**Validation**: [PASS/FAIL]` 格式。
 - **V4 评估测试集**：检查被评审 Skill 是否有正面/负面触发测试集（参考 `references/templates/trigger-test-set.md`），用于 description 修改后的回归验证。本 Skill 自身测试集：`references/trigger-test-set.md`（正面 12 条 + 负面 8 条）。
+- **V4.1 评测驱动迭代纪律**：修改 description 或触发逻辑后，必须执行回归验证：① 不加 Skill 跑目标任务建立基线 ② 应用修改 ③ 跑触发测试集验证正面命中率 ≥90% 且负面误触发 ≤10% ④ 若未通过，优先简化 description 而非叠加新规则。所有新增规则均需对应新增或已有测试用例。
 - **V5 评估断言可机器判定**：检查评估断言是否可机器判定（非主观评分），确保验证结果可客观复现。`validate_review.py --checklist` 已机器化的检查项：S2（结构化标记）、B3（触发关键词覆盖）、B4（Non-Goals）、C4（参考文件 trigger-when）、I2（可运行脚本）、M1（Gotchas）、M6（方法论）、M8（P-V-H）、P3–P7（脚本设计）、T3（三维触发）、V1–V5（验证闭环）、版本一致性。
 - **V6 证据链检查**：评审报告中 W5 的每条建议必须包含 checklist 编号标注（如 `命中：S1、P3`），否则视为断链。
 - **V7 术语一致性检查**：执行 `scripts/validate_review.py --consistency .` 扫描全仓库 Markdown 文件，检测旧术语残留（如 P-V-E、工作流拆分、优化建议等 v4.0 前的命名）。
 
 ---
 
-## 9. 运行时要求
+## 10. 运行时要求
 
 - Python ≥ 3.10
 - PyYAML（可选）：`--consistency` 模式加载外部规则时需要；缺失时脚本自动降级为仅使用内置规则
@@ -142,7 +156,7 @@ metadata:
 
 ---
 
-## 10. 非目标 (Non-Goals)
+## 11. 非目标 (Non-Goals)
 
 为避免触发竞争与上下文浪费，本 Skill **不处理**以下场景：
 
