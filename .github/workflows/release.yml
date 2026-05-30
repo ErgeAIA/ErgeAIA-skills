@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Get version from CHANGELOG.md
         id: version
@@ -21,8 +23,8 @@ jobs:
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "tag=v$version" >> $GITHUB_OUTPUT
 
-      - name: Check if tag exists
-        id: tag_exists
+      - name: Check if tag already exists
+        id: check_tag
         run: |
           if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
@@ -31,19 +33,17 @@ jobs:
           fi
 
       - name: Build changelog-manager
-        if: steps.tag_exists.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         run: |
-          # 打包时保留目录结构（zip 根目录是 changelog-manager/）
           zip -r changelog-manager.zip changelog-manager -x "*.DS_Store"
 
       - name: Build skill-reviewer
-        if: steps.tag_exists.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         run: |
-          # 打包时保留目录结构（zip 根目录是 skill-reviewer/）
           zip -r skill-reviewer.zip skill-reviewer -x "*.DS_Store"
 
       - name: Create Release
-        if: steps.tag_exists.outputs.exists == 'false'
+        if: steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.tag }}
