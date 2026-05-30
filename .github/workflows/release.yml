@@ -34,33 +34,26 @@ jobs:
           echo "Current version: $current_tag"
           echo "Last tag: $last_tag"
           if [ "$current_tag" = "$last_tag" ]; then
-            echo "::error::Version not bumped! CHANGELOG.md shows $current_tag but last release is $last_tag. Please bump version in CHANGELOG.md"
-            exit 1
+            echo "::warning::Version not bumped. Skipping release."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
           fi
-          echo "version_bumped=true" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Build changelog-manager
+        if: steps.check_version_bump.outputs.skip != 'true'
         run: |
-          version=${{ steps.version.outputs.version }}
-          cd changelog-manager
-          zip -j ../changelog-manager.zip ./* -x "*.DS_Store"
+          # 打包时保留目录结构（zip 根目录是 changelog-manager/）
+          zip -r changelog-manager.zip changelog-manager -x "*.DS_Store"
 
       - name: Build skill-reviewer
+        if: steps.check_version_bump.outputs.skip != 'true'
         run: |
-          version=${{ steps.version.outputs.version }}
-          cd skill-reviewer
-          zip -j ../skill-reviewer.zip ./* -x "*.DS_Store"
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: skill-artifacts
-          path: |
-            changelog-manager.zip
-            skill-reviewer.zip
+          # 打包时保留目录结构（zip 根目录是 skill-reviewer/）
+          zip -r skill-reviewer.zip skill-reviewer -x "*.DS_Store"
 
       - name: Create Release
-        if: github.event_name == 'push'
+        if: steps.check_version_bump.outputs.skip != 'true'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.tag }}

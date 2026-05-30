@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 _Last updated: 2026-05-30_
 
+## [1.1.1] - 2026-05-30
+
+### Changed
+
+- **GitHub Actions workflow fixes**
+  - Fix packaging: use `zip -r` to preserve directory structure (skill directory as zip root)
+  - Fix version check logic: skip instead of error when version not bumped
+  - Fix step id reference issue
+  - Remove artifact upload step (attached directly in release)
+
 ## [1.1.0] - 2026-05-30
 
 ### changelog-manager v2.0.0

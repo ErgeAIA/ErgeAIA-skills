@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/
 ## [Unreleased]
 _最后更新：2026-05-30_
 
+## [1.1.1] - 2026-05-30
+
+### Changed
+
+- **GitHub Actions workflow 修复**
+  - 修复打包方式：使用 `zip -r` 保留目录结构（技能目录作为 zip 根）
+  - 修复版本检查逻辑：版本未递增时跳过而非报错
+  - 修复步骤 id 引用问题
+  - 移除 artifact 上传步骤（直接在 release 中附带）
+
 ## [1.1.0] - 2026-05-30
 
 ### changelog-manager v2.0.0
