@@ -21,39 +21,29 @@ jobs:
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "tag=v$version" >> $GITHUB_OUTPUT
 
-      - name: Get last tag
-        id: last_tag
+      - name: Check if tag exists
+        id: tag_exists
         run: |
-          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          echo "last_tag=$last_tag" >> $GITHUB_OUTPUT
-
-      - name: Check version bump
-        run: |
-          current_tag="${{ steps.version.outputs.tag }}"
-          last_tag="${{ steps.last_tag.outputs.last_tag }}"
-          echo "Current version: $current_tag"
-          echo "Last tag: $last_tag"
-          if [ "$current_tag" = "$last_tag" ]; then
-            echo "::warning::Version not bumped. Skipping release."
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
+          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
-          echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Build changelog-manager
-        if: steps.check_version_bump.outputs.skip != 'true'
+        if: steps.tag_exists.outputs.exists == 'false'
         run: |
           # 打包时保留目录结构（zip 根目录是 changelog-manager/）
           zip -r changelog-manager.zip changelog-manager -x "*.DS_Store"
 
       - name: Build skill-reviewer
-        if: steps.check_version_bump.outputs.skip != 'true'
+        if: steps.tag_exists.outputs.exists == 'false'
         run: |
           # 打包时保留目录结构（zip 根目录是 skill-reviewer/）
           zip -r skill-reviewer.zip skill-reviewer -x "*.DS_Store"
 
       - name: Create Release
-        if: steps.check_version_bump.outputs.skip != 'true'
+        if: steps.tag_exists.outputs.exists == 'false'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.version.outputs.tag }}
