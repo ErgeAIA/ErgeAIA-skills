@@ -7,7 +7,7 @@
 | 技能 | 说明 | 版本 |
 |------|------|------|
 | [skill-reviewer](skill-reviewer/) | 九维 48 项结构化评审与合规校验 | v4.6 |
-| [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v1.1.0 |
+| [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.0.0 |
 
 ## 快速开始
 
@@ -17,8 +17,12 @@
 # 安装本仓库中的所有技能
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 
-# 或安装指定技能
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer
+# 安装指定技能（使用 --skill 参数）
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-reviewer
+
+# 列出仓库中可安装的技能
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 ```
 
 ## 规范合规

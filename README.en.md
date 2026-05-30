@@ -7,7 +7,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 | Skill | Description | Version |
 |-------|-------------|---------|
 | [skill-reviewer](skill-reviewer/) | Structured 9-dimension audit & compliance validation for Agent Skills | v4.6 |
-| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v1.1.0 |
+| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.0.0 |
 
 ## Getting Started
 
@@ -17,8 +17,12 @@ A curated collection of production-grade Agent Skills following the official [Ag
 # Install all skills from this repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 
-# Or install a specific skill
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer
+# Install specific skill (using --skill flag)
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-reviewer
+
+# List available skills in the repository
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 ```
 
 ## Specification Compliance

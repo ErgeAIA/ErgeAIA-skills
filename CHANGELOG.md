@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
+_最后更新：2026-05-30_
+
+## [1.1.0] - 2026-05-30
+
+### changelog-manager v2.0.0
+
+- **双语言支持升级**
+  - 内置双语言支持，同时维护中文 CHANGELOG.md 和英文 CHANGELOG.en.md
+  - 新增 `+lang` 快捷命令切换主语言模式（`+lang zh` / `+lang en`）
+  - 新增 bilingual-guide.md 参考文档（60+ 术语对照表）
+  - 新增 V4 双语文档一致性验证
+  - 全部工作流（W0-W5）更新为同时操作两个文件
+  - README.md 和 output-template.md 同步更新
 
 ## [1.0.0] - 2026-05-29
 

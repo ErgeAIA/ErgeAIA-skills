@@ -1,0 +1,79 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'changelog-manager/**'
+      - 'skill-reviewer/**'
+      - 'CHANGELOG.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version from CHANGELOG.md
+        id: version
+        run: |
+          version=$(grep -m1 -oE '## \[[0-9]+\.[0-9]+\.[0-9]+\]' CHANGELOG.md | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "tag=v$version" >> $GITHUB_OUTPUT
+
+      - name: Get last tag
+        id: last_tag
+        run: |
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "last_tag=$last_tag" >> $GITHUB_OUTPUT
+
+      - name: Check version bump
+        run: |
+          current_tag="${{ steps.version.outputs.tag }}"
+          last_tag="${{ steps.last_tag.outputs.last_tag }}"
+          echo "Current version: $current_tag"
+          echo "Last tag: $last_tag"
+          if [ "$current_tag" = "$last_tag" ]; then
+            echo "::error::Version not bumped! CHANGELOG.md shows $current_tag but last release is $last_tag. Please bump version in CHANGELOG.md"
+            exit 1
+          fi
+          echo "version_bumped=true" >> $GITHUB_OUTPUT
+
+      - name: Build changelog-manager
+        run: |
+          version=${{ steps.version.outputs.version }}
+          cd changelog-manager
+          zip -j ../changelog-manager.zip ./* -x "*.DS_Store"
+
+      - name: Build skill-reviewer
+        run: |
+          version=${{ steps.version.outputs.version }}
+          cd skill-reviewer
+          zip -j ../skill-reviewer.zip ./* -x "*.DS_Store"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-artifacts
+          path: |
+            changelog-manager.zip
+            skill-reviewer.zip
+
+      - name: Create Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          body: |
+            ## Download Skills
+
+            | Skill | Version | Download |
+            |-------|---------|----------|
+            | changelog-manager | ${{ steps.version.outputs.version }} | [changelog-manager.zip](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/changelog-manager.zip) |
+            | skill-reviewer | ${{ steps.version.outputs.version }} | [skill-reviewer.zip](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/skill-reviewer.zip) |
+          files: |
+            changelog-manager.zip
+            skill-reviewer.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
