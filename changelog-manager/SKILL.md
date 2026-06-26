@@ -193,6 +193,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 执行步骤：
 - [ ] 如已有中文文件，询问用户：覆盖 / 合并 / 取消
+  🔴 CHECKPOINT · 🛑 STOP：用户未确认前不要创建任何文件
 - [ ] 生成标准模板（含项目名称）
 - [ ] 创建 CHANGELOG.md（中文模板）
 - [ ] 创建 CHANGELOG.en.md（英文模板）
@@ -209,6 +210,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [ ] 分析用户输入的变更描述
 - [ ] 自动判断变更分类（参考 `references/classification-guide.md`）
 - [ ] 如无法确定分类，询问用户选择
+  🔴 CHECKPOINT · 🛑 STOP：分类不确定时不要猜测，必须询问用户
 - [ ] 将条目插入中文版的 `[Unreleased]` 对应分类下
 - [ ] 自动翻译为英文，插入英文版的 `[Unreleased]` 对应分类下
 - [ ] 写回两个文件
@@ -225,6 +227,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [ ] 如为空，提示并询问是否继续
 - [ ] 确定版本号（用户提供或根据变更类型建议）
 - [ ] 确定发布日期（ISO 8601 格式）
+  🔴 CHECKPOINT · 🛑 STOP：展示变更摘要，等用户确认版本号后再归档
 - [ ] 将中文版的 `[Unreleased]` 内容归档到新版本区块
 - [ ] 将英文版的 `[Unreleased]` 内容归档到新版本区块
 - [ ] 创建新的空 `[Unreleased]` 区块（两个文件）
