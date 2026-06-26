@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-_Last updated: 2026-05-30_
+_Last updated: 2026-06-26_
+
+### Changed
+
+- **changelog-manager safety enhancements**
+  - Added anti-pattern blacklist section with 10 anti-patterns and danger actions subsection
+  - Added CHECKPOINT/STOP visual markers at key decision points in W0/W1/W2 workflows
+  - Added failure handling fallback tables to W0/W1/W2 workflows
 
 ## [1.1.1] - 2026-05-30
 

@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-05-30_
+_最后更新：2026-06-26_
+
+### Changed
+
+- **changelog-manager 安全性增强**
+  - 新增操作反例黑名单章节，包含 10 条反模式和危险动作子章节
+  - 在 W0/W1/W2 工作流关键决策处添加 CHECKPOINT/STOP 视觉标记
+  - 在 W0/W1/W2 工作流中添加失败处理 fallback 表
 
 ## [1.1.1] - 2026-05-30
 
