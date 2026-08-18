@@ -48,6 +48,14 @@ cd skill-reviewer
 uv run python -m unittest tests.test_validate_review -v
 ```
 
+## 作者信息
+
+**宝藏二哥AIA / ErgeAIA** — 独立开发者，理念：三无分享（无门槛、无套路、无保留）。
+
+- 视频：[B 站](https://space.bilibili.com/67221461) · [知乎](https://www.zhihu.com/people/meli55a/posts)
+- 代码：[GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
+- 邮箱：ergeaia@agent.qq.com
+
 ## 许可证
 
 MIT License — 详见 [LICENSE](LICENSE)。
@@ -69,10 +77,4 @@ MIT License — 详见 [LICENSE](LICENSE)。
 - [Agent Skills 规范](https://agentskills.io/)
 - [ErgeAIA 组织](https://github.com/ErgeAIA)
 
-## 作者信息
 
-**宝藏二哥AIA / ErgeAIA** — 独立开发者，理念：三无分享（无门槛、无套路、无保留）。
-
-- 视频：[B 站](https://space.bilibili.com/67221461) · [知乎](https://www.zhihu.com/people/meli55a/posts)
-- 代码：[GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
-- 邮箱：ergeaia@agent.qq.com
