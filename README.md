@@ -50,31 +50,40 @@ uv run python -m unittest tests.test_validate_review -v
 
 ## 作者信息
 
-**宝藏二哥AIA / ErgeAIA** — 独立开发者，理念：三无分享（无门槛、无套路、无保留）。
+<table>
+<tr>
+<td align="center" width="200">
+<img src="https://github.com/ErgeAIA.png" width="100" style="border-radius: 50%"><br>
+<b>宝藏二哥AIA / ErgeAIA</b><br>
+<sub>生命不息，折腾不止</sub>
+</td>
+<td>
 
-- 视频：[B 站](https://space.bilibili.com/67221461) · [知乎](https://www.zhihu.com/people/meli55a/posts)
-- 代码：[GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
-- 邮箱：ergeaia@agent.qq.com
+**关于我**：独立开发者 / 全栈工程师 / ComfyUI 爱好者 / Vibe Coding 实践者
+
+**技术栈**：Tauri · Rust · React · Python · Claude · ZCode · Workbuddy
+
+**理念**：三无分享 — 无门槛、无套路、无保留
+
+**链接**：
+- 📺 [B 站](https://space.bilibili.com/67221461) · [知乎](https://www.zhihu.com/people/meli55a/posts) · 微信公众号(ErgeAIA)
+- 🐙 [GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)
+- 📦 精选项目：[ErgeMD](https://github.com/ErgeAIA/ErgeMD) · [ErgeHash](https://github.com/ErgeAIA/ErgeHash) · [catapult-cn](https://github.com/ErgeAIA/catapult-cn)
+
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+如果 ErgeAIA-skills 帮到了你，欢迎点个 Star 鼓励一下！
+
+</div>
 
 ## 许可证
 
 MIT License — 详见 [LICENSE](LICENSE)。
-
-## 贡献
-
-欢迎贡献！请：
-1. Fork 本仓库
-2. 创建功能分支
-3. 确保测试通过
-4. 提交 Pull Request
-
-## 致谢
-
-本项目参考了 [base44/skills](https://github.com/base44/skills) 项目的资源。具体来说，文件 `skill-reviewer/references/specs/spec-zh.md` 改编自 [spec.md](https://github.com/base44/skills/blob/ec420cf2edd2c7e9a523d5afe2e71498a6357fa4/.claude/skills/review-skills/references/spec.md)。我们衷心感谢原作者的开源贡献。
-
-## 相关链接
-
-- [Agent Skills 规范](https://agentskills.io/)
-- [ErgeAIA 组织](https://github.com/ErgeAIA)
 
 
