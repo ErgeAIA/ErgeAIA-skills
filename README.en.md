@@ -6,8 +6,9 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 | Skill | Description | Version |
 |-------|-------------|---------|
-| [skill-reviewer](skill-reviewer/) | Structured 9-dimension audit & compliance validation for Agent Skills | v4.6 |
+| [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills | v1.17.0 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.0.0 |
+| ~~[skill-reviewer](skill-reviewer/)~~ (deprecated) | Structured 9-dimension audit & compliance validation · superseded by skill-workshop | v4.6.0 |
 
 ## Getting Started
 
@@ -23,29 +24,6 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 
 # List available skills in the repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
-```
-
-## Specification Compliance
-
-All skills in this repository comply with:
-
-- ✅ `name` and `description` frontmatter fields
-- ✅ Progressive disclosure (SKILL.md < 500 lines)
-- ✅ No interactive prompts in scripts
-- ✅ `--help` support for CLI tools
-- ✅ Structured exit codes (0=PASS, 1=FAIL, 2=ERROR)
-- ✅ Unit tests coverage
-
-## Development
-
-```bash
-# Clone the repository
-git clone https://github.com/ErgeAIA/ErgeAIA-skills.git
-cd ErgeAIA-skills
-
-# Run tests for skill-reviewer
-cd skill-reviewer
-uv run python -m unittest tests.test_validate_review -v
 ```
 
 ## License
