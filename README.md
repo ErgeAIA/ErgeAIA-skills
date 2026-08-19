@@ -27,29 +27,6 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 ```
 
-## 规范合规
-
-本仓库中当前维护的技能（skill-workshop / changelog-manager）均符合以下要求；已废弃的 skill-reviewer（历史归档，不再发布）不在此列：
-
-- ✅ frontmatter 包含 `name` 和 `description` 字段
-- ✅ 渐进式披露（SKILL.md < 500 行）
-- ✅ 脚本无交互式提示
-- ✅ CLI 工具支持 `--help`
-- ✅ 结构化退出码（0=PASS, 1=FAIL, 2=ERROR）
-- ✅ 单元测试覆盖
-
-## 开发
-
-```bash
-# 克隆仓库
-git clone https://github.com/ErgeAIA/ErgeAIA-skills.git
-cd ErgeAIA-skills
-
-# 运行 skill-reviewer 测试
-cd skill-reviewer
-uv run python -m unittest tests.test_validate_review -v
-```
-
 ## 作者信息
 
 <table>
