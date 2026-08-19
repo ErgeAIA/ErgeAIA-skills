@@ -6,8 +6,9 @@
 
 | 技能 | 说明 | 版本 |
 |------|------|------|
-| [skill-reviewer](skill-reviewer/) | 九维 48 项结构化评审与合规校验 | v4.6 |
+| [skill-workshop](skill-workshop/) | Skill 全生命周期工作站：创建、评审、重构、评测 Agent Skill | v1.17.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.0.0 |
+| ~~[skill-reviewer](skill-reviewer/)~~（已废弃） | 九维 48 项结构化评审与合规校验 · 已被 skill-workshop 替代 | v4.6.0 |
 
 ## 快速开始
 
@@ -20,6 +21,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 # 安装指定技能（使用 --skill 参数）
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-reviewer
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 
 # 列出仓库中可安装的技能
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
@@ -27,7 +29,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 
 ## 规范合规
 
-本仓库中的所有技能均符合以下要求：
+本仓库中当前维护的技能（skill-workshop / changelog-manager）均符合以下要求；已废弃的 skill-reviewer（历史归档，不再发布）不在此列：
 
 - ✅ frontmatter 包含 `name` 和 `description` 字段
 - ✅ 渐进式披露（SKILL.md < 500 行）

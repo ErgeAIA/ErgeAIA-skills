@@ -6,14 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-06-26_
+_最后更新：2026-08-19_
+
+### Added
+
+- **skill-workshop 技能加入仓库**：Skill 全生命周期工作站（创建/评审/重构/评测 Agent Skill），v1.17.0，含 16 个 CLI 子命令与 9 维 48 项评审体系
 
 ### Changed
 
+- **skill-reviewer 版本号三段式规范化**：`4.6` → `4.6.0`
 - **changelog-manager 安全性增强**
   - 新增操作反例黑名单章节，包含 10 条反模式和危险动作子章节
   - 在 W0/W1/W2 工作流关键决策处添加 CHECKPOINT/STOP 视觉标记
   - 在 W0/W1/W2 工作流中添加失败处理 fallback 表
+
+### Deprecated
+
+- **skill-reviewer 标记为已废弃**：已被 skill-workshop 完全替代（skill-workshop 评审链已合并其全部能力：九维 48 项评审、W0-W7+V0 工作流、合规校验），不再推荐触发使用，目录保留作历史归档；根 README 技能列表与 skill-reviewer 的 SKILL.md / README 均已同步标注
+- **skill-reviewer 从发布流程中移除**：`.github/workflows/release.yml` 不再打包 / 发布 skill-reviewer（从触发路径、打包步骤、Release 说明表与附件列表中删除），仅保留 changelog-manager 走发布流程
 
 ## [1.1.1] - 2026-05-30
 

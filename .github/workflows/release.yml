@@ -54,9 +54,7 @@ jobs:
             | Skill | Version | Download |
             |-------|---------|----------|
             | changelog-manager | ${{ steps.version.outputs.version }} | [changelog-manager.zip](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/changelog-manager.zip) |
-            | skill-reviewer | ${{ steps.version.outputs.version }} | [skill-reviewer.zip](${{ github.server_url }}/${{ github.repository }}/releases/download/${{ steps.version.outputs.tag }}/skill-reviewer.zip) |
           files: |
             changelog-manager.zip
-            skill-reviewer.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

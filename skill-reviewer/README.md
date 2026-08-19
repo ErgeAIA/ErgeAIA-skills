@@ -1,5 +1,9 @@
 # skill-reviewer
 
+> ## DEPRECATED（已废弃）
+>
+> 本技能已被 **[skill-workshop](../skill-workshop/README.md)** 完全替代，不再推荐触发使用。skill-workshop 的评审链已合并本技能全部能力（九维 48 项评审、W0-W7+V0 工作流、合规校验），并在此基础上叠加创建 / 重构 / 评测能力。需要评审或校验 Agent Skill 时，请转用 skill-workshop。本目录仅作历史归档保留。
+
 对本地 Agent Skill 仓库进行结构化评审与合规校验。本 Skill 自身遵循 [Agent Skills 官方规范](https://agentskills.io/)。
 
 ## 为什么需要这个 Skill？

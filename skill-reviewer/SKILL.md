@@ -4,10 +4,14 @@ description: "Review and validate local Agent Skill repositories against a 9-dim
 compatibility: Requires Python ≥ 3.10. PyYAML optional (for external consistency rules; script degrades gracefully without it).
 metadata:
   author: ErgeAIA
-  version: "4.6"
+  version: "4.6.0"
 ---
 
 # skill-reviewer
+
+> ## DEPRECATED（已废弃）
+>
+> 本技能已被 **[skill-workshop](../skill-workshop/README.md)** 完全替代，不再推荐触发使用。skill-workshop 的评审链已合并本技能全部能力（九维 48 项评审、W0-W7+V0 工作流、合规校验），并在此基础上叠加创建 / 重构 / 评测能力。需要评审或校验 Agent Skill 时，请转用 skill-workshop。本目录仅作历史归档保留。
 
 > 用途：评审与校验本地 Agent Skill 仓库（基于目录结构和文件内容）。
 > 裁判原则：格式合规是底线，意图识别是核心，执行轨迹是真理。
