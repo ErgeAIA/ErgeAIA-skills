@@ -1,0 +1,50 @@
+# 术语一致性检测规则
+# 此文件定义 validate_review.py --consistency 模式使用的检测规则
+# 修改此文件后无需修改 Python 代码，脚本启动时自动加载
+# 规则格式：id / pattern / expected / desc / fix
+
+rules:
+  - id: PVE-PVH
+    pattern: "Plan-Validate-Execute"
+    expected: "Plan-Validate-Handoff"
+    desc: "v4.0 已将 P-V-E 改为 P-V-H，发现旧术语"
+    fix: "将 'Plan-Validate-Execute' 替换为 'Plan-Validate-Handoff'（或同时保留两者作为兼容说明）"
+
+  - id: W4-OLD
+    pattern: "工作流拆分|工作流重构建议"
+    expected: "拆分需求识别"
+    desc: "W4 已从'设计拆分方案'改为'识别拆分需求'，发现旧段落名"
+    fix: "将段落名替换为'拆分需求识别'"
+
+  - id: W5-OLD
+    pattern: "优化建议|增量建议"
+    expected: "整改方向"
+    desc: "W5 已从'具体动作模板'改为'整改方向映射'，发现旧段落名"
+    fix: "将段落名替换为'整改方向'"
+
+  - id: W7-OLD
+    pattern: "改写建议"
+    expected: "优化方向"
+    desc: "W7 已将'改写建议'改为'优化方向'，发现旧术语"
+    fix: "将'改写建议'替换为'优化方向'"
+
+  - id: SECTION7-OLD
+    pattern: "建议的重构方向"
+    expected: "结构性问题总结"
+    desc: "报告第 7 段已改为'结构性问题总结'，发现旧段落名"
+    fix: "将'建议的重构方向'替换为'结构性问题总结'"
+
+  - id: PVE-ABBREV
+    pattern: "P-V-E(?!-H)"
+    expected: "P-V-H"
+    desc: "v4.0 已将 P-V-E 缩写改为 P-V-H，发现旧缩写"
+    fix: "将 'P-V-E' 替换为 'P-V-H'"
+
+  - id: PVE-ARROW
+    pattern: "Plan\\s*→\\s*Validate\\s*→\\s*Execute"
+    expected: "Plan → Validate → Handoff"
+    desc: "v4.0 已将箭头形式 P→V→E 改为 P→V→H，发现旧术语"
+    fix: "将 'Plan → Validate → Execute' 替换为 'Plan → Validate → Handoff'"
+
+ignore_files:
+  - VERSION.md

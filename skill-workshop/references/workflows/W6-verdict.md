@@ -1,0 +1,28 @@
+---
+name: W6-verdict
+description: 评审模式 W6 总评（产品方向/工程化程度 + 收尾句）；W2 + W3 完成后无条件触发，输出 PASS/FAIL 终态。
+version: 1.2.0
+<!-- @类型: 工作流 -->
+<!-- @优先级: 必须 -->
+role: Workflow (Summarizer)
+reads-from:
+  - references/rubrics/review-checklist.md
+writes-to: 报告第 1 段 + 第 8 段
+trigger-when: 评审模式 W6 总评阶段（W2 + W3 完成后无条件触发）
+---
+
+# W6 总评
+
+> **版本**: v1.2.0
+> **改动**: v1.2.0 - 增 frontmatter name/description/version 三个必填字段（v1.4 PUA 自审整改）
+
+## 输出结构
+
+**产品方向**：评估问题定义是否收敛、产出形式是否稳定、是否有持续使用场景。
+
+**工程化程度**：判断当前处于「想法 / 执行说明 / 半产品化 / 稳定可复用」哪个阶段，最强项与最大短板各一句。
+
+## 收尾句（固定句式）
+> 若目标是 <场景 A>，当前已足够；若目标是 <场景 B>，则现在是推进到正式 Skill 的时机点。
+
+场景 A 通常是「自己看懂 + 偶尔运行」；场景 B 通常是「长期维护 + 稳定复用 + 他人可执行」。

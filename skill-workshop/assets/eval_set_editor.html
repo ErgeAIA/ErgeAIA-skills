@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Set Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Lora', Georgia, serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #faf9f5;
+      color: #141413;
+    }
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      color: #141413;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      height: calc(100vh - 100px);
+    }
+    .sidebar {
+      width: 300px;
+      background: white;
+      border: 1px solid #e8e6dc;
+      border-radius: 6px;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    .main {
+      flex: 1;
+      background: white;
+      border: 1px solid #e8e6dc;
+      border-radius: 6px;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    .eval-item {
+      padding: 10px;
+      border: 1px solid #e8e6dc;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .eval-item:hover {
+      background: #faf9f5;
+    }
+    .eval-item.selected {
+      border-color: #d97757;
+      background: #fdf2ef;
+    }
+    .query-list {
+      margin-top: 10px;
+      padding-left: 15px;
+    }
+    .query-item {
+      font-size: 12px;
+      color: #b0aea5;
+      margin-bottom: 5px;
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 10px;
+      border: 1px solid #e8e6dc;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #d97757;
+      box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    button {
+      padding: 8px 16px;
+      border: 1px solid #e8e6dc;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      font-size: 12px;
+    }
+    button:hover {
+      background: #faf9f5;
+    }
+    button.primary {
+      background: #d97757;
+      color: white;
+      border-color: #d97757;
+    }
+    button.primary:hover {
+      background: #c4613f;
+    }
+    .status {
+      font-size: 12px;
+      color: #b0aea5;
+      margin-top: 10px;
+    }
+    .edit-section {
+      margin-top: 20px;
+      border-top: 1px solid #e8e6dc;
+      padding-top: 20px;
+    }
+    .edit-section h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    .json-editor {
+      height: 300px;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Eval Set Editor</h1>
+  <p style="color: #b0aea5;">Edit eval JSON sets locally. Changes can be exported as JSON for use in your evaluation and optimization loop.</p>
+  
+  <div class="container">
+    <div class="sidebar">
+      <h3 style="font-family: 'Poppins', sans-serif; font-size: 14px; margin-bottom: 15px;">Eval Sets</h3>
+      <div id="eval-list"></div>
+      <button onclick="addNewEval()" style="width: 100%; margin-top: 10px;">+ Add Eval</button>
+    </div>
+    
+    <div class="main">
+      <div id="eval-details">
+        <div style="text-align: center; color: #b0aea5; margin-top: 100px;">
+          Select an eval set to review and edit
+        </div>
+      </div>
+      
+      <div class="edit-section">
+        <h3>Edit JSON</h3>
+        <textarea id="json-editor" class="json-editor" placeholder="Eval JSON will appear here..."></textarea>
+        <div class="buttons">
+          <button onclick="applyJsonChanges()" class="primary">Apply Changes</button>
+          <button onclick="exportEvals()" class="primary">Export Evals JSON</button>
+          <button onclick="loadFromFile()">Load from File</button>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="file-input" style="display: none;" accept=".json" onchange="handleFileLoad(event)">
+
+  <script>
+    const PRELOADED_EVALS = /*__PRELOADED_EVALS__*/ null;
+    let evals = [];
+    let selectedIndex = -1;
+
+    function defaultEvals() {
+      return [
+        {
+          id: 1,
+          name: "Example Eval Set",
+          queries: [
+            { query: "Create a todo app", should_trigger: true },
+            { query: "What's the weather?", should_trigger: false }
+          ]
+        }
+      ];
+    }
+
+    function init() {
+      evals = Array.isArray(PRELOADED_EVALS) && PRELOADED_EVALS.length > 0
+        ? PRELOADED_EVALS
+        : defaultEvals();
+      renderEvalList();
+      updateJsonEditor();
+    }
+
+    function renderEvalList() {
+      const list = document.getElementById('eval-list');
+      list.innerHTML = '';
+      
+      evals.forEach((evalSet, index) => {
+        const item = document.createElement('div');
+        item.className = 'eval-item' + (index === selectedIndex ? ' selected' : '');
+        item.onclick = () => selectEval(index);
+        
+        item.innerHTML = `
+          <strong>${evalSet.name}</strong><br>
+          <span style="font-size: 11px; color: #b0aea5;">${evalSet.queries.length} queries</span>
+          <div class="query-list">
+            ${evalSet.queries.slice(0, 3).map(q => 
+              `<div class="query-item">${q.should_trigger ? '✓' : '✗'} ${q.query}</div>`
+            ).join('')}
+            ${evalSet.queries.length > 3 ? `<div class="query-item">... and ${evalSet.queries.length - 3} more</div>` : ''}
+          </div>
+        `;
+        
+        list.appendChild(item);
+      });
+    }
+
+    function selectEval(index) {
+      selectedIndex = index;
+      renderEvalList();
+      renderEvalDetails();
+      updateJsonEditor();
+    }
+
+    function renderEvalDetails() {
+      const details = document.getElementById('eval-details');
+      
+      if (selectedIndex === -1) {
+        details.innerHTML = '<div style="text-align: center; color: #b0aea5; margin-top: 100px;">Select an eval set to review and edit</div>';
+        return;
+      }
+      
+      const evalSet = evals[selectedIndex];
+      details.innerHTML = `
+        <h2 style="font-family: 'Poppins', sans-serif; margin-bottom: 10px;">${evalSet.name}</h2>
+        <p style="color: #b0aea5; margin-bottom: 15px;">${evalSet.queries.length} queries in this set</p>
+        
+        <div style="margin-bottom: 15px;">
+          <label style="font-size: 12px; color: #b0aea5;">Name:</label>
+          <input type="text" value="${evalSet.name}" onchange="updateEvalName(this.value)" 
+                 style="width: 100%; padding: 8px; border: 1px solid #e8e6dc; border-radius: 4px; margin-top: 5px;">
+        </div>
+        
+        <div>
+          <label style="font-size: 12px; color: #b0aea5;">Queries:</label>
+          <div style="margin-top: 10px;">
+            ${evalSet.queries.map((q, qi) => `
+              <div style="display: flex; gap: 10px; margin-bottom: 8px; align-items: center;">
+                <input type="checkbox" ${q.should_trigger ? 'checked' : ''} 
+                       onchange="updateQueryTrigger(${qi}, this.checked)">
+                <input type="text" value="${q.query}" onchange="updateQueryText(${qi}, this.value)"
+                       style="flex: 1; padding: 6px; border: 1px solid #e8e6dc; border-radius: 4px; font-size: 12px;">
+                <button onclick="removeQuery(${qi})" style="padding: 4px 8px; font-size: 11px;">Remove</button>
+              </div>
+            `).join('')}
+            <button onclick="addQuery()" style="margin-top: 10px;">+ Add Query</button>
+          </div>
+        </div>
+        
+        <div class="buttons" style="margin-top: 20px;">
+          <button onclick="deleteEval()" style="color: #c44;">Delete Eval Set</button>
+        </div>
+      `;
+    }
+
+    function updateEvalName(name) {
+      if (selectedIndex !== -1) {
+        evals[selectedIndex].name = name;
+        renderEvalList();
+        updateJsonEditor();
+      }
+    }
+
+    function updateQueryText(queryIndex, text) {
+      if (selectedIndex !== -1) {
+        evals[selectedIndex].queries[queryIndex].query = text;
+        renderEvalList();
+        updateJsonEditor();
+      }
+    }
+
+    function updateQueryTrigger(queryIndex, shouldTrigger) {
+      if (selectedIndex !== -1) {
+        evals[selectedIndex].queries[queryIndex].should_trigger = shouldTrigger;
+        renderEvalList();
+        updateJsonEditor();
+      }
+    }
+
+    function addQuery() {
+      if (selectedIndex !== -1) {
+        evals[selectedIndex].queries.push({ query: "", should_trigger: true });
+        renderEvalDetails();
+        renderEvalList();
+        updateJsonEditor();
+      }
+    }
+
+    function removeQuery(queryIndex) {
+      if (selectedIndex !== -1) {
+        evals[selectedIndex].queries.splice(queryIndex, 1);
+        renderEvalDetails();
+        renderEvalList();
+        updateJsonEditor();
+      }
+    }
+
+    function addNewEval() {
+      const newEval = {
+        id: evals.length + 1,
+        name: `Eval Set ${evals.length + 1}`,
+        queries: [{ query: "", should_trigger: true }]
+      };
+      evals.push(newEval);
+      selectEval(evals.length - 1);
+    }
+
+    function deleteEval() {
+      if (selectedIndex !== -1) {
+        evals.splice(selectedIndex, 1);
+        selectedIndex = -1;
+        renderEvalList();
+        renderEvalDetails();
+        updateJsonEditor();
+      }
+    }
+
+    function updateJsonEditor() {
+      const editor = document.getElementById('json-editor');
+      editor.value = JSON.stringify(evals, null, 2);
+    }
+
+    function applyJsonChanges() {
+      const editor = document.getElementById('json-editor');
+      try {
+        const newEvals = JSON.parse(editor.value);
+        if (!Array.isArray(newEvals)) {
+          throw new Error('JSON must be an array of eval sets');
+        }
+        evals = newEvals;
+        selectedIndex = -1;
+        renderEvalList();
+        renderEvalDetails();
+        setStatus('Changes applied successfully', false);
+      } catch (e) {
+        setStatus('Error parsing JSON: ' + e.message, true);
+      }
+    }
+
+    function exportEvals() {
+      const dataStr = JSON.stringify(evals, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'evals.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus('Evals exported as evals.json', false);
+    }
+
+    function loadFromFile() {
+      document.getElementById('file-input').click();
+    }
+
+    function handleFileLoad(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const loadedEvals = JSON.parse(e.target.result);
+            if (!Array.isArray(loadedEvals)) {
+              throw new Error('File must contain an array of eval sets');
+            }
+            evals = loadedEvals;
+            selectedIndex = -1;
+            renderEvalList();
+            renderEvalDetails();
+            updateJsonEditor();
+            setStatus('Evals loaded successfully', false);
+          } catch (err) {
+            setStatus('Error loading file: ' + err.message, true);
+          }
+        };
+        reader.readAsText(file);
+      }
+    }
+
+    function setStatus(message, isError) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.style.color = isError ? '#c44' : '#788c5d';
+      setTimeout(() => status.textContent = '', 3000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
+
