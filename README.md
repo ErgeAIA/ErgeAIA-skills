@@ -20,7 +20,6 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 
 # 安装指定技能（使用 --skill 参数）
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-reviewer
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 
 # 列出仓库中可安装的技能
