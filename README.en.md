@@ -19,7 +19,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 
 # Install specific skill (using --skill flag)
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-reviewer
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 
 # List available skills in the repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
