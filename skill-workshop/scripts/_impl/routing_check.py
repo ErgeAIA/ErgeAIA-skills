@@ -181,7 +181,8 @@ def main() -> int:
     if len(sys.argv) > 1:
         skill_path = Path(sys.argv[1])
     else:
-        skill_path = Path("Skills-Depot/ErgeAIA-skills/skill-workshop")
+        # 默认指向本仓库根（脚本位于 scripts/_impl/，向上两级即 skill-workshop 根）。
+        skill_path = Path(__file__).resolve().parents[2]
 
     errors = check_routing_consistency(skill_path)
     if errors:

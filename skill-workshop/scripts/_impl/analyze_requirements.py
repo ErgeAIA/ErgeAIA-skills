@@ -96,9 +96,13 @@ class SkillDesigner:
         """Step 3: 设计调用接口"""
         name_candidates = []
         for trigger in self.requirements["triggers"]:
-            words = re.findall(r"[查做帮处理转生创建]?\s*(\w+)", trigger)
+            # 仅提取 ASCII 词（中文触发词不进入 kebab-case 名称），并强制小写、仅保留合法字符。
+            words = re.findall(r"[A-Za-z0-9]+", trigger)
             if words:
-                name_candidates.append("-".join(words[:3]).lower())
+                slug = "-".join(w.lower() for w in words[:3])
+                slug = re.sub(r"[^a-z0-9-]", "", slug)
+                if slug:
+                    name_candidates.append(slug)
 
         description = self._generate_description()
 

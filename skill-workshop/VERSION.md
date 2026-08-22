@@ -1,5 +1,23 @@
 # VERSION.md — skill-workshop
 
+## v1.18.2 (2026-08-22)
+
+### 全脚本审查缺陷修复（python-performance-optimization 流程逐文件过 17 个脚本）
+
+> **范围**：用 cProfile 实测 `validate` 0.13s / `consistency` 0.09s，无算法热点（文件扫描型 CLI 亚秒级，性能无可优化项）；重心转错误排查。17 个 `_impl` 脚本全部遍历一遍。
+
+- **run_loop.py**：`skill_path` 未 resolve → 子目录运行时报告文件名变 `.` → 改为 `Path(args.skill_path).resolve()`
+- **quick_validate.py**：错误信息用未 resolve 的 `skill_path.name` → 相对路径时 `directory=.` 误导 → 改用 `skill_path.resolve().name`
+- **package_skill.py**：`skill_name = skill_path.name` → 子目录运行时生成空名 `.skill` → 改用 `skill_path.resolve().name`
+- **validate_review.py**：`CONSISTENCY_RULES.extend()` 模块级列表被反复 append，同进程多次调用 main 规则累积翻倍 → 改为 `[:] = saved + external` + `try/finally` 恢复
+- **utils.py**：`run_skill_validate` 的 subprocess 无 timeout，目标技能脚本挂起会无限阻塞 → 加 `timeout=30` + `TimeoutExpired` 友好错误
+- **routing_check.py**：默认路径硬编码 `Skills-Depot/ErgeAIA-skills/skill-workshop`，从仓库根运行找不到 → 改为 `Path(__file__).resolve().parents[2]`（仓库根）
+- **analyze_requirements.py**：中文触发词经 `re.findall(r"[查做帮处理转生创建]?\s*(\w+)", ...)` 提取生成非法 kebab-case 名称（含中文/大写，违反 `validate_skill_name`）→ 改为仅提取 ASCII 词 `[A-Za-z0-9]+` 并 sanitize
+- 审查无误、质量高未改：`review.py`（HTTP server，resolve/超时/HTML 转义到位）、`generate_report.py`、`review_ops.py`（正则预编译+缓存）、`eval_set_editor.py`、`selfheal.py`、`run_eval`/`improve_description`/`generate_scenario_templates`/`init_skill`（按文档用法工作）
+- 版本同步：SKILL.md metadata.version 1.18.1 → 1.18.2
+
+---
+
 ## v1.18.1 (2026-08-22)
 
 ### darwin 独立 judge 实测缺陷修复（3 项执行歧义）

@@ -214,12 +214,16 @@ def run_skill_validate(skill_path: Path) -> tuple[bool, str]:
     if not validate_script.exists():
         return True, "No scripts/validate_skill.py found; skipping target skill validation"
 
-    result = subprocess.run(
-        [sys.executable, str(validate_script), "--skill", "."],
-        cwd=skill_path,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, str(validate_script), "--skill", "."],
+            cwd=skill_path,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired:
+        return False, "Target skill validation timed out (>30s); check scripts/validate_skill.py for a hang"
     if result.returncode != 0:
         details = result.stdout.strip() or result.stderr.strip() or "no output"
         return False, f"Target skill validation failed: {details}"

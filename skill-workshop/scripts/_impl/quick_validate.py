@@ -1137,7 +1137,7 @@ def validate_skill(skill_path):
                     "spec",
                     (
                         "Name must match the parent directory name: "
-                        f"frontmatter={normalized_name}, directory={skill_path.name}"
+                        f"frontmatter={normalized_name}, directory={skill_path.resolve().name}"
                     ),
                 )
 

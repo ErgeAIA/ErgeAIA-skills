@@ -54,8 +54,10 @@ def main():
     clear_cache()
 
     external_rules = _load_external_rules(Path(__file__).resolve().parent)
+    # 备份模块级规则，避免同一进程多次调用 main 时 CONSISTENCY_RULES 被反复 extend 累积。
+    saved_rules = list(CONSISTENCY_RULES)
     if external_rules:
-        CONSISTENCY_RULES.extend(external_rules)
+        CONSISTENCY_RULES[:] = saved_rules + external_rules
 
     modes_requested = []
     if args.spec:
@@ -70,8 +72,9 @@ def main():
     all_results: dict[str, dict] = {}
     overall_status = "PASS"
 
-    for mode in modes_requested:
-        mode_result = {"status": "PASS", "errors": []}
+    try:
+        for mode in modes_requested:
+            mode_result = {"status": "PASS", "errors": []}
         if args.verbose:
             print(f"[{mode.upper()}] 开始检查...", file=sys.stderr)
 
@@ -105,20 +108,23 @@ def main():
         mode_result["errors"] = errors
         all_results[mode] = mode_result
 
-    if args.json:
-        print(json.dumps({"status": overall_status, "modes": all_results}, ensure_ascii=False, indent=2))
-    else:
-        if args.quiet:
-            print(overall_status)
+        if args.json:
+            print(json.dumps({"status": overall_status, "modes": all_results}, ensure_ascii=False, indent=2))
         else:
-            for mode, mode_result in all_results.items():
-                if mode_result["status"] == "FAIL":
-                    for e in mode_result["errors"]:
-                        print(f"- [{mode.upper()}] {e}", file=sys.stderr)
-                    if args.offset or args.output:
-                        print(f"（[{mode.upper()}] 显示 {mode_result['displayed']}/{mode_result['total']} 条，使用 --offset / --output 翻页）", file=sys.stderr)
-                else:
-                    print(f"[{mode.upper()}] {args.target} 通过校验")
+            if args.quiet:
+                print(overall_status)
+            else:
+                for mode, mode_result in all_results.items():
+                    if mode_result["status"] == "FAIL":
+                        for e in mode_result["errors"]:
+                            print(f"- [{mode.upper()}] {e}", file=sys.stderr)
+                        if args.offset or args.output:
+                            print(f"（[{mode.upper()}] 显示 {mode_result['displayed']}/{mode_result['total']} 条，使用 --offset / --output 翻页）", file=sys.stderr)
+                    else:
+                        print(f"[{mode.upper()}] {args.target} 通过校验")
+    finally:
+        # 恢复模块级规则，确保同一进程内重复调用 main 不会累积外部规则。
+        CONSISTENCY_RULES[:] = saved_rules
 
     sys.exit(1 if overall_status == "FAIL" else 0)
 

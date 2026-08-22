@@ -291,7 +291,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: {message}", file=sys.stderr)
         return 1
 
-    skill_path = Path(args.skill_path)
+    skill_path = Path(args.skill_path).resolve()
     skill_ok, skill_message = ensure_skill_path(skill_path)
     if not skill_ok:
         print(f"Error: {skill_message}", file=sys.stderr)
