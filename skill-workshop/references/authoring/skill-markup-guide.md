@@ -251,7 +251,9 @@ version: 1.4.0
 
 ---
 
-## 10. 示例：完整工作流章节（推荐写法）
+## 10. 示例：最小可用工作流章节（推荐写法）
+
+> 示例只示范**全部必填标记的形态**（工作流头 / 步骤头 / HTML 注释元数据 / @动作 / 验证五件套 / 命令块）。真实工作流按业务需要增加步骤，不必模仿示例的领域内容。
 
 ```markdown
 ## @工作流: 新增 core 页面
@@ -262,21 +264,14 @@ version: 1.4.0
 <!-- @前置条件: 已正确定位 ${DASH_ROOT} -->
 <!-- @后置验证: 新页面可正常访问，菜单显示正确，权限规则生效 -->
 <!-- @触发条件: 当用户提出“新增 core 页面”需求时 -->
-<!-- @产物: ${DASH_ROOT}/source/pages/<业务域>/<页面名>_page.py -->
-<!-- @产物: ${DASH_ROOT}/source/configs/router_config.py -->
-<!-- @产物: ${DASH_ROOT}/source/pages/layout/layout_sidemenu.py -->
-<!-- @产物: ${DASH_ROOT}/source/configs/auth_config.py -->
 <!-- @ID: wf-add-core-page -->
 
 ### @步骤0: 确定 Dash 项目根目录
 
 <!-- @类型: 操作步骤 -->
 <!-- @优先级: 必须 -->
-<!-- @说明: 在多端/monorepo 项目中，需要先确定 Dash 应用所在子目录 -->
 <!-- @验证点: 已唯一确定 ${DASH_ROOT} -->
 <!-- @验证方式: 人工确认包含 server.py/app.py/router_config.py 的目录 -->
-<!-- @失败信号: 无法唯一确定包含关键文件的目录 -->
-<!-- @排查: 在仓库内全局搜索 server.py/router_config.py 并对比目录结构 -->
 <!-- @ID: step-locate-dash-root -->
 
 - @动作: 搜索包含 `server.py`、`app.py`、`router_config.py` 的目录
@@ -290,16 +285,13 @@ version: 1.4.0
 <!-- @依赖: step-locate-dash-root -->
 <!-- @改动文件: ${DASH_ROOT}/source/pages/<业务域>/<页面名>_page.py -->
 <!-- @产物: ${DASH_ROOT}/source/pages/<业务域>/<页面名>_page.py -->
-<!-- @文件: ${DASH_ROOT}/source/pages/ -->
 <!-- @验证点: 新页面的 *_page.py 文件存在且可导入 -->
 <!-- @验证方式: 检查文件存在，运行基础代码检查任务 -->
 <!-- @失败信号: 文件无法导入或基础代码检查失败 -->
-<!-- @排查: 检查文件命名、import 路径与依赖包是否存在 -->
 <!-- @ID: step-create-page-module -->
 
 - @动作: 在 `${DASH_ROOT}/source/pages/<业务域>/` 下创建 `<页面名>_page.py`
 - @动作: 提供 `render_<页面名>_page()`，返回 Dash 组件树
-- @说明: 页面结构推荐 `fac.AntdSpace(direction="vertical") + fac.AntdBreadcrumb(...)`
 
 @工具: 使用脚手架脚本快速创建基础页面文件：
 
@@ -310,63 +302,8 @@ version: 1.4.0
 @成功判定: 退出码=0 且目标文件存在
 @失败信号: 退出码!=0 或输出包含 Traceback
 @排查: 检查 --page/--title 参数与 ${DASH_ROOT} 是否正确
-python .trae/skills/kz-dash-developer/scripts/scaffold_page.py --page slug_name --title "页面标题" --apply
+python scripts/scaffold_page.py --page slug_name --title "页面标题" --apply
 ```
-
-### @步骤2: 注册路由标题
-
-<!-- @类型: 操作步骤 -->
-<!-- @优先级: 必须 -->
-<!-- @依赖: step-create-page-module -->
-<!-- @改动文件: ${DASH_ROOT}/source/configs/router_config.py -->
-<!-- @文件: ${DASH_ROOT}/source/configs/router_config.py -->
-<!-- @验证点: pathname → 标题映射存在 -->
-<!-- @验证方式: 查阅 RouterConfig.valid_pathnames 配置 -->
-<!-- @ID: step-register-pathname -->
-
-- @动作: 在 `RouterConfig.valid_pathnames` 中注册 pathname → 标题映射
-- @注意: 如需侧边菜单入口，保证 pathname 与菜单项 `href`/`key` 完全一致
-
-### @步骤3: 配置 core_router
-
-<!-- @类型: 操作步骤 -->
-<!-- @优先级: 必须 -->
-<!-- @依赖: step-register-pathname -->
-<!-- @改动文件: ${DASH_ROOT}/source/pages/layout/layout_sidemenu.py -->
-<!-- @文件: ${DASH_ROOT}/source/pages/layout/layout_sidemenu.py -->
-<!-- @验证点: 新 pathname 能被 core_router 正确识别并渲染 -->
-<!-- @验证方式: 访问 URL，检查是否命中对应分支 -->
-<!-- @ID: step-config-core-router -->
-
-- @动作: 在 `core_router()` 中新增对应 pathname 的分支，调用 `render_<页面名>_page()`
-- @动作: 在文件顶部按既有风格补充 import
-
-### @步骤4: 权限规则
-
-<!-- @类型: 操作步骤 -->
-<!-- @优先级: 必须 -->
-<!-- @依赖: step-config-core-router -->
-<!-- @改动文件: ${DASH_ROOT}/source/configs/auth_config.py -->
-<!-- @文件: ${DASH_ROOT}/source/configs/auth_config.py -->
-<!-- @验证点: 拥有权限的角色可访问，新角色访问行为符合预期 -->
-<!-- @验证方式: 使用不同角色登录访问该 pathname -->
-<!-- @ID: step-config-auth-rules -->
-
-- @动作: 在权限配置中纳入新 pathname 的访问规则
-- @警告: 若未配置，新页面可能被重定向到 403
-
-### @步骤5: 整体验收
-
-<!-- @类型: 验证步骤 -->
-<!-- @优先级: 必须 -->
-<!-- @依赖: step-config-auth-rules -->
-<!-- @验证点: 页面访问与菜单状态正常 -->
-<!-- @验证方式: 手动访问 URL，观察路由与菜单表现 -->
-<!-- @ID: step-final-check -->
-
-- @动作: 以 URL 直接访问新 pathname
-- @动作: 检查是否命中 core_router 正确渲染内容
-- @动作: 检查侧边菜单选中态与展开状态是否正确
 ```
 
 ---

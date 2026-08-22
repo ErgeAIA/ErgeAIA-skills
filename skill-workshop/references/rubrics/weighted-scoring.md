@@ -35,6 +35,12 @@ trigger-when: "快速评分 Skill 结构质量时"
 | 2 | 不合格，需要重构 |
 | 1 | 严重缺失，需要重做 |
 
+**评分前复核（源自原 skill-evaluation-checklist）**：正式打分前先逐维过一遍检查要点，用 `✅ / ⚠️ / ❌ / N/A` 标记状态，再换算为维度分：
+
+- `✅ = 1`、`⚠️ = 0.5`、`❌ = 0`、`N/A = 不计入分母`
+- 维度分 = (该维度命中项得分之和 ÷ 计分项数) × 5，四舍五入到整数
+- N/A 较多的维度须在评分依据中说明原因，防止用"不适用"逃避扣分
+
 ---
 
 ## 加权总分计算
@@ -60,7 +66,7 @@ trigger-when: "快速评分 Skill 结构质量时"
 1. 逐维度评分，记录依据
 2. 计算加权总分
 3. 根据总分范围给出重构建议
-4. 输出评分表（参考 `references/templates/skill-evaluation-template.md`）
+4. 输出评分表（参考 `references/templates/evaluation-template.md`）
 
 ---
 

@@ -76,7 +76,7 @@ python scripts/skill_cli.py package /path/to/skill
 
 | 体系           | 维度                                                                       | 适用场景                     |
 | -------------- | -------------------------------------------------------------------------- | ---------------------------- |
-| **9 维 48 项** | O/S/C/I/T/M/P/V/B 全覆盖                                                   | 深度评审、审计、发现问题     |
+| **10 维 52 项** | O/S/C/I/T/M/P/V/B/D 全覆盖（含三段式元框架：第一性锚定/双向钢人/对抗式审查） | 深度评审、审计、发现问题     |
 | **8 维加权**   | 目标边界/指令一致性/IO契约/工作流完整性/鲁棒性/可维护性/可验证性/Token效率 | 创建后自评、快速评估结构质量 |
 
 两者语义不重叠，按需选择。
@@ -128,11 +128,11 @@ skill-workshop/
 │   ├── eval_review.html        # 评测回放页面
 │   └── eval_set_editor.html    # eval set 编辑器
 ├── references/
-│   ├── authoring/              # 创建/编写指南（10 份）
+│   ├── authoring/              # 创建/编写指南（9 份）
 │   ├── config/                 # 外部规则配置
 │   ├── evaluation/             # 评测循环文档
 │   ├── rubrics/                # 判定标尺
-│   │   ├── review-checklist.md # 9 维 48 项检查清单
+│   │   ├── review-checklist.md # 10 维 52 项检查清单（含三段式元框架 + D 设计对抗维度）
 │   │   ├── complexity-rubric.md# 复杂度标尺
 │   │   ├── intent-calibration.md# 意图校准标尺
 │   │   └── weighted-scoring.md # 8 维加权评分
@@ -143,8 +143,7 @@ skill-workshop/
 │       ├── C1-create.md        # 创建主链
 │       ├── C2-evaluate.md      # 评测主链
 │       ├── C3-refactor.md      # 重构主链
-│       ├── W0-W7 + V0          # 评审主链（继承自 skill-reviewer）
-│       └── skill-creator-workflow-guide.md
+│       └── W0-W7 + V0          # 评审主链（继承自 skill-reviewer）
 ├── scripts/
 │   ├── skill_cli.py            # 统一 CLI 入口（17 子命令）
 │   └── _impl/                  # 实现模块

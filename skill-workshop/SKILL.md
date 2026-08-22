@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站：把创建 / 评审 / 重构 / 评测 Agent Skill 四类动作路由到对应工作流，并保障产出通过结构校验。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
 metadata:
   author: ErgeAIA
-  version: "1.17.0"
+  version: "1.18.0"
 ---
 
 # skill-workshop
@@ -75,6 +75,7 @@ metadata:
 - @动作: 主 SKILL.md 只做路由，细节下沉到 references/。按需读取单个文件，**严禁全量预加载**。*Why：上下文窗口是公共资源，全量加载会挤占推理空间。*
 - @动作: W5 整改方向必须标注 W3 checklist 编号（如 `命中：S1、P3`），否则断链。*Why：无编号追溯的建议缺乏证据支撑，用户无法验证建议的合理性。*
 - @动作: W3 遇 T1-T5 **强制委托 W7**，不得自行判定 description。*Why：description 的语义判断需要专门的意图校准标尺，W3 的通用扫描精度不够。*
+- @动作: W2/W3 逐项扫描 checklist 前必须先走**三段式评审元框架**（第一性锚定 → 可疑设计双向钢人 → 对抗式审查 D 系列），第一性锚定产出「方向判断：错位」时优先于清单问题。*Why：清单式扫描只能发现格式与结构缺陷，发现不了"方向错误的技能"——一个 frontmatter 合规、行数达标的过程式 Skill 可能在第一性层面就是错的（指导 AI 怎么做而非结果导向）。元框架定义见 [review-checklist.md](references/rubrics/review-checklist.md)「三段式评审元框架」。*
 - @动作: frontmatter.metadata.version 必填；头部版本块和版本历史 section 可选（VERSION.md 存在时 V0 不强校验）。*Why：版本漂移会导致 Agent 加载过期指令；但头部/文末版本信息是人类维护点，不是 LLM 决策依赖，不应占用上下文。*
 - @动作: 完成后必须跑 `python scripts/skill_cli.py validate <path>`。*Why：人工检查容易遗漏 frontmatter 格式、链接断裂等机械性错误。*
 
@@ -115,7 +116,6 @@ metadata:
 | frontmatter 字段过度工程化判定     | [frontmatter-style-guide.md](references/specs/frontmatter-style-guide.md)                                                                                                                                                                     |
 | 版本一致性（V0 硬校验 + 规范指南） | [versioning-and-validation.md](references/authoring/versioning-and-validation.md)：V0 校验器检查 frontmatter.version 必填 + VERSION.md fallback；规范指南含完整版本维护规则                                                                   |
 | 命名与归属                         | [naming-and-ownership.md](references/authoring/naming-and-ownership.md)                                                                                                                                                                       |
-| 写作方法论                         | [writing-a-good-skill.md](references/authoring/writing-a-good-skill.md)                                                                                                                                                                       |
 | 业务到工作流映射                   | [business-to-workflow-mapping.md](references/authoring/business-to-workflow-mapping.md)                                                                                                                                                       |
 | 工作流模式                         | [workflow-patterns.md](references/authoring/workflow-patterns.md)                                                                                                                                                                             |
 | 渐进披露模式                       | [progressive-disclosure-patterns.md](references/authoring/progressive-disclosure-patterns.md)                                                                                                                                                 |
@@ -153,11 +153,11 @@ metadata:
 
 | 体系           | 用途                 | 来源                                                          |
 | -------------- | -------------------- | ------------------------------------------------------------- |
-| **9 维 48 项** | 深度评审（发现问题） | [review-checklist.md](references/rubrics/review-checklist.md) |
+| **10 维 52 项** | 深度评审（发现问题，含三段式元框架 + D 设计对抗维度） | [review-checklist.md](references/rubrics/review-checklist.md) |
 | **8 维加权**   | 快速评分（结构质量） | [weighted-scoring.md](references/rubrics/weighted-scoring.md) |
 
 两者语义不重叠：
-- 评审/审计 → 用 9 维 48 项
+- 评审/审计 → 用 10 维 52 项（含三段式元框架：第一性锚定/钢人/对抗）
 - 创建后自评/快速评估 → 用 8 维加权
 
 ---

@@ -12,8 +12,8 @@ role: background
 > **版本**: 2026.06
 > **来源**: anthropics-skills/skill-creator
 
-> **裁判角色声明**：本文件仅供评审时参考，触发率测试的执行应转交 skill-creator。
-> skill-creator 的 `scripts/run_eval.py` 和 `scripts/run_loop.py` 提供数据驱动的自动化触发率评估与迭代优化。
+> **裁判角色声明**：本文件仅供评审时参考，触发率测试的执行应转交本技能 C2 评测链。
+> `scripts/run_eval.py` 和 `scripts/run_loop.py` 提供数据驱动的自动化触发率评估与迭代优化。
 > 裁判只识别触发问题（T5 命中），不执行测试。
 
 ---

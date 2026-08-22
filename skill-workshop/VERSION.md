@@ -1,5 +1,23 @@
 # VERSION.md — skill-workshop
 
+## v1.18.0 (2026-08-22)
+
+### 三段式评审元框架注入 + 冗余文档清理
+
+> **问题来源**：用户实战审查（zhubi/suoyin）发现清单式评审只能发现格式与结构缺陷，发现不了"方向错误的技能"（如 frontmatter 全合规但以过程式指导为主、违背结果导向的第一性设计）。裁判缺第一性原理/双向钢人论证/对抗式审查三种高阶思维，则产出的评审结论不配做判定依据。
+
+- **A 三段式评审元框架**：`review-checklist.md` 使用契约后新增「三段式评审元框架」——W2/W3 逐项扫描前必须先做①第一性锚定（第一性问题/不可违背约束/边界，一句话锚定）→②可疑设计双向钢人论证→③对抗式审查（D 系列）。锚定产出「方向判断：错位」时优先于清单问题。
+- **B 新增 D 设计对抗维度**（D1-D4，对抗式审查固化）：D1 非破坏约束是否被强制（仅靠 LLM 自觉=P0）/ D2 价值权重是否错配 / D3 输入契约是否有缺口 / D4 是否与其他技能抢字段。体系从 9 维 48 项扩为 **10 维 52 项**，SKILL.md §6 与 README 双评估表同步口径。
+- **C 报告模板升级**：`evaluation-template.md` §2 新增「第一性结论」（方向判断：对齐/错位，错位时方向性修正优先）；§5 显式扫描四类扩为六类（加 D 系列四坑 + 方向性错误）。
+- **D W2/W3/W5 联动**：W2 优点须是对第一性约束的正向贡献（钢人确认后才写入）；W3 契约加三段式前置 + P0/P1 清单加 D 系列条目；W5 生成规则加"方向性整改须附 FOR/AGAINST 钢人提炼"，映射表加 D 类四行。
+- **E 冗余文档删除**（5 文件，git 可回滚）：`templates/skill-evaluation-template.md` 与 `templates/output-template.md`（v1.1 已宣布废弃的兼容残渣）、`workflows/skill-creator-workflow-guide.md`（217 行面向人总览，与 README 职责重复）、`authoring/writing-a-good-skill.md`（179 行通识方法论，与官方 specs/best-practices.md 重复）、`templates/skill-evaluation-checklist.md`（换算规则并入 `rubrics/weighted-scoring.md`「评分前复核」节）。
+- **F 过期术语与引用修复**：`templates/trigger-test-set.md` 的"转交 skill-creator"改为"转交本技能 C2 评测链"（skill-creator 已合并进本技能）；routing-table/README/naming-and-ownership/eval-loop/skill-evaluation-workflow 全部悬挂引用清除。
+- **G SKILL.md 硬规则新增**：三段式元框架条目（含 Why：清单式扫描发现不了方向错误的技能）。
+- **H 深度瘦身（LLM 已掌握/冗余内容清除，共约 210 行）**：`skill-markup-guide.md` §10 完整 Dash 示例（5 步 120 行）压缩为最小可用示例（2 步，仅示范必填标记形态，280→213 行）；`business-to-workflow-mapping.md` 删 9 个 @步骤 HTML 注释块 + §2 集中确认压缩为一段 + §4 复杂度判断门改为复用 complexity-rubric（消除与 W1 标尺的重复，187→110 行）；`eval-loop.md` 与 `skill-evaluation-workflow.md` 批量清除独立 HTML 注释行（共 121 行）。保留所有非显然知识（三层边界/映射表字段/决策矩阵衔接条件/评测断言设计）。
+- 版本同步：SKILL.md metadata.version 1.17.0 → 1.18.0。
+
+---
+
 ## v1.17.0 (2026-08-19)
 
 ### 版本号统一三段式 + 版本规范固化

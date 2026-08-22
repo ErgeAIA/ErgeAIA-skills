@@ -21,7 +21,6 @@ version: 1.0.0
 | 文件 | SKILL.md 路由表 | W0-W7 workflow reads-from | 直接 trigger-when |
 |------|----------------|---------------------------|-------------------|
 | `authoring/skill-foundations.md` | ✅ 创建 Skill | — | ✅ |
-| `authoring/writing-a-good-skill.md` | ✅ 写作方法论 | — | ✅ |
 | `authoring/progressive-disclosure-patterns.md` | ✅ 渐进披露模式 | ✅ **W7**（Step 6 6.2） | ✅ |
 | `authoring/naming-and-ownership.md` | ✅ 命名与归属 | — | ✅ |
 | `authoring/versioning-and-validation.md` | ✅ 版本一致性（V0 硬校验 + 规范指南） | ✅ **V0**（reads-from 必读）+ ✅ **W3**（S6 升级依据） | ✅ |
@@ -31,7 +30,7 @@ version: 1.0.0
 | `authoring/skill-refactoring-workflow.md` | ✅ 重构指引 | — | ✅ |
 | `authoring/skill-evaluation-workflow.md` | ✅ 评测方法 | — | ✅ |
 
-> 上述 10 个文件（V1.0.0）已全部被 SKILL.md 路由表直接引用，达成 100% 覆盖（修复前仅 4/9 = 44%）。
+> 上述 9 个文件已全部被 SKILL.md 路由表直接引用，达成 100% 覆盖（修复前仅 4/9 = 44%）。v1.18.0 删除了与 specs/best-practices.md 职责重复的旧写作方法论文件。
 
 ## 2. 4 个 specs 文件 × 引用方
 

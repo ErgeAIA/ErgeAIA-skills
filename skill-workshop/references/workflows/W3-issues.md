@@ -22,11 +22,12 @@ writes-to: 报告第 4 段
 
 ## 契约
 
+- **三段式前置**：进入逐项扫描前，必须先按 `references/rubrics/review-checklist.md`「三段式评审元框架」完成第一性锚定（第一性问题/不可违背约束/边界，一句话锚定），并对可疑设计选择做双向钢人论证。锚定发现方向性错误时，无论清单命中多少项，报告第 2 段必须显式给出「方向判断：错位」。
 - 本工作流**不内嵌**检查项定义，逐项引用 `references/rubrics/review-checklist.md`
 - T1–T5 的判定**强制委托** `W7-description-audit.md`，W3 不自行判定
 - **T 系列裁决权禁令**：W3 在扫描过程中遇到任何与 description、触发意图、三维触发模型相关的问题时，**必须**停止自行判定，将问题标记为待 W7 裁决。W3 仅负责识别"T 系列可能命中"的信号，最终判定权唯一归属 W7。此约束与 SKILL.md §2 调用关系一致，但在本工作流内显式声明以确保 Agent 即使跳过 SKILL.md 也能遵守。
 - M / P / V / B 维度命中时，**必须**在 `references/specs/best-practices.md` 中找到对应原则作为证据
-- O / S / C / I 维度命中时，证据可直接落到被评审 Skill 的文件
+- O / S / C / I / D 维度命中时，证据可直接落到被评审 Skill 的文件
 - **S6 字段过度工程化**判定时，**必须**引用 `references/specs/frontmatter-style-guide.md` 第五、六、七节作为阈值；命中即按 frontmatter 风格指南给出整改方向
 - **S6 升级为 P1 硬限**（不再标"软性建议"）：frontmatter `version / created / updated` 等元数据三处一致性（frontmatter / 头部版本块 / 文末首条版本历史）属于 V0 硬校验范畴，W3 命中即升 P1；详细阈值见 `references/authoring/versioning-and-validation.md` 第 1-3 节
 
@@ -44,6 +45,7 @@ writes-to: 报告第 4 段
 - **关键 Gotchas 是否缺失**（环境特定的反直觉事实）
 - **脚本是否含交互式 `input()` / TTY 阻塞**（会让 Skill 挂死）
 - **​`SKILL.md` 是否超过 500 行 / 5000 Token**
+- **D1 非破坏约束是否被强制**（仅靠 LLM 自觉 = 高风险，应有脚本/护栏兜底）
 
 ## P1 检查清单（维护风险）
 
@@ -54,6 +56,9 @@ writes-to: 报告第 4 段
 - **脚本错误信息是否可操作**（说出错处 + 预期 + 建议）
 - **脚本是否结构化输出 + stdout/stderr 分离**
 - **破坏性操作是否采用 Plan-Validate-Handoff 模式**
+- **D2 价值权重是否错配**（优化堆在低弹性杠杆/借来的手段上）
+- **D3 输入契约是否有缺口**（触发却缺必填输入 → 静默跳过/降级）
+- **D4 是否与其他技能抢字段**（同一输出区域被多技能修改）
 
 > **注**：description 相关的 T1–T5 判定**不在本清单**，由 W7 子审计执行，结果回写本段 P1。
 

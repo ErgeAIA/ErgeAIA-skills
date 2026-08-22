@@ -59,10 +59,8 @@ kz-skill-creator/
 │   │   ├── skill-markup-guide.md
 │   │   ├── workflow-patterns.md
 │   │   ├── versioning-and-validation.md
-│   │   ├── writing-a-good-skill.md
 │   │   └── naming-and-ownership.md
 │   ├── workflows/                   # 面向人阅读的工作流与业务流程说明
-│   │   └── skill-creator-workflow-guide.md
 │   └── evaluation/                  # 评测闭环用（如何评测/产物结构/回放与汇总）
 │       └── eval-loop.md
 ├── agents/                          # 评测闭环提示词（比较/分析/打分）
