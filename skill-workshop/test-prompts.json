@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "帮我看看这个 skill 有什么问题：/path/to/my-skill/，重点想知道质量怎么样",
+    "expected": "命中深度评审链：先展示路由（W1 复杂度→W2/W3→W7→W5→W6），W2/W3 扫描前先做三段式元框架（第一性锚定/钢人/对抗 D 系列），产出 8 段结构报告（含 §2 第一性结论），W5 建议带 checklist 编号与 FOR/AGAINST 提炼，只出报告不改文件（P-V-H）"
+  },
+  {
+    "id": 2,
+    "prompt": "校验一下这个 skill 的规范：/path/to/my-skill/",
+    "expected": "命中 V0 合规校验：跑/引导 skill_cli.py validate，输出 **Validation**: [PASS/FAIL] 严格格式，报 frontmatter/链接/语义标记具体错误，不进入评审链"
+  },
+  {
+    "id": 3,
+    "prompt": "我有个 skill 的问题，感觉它不太好用",
+    "expected": "模糊请求命中 W0-clarify：不直接猜测路由，先 🔴 CHECKPOINT 向用户确认（评审/重构/评测哪个方向、深度如何），确认后再路由"
+  }
+]

@@ -2,14 +2,14 @@
 
 Skill 全生命周期工作站：创建 → 评审 → 重构 → 评测。
 
-由 [skill-reviewer](https://github.com/ErgeAIA/skill-reviewer)（ErgeAIA，裁判）与 [kz-skill-creator](https://gitee.com/kingzeus/skills#kz-skill-creator)（kingzeus，构建者）整合升级而来。前者提供 9 维 48 项深度评审体系，后者提供创建/重构/评测的完整工作流与 CLI 工具链。skill-workshop 在二者基础上统一了入口、路由和验证闭环。
+由 [skill-reviewer](https://github.com/ErgeAIA/skill-reviewer)（ErgeAIA，裁判）与 [kz-skill-creator](https://gitee.com/kingzeus/skills#kz-skill-creator)（kingzeus，构建者）整合升级而来。前者提供深度评审体系（原 9 维 48 项，v1.18.0 扩为 **10 维 52 项**含三段式元框架 + D 设计对抗维度），后者提供创建/重构/评测的完整工作流与 CLI 工具链。skill-workshop 在二者基础上统一了入口、路由和验证闭环。
 
 ## 为什么需要这个 Skill？
 
 Skill 开发常见的困境：
 
 - **创建**：从零搭建一个结构清晰、可触发、可验证的 Skill，缺乏系统方法
-- **评审**：写完了不知道质量如何，48 项检查项靠人记不住
+- **评审**：写完了不知道质量如何，52 项检查项靠人记不住
 - **重构**：结构乱了想整理，不知道先改什么、改到什么程度
 - **评测**：description 改了不知道触发率有没有退化，没有回归测试
 
@@ -20,7 +20,7 @@ skill-workshop 把这四条路径统一到一个工作站，用决策矩阵路�
 | 模式     | 做什么                                    | 产出                                |
 | -------- | ----------------------------------------- | ----------------------------------- |
 | **创建** | 从需求到脚手架，全流程引导                | SKILL.md + 目录结构 + 可选脚本      |
-| **评审** | 9 维 48 项深度审查，发现问题定级          | 8 段结构报告（P0/P1/P2 + 整改方向） |
+| **评审** | 10 维 52 项深度审查，发现问题定级          | 8 段结构报告（P0/P1/P2 + 整改方向） |
 | **重构** | 盘点问题 → 决定强度 → 执行重整 → 回归验证 | 改进后的 SKILL.md                   |
 | **评测** | eval loop + benchmark + description 优化  | 通过率统计 + 最优 description       |
 
@@ -178,7 +178,7 @@ skill-workshop/
 
 | 来源                 | 作者     | 定位                                                     | 链接                                                                         |
 | -------------------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| **skill-reviewer**   | ErgeAIA  | 裁判——9 维 48 项评审体系、合规校验、V1-V7 自检闭环       | [GitHub](https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer) |
+| **skill-reviewer**   | ErgeAIA  | 裁判——10 维 52 项评审体系、合规校验、V1-V7 自检闭环       | [GitHub](https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer) |
 | **kz-skill-creator** | kingzeus | 构建者——创建/重构/评测工作流、语义化标记规范、CLI 工具链 | [Gitee](https://gitee.com/kingzeus/skills#kz-skill-creator)                  |
 
 skill-workshop 在二者基础上做了统一入口、路由合并、脚本整合和双评估体系并存，但核心评审标尺和创建工作流的设计思路分别源自上述两个项目。

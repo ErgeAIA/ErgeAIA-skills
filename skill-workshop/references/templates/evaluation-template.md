@@ -26,8 +26,10 @@ trigger-when: 评审/评估模式报告装配阶段（最终输出格式）
 
 ### 产物路径约定
 
-- Skill 目录：保存至 `reviews/<skill-name>-review.md`
-- 独立指令资产：保存至同目录的 `<target-file-stem>.evaluation.md`
+> **裁判边界**（与 SKILL.md §7 Gotchas 一致）：默认评审模式**只把报告输出到对话**，不执行任何文件写入。下方路径约定**仅在用户明确要求落盘时**才适用。
+
+- 用户要求落盘时，Skill 目录产物保存至 `reviews/<skill-name>-review.md`
+- 独立指令资产保存至同目录的 `<target-file-stem>.evaluation.md`
 - 若目标仓库无 `reviews/` 目录，由评审者创建
 
 ---

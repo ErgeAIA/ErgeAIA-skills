@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站：把创建 / 评审 / 重构 / 评测 Agent Skill 四类动作路由到对应工作流，并保障产出通过结构校验。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
 metadata:
   author: ErgeAIA
-  version: "1.18.0"
+  version: "1.18.1"
 ---
 
 # skill-workshop
@@ -187,7 +187,7 @@ metadata:
 
 ## 9. 验证闭环
 
-- **V1 成功判定**：评审报告必须包含 `### 8. 总评` 段落。
+- **V1 成功判定**：评审报告必须包含 `## 9. 总评` 段落（对应 `references/templates/evaluation-template.md` 第 9 节）。
 - **V2 自检标准**：`python scripts/skill_cli.py checklist <path>` 必须返回 PASS。
 - **V3 产出检查**：合规模式输出必须严格遵循 `**Validation**: [PASS/FAIL]` 格式。
 - **V4**：检查被评审 Skill 是否有正面/负面触发测试集（参考 [trigger-test-set.md](references/templates/trigger-test-set.md)）。

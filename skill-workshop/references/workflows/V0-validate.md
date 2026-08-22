@@ -1,7 +1,7 @@
 ---
 name: V0-validate
 description: Skill 合规校验工作流；产出 PASS/FAIL 结论；增第 7-8 步版本三处一致 + frontmatter 字段过度工程化硬校验。
-version: 1.1.0
+version: 1.1.1
 <!-- @类型: 工作流 -->
 <!-- @优先级: 必须 -->
 role: Workflow (Judge)
@@ -14,8 +14,8 @@ reads-from:
 
 # V0 合规校验（基于官方 spec）
 
-> **版本**: v1.1.0
-> **改动**: v1.1.0 - 增第 7 步版本三处一致性硬校验（frontmatter / 头部 / 文末首条）；增第 8 步 frontmatter 字段过度工程化扫描（来自 frontmatter-style-guide.md）
+> **版本**: v1.1.1
+> **改动**: v1.1.1 - 第 7 步明确版本块可选（无版本块时跳过三处比对、不判 FAIL）；输出示例计数随 8 步更新（6/6 → 8/8）
 
 ## 目标
 对给定 Skill 仓库做硬性规范校验，产出 PASS/FAIL 结论。
@@ -75,7 +75,8 @@ reads-from:
 - frontmatter `version` 字段值 == 头部版本块 `> **版本**: vX.Y.Z` 值
 - frontmatter `version` 字段值 == 文末首条 `## 版本历史` 第一条版本号
 - 三者任一不一致 → 整体 FAIL，错误信息形如 `[version-mismatch] frontmatter=0.2.0, header=0.2.1, history=0.2.0`
-- 若文档无头部版本块或文末版本历史，应在错误信息中标注 `missing-header` / `missing-history`
+- 版本块（头部版本块 / 文末版本历史）**本身可选**：当文档完全无版本块时，跳过三处比对，**不判 FAIL**，仅在错误信息中标注 `missing-header` / `missing-history` 供人工参考
+- 仅当"存在版本块但其中任意一处与 frontmatter `version` 不一致"时才判 `version-mismatch` FAIL
 
 ### 第 8 步：Frontmatter 字段过度工程化（来自 frontmatter-style-guide.md）
 - frontmatter 内是否塞入了应归 VERSION.md 的元数据（如 `created` / `updated` / `origin`）
@@ -89,7 +90,7 @@ reads-from:
 ```
 **Validation**: PASS
 - 全部检查通过
-- 检测项：6 / 6
+- 检测项：8 / 8
 ```
 
 **失败**：
@@ -98,7 +99,7 @@ reads-from:
 - [name] 'My-Skill' 含大写字符（必须为 hyphen-case）
 - [description] 超过 1024 字符（实际 1203）
 - [directory] 目录名 'my_skill' 与 name 字段 'my-skill' 不一致
-- 检测项：3 / 6 通过
+- 检测项：3 / 8 通过
 ```
 
 ---
@@ -113,5 +114,6 @@ reads-from:
 
 ## 版本历史
 
+- **v1.1.1** (2026-08-22) - 第 7 步明确版本块可选（无版本块时跳过三处比对、不判 FAIL）；输出示例计数随 8 步更新（6/6 → 8/8）
 - **v1.1.0** (2026-06-18) - 增第 7 步版本三处一致性硬校验（frontmatter / 头部 / 文末首条）；增第 8 步 frontmatter 字段过度工程化扫描（来自 frontmatter-style-guide.md）
 - **v1.0.0** (2026-06-14) - 初版：6 步硬校验（文件结构 / frontmatter 格式 / 字段允许表 / name / description / 目录名）

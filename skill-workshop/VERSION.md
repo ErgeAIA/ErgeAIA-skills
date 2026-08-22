@@ -1,5 +1,19 @@
 # VERSION.md — skill-workshop
 
+## v1.18.1 (2026-08-22)
+
+### darwin 独立 judge 实测缺陷修复（3 项执行歧义）
+
+> **问题来源**：darwin-skill 优化流程 Phase 1 干跑（独立 code-explorer judge 盲评）抓出三处真实执行歧义，触发"仅评估→优化"循环。
+
+- **缺陷1 V1 段号/层级偏移**：SKILL.md §9 V1 要求评审报告含 `### 8. 总评`，但 `evaluation-template.md` 实际章节为二级标题 `## 9. 总评`，严格机检 V1 会 FAIL。已改为 `## 9. 总评` 并显式引用模板第 9 节。
+- **缺陷2 裁判边界冲突**：`evaluation-template.md`「产物路径约定」要求创建 `reviews/` 目录保存报告，与 SKILL.md §7 Gotchas「裁判边界：评审模式只输出报告不执行文件写入」字面冲突。已加"裁判边界"提示：默认只输出对话，落盘需用户明确要求。
+- **缺陷3 V0 计数过时 + 版本块矛盾**：`V0-validate.md` 输出示例仍写 "6/6"（已扩 8 步）、且"无头部版本块标注 missing-header"与 SKILL.md「版本块可选」表述矛盾。已改计数为 "8/8"、明确版本块可选时跳过三处比对不判 FAIL；V0 升至 v1.1.1（frontmatter/头部/历史三处一致同步）。
+- **口径统一（顺带收尾）**：将残留的「9 维 48 项 / 9 维度」统一为「10 维 52 项 / 10 维度」——`README.md`（来源段补注升级、困境段 48→52、四种模式表与能力矩阵表评审行）、`weighted-scoring.md`（顶部说明 + 关系表 4 处）、`review-checklist.md`（维度映射表「9 维度→10 维度」）。`VERSION.md` 中历史条目（skill-reviewer v4.6 时代、darwin 基线记录）描述当时真实状态，保留不改。
+- 版本同步：SKILL.md metadata.version 1.18.0 → 1.18.1。
+
+---
+
 ## v1.18.0 (2026-08-22)
 
 ### 三段式评审元框架注入 + 冗余文档清理
