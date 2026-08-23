@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站：把创建 / 评审 / 重构 / 评测 Agent Skill 四类动作路由到对应工作流，并保障产出通过结构校验。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
 metadata:
   author: ErgeAIA
-  version: "1.18.2"
+  version: "1.18.3"
 ---
 
 # skill-workshop
@@ -71,7 +71,7 @@ metadata:
 ## 2. 硬规则摘要
 
 - @动作: **Plan-Validate-Handoff (P-V-H) 模式强制使用所有破坏性操作**——评审模式（W1-W7）只输出报告+整改方向不修改文件；创建/重构模式（C1/C3）执行 scaffold/edit/重构前必须先输出 Plan 让用户确认，再跑 V0 验证，最后交付。*Why：任何破坏性操作（文件覆盖/目录创建/SKILL.md 重写）若直接 Execute 风险过高，P-V-H 让用户始终握有否决权。*
-- @动作: 新建/重构的 Skill **必须使用语义化标记**（`@工作流`/`@步骤N`/`@动作`/`@验证点`），参考 [skill-markup-guide.md](references/authoring/skill-markup-guide.md)。*Why：语义标记让 Agent 可机器解析工作流结构，纯 Markdown 标题只能被人类阅读。*
+- @动作: 经 skill-workshop 脚手架**新建/重构的 Skill（构建者类，自身带 `@工作流:` 头、被工具链消费）必须使用语义化标记**（`@工作流`/`@步骤N`/`@动作`/`@验证点`），参考 [skill-markup-guide.md](references/authoring/skill-markup-guide.md)。纯运行型技能（无 `@工作流:` 头、无工具链消费者）豁免语义标记，V0 校验自动按"构建者/运行型"分类豁免。*Why：语义标记让 Agent 可机器解析工作流结构；但运行型技能仅作 LLM 运行时指令、`@` 标记无任何消费者，强制它只是 §2.2 定义的"第三方优化器注释垃圾"（虚假精度 + token 浪费），故按第一性原理豁免。*
 - @动作: 主 SKILL.md 只做路由，细节下沉到 references/。按需读取单个文件，**严禁全量预加载**。*Why：上下文窗口是公共资源，全量加载会挤占推理空间。*
 - @动作: W5 整改方向必须标注 W3 checklist 编号（如 `命中：S1、P3`），否则断链。*Why：无编号追溯的建议缺乏证据支撑，用户无法验证建议的合理性。*
 - @动作: W3 遇 T1-T5 **强制委托 W7**，不得自行判定 description。*Why：description 的语义判断需要专门的意图校准标尺，W3 的通用扫描精度不够。*

@@ -76,7 +76,30 @@ def get_resolved_project_version(frontmatter: dict) -> str | None:
     return top_level_text or metadata_text
 
 
-def validate_semantic_markup(content):
+def is_builder_class_skill(content):
+    """
+    Classify a SKILL.md as builder-class or runtime-class based on whether any
+    tooling actually consumes its semantic markup.
+
+    Builder-class: carries a `@工作流:` header (the skeleton `generate_scenario_templates.py`
+    / `quick_validate.py` parse). These are skills created via the workshop scaffolding,
+    whose `@` markup is consumed by the workshop tool-chain — so the markup contract must hold.
+
+    Runtime-class: no `@工作流:` header. These skills are pure instruction prompts for the
+    LLM at runtime; nothing in the tool-chain parses their markup (verified: erg-private runtime
+    skills have zero `@` consumers across their scripts). Forcing `@` markup on them is the
+    "third-party optimizer comment junk" the review rubric warns against — zero runtime value,
+    only token cost + false-precision noise.
+
+    Returns (is_builder, reason) for auditable classification.
+    """
+    has_workflow_header = bool(re.search(WORKFLOW_HEADER_RE, content))
+    if has_workflow_header:
+        return True, "contains '@工作流:' header (workshop scaffolding / tool-chain consumer)"
+    return False, "no '@工作流:' header — runtime-only skill, no @ markup consumer"
+
+
+def validate_semantic_markup(content, *, skill_is_builder=True):
     """
     Validate semantic markup requirements in SKILL.md content.
 
@@ -85,7 +108,13 @@ def validate_semantic_markup(content):
     - At least one ### @步骤N: header
     - HTML comment metadata (@类型, @优先级, @验证点, @验证方式)
     - Action items using - @动作: format
+
+    When `skill_is_builder` is False (runtime-class skill with no tool-chain consumer),
+    the markup contract is waived — returns valid with a skipped note instead of failing.
     """
+    if not skill_is_builder:
+        return True, "Semantic markup waived: runtime-class skill (no @ markup consumer in tool-chain)"
+
     errors = []
 
     # Check for workflow header (@工作流:)
@@ -1243,7 +1272,14 @@ def validate_skill(skill_path):
                 spec_errors, "spec", "allowed-tools cannot be an empty string when provided"
             )
 
-    markup_valid, markup_message = validate_semantic_markup(content)
+    is_builder, builder_reason = is_builder_class_skill(content)
+    append_warning(
+        project_warnings,
+        "project",
+        f"Semantic markup classification: {'builder-class' if is_builder else 'runtime-class'} "
+        f"— {builder_reason}",
+    )
+    markup_valid, markup_message = validate_semantic_markup(content, skill_is_builder=is_builder)
     if not markup_valid:
         append_error(project_errors, "project", markup_message)
 

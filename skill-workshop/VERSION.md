@@ -1,5 +1,44 @@
 # VERSION.md — skill-workshop
 
+## v1.18.3 (2026-08-23) — V0 语义标记分类校验落地
+
+### 决策执行（承接 v1.18.2 SFA 巡检备注的「系统性矛盾」）
+- 双向钢人审查后采纳 **C 方案（分两类校验，单步终态落地）**：V0 校验器按"是否被工具链消费"分类，不再无条件强制 `@` 标记。
+- 改动 `scripts/_impl/quick_validate.py`：
+  - 新增 `is_builder_class_skill(content)`：复用现成 `WORKFLOW_HEADER_RE`，命中 `@工作流:` 头 → 构建者类（被 workshop 工具链消费），否则 → 运行型。
+  - `validate_semantic_markup` 加 `skill_is_builder` 参数，运行型直接 waive（不报错）。
+  - 调用点输出可审计分类 warning：`Semantic markup classification: builder/runtime-class + 依据`。
+- 改 `SKILL.md` L74 硬规则：构建者类强制、运行型豁免。
+- 改 `references/authoring/skill-markup-guide.md`：新增「适用范围与豁免」小节，判定以"有无消费者"为准。
+- 实证：erg-private/fuzheng（运行型）过往首要 FAIL 在 Semantic markup，现已消除；构造带 `@工作流:` 头的假技能仍强制报错——双向分支正确。
+- 第一性原理判据：`@` 标记价值唯一标准是是否被工具链消费；运行型零消费者，强制即 §2.2 定义的"第三方优化器注释垃圾"（零运行时价值 + token 浪费 + 虚假精度）。
+
+---
+
+## v1.18.2 SFA 巡检备注 (2026-08-23)
+
+### 裁判审查（v6/v6.2/v6.3 流程）
+- **§5.3.1 交叉核对通过**：references 45 md + 1 yaml 全部存在，主 SKILL.md（L111-131 路由表）引用全部对应，无悬空/过期；scripts 19 py 存在（validate_skill.py 等，quick_validate 在 _impl 子目录）。
+- **§2.2 description 合规**：description（L3）无 `→`/`>`/`-` 折叠符/`>-` 违规，结构三段式（what+when+Not for）完整；含中文单引号包裹示例可接受。
+- **D17 无关内容清除**：标题「skill-workshop」无平台标识；无适配说明块；VERSION 独立。
+- **`@` 语义化标记 = 机器接口契约（关键判定）**：本技能是 `@` 标记体系的源头，其 `@工作流`/`@步骤N`/`<!-- @类型/@目的/... -->`/`@验证点`/`@验证方式`/`- @动作:` 不是待清理的第三方注释，而是**被自身工具链真实消费的格式契约**：
+  - `scripts/_impl/quick_validate.py`：`WORKFLOW_HEADER_RE` 等正则**硬校验**被审 SKILL.md 含 `@工作流:`/`### @步骤N:`/`<!-- @类型 -->`/`@验证点:`/`@验证方式:`/`- @动作:`，缺失即 V0 FAIL。
+  - `scripts/_impl/generate_scenario_templates.py`：`WORKFLOW_HEADER_RE`/`COMMENT_RE`/`ACTION_RE` 正则**真实解析**这些标记，从被审 SKILL 抽取工作流结构生成场景模板。
+  - `scripts/_impl/init_skill.py`：脚手架强制输出带 `@` 的 SKILL 模板，且校验 `"## @工作流:" in content`。
+  - `scripts/_impl/package_skill.py`：打包检查含 semantic markup 项。
+  - 据此，本技能 `@` 标记**全部保留**（不清理）；并反向揭示：§2.2 第1项须补「层 0 机器接口优先」判定（erg-private/skill-review-process.md 已补）。
+
+### ⚠️ 系统性矛盾（待架构决策，未自行处置）
+- **矛盾**：skill-workshop 的 V0 校验器（`quick_validate.py` L81-121 `validate_semantic_markup`）**无条件强制** `@工作流:`/`@步骤N:`/`@验证点:`/`@验证方式:`/`- @动作:` 标记；L74 硬规则「新建/重构 Skill 必须使用语义化标记」。但 erg-private 仓内 zhile(2.9.1)/baimiao(3.3.1)/paizi(1.0.1)/huiyi(1.1.1)/fuzheng(0.5.1) 已按 SFA 层 1（LLM 贡献）**清除 `@` 标记**（其脚本搜索 `@工作流|@步骤|@动作` 0 命中，证明无代码消费，清理无害）；suoyin/xhs-style 更早亦清。
+- **风险**：这 7 个技能若过 skill-workshop 的 V0 校验 → **会 FAIL**（不满足 `@` 标记强制项），且违反 L74 硬规则。
+- **裁决选项**（由用户定）：
+  - **A 恢复 `@`**：把这 7 个技能重建 `@` 标记以服从 V0 契约——但违背「LLM 纯文本消费无需 `@`」的第一性原理（层 1 判定）。
+  - **B 改 V0 为可选**：将 `quick_validate.py` 的 `validate_semantic_markup` 从「强制 FAIL」改为「可选/推荐（warning 不报错）」，使 `@` 成为 skill-workshop 创建链的**风格选项**而非全仓强制。
+  - **C 分两类校验**：V0 区分「构建者技能（被 workshop 工具链消费）」与「运行型技能（仅 LLM 消费）」，前者强制 `@`、后者免。
+- 本报告仅揭示矛盾，未改动任何被审技能或 V0 校验器，待用户拍板。
+
+---
+
 ## v1.18.2 (2026-08-22)
 
 ### 全脚本审查缺陷修复（python-performance-optimization 流程逐文件过 17 个脚本）
