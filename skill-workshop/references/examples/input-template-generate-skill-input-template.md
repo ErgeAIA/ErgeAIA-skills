@@ -1,6 +1,6 @@
 ---
 name: input-template-generate-skill-input-template
-description: 为某个 Skill 生成输入模板的场景示例文档。基于 kz-skill-creator 的工作流“理解并创建Skill”手工收敛，用于沉淀可直接复制的请求写法。
+description: 为某个 Skill 生成输入模板的场景示例文档。基于 skill-workshop 的工作流“理解并创建Skill”手工收敛，用于沉淀可直接复制的请求写法。
 version: 0.1.0
 ---
 

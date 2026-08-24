@@ -41,7 +41,7 @@ version: 1.18.0
 
 ## 2. frontmatter 字段口径
 
-- 必填：`name`、`description`、`version`
+- 必填：`name`、`description`、`metadata.version`（顶层 `version` 非官方字段，一律放 metadata 内）
 - 允许但非必需：`license`、`metadata`、`compatibility`
 - 不要增加未约定的自定义字段
 
@@ -85,7 +85,7 @@ python scripts/skill_cli.py package <path_to_skill_folder> [./dist]
 验证器重点检查：
 
 - frontmatter 是否可解析，且只包含约定字段
-- 必填字段 `name`、`description`、`version` 是否存在
+- 必填字段 `name`、`description`、`metadata.version` 是否存在
 - 语义化标记是否存在
 - frontmatter、头部版本信息、文末首条版本历史是否版本一致
 - 版本历史是否存在、是否位于文末附近、是否保留不超过 5 条（超出时裁剪最早的条目，保留最近 5 条）

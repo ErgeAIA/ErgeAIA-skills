@@ -1,6 +1,6 @@
 ---
 name: input-template-refactor-existing-skill
-description: 用户需要重构已有 Skill 场景示例文档。基于 kz-skill-creator 的工作流“重构现有 Skill”整理出的场景示例，用于后续人工收敛。
+description: 用户需要重构已有 Skill 场景示例文档。基于 skill-workshop 的工作流“重构现有 Skill”整理出的场景示例，用于后续人工收敛。
 version: 0.1.0
 ---
 

@@ -46,5 +46,11 @@ rules:
     desc: "v4.0 已将箭头形式 P→V→E 改为 P→V→H，发现旧术语"
     fix: "将 'Plan → Validate → Execute' 替换为 'Plan → Validate → Handoff'"
 
+  - id: SKILL-OLD-NAME
+    pattern: "kz-skill-creator|skill-reviewer"
+    expected: "skill-workshop"
+    desc: "技能已更名/废弃，发现旧名（溯源标注行须含'旧术语'字样豁免）"
+    fix: "替换为 'skill-workshop'；确需保留的溯源处标注（旧术语，仅溯源）"
+
 ignore_files:
   - VERSION.md

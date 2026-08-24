@@ -70,8 +70,10 @@ The validator parses the YAML frontmatter at the top of `SKILL.md` and checks ea
 
 #### 2.6 `allowed-tools` field (optional, experimental)
 
-- If present, must be a list of strings.
+- If present, must be a **space-separated string**（以 `spec.md` 为权威源——官方已修正为非 array，见 spec.md WARNING 注记）
 - Behavior is experimental and may change.
+
+> **spec 命令职责说明**：2.3-2.6 的类型校验由 `validate` 命令执行；`spec` 命令仅校验 name/description 与顶层字段白名单；字段顺序按官方模板（name→description→license→compatibility→metadata→allowed-tools，review_ops.py 强制，2026-08-24 声明对齐）。
 
 ### 3. File references
 

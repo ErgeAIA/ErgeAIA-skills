@@ -104,7 +104,7 @@ description: Helps with PDFs.
 | --------------------------------- | ------- | ------------------- |
 | YAML 单行 string（**禁用 `\|` 块**） | ✅ 必   | W7 标 T1            |
 | Pushy 句式（"Use this skill whenever..." / "Make sure to invoke it when..." / "Invoke on..."） | ✅ 必   | W7 标 T1            |
-| 至少 3 个核心触发词（中文 / 英文 / 拼音） | ✅ 必   | W7 标 T1            |
+| 至少 3 个核心触发词（中文 / 英文） | ✅ 必   | W7 标 T1            |
 | 推荐：边界声明（"Not for: ..."）   | ⚠️ 推荐 | W7 标 T1 推荐项    |
 
 **联锁参考**：[frontmatter-style-guide.md §9](frontmatter-style-guide.md#九、description-字段联锁规则（w7-必读）) 给出"反例 vs 正例"对照。

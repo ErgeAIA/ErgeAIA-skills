@@ -17,7 +17,9 @@ import sys
 SKILL_TEMPLATE = """---
 name: {skill_name}
 description: "[TODO: 说明 Skill 解决什么问题，当用户说什么时会触发。例如：帮助用户压缩PDF文件，当用户说'帮我压缩PDF'时触发]"
-version: 1.0.0
+metadata:
+  author: ErgeAIA
+  version: 1.0.0
 ---
 
 # {skill_title}

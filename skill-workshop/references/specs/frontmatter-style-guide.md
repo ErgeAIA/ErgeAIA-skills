@@ -136,7 +136,7 @@ description: 简短描述
 | **格式**：YAML 单行 string（`description: ...`，不用 `\|` 块） | 本文件第三章"简洁模板"                                              | ✅ 必   |
 | **风格**：Pushy 主动触发（"Use this skill whenever..." / "Make sure to invoke it when..."） | [intent-calibration.md §2](../rubrics/intent-calibration.md#2-pushy-风格对照) | ✅ 必   |
 | **边界**：声明不适用场景（"Not for: style/formatting/..."）       | [intent-calibration.md §3](../rubrics/intent-calibration.md#3-边界声明对照)        | ⚠️ 推荐 |
-| **触发词**：至少 3 个核心触发词（中文 / 英文）                  | [intent-calibration.md §1](../rubrics/intent-calibration.md#1-三维触发矩阵定义)     | ✅ 必   |
+| **触发词**：至少 3 个核心触发词（中文 / 英文；T1 的“≥2 意图关键词”为独立检查点，见 W7，不互斥） | [intent-calibration.md §1](../rubrics/intent-calibration.md#1-三维触发矩阵定义) | ✅ 必 |
 | **字符数**：单行 200-400 字符（含中文标点）；超过 500 视为冗余 | skill-workshop SKILL.md 软约束                                   | ⚠️ 软   |
 
 ### 反例（YAML 块 + 无边界声明 + 触发词缺失）

@@ -85,7 +85,7 @@ writes-to: 报告第 4 段
 
 ## 子审计接入
 
-W7（description 子审计）的输出按以下格式注入本段 P1：
+W7（description 子审计）的输出按优先级注入本段对应段（P0 → 本段 P0 清单、P1 → 本段 P1 清单、P2 → 本段 P2 清单），格式如下：
 
 ```
 - [T<N>] <一句话问题陈述> —— <长期后果> —— 证据：SKILL.md frontmatter

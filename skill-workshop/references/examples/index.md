@@ -1,6 +1,6 @@
 # 场景示例索引
 
-- 目标 Skill: `kz-skill-creator`
+- 目标 Skill: `skill-workshop`
 - 示例目录: `references/examples/`
 - 使用方式: 先按主 `SKILL.md` 判断当前请求是创建、重构还是评测；如果一时拿不准用户原话更像哪条路径，再先看下面的“决策矩阵命中速查”
 

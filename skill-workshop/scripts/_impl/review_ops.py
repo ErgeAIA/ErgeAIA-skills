@@ -21,7 +21,7 @@ FILE_CITE_RE = re.compile(r"`[^`]+\.(?:md|py|html|json|ya?ml|txt|sh|ts|js)`")
 FILLER_RES = [re.compile(p) for p in [
     r"如果需要.*可以继续", r"希望对你有帮助", r"以上是.*的分析", r"总的来说"
 ]]
-DESC_TECH_RE = re.compile(r"src|api|framework|Next\.js|Vite|\b[a-z]+\.[a-z]+(?:\.[a-z]+)*\b", re.I)
+DESC_TECH_RE = re.compile(r"src|api|framework|next\.js|vite|python|cli|yaml|markdown|frontmatter|json|npm|npx|\b[a-z]+\.[a-z]+(?:\.[a-z]+)*\b", re.I)
 FM_KEY_RE = re.compile(r"^(\w+):")
 FM_BLOCK_RE = re.compile(r"^---\s*(.*?)\s*---\s*", re.S)
 NAME_FIELD_RE = re.compile(r"^name:\s*(.*)", re.M)
@@ -52,57 +52,8 @@ SECTION_REQS = [(name, re.compile(re.escape(name))) for name in REQUIRED_SECTION
 
 FORBIDDEN_ROOT_KEYS = {"triggers", "tags"}
 
-CONSISTENCY_RULES = [
-    {
-        "id": "PVE-PVH",
-        "pattern": re.compile(r"Plan-Validate-Execute"),
-        "expected": "Plan-Validate-Handoff",
-        "desc": "v4.0 已将 P-V-E 改为 P-V-H，发现旧术语",
-        "fix": "将 'Plan-Validate-Execute' 替换为 'Plan-Validate-Handoff'",
-    },
-    {
-        "id": "W4-OLD",
-        "pattern": re.compile(r"工作流拆分|工作流重构建议"),
-        "expected": "拆分需求识别",
-        "desc": "W4 已从'设计拆分方案'改为'识别拆分需求'，发现旧段落名",
-        "fix": "将段落名替换为'拆分需求识别'",
-    },
-    {
-        "id": "W5-OLD",
-        "pattern": re.compile(r"优化建议|增量建议"),
-        "expected": "整改方向",
-        "desc": "W5 已从'具体动作模板'改为'整改方向映射'，发现旧段落名",
-        "fix": "将段落名替换为'整改方向'",
-    },
-    {
-        "id": "W7-OLD",
-        "pattern": re.compile(r"改写建议"),
-        "expected": "优化方向",
-        "desc": "W7 已将'改写建议'改为'优化方向'，发现旧术语",
-        "fix": "将'改写建议'替换为'优化方向'",
-    },
-    {
-        "id": "SECTION7-OLD",
-        "pattern": re.compile(r"建议的重构方向"),
-        "expected": "结构性问题总结",
-        "desc": "报告第 7 段已改为'结构性问题总结'，发现旧段落名",
-        "fix": "将'建议的重构方向'替换为'结构性问题总结'",
-    },
-    {
-        "id": "PVE-ABBREV",
-        "pattern": re.compile(r"P-V-E(?!-H)"),
-        "expected": "P-V-H",
-        "desc": "v4.0 已将 P-V-E 缩写改为 P-V-H，发现旧缩写",
-        "fix": "将 'P-V-E' 替换为 'P-V-H'",
-    },
-    {
-        "id": "PVE-ARROW",
-        "pattern": re.compile(r"Plan\s*→\s*Validate\s*→\s*Execute"),
-        "expected": "Plan → Validate → Handoff",
-        "desc": "v4.0 已将箭头形式 P→V→E 改为 P→V→H，发现旧术语",
-        "fix": "将 'Plan → Validate → Execute' 替换为 'Plan → Validate → Handoff'",
-    },
-]
+# 术语一致性规则：以 references/config/consistency-rules.yaml 为唯一配置源
+# （v1.20.0 去重：删除与 YAML id 完全重复的硬编码 7 条，避免单次命中报两条）
 
 # ---------- 文件读取缓存 ----------
 _file_cache: dict[Path, str] = {}
@@ -169,14 +120,15 @@ def _is_real_input_call(content: str, match_start: int) -> bool:
             return False
     return True
 
-def _load_external_rules(script_dir: Path) -> list[dict]:
+def _load_external_rules(script_dir: Path) -> tuple[list[dict], set[str]]:
+    """从 consistency-rules.yaml 加载规则与 ignore_files。返回 (rules, ignore_files)。"""
     yaml_path = script_dir.parent.parent / "references" / "config" / "consistency-rules.yaml"
     if not yaml_path.is_file():
-        return []
+        return [], set()
     try:
         import yaml
     except ImportError:
-        return []
+        return [], set()
     try:
         with open(yaml_path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
@@ -189,11 +141,13 @@ def _load_external_rules(script_dir: Path) -> list[dict]:
                 "desc": r["desc"],
                 "fix": r["fix"],
             })
-        return rules
+        return rules, set(data.get("ignore_files", []))
     except Exception:
-        return []
+        return [], set()
 
-_ALL_CONSISTENCY_RULES = CONSISTENCY_RULES + _load_external_rules(Path(__file__).resolve().parent)
+_LOADED_CONSISTENCY_RULES, _LOADED_CONSISTENCY_IGNORE = _load_external_rules(Path(__file__).resolve().parent)
+_ALL_CONSISTENCY_RULES = _LOADED_CONSISTENCY_RULES
+CONSISTENCY_IGNORE_FILES = {"VERSION.md"} | _LOADED_CONSISTENCY_IGNORE
 
 # ---------- 公开 API ----------
 
@@ -230,8 +184,12 @@ def review_report(path: str | Path) -> dict:
             ))
 
     for filler_re in FILLER_RES:
-        if filler_re.search(text):
-            errors.append(_err(f"出现水词：{filler_re.pattern}", "删除该水词句式"))
+        for line in text.splitlines():
+            if "严禁" in line or "水词" in line:
+                continue  # 跳过禁令/说明行（如模板的"严禁使用'希望对你有帮助'等水词"）
+            if filler_re.search(line):
+                errors.append(_err(f"出现水词：{filler_re.pattern}", "删除该水词句式"))
+                break
 
     if "意图" not in text and "触发" not in text:
         errors.append(_err("评审报告未包含「意图与触发」专项分析", "在主要问题段中添加 description 触发分析"))
@@ -254,7 +212,7 @@ def checklist_scan(path: str | Path) -> dict:
     if "做法" not in combined_text and "方法论" not in combined_text:
         errors.append(_err("[M6] 缺少「做法优于答案」的方法论指导", "在 SKILL.md 中添加方法论指导段落"))
     if "Plan-Validate-Handoff" not in combined_text:
-        errors.append(_err("[M8] 缺少 P-V-H 模式说明", "在 SKILL.md 中添加 P-V-H 模式说明"))
+        errors.append(_err("[M5] 缺少 P-V-H 模式说明", "在 SKILL.md 中添加 P-V-H 模式说明"))
 
     if "description:" in skill_text:
         desc_line, _ = _extract_description(skill_text)
@@ -275,6 +233,8 @@ def checklist_scan(path: str | Path) -> dict:
     refs_dir = repo / "references"
     if refs_dir.is_dir():
         for ref_file in refs_dir.rglob("*.md"):
+            if "examples" in ref_file.parts or "templates" in ref_file.parts:
+                continue  # 对齐 quick_validate.py 的豁免：examples/templates 为模板资产，无触发职责
             ref_text = _read(ref_file)
             if ref_text and not TRIGGER_WHEN_RE.search(ref_text):
                 rel = ref_file.relative_to(repo)
@@ -394,8 +354,6 @@ def spec_check(path: str | Path) -> dict:
     return {"status": "FAIL" if failures else "PASS", "errors": failures}
 
 
-CONSISTENCY_IGNORE_FILES = {"VERSION.md"}
-
 def consistency_check(path: str | Path) -> dict:
     """术语一致性检查。返回 {"status": "PASS"|"FAIL", "errors": [...]}"""
     repo = Path(path)
@@ -411,8 +369,9 @@ def consistency_check(path: str | Path) -> dict:
             for m in rule["pattern"].finditer(text):
                 line_no = text[:m.start()].count("\n") + 1
                 line_text = lines[line_no - 1] if line_no <= len(lines) else ""
-                if "v4.0 前" in line_text or "旧术语" in line_text:
-                    continue
+                if ("v4.0 前" in line_text or "旧术语" in line_text or "来源" in line_text
+                        or "source:" in line_text or "继承自" in line_text or "整合升级" in line_text):
+                    continue  # 溯源/说明行豁免（如 README 整合来源、模板来源标注、frontmatter source）
                 errors.append(_err(
                     f"[{rule['id']}] {rel}:{line_no} — {rule['desc']}（发现 '{m.group()}'，期望 '{rule['expected']}'）",
                     rule["fix"]

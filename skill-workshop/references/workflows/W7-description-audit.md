@@ -71,7 +71,7 @@ SKILL.md 含 frontmatter 且包含 `description` 字段。
 
 **6.1 description 内省反模式**（阈值来自 `frontmatter-style-guide.md` §2、§7）：
 - ❌ description 把 frontmatter `version` 字段值也写了进来（"v0.2.1"）
-- ❌ description 列了 3 个以上触发短语清单（应放进 `evals/trigger-test-set.md`）
+- ❌ description 列了 3 个以上触发短语清单（应放进 `references/config/trigger-test-set.md`）
 - ❌ description 重复了 body 段标题（如 "see body §决策矩阵"）—— body 在 Tier 2 必读，写一句"详见 body"是冗余
 - ❌ description 把功能描述（"做什么"）与触发条件（"何时用"）混在同一段，>200 字无断行
 - ✅ 命中任一即一条 P1，回写 W3
@@ -137,7 +137,7 @@ T1–T5 全部通过且 Step 6 反模式未命中时，W7 不输出任何内容�
 | `intent-calibration.md`                 | 提供示例与阈值标尺（R 角色）                                     |
 | `frontmatter-style-guide.md`            | 提供 description 自身反模式判定（§2、§7）                       |
 | `progressive-disclosure-patterns.md`    | 提供 description 角色定位反模式判定（§1 何时下沉 / 保留什么）    |
-| `trigger-test-set.md`                   | 提供测试集参考，T5 命中时建议转交 skill-creator 执行触发率测试   |
+| `references/config/trigger-test-set.md` | 提供测试集参考，T5 命中时建议转交 skill-creator 执行触发率测试   |
 | `checklist.md` T1–T5                    | 本工作流的判定依据                                               |
 | `W3`                                    | 接收本工作流的输出                                               |
 | `V0`                                    | 不重叠（V0 判 description 的长度、非空与字符合法性，本工作流判语义） |

@@ -47,6 +47,8 @@ description: Process CSV files.
 ```
 
 **正例**：
+> **本地强约束说明（2026-08-24）**：上例为官方源缓存正例，用 `>` 多行折叠块；本仓库因外部技能管理软件的转义风险，`description` 一律用**普通双引号单行字符串**（见 frontmatter-style-guide「单行强约束」）——官方正例仅作语义参考（结构/触发词/边界），书写格式以本地单行约束为准。
+
 ```yaml
 description: >
   Analyze CSV and tabular data files — compute summary statistics,

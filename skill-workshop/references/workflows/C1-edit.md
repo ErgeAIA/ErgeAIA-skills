@@ -55,4 +55,4 @@ python scripts/skill_cli.py validate <skill-path>
 - V1：SKILL.md 存在且 frontmatter 完整
 - V2：`validate` 返回 PASS
 - V3：description 覆盖触发条件
-- V4：有正面/负面触发测试集（参考 `tests/trigger-test-set.md`）
+- V4：有正面/负面触发测试集（参考 `references/config/trigger-test-set.md`）

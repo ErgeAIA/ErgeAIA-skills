@@ -1,8 +1,8 @@
 ---
 trigger-when: 校验 skill-workshop 自身路由完整性、修改任何 workflow 或 SKILL.md 路由表前
 name: routing-table
-description: skill-workshop 9 个 authoring 文件 × 5 个 workflow reads-from 块的全量引用关系真相源。本表是路由一致性硬校验（versioning-and-validation.md §4.4）的唯一判定依据，SKILL.md "渐进式披露"路由表与各 workflow `reads-from:` 块必须与本表保持一致。
-version: 1.0.0
+description: skill-workshop 9 个 authoring 文件 × 8 个 workflow reads-from 块的全量引用关系真相源。本表是路由一致性硬校验的唯一判定依据（由 routing-check 机器比对），SKILL.md "渐进式披露"路由表与各 workflow `reads-from:` 块必须与本表保持一致。
+version: 1.1.0
 ---
 
 # skill-workshop 路由表（Routing Table）
@@ -50,9 +50,26 @@ version: 1.0.0
 | `rubrics/complexity-rubric.md` | ✅ 复杂度判定 | — | ✅ |
 | `rubrics/weighted-scoring.md` | ✅ 快速评分 | — | ✅ |
 
-## 4. 5 个 workflow 的 reads-from 块全量
+## 4. 8 个 workflow 的 reads-from 块全量
 
-### 4.1 W3-issues.md
+> **v1.1.0 修正**：此前 §4.4 误称 W1/W2/W4/W5/W6"无 reads-from 块"（实际 5 个均有）；现按 workflow 文件 frontmatter 实际 reads-from 全量重写。**本表由 routing-check 机器比对**（routing_check.py 解析本表声明 vs workflow 实际 frontmatter），修改任一 workflow 的 reads-from 必须同步本表，否则 routing-check FAIL。
+
+### 4.1 W0-clarify.md
+无 `reads-from` 块（直接消费 SKILL.md 决策矩阵与 W3/W7 报告）
+
+### 4.2 W1-complexity.md
+```
+reads-from:
+  - references/rubrics/complexity-rubric.md  # 六维标尺
+```
+
+### 4.3 W2-strengths.md
+```
+reads-from:
+  - references/rubrics/review-checklist.md  # 三段式前置 + 优点判定标准
+```
+
+### 4.4 W3-issues.md
 ```
 reads-from:
   - references/rubrics/review-checklist.md  # 唯一判定标准源
@@ -62,7 +79,25 @@ reads-from:
 calls: workflows/W7-description-audit.md     # T 系列强制委托
 ```
 
-### 4.2 W7-description-audit.md
+### 4.5 W4-workflow-split.md
+```
+reads-from:
+  - references/rubrics/complexity-rubric.md  # 档位与差异化处理
+```
+
+### 4.6 W5-recommendations.md
+```
+reads-from:
+  - references/rubrics/review-checklist.md  # 命中编号 → 整改方向映射
+```
+
+### 4.7 W6-verdict.md
+```
+reads-from:
+  - references/rubrics/review-checklist.md  # 工程化档位阈值
+```
+
+### 4.8 W7-description-audit.md
 ```
 reads-from:
   - references/rubrics/intent-calibration.md             # T1-T5 示例与阈值标尺
@@ -70,7 +105,7 @@ reads-from:
   - references/authoring/progressive-disclosure-patterns.md  # description 作为 Tier 1 角色的设计原则
 ```
 
-### 4.3 V0-validate.md
+### 4.9 V0-validate.md
 ```
 reads-from:
   - references/specs/spec.md             # frontmatter 字段允许表
@@ -78,10 +113,7 @@ reads-from:
   - references/authoring/versioning-and-validation.md  # 版本三处一致性硬校验
 ```
 
-### 4.4 W0/W1/W2/W4/W5/W6
-无外部 `reads-from` 块（直接消费 W3/W7 报告或本表 §1-§3）
-
-### 4.5 C1/C2/C3
+### 4.10 C1/C2/C3
 由 C1-create / C2-evaluate / C3-refactor 自己加载 authoring/，不通过 reads-from 块
 
 ## 5. 路由失配自检清单
@@ -91,7 +123,7 @@ reads-from:
 | 失配类型 | 检测方法 | 修复方向 |
 |----------|----------|----------|
 | **类型 A：authoring 文件未在 SKILL.md 路由表出现** | 遍历 `authoring/` 下 9 个文件名，比对 SKILL.md §4 表格 | 在 §4 补一行 |
-| **类型 B：authoring 文件未在任何 workflow `reads-from` 出现** | 遍历 5 个 workflow `reads-from` 块 | 若该文件应被读（如 versioning-and-validation 应被 V0 读），加 `reads-from` |
+| **类型 B：authoring 文件未在任何 workflow `reads-from` 出现** | 遍历 8 个 workflow `reads-from` 块（或直接跑 routing-check 比对本表声明） | 若该文件应被读（如 versioning-and-validation 应被 V0 读），加 `reads-from` |
 | **类型 C：workflow 引用了文件但该文件无对应 trigger-when** | 比对 `trigger-when:` 字段 | 补 `trigger-when` 或在 workflow 内联说明触发场景 |
 
 ## 6. 路由变更流程

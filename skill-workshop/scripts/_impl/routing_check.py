@@ -124,6 +124,38 @@ def extract_skill_md_routing_table(skill_md: str) -> set[str]:
     return refs
 
 
+def extract_routing_table_workflow_refs(routing_table: str) -> dict[str, set[str]]:
+    """Parse routing-table.md §4 workflow reads-from declarations.
+
+    Each workflow section looks like:
+        ### 4.2 W1-complexity.md
+        ```
+        reads-from:
+          - references/rubrics/complexity-rubric.md  # comment
+        ```
+    Returns {workflow_filename: set(reads-from refs)}.
+    """
+    result: dict[str, set[str]] = {}
+    sections = re.split(r"^###\s+4\.\d+\s+([\w-]+\.md)", routing_table, flags=re.MULTILINE)
+    # sections[0] is the preamble; then alternating (filename, body)
+    for i in range(1, len(sections), 2):
+        wf_name = sections[i].strip()
+        body = sections[i + 1]
+        # extract first fenced code block
+        m = re.search(r"```(.*?)```", body, re.S)
+        if not m:
+            continue
+        refs: set[str] = set()
+        for line in m.group(1).splitlines():
+            stripped = line.strip()
+            if stripped.startswith("- ") and "references/" in stripped:
+                ref = stripped[2:].split("#", 1)[0].strip()
+                if ref.startswith("references/"):
+                    refs.add(ref)
+        result[wf_name] = refs
+    return result
+
+
 def check_routing_consistency(skill_path: Path) -> list[str]:
     """Return list of error strings. Empty list = consistent."""
     errors: list[str] = []
@@ -135,6 +167,7 @@ def check_routing_consistency(skill_path: Path) -> list[str]:
 
     # 1. Check workflow files' reads-from is consistent with themselves
     workflow_refs: set[str] = set()
+    actual_by_workflow: dict[str, set[str]] = {}
     for wf_rel in WORKFLOW_FILES:
         wf_path = skill_path / wf_rel
         if not wf_path.exists():
@@ -143,6 +176,7 @@ def check_routing_consistency(skill_path: Path) -> list[str]:
         content = _cached_read(wf_path)
         fm = extract_frontmatter_block(content)
         refs = extract_reads_from(fm)
+        actual_by_workflow[Path(wf_rel).name] = {r for r in refs if r.startswith("references/")}
         for ref in refs:
             # normalize: references/... or external
             if ref.startswith("references/"):
@@ -173,6 +207,27 @@ def check_routing_consistency(skill_path: Path) -> list[str]:
     for ref in skill_table:
         if not (skill_path / ref).exists():
             errors.append(f"[routing-mismatch] SKILL.md table references missing file: {ref}")
+
+    # 4. Cross-check: routing-table.md §4 declarations vs actual workflow reads-from
+    # (truth-source consistency — v1.20.0 补读真源，此前仅做存在性检查)
+    rt_path = skill_path / "references" / "routing-table.md"
+    if rt_path.exists():
+        rt = _cached_read(rt_path)
+        declared = extract_routing_table_workflow_refs(rt)
+        for wf_name, declared_refs in declared.items():
+            actual_refs = actual_by_workflow.get(wf_name, set())
+            missing = declared_refs - actual_refs
+            extra = actual_refs - declared_refs
+            if missing:
+                errors.append(
+                    f"[routing-mismatch] routing-table declares {wf_name} reads-from "
+                    f"{sorted(missing)} but workflow frontmatter lacks them"
+                )
+            if extra:
+                errors.append(
+                    f"[routing-mismatch] routing-table missing declaration for {wf_name} "
+                    f"reads-from {sorted(extra)}"
+                )
 
     return errors
 

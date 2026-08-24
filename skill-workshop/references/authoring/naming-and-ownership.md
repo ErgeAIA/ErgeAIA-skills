@@ -1,7 +1,7 @@
 ---
 trigger-when: "创建 Skill 时确认目录归属"
 name: naming-and-ownership
-description: Skill 目录/文件命名与归属规范。用于区分“本技能（kz-skill-creator）”与“目标技能”，并统一 references/scripts/assets 等目录语义。
+description: Skill 目录/文件命名与归属规范。用于区分“本技能（skill-workshop）”与“目标技能”，并统一 references/scripts/assets 等目录语义。
 version: 1.6.0
 ---
 
@@ -19,7 +19,7 @@ version: 1.6.0
 
 ## 1. 术语（强制）
 
-- **本技能**：kz-skill-creator（本目录），用于指导你创建/迭代/评测目标技能
+- **本技能**：skill-workshop（本目录），用于指导你创建/迭代/评测目标技能
 - **目标技能**：你正在创建/修改/评测的那个 Skill
 - **目标技能工作流**：目标技能的 SKILL.md 里的 `## @工作流:`
 - **本技能工作流**：本技能 SKILL.md 里的流程（如创建流程、评测闭环）
@@ -42,12 +42,12 @@ version: 1.6.0
 - 目标技能名使用 `kebab-case`（如 `pdf-tools`、`dash-developer`）
 - references 内的文件名优先“面向使用场景”（如 `api.md`、`examples.md`、`troubleshooting.md`）
 
-### 2.2 本技能（kz-skill-creator）
+### 2.2 本技能（skill-workshop）
 
 本技能目录结构表达“如何创建/评测目标技能”，分区必须清晰：
 
 ```
-kz-skill-creator/
+skill-workshop/
 ├── SKILL.md
 ├── scripts/
 │   ├── skill_cli.py                 # 唯一公开 CLI 入口（init/package/validate/eval/loop/...）
@@ -84,14 +84,14 @@ kz-skill-creator/
 |---|---|---|
 | `<target-skill>/SKILL.md` | 目标技能 | 目标技能说明/工作流/步骤 |
 | `<target-skill>/scripts/*` | 目标技能 | 目标技能执行与验证 |
-| `kz-skill-creator/scripts/skill_cli.py` | 本技能 | 创建/打包/校验/评测统一入口 |
-| `kz-skill-creator/scripts/_impl/*` | 本技能 | 各入口脚本背后的共享实现模块 |
-| `kz-skill-creator/references/authoring/*` | 本技能 | 目标技能写作规范与模式 |
-| `kz-skill-creator/references/workflows/*` | 本技能 | 本技能自身的工作流与业务流程说明 |
-| `kz-skill-creator/references/evaluation/*` | 本技能 | 评测闭环规范与产物说明 |
-| `kz-skill-creator/agents/*` | 本技能 | 评测比较/分析/打分提示词 |
-| `kz-skill-creator/assets/eval_review.html` | 本技能 | 评测回放页模板 |
-| `kz-skill-creator/assets/eval_set_editor.html` | 本技能 | eval JSON 编辑工具页 |
+| `skill-workshop/scripts/skill_cli.py` | 本技能 | 创建/打包/校验/评测统一入口 |
+| `skill-workshop/scripts/_impl/*` | 本技能 | 各入口脚本背后的共享实现模块 |
+| `skill-workshop/references/authoring/*` | 本技能 | 目标技能写作规范与模式 |
+| `skill-workshop/references/workflows/*` | 本技能 | 本技能自身的工作流与业务流程说明 |
+| `skill-workshop/references/evaluation/*` | 本技能 | 评测闭环规范与产物说明 |
+| `skill-workshop/agents/*` | 本技能 | 评测比较/分析/打分提示词 |
+| `skill-workshop/assets/eval_review.html` | 本技能 | 评测回放页模板 |
+| `skill-workshop/assets/eval_set_editor.html` | 本技能 | eval JSON 编辑工具页 |
 
 ---
 

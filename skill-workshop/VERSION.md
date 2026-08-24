@@ -1,5 +1,40 @@
 # VERSION.md — skill-workshop
 
+## v1.20.0 (2026-08-24) — 自我审查修复（dogfooding：用 v1.19.0 整合后的评审链审自己，16 项跨文件冲突 + 23 项脚本核对 → 修复后全 PASS）
+
+### 背景
+按"吃自己的狗粮"指令，用刚整合 skill-review-process v6.8 的 W 链审查自身（复杂档）。两个并行扫描 agent 全量读取 45 references + 19 scripts，抓出 16 项跨文件冲突 + 23 项脚本行为核对发现；经对抗式审查（AGAINST 最强反方 6 条）修订方案后执行。**首次实战证明 C5 交叉核对机制价值**：第一天自审即抓出 16 处规则打架。
+
+### 修复清单（按修订后收敛方案 L0-L4）
+- **L0 还债（整合引入的 3 项）**：①review-checklist 项数"52 项"→ 删硬编码（C5 使 52→53 未同步，改为"以编号为真相源"）；②VERSION v1.19.0"机器校验全过"误报 → 如实补正（checklist 实为 6 项既有 FAIL）；③C5 定位说明（语义项人工、脚本不消费）。
+- **L1 修对象（不豁免）**：SKILL description 补技术特征维度（Python CLI / YAML frontmatter / Markdown），T3 真问题修复而非改正则豁免。
+- **L2 脚本口径**：`review_ops.py` [M8]→[M5]（文档无 M8）、DESC_TECH_RE 扩展（python/cli/yaml/markdown 等技术锚点）、C4 豁免 examples/templates（对齐 quick_validate）、consistency 去重（删硬编码 7 条，YAML 为唯一配置源 + ignore_files 消费）、review 水词检查逐行跳过禁令行（修自身模板误报）。
+- **L2 旧名清理（C15）**：kz-skill-creator/skill-reviewer 三称并存 → naming-and-ownership/trigger-test-set/examples/skill-foundations 全改 skill-workshop；evaluation-template description 去旧名；README 溯源行豁免（"来源/继承自/整合升级/source:"）与贡献者表标注（旧术语，仅溯源）；新规则 SKILL-OLD-NAME 入 consistency-rules.yaml。
+- **L3 真源机器化（S15/S16/C4）**：routing-table §4 重写为 8 个 workflow 实际 reads-from 全量（此前误称 6 个无）；`routing_check.py` 补读 routing-table 做声明 vs 实际三方比对（负向自测：注入 mismatch 能抓出）。**真源声明从此配机器校验，不再裸声明。**
+- **L4 规则一致**：T 系列判级**实测裁决**（3 真实技能对比：W7 分维 P0/P1/P2 优于统一 P0，checklist T3 改分维、W3 注入按优先级入位）；B3 并入 T 系列转 W7；O1a 改信息提示；W5 补 V4-V7 映射；V0-validate 第 7/8 步声明对齐代码；trigger-test-set 路径修正（tests//evals/ → references/config/）；触发词语种统一（去拼音）；version 必填统一 metadata.version（S5/versioning-and-validation/V0 三处对齐）；allowed-tools 以 spec.md 为权威源（validate.md 改引用式 + spec 职责说明）；complexity 档位压缩说明；8 维评分换算桥说明；description 单行约束 vs 官方正例说明；init_skill 脚手架顶层 version → metadata.version；README CLI 数量 16/17 → 18 + 补 routing-check/selfheal 行。
+- **明确不改（设计内差异）**：评审四档 vs 创建三档（补说明非改结构）；评测链独立拆分（用户裁决项）；C5 无脚本消费（语义项人工）。
+
+### 第一性原理结论
+- 本质矛盾：评审工具自身若"声明与实现/真源脱节"，用它的评审结论即以错误标尺裁决——自检承诺失信（V2 声明 PASS 实际 FAIL）与执行者假跑同罪。**必须做到**：声明必须可机器验证、真源必须被脚本消费；**绝不**：靠裸声明防漂移（routing-table 已证明声明失效一次）。
+
+### 钢人裁决
+- FOR：机制化防漂移（真源+校验绑定）优于逐条补丁；修对象（description 补技术特征）优于豁免检查；负向自测证明校验真能抓错。
+- AGAINST（最强反方）：①机制化改造规模大，冲击开源仓库稳定性（v1.19.0 次日又大改）；②"修检查器"与"修对象"边界易混（T3 正则扩展是否算弱化）；③T 系列分维裁决样本仅 3 技能，可能过拟合。
+- 关键变量（实测）：全套机器校验 PASS；负向注入 routing-table mismatch 被 routing-check 抓出；3 技能 T 判级对比支持分维。
+- **判断（有条件）**：L0-L4 机制化修复成立；若后续评审执行成本显著上升（W3 前置过重）或下游用户反馈频繁大改，回到"分批推送"策略（触发条件：用户反馈）。
+
+### 对抗式审查（风险清单）
+- R1 大规模改动引入新漂移 → 全套机器校验 5/5 PASS + 负向自测。
+- R2 T3 正则扩展过宽 → 仅覆盖常见技术锚点词，非任意通过。
+- R3 routing-table 重写与 workflow 实际仍可能漂移 → 已由 routing_check 机器比对兜底（防再漂移机制）。
+- R4 README CLI 表格补行后数量仍可能漂移 → 数量与表格同步修正，机制 2（数字派生）已删多处硬编码。
+- R5 版本三段式 → SKILL/VERSION/根 README 同步 1.20.0。
+
+### 结论
+- v1.20.0：自我审查修复落地，机器校验全过（spec/validate/checklist/consistency/routing-check 5/5 PASS，checklist 由 FAIL 转 PASS——v1.19.0 误报已还债）。**自检承诺恢复真实。**
+
+---
+
 ## v1.19.0 (2026-08-24) — 整合 skill-review-process v6.5-v6.8（铁律/交叉核对/分级门禁/状态机/质量杠杆）
 
 ### 决策背景
@@ -29,7 +64,8 @@
 - R6 版本三段式 → SKILL metadata.version / VERSION.md 顶部 / 根 README 索引同步 1.19.0。
 
 ### 结论
-- v1.19.0：整合 skill-review-process v6.5-v6.8 质量保证机制，无破坏性变更，机器校验全过。
+- v1.19.0：整合 skill-review-process v6.5-v6.8 质量保证机制，无破坏性变更。
+- **⚠️ 2026-08-24 更正（自我审查抓出）**：原"机器校验全过"表述**不实**——整合当日 `checklist` 实为 FAIL（6 项既有：T3 description 技术特征 + 5×C4 examples 缺 trigger-when），此误报违反 0.6 铁律"不准假跑"。正确结论：`spec`/`validate`/`consistency`/`routing-check` 通过，`checklist` 存在 6 项既有 FAIL（后续 v1.20.0 修复）。
 
 ---
 

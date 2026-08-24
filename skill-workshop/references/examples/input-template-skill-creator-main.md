@@ -1,6 +1,6 @@
 ---
 name: input-template-skill-creator-main
-description: 用户需要创建或更新 Skill 场景示例文档。基于 kz-skill-creator 的工作流“理解并创建Skill”自动生成的场景示例草稿，用于后续人工收敛。
+description: 用户需要创建或更新 Skill 场景示例文档。基于 skill-workshop 的工作流“理解并创建Skill”自动生成的场景示例草稿，用于后续人工收敛。
 version: 0.1.2
 ---
 
@@ -8,7 +8,7 @@ version: 0.1.2
 
 <!-- @类型: 场景示例草稿 -->
 <!-- @目的: 为高频使用场景提供一份可直接复制、可继续人工收敛的输入示例 -->
-<!-- @场景: 由 `kz-skill-creator` 的工作流“理解并创建Skill”自动推导出的候选场景 -->
+<!-- @场景: 由 `skill-workshop` 的工作流“理解并创建Skill”自动推导出的候选场景 -->
 <!-- @触发条件: 当用户反复出现“用户需要创建或更新 Skill”相关诉求时，可将此草稿收敛为正式示例 -->
 <!-- @来源工作流: wf-skill-creator-main -->
 

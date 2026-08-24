@@ -75,12 +75,12 @@ reads-from:
 - frontmatter `version` 字段值 == 头部版本块 `> **版本**: vX.Y.Z` 值
 - frontmatter `version` 字段值 == 文末首条 `## 版本历史` 第一条版本号
 - 三者任一不一致 → 整体 FAIL，错误信息形如 `[version-mismatch] frontmatter=0.2.0, header=0.2.1, history=0.2.0`
-- 版本块（头部版本块 / 文末版本历史）**本身可选**：当文档完全无版本块时，跳过三处比对，**不判 FAIL**，仅在错误信息中标注 `missing-header` / `missing-history` 供人工参考
+- 版本块（头部版本块 / 文末版本历史）**本身可选**：文档完全无版本块时跳过三处比对；但**无版本块且无 VERSION.md 时判 FAIL**（`Missing version info in document header`，对齐 quick_validate.py 实际行为）；存在 VERSION.md 时以其为版本真源、跳过头部/文末比对
 - 仅当"存在版本块但其中任意一处与 frontmatter `version` 不一致"时才判 `version-mismatch` FAIL
 
 ### 第 8 步：Frontmatter 字段过度工程化（来自 frontmatter-style-guide.md）
-- frontmatter 内是否塞入了应归 VERSION.md 的元数据（如 `created` / `updated` / `origin`）
-- 命中即 P1 提示，**不阻断 PASS**，但写入报告
+- **信息提示（未脚本化）**：frontmatter 内是否塞入了应归 VERSION.md 的元数据（如 `created` / `updated` / `origin`）
+- 此项为人工判定（validate 命令未实现自动扫描），命中即 P1 提示，**不阻断 PASS**，但写入报告
 
 ---
 

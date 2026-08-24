@@ -1,18 +1,18 @@
 ---
 version: 2026-05-r1
-source: skill-reviewer V4
+source: skill-workshop（旧术语溯源：skill-reviewer V4）
 trigger-when: description 修改后的回归验证、触发率校准
 role: test-set
 ---
 
-# skill-reviewer 触发测试集
+# skill-workshop 触发测试集
 
-> 本文件是 skill-reviewer 自身的 V4 落地产物。
+> 本文件是 skill-workshop 自身的 V4 落地产物（旧术语溯源：skill-reviewer）。
 > 每次修改 `description` 字段后，必须使用本测试集完整回归验证。
 
 ---
 
-## 正面集（应触发 skill-reviewer，12 条）
+## 正面集（应触发 skill-workshop，12 条）
 
 ```
 评审一下这个 skill，看看有什么问题
@@ -48,8 +48,8 @@ review 一下这个 React 组件的代码质量                        # 是通�
 
 ## 回归方法
 
-1. 将正面集逐条作为用户输入，观察 Agent 是否激活 skill-reviewer
-2. 将负面集逐条作为用户输入，观察 Agent 是否**未**激活 skill-reviewer
+1. 将正面集逐条作为用户输入，观察 Agent 是否激活 skill-workshop
+2. 将负面集逐条作为用户输入，观察 Agent 是否**未**激活 skill-workshop
 3. 任一项不符合预期 → 调整 `description` 字段并重测
 4. 每次修改 description 后必须完整回归
 

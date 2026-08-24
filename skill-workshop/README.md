@@ -145,13 +145,13 @@ skill-workshop/
 │       ├── C3-refactor.md      # 重构主链
 │       └── W0-W7 + V0          # 评审主链（继承自 skill-reviewer）
 ├── scripts/
-│   ├── skill_cli.py            # 统一 CLI 入口（17 子命令）
+│   ├── skill_cli.py            # 统一 CLI 入口（18 子命令）
 │   └── _impl/                  # 实现模块
 ```
 
 > 评测日志位于仓库根 `.darwin/results.tsv`（与 skill 平级，不在 skill 自身目录内）。
 
-## 16 个 CLI 子命令
+## 18 个 CLI 子命令
 
 | 子命令               | 来源     | 功能                    |
 | -------------------- | -------- | ----------------------- |
@@ -171,6 +171,8 @@ skill-workshop/
 | `improve`            | creator  | description 改进        |
 | `review-playback`    | creator  | 评测回放 UI             |
 | `editor`             | creator  | eval set 编辑器         |
+| `routing-check`      | reviewer | 路由一致性校验（含真源比对）|
+| `selfheal`           | reviewer | 自愈修复（dry-run 默认）|
 
 ## 致谢
 
@@ -178,8 +180,8 @@ skill-workshop/
 
 | 来源                 | 作者     | 定位                                                     | 链接                                                                         |
 | -------------------- | -------- | -------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| **skill-reviewer**   | ErgeAIA  | 裁判——10 维 52 项评审体系、合规校验、V1-V7 自检闭环       | [GitHub](https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer) |
-| **kz-skill-creator** | kingzeus | 构建者——创建/重构/评测工作流、语义化标记规范、CLI 工具链 | [Gitee](https://gitee.com/kingzeus/skills#kz-skill-creator)                  |
+| **skill-reviewer**（旧术语，仅溯源） | ErgeAIA  | 裁判——10 维 52 项评审体系、合规校验、V1-V7 自检闭环       | [GitHub](https://github.com/ErgeAIA/ErgeAIA-skills/tree/main/skill-reviewer) |
+| **kz-skill-creator**（旧术语，仅溯源） | kingzeus | 构建者——创建/重构/评测工作流、语义化标记规范、CLI 工具链 | [Gitee](https://gitee.com/kingzeus/skills#kz-skill-creator)                  |
 
 skill-workshop 在二者基础上做了统一入口、路由合并、脚本整合和双评估体系并存，但核心评审标尺和创建工作流的设计思路分别源自上述两个项目。
 
