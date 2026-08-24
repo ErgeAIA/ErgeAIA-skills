@@ -1,7 +1,7 @@
 ---
 name: W5-recommendations
 description: 评审模式 W5 整改方向生成（按 W3 命中项动态生成 P0/P1/P2 三优先级整改方向）；W3 至少有一条命中时触发。
-version: 1.2.0
+version: 1.3.0
 <!-- @类型: 工作流 -->
 <!-- @优先级: 必须 -->
 role: Action Mapper (Referee)
@@ -13,8 +13,8 @@ trigger-when: W3 至少有一条命中项时
 
 # W5 整改方向（从 W3 命中项动态生成）
 
-> **版本**: v1.2.0
-> **改动**: v1.2.0 - 增 frontmatter name/description/version 三个必填字段（v1.4 PUA 自审整改）
+> **版本**: v1.3.0
+> **改动**: v1.3.0 - C 系列映射表补 C5（同规范多文件口径统一）；v1.2.0 - 增 frontmatter name/description/version 三个必填字段（v1.4 PUA 自审整改）
 
 ## 生成规则
 
@@ -50,6 +50,7 @@ trigger-when: W3 至少有一条命中项时
 | C2       | 超出主职责的部分需拆出独立 Skill 或归档               | 范围发散会让触发精度下降               |
 | C3       | 超过 50 行的领域细节需移到 `references/`              | 让 Agent 按需加载，节省上下文          |
 | C4       | `references/` 文件需加入「何时加载」触发条件          | 无触发条件 Agent 会预加载浪费上下文    |
+| C5       | 同一规范多文件口径需统一（以 SKILL.md 或指定权威文件为唯一真相源，其余同步） | 跨文件口径打架会让 Agent 执行互相矛盾 |
 
 ### I 实现类
 

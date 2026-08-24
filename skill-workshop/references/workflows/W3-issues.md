@@ -1,7 +1,7 @@
 ---
 name: W3-issues
-description: 评审模式问题扫描阶段工作流；逐项引用 review-checklist.md 判定 P0/P1/P2；T 系列强制委托 W7。
-version: 1.1.0
+description: 评审模式问题扫描阶段工作流；逐项引用 review-checklist.md 判定 P0/P1/P2；T 系列强制委托 W7；交叉核对前置找同技能规则冲突。
+version: 1.2.0
 <!-- @类型: 工作流 -->
 <!-- @优先级: 必须 -->
 trigger-when: "评审模式问题扫描阶段"
@@ -17,12 +17,13 @@ writes-to: 报告第 4 段
 
 # W3 问题扫描（P0/P1/P2）
 
-> **版本**: v1.1.0
-> **改动**: v1.1.0 - 增 frontmatter-style-guide.md 与 versioning-and-validation.md 为 reads-from；S6 由 P2 软性建议升级为 P1 硬限（详见 changelog）
+> **版本**: v1.2.0
+> **改动**: v1.2.0 - 契约补「交叉核对前置（5.3.1）」——读全部 references/scripts 找同技能规则冲突（对应 checklist C5）；三段式前置补质量杠杆第四问
 
 ## 契约
 
-- **三段式前置**：进入逐项扫描前，必须先按 `references/rubrics/review-checklist.md`「三段式评审元框架」完成第一性锚定（第一性问题/不可违背约束/边界，一句话锚定），并对可疑设计选择做双向钢人论证。锚定发现方向性错误时，无论清单命中多少项，报告第 2 段必须显式给出「方向判断：错位」。
+- **三段式前置**：进入逐项扫描前，必须先按 `references/rubrics/review-checklist.md`「三段式评审元框架」完成第一性锚定（第一性问题/不可违背约束/边界/质量杠杆，一句话锚定），并对可疑设计选择做双向钢人论证。锚定发现方向性错误时，无论清单命中多少项，报告第 2 段必须显式给出「方向判断：错位」。
+- **交叉核对前置（5.3.1，对应 checklist C5）**：进入逐项扫描前，**必须读被评审 Skill 的全部 references/ 与 scripts/**（不只 SKILL.md 主文档），专门找同技能内规则直接打架：同一规范（引号口径、边界措辞、数字/阶段定义）在多个文件中表述不一致；SKILL.md 主文档与 references 的宣称矛盾；scripts 实际行为与 references 声明口径矛盾。判定口诀：**某个规范在 ≥2 个文件出现，就必须逐文件比对口径是否一致**。漏读 references 导致的冲突未发现 = 审查失职。
 - 本工作流**不内嵌**检查项定义，逐项引用 `references/rubrics/review-checklist.md`
 - T1–T5 的判定**强制委托** `W7-description-audit.md`，W3 不自行判定
 - **T 系列裁决权禁令**：W3 在扫描过程中遇到任何与 description、触发意图、三维触发模型相关的问题时，**必须**停止自行判定，将问题标记为待 W7 裁决。W3 仅负责识别"T 系列可能命中"的信号，最终判定权唯一归属 W7。此约束与 SKILL.md §2 调用关系一致，但在本工作流内显式声明以确保 Agent 即使跳过 SKILL.md 也能遵守。
@@ -104,5 +105,6 @@ W7 全部通过时不注入。
 
 ## 版本历史
 
+- **v1.2.0** (2026-08-24) - 契约补「交叉核对前置（5.3.1）」：读全部 references/scripts 找同技能规则冲突，漏读 = 审查失职（对应 review-checklist C5）
 - **v1.1.0** (2026-06-18) - 增 frontmatter-style-guide.md / versioning-and-validation.md 为 reads-from；S6 由 P2 软性建议升级为 P1 硬限（V0 硬校验范畴）
 - **v1.0.0** (2026-06-14) - 初版：T1–T5 强制委托 W7；M/P/V/B 维度引用 best-practices.md 作为证据

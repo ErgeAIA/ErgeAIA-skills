@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站：把创建 / 评审 / 重构 / 评测 Agent Skill 四类动作路由到对应工作流，并保障产出通过结构校验。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
 metadata:
   author: ErgeAIA
-  version: "1.18.3"
+  version: "1.19.0"
 ---
 
 # skill-workshop
@@ -78,6 +78,9 @@ metadata:
 - @动作: W2/W3 逐项扫描 checklist 前必须先走**三段式评审元框架**（第一性锚定 → 可疑设计双向钢人 → 对抗式审查 D 系列），第一性锚定产出「方向判断：错位」时优先于清单问题。*Why：清单式扫描只能发现格式与结构缺陷，发现不了"方向错误的技能"——一个 frontmatter 合规、行数达标的过程式 Skill 可能在第一性层面就是错的（指导 AI 怎么做而非结果导向）。元框架定义见 [review-checklist.md](references/rubrics/review-checklist.md)「三段式评审元框架」。*
 - @动作: frontmatter.metadata.version 必填；头部版本块和版本历史 section 可选（VERSION.md 存在时 V0 不强校验）。*Why：版本漂移会导致 Agent 加载过期指令；但头部/文末版本信息是人类维护点，不是 LLM 决策依赖，不应占用上下文。*
 - @动作: 完成后必须跑 `python scripts/skill_cli.py validate <path>`。*Why：人工检查容易遗漏 frontmatter 格式、链接断裂等机械性错误。*
+- @动作: **评审论证质量铁律**（对齐 skill-review-process 0.6，凌驾一切路径）：第一性锚定须从本质矛盾推导（非"必须___绝不___"格式填空）；钢人 AGAINST 必须最强反方、关键变量可测试已实测、结论必须带条件；**论证对象匹配**——仅方向性决策走钢人，格式/触发层决策走清单 + 对抗即可，禁止为凑流程硬升级论证对象。每步评审结论必须落成报告文本，无产物 = 未执行。判据见 [review-checklist.md](references/rubrics/review-checklist.md)「钢人论证质量判据」。*Why：论证质量低（稻草人反方/无条件结论）等于没论证，评审结论不配做判定依据。*
+- @动作: **机器校验分级门禁**：P0 每技能必跑（`spec` + `validate` description 合规）、P1 涉及即跑（`routing-check` 悬空引用/路由一致性、版本三段式）、P2 深度评审必跑（`checklist` + `consistency` 术语一致性）；脚本 FAIL 不得出「通过」结论——评审报告未附机器校验结果 = 无效评审。*Why：人工检查容易遗漏机械性错误（frontmatter 格式/链接断裂/术语残留），脚本 FAIL 出"通过"就是假跑。*
+- @动作: **评审流水线状态门**：W1→W2→W3→W4→W5→W6 为严格流水线，每节点前置产物真实完成（W1 有档位结论、W3 有命中编号清单、W5 每条建议有 W3 编号）才算过；禁止跨级跳跃（未走 W3 直接进 W5）。*Why：跳过中间产物会导致建议无证据支撑、报告断链。*
 
 ## 3. 失败模式编码（if-then 三段式）
 
