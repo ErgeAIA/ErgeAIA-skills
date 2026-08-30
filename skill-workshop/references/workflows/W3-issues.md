@@ -1,7 +1,7 @@
 ---
 name: W3-issues
 description: 评审模式问题扫描阶段工作流；逐项引用 review-checklist.md 判定 P0/P1/P2；T 系列强制委托 W7；交叉核对前置找同技能规则冲突。
-version: 1.2.0
+version: 1.3.0
 <!-- @类型: 工作流 -->
 <!-- @优先级: 必须 -->
 trigger-when: "评审模式问题扫描阶段"
@@ -44,7 +44,7 @@ writes-to: 报告第 4 段
 - 描述的执行路径是否沉淀为真实脚本入口
 - **​`SKILL.md` 是否含合规 frontmatter（name + description）​**
 - **关键 Gotchas 是否缺失**（环境特定的反直觉事实）
-- **脚本是否含交互式 `input()` / TTY 阻塞**（会让 Skill 挂死）
+- **脚本是否含交互式 `input()` / TTY 阻塞**（会让 Skill 挂死；人类显式调用的 CLI 工具如 `analyze` 子命令除外）
 - **​`SKILL.md` 是否超过 500 行 / 5000 Token**
 - **D1 非破坏约束是否被强制**（仅靠 LLM 自觉 = 高风险，应有脚本/护栏兜底）
 
@@ -107,4 +107,5 @@ W7 全部通过时不注入。
 
 - **v1.2.0** (2026-08-24) - 契约补「交叉核对前置（5.3.1）」：读全部 references/scripts 找同技能规则冲突，漏读 = 审查失职（对应 review-checklist C5）
 - **v1.1.0** (2026-06-18) - 增 frontmatter-style-guide.md / versioning-and-validation.md 为 reads-from；S6 由 P2 软性建议升级为 P1 硬限（V0 硬校验范畴）
+- **v1.3.0** (2026-08-30) - P0 清单 input() 项补 CLI 工具豁免（对齐 review-checklist P3；消除本技能自审自相矛盾）
 - **v1.0.0** (2026-06-14) - 初版：T1–T5 强制委托 W7；M/P/V/B 维度引用 best-practices.md 作为证据

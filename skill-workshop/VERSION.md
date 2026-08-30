@@ -1,5 +1,29 @@
 # VERSION.md — skill-workshop
 
+## v1.21.0 (2026-08-30) — 升级点整改（基于第一性原理自评 + 业界基线对齐）
+
+### 背景
+吃自己的狗粮：用本技能三段式元框架审自身，产出评审报告与整改 Plan；本次落地 A1/A2/B1-B5 + B6。
+
+### 修复清单（对应评审报告 P1/P2）
+- **A1 [P1·C5/P3] 消除自相矛盾**：review-checklist P3 与 W3 P0 清单补「人类 CLI 工具（analyze 子命令）允许 input()，Agent 执行路径仍禁」豁免，解决本技能自审会判自身 P3 未命中。
+- **A2 [P1·O/三段式] 补自身第一性锚定**：SKILL.md 顶部新增 `## 0. 第一性锚定`，示范言行一致。
+- **B1 [P2·O/C2] Google 5 模式基线**：新增 `references/authoring/skill-patterns.md`（Tool Wrapper/Generator/Reviewer/Inversion/Pipeline），并在 C1-requirements 步骤2 加模式归属指针、W3 建议对照。
+- **B2 [P2·D2] 收窄路由 CHECKPOINT**：命中明确信号即直接进入，仅模糊请求才触发 W0-clarify 确认。
+- **B3 [P2·S1/C3] 下沉冗余表**：SKILL.md §3 失败模式编码表移至 `references/skill-failure-modes.md`（按需加载）。
+- **B4 [P2·D2/P] 弱化 eval 路径**：决策矩阵与 README 标注评测为可选高级路径。
+- **B5 [P2·T5] description 更 pushy**：frontmatter description 改为「评审 / 创建你的 Agent Skill…」引导高频动作。
+- **B6 [P2·V/M] 版本单源化**：新增 `scripts/_impl/sync_version.py`，以 VERSION.md 为唯一真源同步 SKILL.md version。
+
+### 第一性原理结论
+- 本质矛盾：质量闸门若自身「声明与实现/真源脱节」即失信（与 v1.20.0 同矛盾）。本次重点修「自相矛盾（P3 与自身脚本）」与「缺自身锚定」两项 P1，并补业界基线（Google 5 模式）降低演进风险。
+- 质量杠杆确认：description 语义精度（T）、非破坏护栏（D1）、瘦主文档 + 按需加载（C/S）才是决定产出好坏的杠杆；eval 闭环 / 版本三处一致属辅助杠杆，本次对 eval 降级为可选、对版本改用单源脚本。
+
+### 结论
+- v1.21.0：自评整改落地，路径配重回归主路径（创建 / 评审 / 重构）。运行态由 sync 工具从 ErgeAIA-skills 权威源重放，AI 不手动改 `~/.workbuddy` / `~/.agents`。
+
+---
+
 ## v1.20.0 (2026-08-24) — 自我审查修复（dogfooding：用 v1.19.0 整合后的评审链审自己，16 项跨文件冲突 + 23 项脚本核对 → 修复后全 PASS）
 
 ### 背景

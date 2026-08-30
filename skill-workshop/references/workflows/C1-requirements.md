@@ -1,7 +1,7 @@
 ---
 name: C1-requirements
 description: C1 子阶段；需求收集 + 复杂度判断，决定走 C1.1 → C1.2 → C1.3 哪条子路径。
-version: 1.2.0
+version: 1.3.0
 trigger-when: "创建 Skill 需求收集阶段"
 ---
 
@@ -30,6 +30,7 @@ trigger-when: "创建 Skill 需求收集阶段"
 - @动作: 至少整理 2 条真实触发语句（"用户说什么会触发 Skill"）
 - @动作: 整理 1 份痛点总结
 - @动作: 输出一句话定义（作用 + 触发场景 + 边界）
+- @动作: 建议先判定目标模式归属（Tool Wrapper / Generator / Reviewer / Inversion / Pipeline，见 [skill-patterns.md](../authoring/skill-patterns.md)），它决定 SKILL.md 的结构骨架（灌知识 / 固定输出 / 清单审查 / 先问后做 / 强制多步）
 
 ### @步骤3: 判断复杂度
 
@@ -50,3 +51,10 @@ trigger-when: "创建 Skill 需求收集阶段"
 - 触发示例 ≥2 条
 - 复杂度判断 + 依据
 - 下一步：进入 C1.2 规划与初始化
+
+---
+
+## 版本历史
+
+- **v1.3.0** (2026-08-30) - 步骤2 增「先判定目标模式归属」指针（对齐 skill-patterns.md，Google 5 模式基线）
+- **v1.2.0** (2026-06-18) - 初版结构（需求收集 + 复杂度判断）

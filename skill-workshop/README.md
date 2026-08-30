@@ -26,6 +26,8 @@ skill-workshop 把这四条路径统一到一个工作站，用决策矩阵路�
 
 另外支持独立的**合规校验**（PASS/FAIL）和**快速评分**（8 维加权）。
 
+> **路径权重**：创建 / 评审 / 重构为高频主路径；评测（C2，eval loop + benchmark + description 优化）为**可选高级路径**，仅在需要跑触发率回归 / 基准对比时启用。
+
 ## 怎么用
 
 **创建新 Skill**：
@@ -71,6 +73,8 @@ python scripts/skill_cli.py init my-skill --path ./output
 # 打包为 .skill 文件
 python scripts/skill_cli.py package /path/to/skill
 ```
+
+> **版本单源化**：`scripts/_impl/sync_version.py` 以 `VERSION.md` 顶部最新版本为唯一真源，自动同步写入 `SKILL.md` 的 `metadata.version`，避免三处版本漂移（运行：`python scripts/_impl/sync_version.py .`）。
 
 ## 双评估系统
 
