@@ -50,4 +50,4 @@
 
 ## 版本
 
-当前版本 **v0.2.7**，详见 [VERSION.md](VERSION.md)。
+当前版本 **v0.2.8**，详见 [VERSION.md](VERSION.md)。

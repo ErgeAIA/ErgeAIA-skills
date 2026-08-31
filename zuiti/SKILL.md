@@ -4,7 +4,7 @@ description: "Use this skill whenever the user pastes a comment, message, or rep
 compatibility: 纯指令型技能，无外部依赖；面向中文怼人/回击场景，支持中英评论输入。
 metadata:
   author: ErgeAIA
-  version: "0.2.7"
+  version: "0.2.8"
 ---
 
 # zuiti（嘴替）
@@ -67,6 +67,7 @@ metadata:
 - @动作: 调用 references/four-styles.md 的风格武器库（直球 / 反讽 / 引经据典 / 名人名言 / 热梗·阴阳 / 格局·路转粉）+ 万能公式兜底，每个风格生成 3 条差异化候选。
 - @动作: 默认六风格全到齐，黑粉 / 带节奏 / 误解 / 被质疑场景里『格局·路转粉』是首选化解调性、『名人名言』用核验屉压场；二者已随全风格默认出场，不漏。
 - @动作: 引经据典 / 名人名言 / 格局 三类，只从 references/quotes-verified.md（核验屉）取已核验条目；热梗 / 阴阳 只从 references/net-memes-verified.md（热梗核验屉）取已核验条目；屉空或命中不到则明示「无核验来源，不编造」，回退到直球/反讽/万能公式。
+- @动作: 名人名言 / 格局 生成被恶言 / 被黑 / 被质疑类评论时，优先取 quotes-verified.md「宋·苏轼（苏东坡）豁达向」组的豁达条目（留侯论·大勇不惊不怒、定风波·一蓑烟雨任平生、前赤壁赋·江上清风山间明月、渑池·雪泥鸿爪等），以从容反衬恶言者之躁急，使其无地自容却无从发作——这是「用豁达让发恶言者自惭」而非对骂的机制。
 
 ### @步骤4: 打可见标 + 兜底软提示，交付
 
