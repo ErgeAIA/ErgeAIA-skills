@@ -13,6 +13,7 @@ Output contract:
 """
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
@@ -96,7 +97,51 @@ def verify(skill_dir: Path) -> list[tuple[str, str]]:
             "创建热梗核验屉文件，至少放几条带 [核验]+来源 的真实热梗",
         ))
 
+    # O11: 抽屉内同文重复硬检查（防 R3 回归）
+    check_drawer_duplicates(quotes, errors, "quotes-verified.md")
+    check_drawer_duplicates(memes, errors, "net-memes-verified.md")
+
     return errors
+
+
+def _quote_key(line: str) -> str:
+    """Extract a normalized quote key from a drawer entry line.
+
+    Uses the content inside the first 「」 pair if present, otherwise the
+    text before the first em-dash. Whitespace / punctuation / brackets are
+    stripped and the result lowercased, so near-identical quotes collide.
+    """
+    s = line.strip()
+    m = re.search(r"「(.+?)」", s)
+    core = m.group(1) if m else s.split("—")[0]
+    core = re.sub(r"[\s\[\]（）()，。、！？\.。,，:：]", "", core)
+    return core.lower()
+
+
+def check_drawer_duplicates(drawer_path: Path, errors: list[tuple[str, str]], label: str) -> None:
+    """Flag same-text quotes appearing twice within one verified drawer.
+
+    Guards against R3 regression (accidentally adding the same quote/meme
+    twice). Only checks within a single file — cross-drawer intentional
+    reuse (e.g. a quote and a meme) is allowed.
+    """
+    if not drawer_path.exists():
+        return
+    seen: dict[str, int] = {}
+    for i, line in enumerate(drawer_path.read_text(encoding="utf-8").splitlines(), 1):
+        s = line.strip()
+        if not s.startswith("- "):
+            continue
+        key = _quote_key(s)
+        if not key:
+            continue
+        if key in seen:
+            errors.append((
+                f"{label}:{i} 抽屉内同文重复：与第 {seen[key]} 行重复「{key[:30]}」",
+                "删除/合并重复条目，或改为不同引文（防 R3 回归）",
+            ))
+        else:
+            seen[key] = i
 
 
 def main() -> None:
