@@ -8,6 +8,7 @@
 |------|------|------|
 | [skill-workshop](skill-workshop/) | Skill 全生命周期工作站：创建、评审、重构、评测 Agent Skill（含 Google 5 模式基线） | v1.21.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.0.0 |
+| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（五风格候选 + 三层禁区 + ⚠️ 人工闸） | v0.2.4 |
 | ~~[skill-reviewer](skill-reviewer/)~~（已废弃） | 九维 48 项结构化评审与合规校验 · 已被 skill-workshop 替代 | v4.6.0 |
 
 ## 快速开始
@@ -21,6 +22,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 # 安装指定技能（使用 --skill 参数）
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 
 # 列出仓库中可安装的技能
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
