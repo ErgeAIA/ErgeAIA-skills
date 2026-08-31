@@ -1,10 +1,10 @@
 ---
 name: zuiti
-description: "文明怼人嘴替：把挨的骂、阴阳怪气、带节奏，变成骂人不带脏字又句句有杀气的体面回击，默认六风格每风格 3 条（共 18 条）；输出纯中文文本，无代码、无外部 API。Use this skill whenever the user pastes a comment, DM, 弹幕 or 群聊消息 they want to answer back, or says they got 被怼/被骂/被杠/被黑 but can't be bothered to phrase it — even if they never say '嘴替'. Invoke on '怼人'/'回怼'/'嘴替'/'帮我回一句'/'骂人不带脏字'/'文明炮台'/'杠精'/'阴阳怪气'/'带节奏'/'黑粉路转粉'. Not for: 代发或自动回复机器人、撰写辱骂/人身攻击内容、普通礼貌或客服回复（用「回复评论」技能）。"
+description: "文明怼人嘴替：把挨的骂、阴阳怪气、带节奏，变成骂人不带脏字又句句有杀气的体面回击，默认六风格每风格 3 条（共 18 条），输出纯中文文本、无代码、无外部 API。Use this skill whenever the user pastes a comment, DM, 弹幕 or 群聊 message they want to answer back, or got 被怼/被骂/被杠/被黑 but can't be bothered to phrase it — even if they never say '嘴替'."
 compatibility: 纯指令型技能，无外部依赖；面向中文怼人/回击场景，支持中英评论输入。
 metadata:
   author: ErgeAIA
-  version: "0.3.6"
+  version: "0.3.7"
 ---
 
 # zuiti（嘴替）

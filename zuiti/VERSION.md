@@ -1,5 +1,17 @@
 # zuiti 版本历史
 
+## v0.3.7 (2026-08-31)
+- 按「真实最佳实践」二次纠正 description（用户质疑 v0.3.6 是否真合规，要求联网核验 + 读 skill-workshop reference）。联网拉取 agentskills.io/skill-creation/optimizing-descriptions 实源 + 通读 skill-workshop 三处 reference，发现**仓库内部自相矛盾**：
+  - `frontmatter-style-guide.md §9`（标「W7 必读」）正例用 `Use this skill whenever... Invoke on "斧正"/... Not for ...` —— 明示支持「枚举 Invoke-on 触发词清单 + Not-for 边界段」。
+  - 但 `W7-description-audit.md` Step 6（T1–T5 **唯一判定者 / 审计判官**）把「列 3 个以上触发短语清单」（应进 trigger-test-set.md）与「Not for Y 边界声明」（应下沉 body Gotchas/Non-Goals）**两条都列为 P1 反模式**。
+  - 实源 agentskills.io 官方正例（PDF/CSV）**两者都不用**：关键词自然织入 `Use this skill when...` 句，无枚举清单、无 Not-for 段。
+  - 即 §9 正例本身按 W7 Step 6 就是 P1 反模式——仓库 reference 自冲突。
+- v0.3.6 实际状态：符合 spec.md §99 + §9 正例，但**会被 W7 Step 6 判 P1**（命中 6.1 枚举清单 + 6.2 Not-for），且不符实源。
+- 纠正（v0.3.7）：以**实源 + 审计判官**为准——① 丢弃 10 词枚举 `Invoke on '...'` 清单，改为把触发词（评论/私信/弹幕/群聊/被怼/被骂/被杠/被黑/嘴替）**自然织入** Pushy 句「Use this skill whenever the user pastes a comment, DM, 弹幕 or 群聊 message... even if they never say '嘴替'」，满足 ≥3 触发词且非枚举清单；② 丢弃 `Not for: ...`——边界本就在 body `## 触发边界`（L23：普通礼貌回复/自动回复机器人/平台代发）与 `## 非目标`(L204)，下移无损、且符合 W7 6.2；③ 保留单行 string、Pushy、意图聚焦、无内部机制泄漏、字符数入 200–400 软区间。
+- 验收：仍单行 string（YAML 安全）；Pushy 祈使句；≥3 触发词（自然，非清单）；无 W7 6.1 枚举清单命中；无 W7 6.2 Not-for 命中；`skill_cli.py validate` 仍通过（字符数落 200–400 软区间，仅推荐项 warning）；`validate_skill.py` exit0。
+- 三处版本同步 metadata/VERSION/根README/zuiti/README 均 v0.3.7；A2/A3/D10/三层禁区/校验脚本 零变更。
+- 遗留待用户裁决：skill-workshop `frontmatter-style-guide.md §9` 正例与 `W7-description-audit.md` Step 6 自冲突，建议修 §9 正例（或注明其与 W7 Step 6 的取舍），避免后人再踩。
+
 ## v0.3.6 (2026-08-31)
 - 按 skill 最佳实践重写 `description`（用户「按技能最佳实践优化description部分」触发）：以 skill-workshop `optimizing-descriptions.md`（三段式：功能段 / Use this skill whenever + Invoke on 触发词 / Not for 边界）+ `frontmatter-style-guide.md` W7 联锁约束为权威规范，对旧 description 做对抗式审计复盘后重写。
 - 旧 description 审计结论（FAIL 三项）：①字符数 531（>500 软上限，冗余）；②无「Invoke on」触发词段（W7 要求触发词≥3 单列段）；③内部机制泄漏——暴露 `quotes-verified.md` / 古代组 / 现代组 / 三来源 等实现细节（违反「关注用户意图非内部机制」）。
