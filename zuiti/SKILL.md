@@ -1,10 +1,10 @@
 ---
 name: zuiti
-description: "Use this skill whenever the user pastes a comment, message, or reply they want to clap back at — generates three civilized retorts per style (嘴替) without dirty words, covering all six styles by default at 3 each (18 total): 直球 / 反讽 / 引经据典 / 名人名言 / 热梗·阴阳 / 格局·路转粉. Also triggers on 怼人 / 回怼 / 文明炮台 / 骂人不带脏字 / 嘴替 / 替我回一句 / 黑粉路转粉. Not for: actual posting, auto-reply bots, or general polite replies (use 回复评论 skill instead). 输出纯中文文本，无代码、无外部 API 调用."
+description: "Use this skill whenever the user pastes a comment, message, or reply they want to clap back at — generates three civilized retorts per style (嘴替) without dirty words, covering all six styles by default at 3 each (18 total): 直球 / 反讽 / 引经据典 / 名人名言 / 热梗·阴阳 / 格局·路转粉. Also triggers on 怼人 / 回怼 / 文明炮台 / 骂人不带脏字 / 嘴替 / 替我回一句 / 黑粉路转粉. 名人名言风格内置苏东坡豁达向 / 儒释道三家大能（孔·恕直 / 佛·空忍 / 老庄·不争无己）两脉圣言风味，以从容或圣言降维反衬恶言者之躁急，使其无地自容却无从发作。Not for: actual posting, auto-reply bots, or general polite replies (use 回复评论 skill instead). 输出纯中文文本，无代码、无外部 API 调用."
 compatibility: 纯指令型技能，无外部依赖；面向中文怼人/回击场景，支持中英评论输入。
 metadata:
   author: ErgeAIA
-  version: "0.2.8"
+  version: "0.2.9"
 ---
 
 # zuiti（嘴替）
@@ -68,6 +68,7 @@ metadata:
 - @动作: 默认六风格全到齐，黑粉 / 带节奏 / 误解 / 被质疑场景里『格局·路转粉』是首选化解调性、『名人名言』用核验屉压场；二者已随全风格默认出场，不漏。
 - @动作: 引经据典 / 名人名言 / 格局 三类，只从 references/quotes-verified.md（核验屉）取已核验条目；热梗 / 阴阳 只从 references/net-memes-verified.md（热梗核验屉）取已核验条目；屉空或命中不到则明示「无核验来源，不编造」，回退到直球/反讽/万能公式。
 - @动作: 名人名言 / 格局 生成被恶言 / 被黑 / 被质疑类评论时，优先取 quotes-verified.md「宋·苏轼（苏东坡）豁达向」组的豁达条目（留侯论·大勇不惊不怒、定风波·一蓑烟雨任平生、前赤壁赋·江上清风山间明月、渑池·雪泥鸿爪等），以从容反衬恶言者之躁急，使其无地自容却无从发作——这是「用豁达让发恶言者自惭」而非对骂的机制。
+- @动作: 同一场景下，亦可优先取 quotes-verified.md「儒释道三家大能」组的圣言条目（论语·卫灵公「己所不欲勿施于人」/论语·宪问「以直报怨」/寒山拾得「再待几年你且看他」/金刚经「凡所有相皆是虚妄」/道德经第八章「上善若水…夫唯不争」/庄子·逍遥游「至人无己」），以儒之恕·直、释之空·忍、道之自然·不争做「降维 + 收摄」——不是赢、不是转、是让对方的恶言在圣言面前溶解，使其无地自容却无从发作；与苏东坡同属「名人名言」风味，不新增第 7 风格。
 
 ### @步骤4: 打可见标 + 兜底软提示，交付
 
