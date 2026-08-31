@@ -4,7 +4,7 @@ description: "Use this skill whenever the user pastes a comment, message, or rep
 compatibility: 纯指令型技能，无外部依赖；面向中文怼人/回击场景，支持中英评论输入。
 metadata:
   author: ErgeAIA
-  version: "0.3.4"
+  version: "0.3.5"
 ---
 
 # zuiti（嘴替）
