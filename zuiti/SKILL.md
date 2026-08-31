@@ -4,7 +4,7 @@ description: "Use this skill whenever the user pastes a comment, message, or rep
 compatibility: 纯指令型技能，无外部依赖；面向中文怼人/回击场景，支持中英评论输入。
 metadata:
   author: ErgeAIA
-  version: "0.3.1"
+  version: "0.3.2"
 ---
 
 # zuiti（嘴替）
@@ -79,6 +79,7 @@ metadata:
   - **造句多样、像三个人写的**：同风格 3 条须有不同句式（陈述 / 反问 / 短句 / 长句）与不同落点，不是「同一句换几个字」；读起来要像不同人写的，不像一个模板产出的填空题。
   - **自然口语优先**：不堆砌书袋套话（如「据《XX》载」「古人云」），把文言/名言融进口语化回击，像真人嘴替；来源只以轻量括号标注（见输出模板），不作「｜思路：套用某屉某句」的格式声明。
   - **思路行写「戳穿了对方哪点」，不是「套用了哪条」**：保留一句话思路只为让人看懂落点，重点是点破逻辑漏洞，而非声明出处。
+  - **对照质量标尺**：生成前瞄 `references/style-exemplars.md` 对应风格的好样例当靶子；写完拿坏样例逐项排查（踩禁区 / 降格对骂 / 填空套话 / 现编出处任一特征即判不通过，退回去重生成）。
 
 ### @步骤4: 打可见标 + 兜底软提示，交付
 
@@ -152,6 +153,7 @@ metadata:
 - 用名言/典故 → 只查 `references/quotes-verified.md`（核验屉）
 - 用热梗/阴阳 → 只查 `references/net-memes-verified.md`（热梗核验屉）
 - 看示范 → `references/examples.md`
+- 判断好/坏样例（质量标尺）→ `references/style-exemplars.md`
 
 ## 安全硬规则（落地锁死，不可绕过）
 
