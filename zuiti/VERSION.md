@@ -1,5 +1,12 @@
 # zuiti 版本历史
 
+## v0.3.6 (2026-08-31)
+- 按 skill 最佳实践重写 `description`（用户「按技能最佳实践优化description部分」触发）：以 skill-workshop `optimizing-descriptions.md`（三段式：功能段 / Use this skill whenever + Invoke on 触发词 / Not for 边界）+ `frontmatter-style-guide.md` W7 联锁约束为权威规范，对旧 description 做对抗式审计复盘后重写。
+- 旧 description 审计结论（FAIL 三项）：①字符数 531（>500 软上限，冗余）；②无「Invoke on」触发词段（W7 要求触发词≥3 单列段）；③内部机制泄漏——暴露 `quotes-verified.md` / 古代组 / 现代组 / 三来源 等实现细节（违反「关注用户意图非内部机制」）。
+- 重写（候选 A，398 字符）：首段祈使句讲清用户价值（把挨的骂/阴阳怪气/带节奏 → 骂人不带脏字又句句有杀气的体面回击，默认六风格各 3 条共 18 条）；`Use this skill whenever` 段覆盖显式（贴评论/私信/弹幕/群聊）+ 隐式（被怼/被骂/被杠/被黑 但懒得措辞，哪怕不说「嘴替」）两类触发；`Invoke on` 单段列 11 个触发词（内层单引号，合规）；`Not for` 边界段写明三类不触发（代发/自动回复机器人、辱骂人身攻击、普通礼貌或客服回复→用「回复评论」技能）。
+- 验收：仍单行 string（外层双引号+内层单引号，YAML 安全）；保留 Pushy 祈使句；触发词 11 个（≥3）；无内部机制泄漏；隐式场景全覆盖；`skill_cli.py validate` 仍通过（Skill is valid!）。
+- 三处版本同步 metadata/VERSION/根README/zuiti/README 均 v0.3.6；A2/A3/D10/三层禁区/校验脚本 零变更，纯 frontmatter 文案优化。
+
 ## v0.3.5 (2026-08-31)
 - 性能审查 + 优化 `scripts/validate_skill.py`（用户 @python-performance-optimization 触发）：**先量化再动手**，用 cProfile + 文件读取插桩 + 子进程墙钟测量定位，不靠猜测。
 - 量化结论（诚实口径）：本脚本**没有真实性能问题**——墙钟 261ms/次中，`python -c pass` 空跑基线已占 ~248ms（本沙箱进程创建 + `site`/`sitecustomize` ~93ms 环境开销），脚本自身 `verify()` 实测仅 **0.55ms（占墙钟 0.2%）**；任何对 verify() 的优化在墙钟上都不可能被感知。
