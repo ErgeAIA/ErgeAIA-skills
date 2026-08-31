@@ -224,17 +224,26 @@ def validate_description_format(frontmatter: dict) -> tuple[bool, str]:
     if len(desc) > 1024:
         return False, f"description 超过 1024 字符（当前 {len(desc)}）"
 
-    # Pushy 句式
+    # Pushy 句式（中英文并列：官方 agentskills.io 用 "Use this skill whenever"，
+    # 但中文技能应以中文祈使句为主——"当用户…时调用 / 如需… / 想…时" 同为主动触发语义）
     pushy_patterns = [
         r"Use this skill whenever",
         r"Make sure to invoke it when",
         r"Invoke (this skill |on |when)",
         r"Make sure to use this skill",
+        # 中文主动触发句式
+        r"当用户",  # 当用户贴来… / 当用户提到… / 当用户需要…
+        r"如需",    # 如需…时调用
+        r"想[要]?…?[时唤用呼]",  # 想回击时 / 想怼人时 / 想生成…时
+        r"需要…?[时唤用]",  # 需要创建…时
+        r"遇到…?[时唤用]",  # 遇到…时
+        r"触发词",  # 显式『触发词：…』列举段（与 Invoke on 等效，中文技能常用）
     ]
     if not any(re.search(p, desc, re.IGNORECASE) for p in pushy_patterns):
         return False, (
             "description 缺少 Pushy 主动句式。"
             "应包含 'Use this skill whenever...' / 'Make sure to invoke it when...' / 'Invoke on...'"
+            "或中文主动触发句式（'当用户…时' / '如需…时调用' / '触发词：…'）"
         )
 
     # 触发词（至少 3 个，宽松匹配——引号内 / 中文词 / 英文 / 拼音都算）

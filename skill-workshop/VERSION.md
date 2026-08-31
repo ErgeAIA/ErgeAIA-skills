@@ -1,5 +1,10 @@
 # VERSION.md — skill-workshop
 
+## v1.21.1 (2026-08-31) — 修复 description Pushy 校验器英文硬编码
+- **缺陷**：`scripts/_impl/quick_validate.py` 的 `validate_description_format()` 把 Pushy 主动句式**硬编码为英文**（Use this skill whenever / Invoke on / Make sure to invoke it when），纯中文祈使句 description 会被误判 FAIL——违反官方 agentskills.io「关注用户意图、用祈使句」本意，也与本仓中文技能（zuiti 纯中文、skill-workshop/changelog-manager 中文开头）惯例冲突。
+- **修复**：`pushy_patterns` 增补中文主动触发句式（`当用户` / `如需` / `想…时` / `需要…时` / `触发词：`），error message 双语化；纯中文 description 现可通过。
+- **回归验证**：zuiti（纯中文 242 字符）从 FAIL 转 PASS；skill-workshop/changelog-manager 自身重跑仍 PASS（英文句式未被移除，向后兼容）。
+
 ## v1.21.0 (2026-08-30) — 升级点整改（基于第一性原理自评 + 业界基线对齐）
 
 ### 背景

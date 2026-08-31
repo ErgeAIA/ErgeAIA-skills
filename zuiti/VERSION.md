@@ -1,5 +1,12 @@
 # zuiti 版本历史
 
+## v0.3.8 (2026-08-31)
+- 用户纠正 v0.3.7 的 description 仍不合规：「不是应该祈使句开头吗？而且你搞个中英混合，直接使用中文即可」。两条硬要求：① 祈使句开头；② 纯中文、不要中英混合。
+- 重写（纯中文祈使句）：以「当用户贴来想回击的评论、私信、弹幕或群聊消息，或说被怼/被骂/被杠/被黑却懒得措辞时，替他生成…」开门见山（中文 Pushy 等效「Use this skill whenever」），保留 10 个中文触发词列举（'怼人'/'回怼'/'嘴替'/…）与「不适用于：…」中文边界段（等效 Not for），删尽英文脚手架。字符数 242（入 200–400 软区间）。
+- 发现并修复 skill-workshop 校验器缺陷：`quick_validate.py` 第228-238行把 Pushy 句式**硬编码成英文**（Use this skill whenever / Invoke on / Make sure to invoke it when），纯中文祈使句会被误判 FAIL——而本仓 skill-workshop/changelog-manager 两技能也是中文开头（只是第一段恰好夹了英文才没报错）。已补中文 Pushy 句式（当用户/如需/想…时/需要…时/触发词：），校验器现同时认中英文主动触发句；error message 同步双语化。
+- 验收：zuiti `validate_skill.py` exit0；`skill_cli.py validate` 从 FAIL 转为「Skill is valid!」（242 字符，33 触发词）；skill-workshop/changelog-manager 自身重跑仍 PASS（无回归）。
+- 三处版本同步 metadata/VERSION/根README/zuiti/README 均 v0.3.8；A2/A3/D10/三层禁区/校验脚本 零变更，仅 description 文案 + 校验器 Pushy 正则。
+
 ## v0.3.7 (2026-08-31)
 - 按「真实最佳实践」二次纠正 description（用户质疑 v0.3.6 是否真合规，要求联网核验 + 读 skill-workshop reference）。联网拉取 agentskills.io/skill-creation/optimizing-descriptions 实源 + 通读 skill-workshop 三处 reference，发现**仓库内部自相矛盾**：
   - `frontmatter-style-guide.md §9`（标「W7 必读」）正例用 `Use this skill whenever... Invoke on "斧正"/... Not for ...` —— 明示支持「枚举 Invoke-on 触发词清单 + Not-for 边界段」。
