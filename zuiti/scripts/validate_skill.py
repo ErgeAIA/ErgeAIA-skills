@@ -41,6 +41,11 @@ def verify(skill_dir: Path) -> list[tuple[str, str]]:
                 "SKILL.md 禁区缺少 A3 个人虚假事实红线",
                 "在禁区文件加 '不断言可识别个人的虚假事实' 条款",
             ))
+        if "格局" not in text:
+            errors.append((
+                "SKILL.md 未接入『格局·路转粉』风格（v0.2.5 新增）",
+                "在哲学锚定/step-3/输出模板/交付前自检 补入 格局·路转粉",
+            ))
         if "[TODO" in text or "YYYY-MM-DD" in text:
             errors.append((
                 "SKILL.md 残留占位符",

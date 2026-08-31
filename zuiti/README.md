@@ -21,6 +21,7 @@
 - 该怼才怼，不怼更高级。
 - 忍一时风平浪静，退一步越想越气——但「不回」往往比「回得漂亮」更高级。
 - 本技能只生成回复，不替你发送；该不该发、发给谁，由你定。
+- 最高级的怼是让黑粉路转粉——拿格局化解，不降格对骂。
 - triage（该不该怼）责任在人，技能不替你判断。
 
 ## 安全护栏（概览）
@@ -41,7 +42,7 @@
 |------|------|
 | `SKILL.md` | AI 执行主文档（工作流 + 安全硬规则 + 验证） |
 | `references/forbidden-zones.md` | 三层禁区（A 脏字 / B 攻人 / C 引战）+ A3 红线 |
-| `references/four-styles.md` | 四风格武器库（直球 / 反讽 / 引经据典 / 名人名言）+ 万能公式 |
+| `references/four-styles.md` | 六风格武器库（直球 / 反讽 / 引经据典 / 名人名言 / 热梗·阴阳 / 格局·路转粉）+ 万能公式 |
 | `references/quotes-verified.md` | 名言核验屉（带 `[核验]` + `来源`，禁现编） |
 | `references/examples.md` | 已通过禁区筛选的示范 |
 | `scripts/validate_skill.py` | 工程硬校验（A2/D10/A3 物理落地） |
@@ -49,4 +50,4 @@
 
 ## 版本
 
-当前版本 **v0.2.0**，详见 [VERSION.md](VERSION.md)。
+当前版本 **v0.2.5**，详见 [VERSION.md](VERSION.md)。
