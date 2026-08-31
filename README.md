@@ -8,7 +8,7 @@
 |------|------|------|
 | [skill-workshop](skill-workshop/) | Skill 全生命周期工作站：创建、评审、重构、评测 Agent Skill（含 Google 5 模式基线） | v1.21.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.0.0 |
-| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格各一条全到齐含格局·路转粉 + 三层禁区 + ⚠️ 人工闸） | v0.2.6 |
+| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐含格局·路转粉 + 三层禁区 + ⚠️ 人工闸） | v0.2.7 |
 | ~~[skill-reviewer](skill-reviewer/)~~（已废弃） | 九维 48 项结构化评审与合规校验 · 已被 skill-workshop 替代 | v4.6.0 |
 
 ## 快速开始
