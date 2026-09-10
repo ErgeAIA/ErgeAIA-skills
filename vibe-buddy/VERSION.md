@@ -22,15 +22,21 @@
 
 **过程文档模型**
 
-- `project-progress.md`：进度，实时更新；任务开始时先读它。
-- `decision-log.md`：决策日志，优先级高于 PRD；编号 `DEC-NN`，冲突时旧条目标 `superseded`。
-- `debug-log.md`：bug 修复经验；编号 `BUG-NN`，编号递增。
-- 三类文档**只追加**，历史条目永不删除或改写。
+- `docs/.ai/project-progress.md`：进度，每次会话更新；任务开始时先读它。
+- `docs/.ai/decision-log.md`：开发决策，优先级高于 PRD；编号 `DEC-NNN`（三位），冲突时旧条目标 `superseded`。
+- `docs/.ai/debug-log.md`：bug 记录；编号 `BUG-NNN`（三位）递增，含现象/根因/修复/验证限制/教训。
+- `docs/handoff/`：交接文档，命名 `handoff-YYYY-MM-DD-*.md`。
+- `<project>/references/decision-log.md`：层 C——AGENTS.md 变更日志，一行一条 `旧值 → 处置 → 去处/原因`。
+- 所有过程文档带 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），**每次修改须把 `updated` 同步为当日**。
+- 全部**只追加**，历史条目永不删除或改写。
 
 **AGENTS.md 契约强化**
 
-- 层 A 模板新增 `## References`（四类文档指针，写明用途）与 `## 收尾同步`（每完成一次任务必须更新哪些文档、未同步不得声称完成）。
-- 生成规范的原 §5 模板用 4 反引号围栏承载，避免嵌套代码块渲染异常。
+- 章节固定不增删；产物头部写 `<!-- mode: 全新初始化|半程合成|已初始化优化 -->` 注明路由模式。
+- 文档义务落在既有两节：`Permissions` 写 `YOU MUST 每次会话更新 docs/.ai/project-progress.md`；`Conventions` 写会话文档体系、bug 追加、交接命名、改文档须同步 `updated` 四条表格行。
+- `References` 只写 `见 <path>` 纯指针，用途说明归 `Conventions`。
+- 生成规范新增 §4b「项目文档结构生成」，承载目录结构与各文档骨架（单一真源）。
+- 生成规范内的模板用 4 反引号围栏承载，避免嵌套代码块渲染异常。
 
 **核心契约**
 

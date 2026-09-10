@@ -15,7 +15,7 @@ metadata:
 
 1. **不覆盖** —— 已有文件只追加；需要新文件时先扫描目录再取名，永不重写既有内容。
 2. **不猜测** —— 读不到的事实写占位符，绝不编造版本号、路径、命令、结论。
-3. **不越界** —— 只读写 `AGENTS.md`、`CLAUDE.md`、`docs/.ai/`、`docs/handoff/`，不碰源码、不跑命令、不发布。
+3. **不越界** —— 只读写协作契约与过程文档区（路径见下方产物布局），不碰源码、不跑命令、不发布。
 4. **不静默** —— 删除或改写必须留下「旧值 → 处置 → 新值」的可见记录。
 
 ## 路由与硬规则
@@ -51,6 +51,7 @@ metadata:
 | 决策日志，优先级高于 PRD | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建骨架，`vibe-sync` 追加 |
 | bug 修复经验 | `<project>/docs/.ai/debug-log.md` | `vibe-init` 建骨架，`vibe-distill` 追加 |
 | 项目概览（可选） | `<project>/docs/.ai/project-overview.md` | `vibe-init` |
+| AGENTS.md 变更日志（层 C） | `<project>/references/` 下的 `decision-log.md` | `vibe-init` |
 | 会话交接文档 | `<project>/docs/handoff/handoff-YYYY-MM-DD.md` | `vibe-handoff` |
 
 ## 何时读 references
@@ -83,7 +84,9 @@ metadata:
 - `CLAUDE.md` 是**指针**不是副本；整份复制会在下轮维护后与 `AGENTS.md` 漂移。
 - 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。
 - `docs/.ai/` 是**记忆区**不是文档区；人类项目文档（README、设计稿）不放这里。
+- 过程文档的 frontmatter `updated` 必须随每次修改同步改当日；漏改等于让 `updated` 说谎。
 - `vibe-init` 对半程项目**只补齐缺失文档**，绝不重写已有文件——哪怕内容看起来过时。
+- 不新增 `AGENTS.md` 章节：文档义务写进固定的 `Permissions` 与 `Conventions`，不另起段落。
 
 ## 非目标
 

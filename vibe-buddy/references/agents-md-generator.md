@@ -1,36 +1,38 @@
 ---
 name: agents-md-generator
-description: AGENTS.md 生成规范（句式契约、黑名单、路由、决策保全、证据采集、产物模板、写入闸、自检门、自维护协议）。生成或维护 AGENTS.md 时逐字执行。
-trigger-when: 执行 vibe-init 生成或增量维护 AGENTS.md 时必读
+description: 项目初始化生成规范（句式契约、黑名单、路由、决策保全、证据采集、文档结构、产物模板、写入闸、自检门、自维护协议）。执行 vibe-init 时逐字遵循。
+trigger-when: 执行 vibe-init 生成或增量维护 AGENTS.md 与过程文档时必读
 role: spec
 consumed-by: references/init-agents-md.md
 ---
 
-# Role：AGENTS.md 生成器
+# Role：项目初始化生成器
 
 ## 0 句式契约（最高优先级，逐行强制）
 
-产物每行必须且仅能命中四种句式之一，越界行删除或改写：
+AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改写：
 
 1. 命令原文：仅存在于代码块或表格"命令"列
 2. 表格行：`场景 | 命令 | 来源` 或 `现象 | 要求行为`
 3. 祈使句：动词开头、无主语、≤25 字
 4. 指针：`见 <path/章节>` 单行
 
-解释、背景、动机、教程、欢迎语一律禁止写入。
+解释、背景、动机、教程、欢迎语一律禁止写入。§4b 的过程文档骨架不受本条约束。
 
 ## 1 触发词黑名单（终稿前逐行扫描，命中即删或改写为句式 1-4）
 
 因为 / 所以 / 这是由于 / 通常 / 一般 / 建议 / 旨在 / 用于描述 /
 可以理解为 / 简单来说 / 换句话说 / 这意味着 / 我们 / 本文件将 / 为了确保
 
-## 2 路由（写文件前判定一次，产物头部注明模式）
+## 2 路由（写文件前判定一次，并在产物头部注明模式）
 
 信号：是否已存在 AGENTS.md/CLAUDE.md；提交历史与既有约定规模。
 
 - 全新初始化：无文件、决策负载低 → 直接生成
 - 半程合成：无文件、决策负载高 → 先执行 §3 再生成
 - 已初始化优化：有文件 → 增量维护，禁止整体重写
+
+产物头部写一行 HTML 注释注明模式：`<!-- mode: 全新初始化|半程合成|已初始化优化 -->`。
 
 判为开源（存在 LICENSE/CONTRIBUTING）→ 层 B 追加许可限制与贡献约定。
 
@@ -49,16 +51,135 @@ consumed-by: references/init-agents-md.md
 - 权限边界：可做 / 需确认 / 禁止
 - monorepo → 各子包独立 AGENTS.md，根文件只留全局标准
 
+## 4b 项目文档结构生成（与 AGENTS.md 同时产出）
+
+缺口补齐，已存在的一字不动：
+
+````text
+<project>/docs/
+├── .ai/
+│   ├── project-progress.md     # 进度，每次会话更新
+│   ├── decision-log.md         # 开发决策，优先级高于 PRD
+│   ├── debug-log.md            # bug 记录
+│   └── project-overview.md     # 可选，层 B
+└── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
+````
+
+层 C 变更日志落在项目根的 `references/decision-log.md`。
+
+过程文档一律带 YAML frontmatter：`title` / `type` / `project` / `updated` / `description`；description 内写明"本文件新增或修改后必须把 `updated` 改为当日日期"。骨架如下。
+
+### docs/.ai/project-progress.md
+
+````markdown
+---
+title: Project Progress
+type: project-progress
+project: <工程标识>
+updated: YYYY-MM-DD
+description: >
+  项目开发进度实时记录：阶段、分支、代码状态、最近进展。每次会话更新。
+  AI 在本文件新增进展或修改当前状态后，必须同步更新 updated 为当日日期（YYYY-MM-DD）。
+---
+
+# Project Progress
+
+> 记录当前任务状态、分支和最近进展。每次会话更新。
+> 新进展插在「当前状态」之后、旧「最后更新」之前。
+
+---
+
+## 当前状态
+
+- **当前分支**：
+- **阶段**：
+- **代码**：
+- **工具链**：
+- **最后更新**：YYYY-MM-DD
+- **下一步**：
+````
+
+### docs/.ai/decision-log.md
+
+````markdown
+---
+title: Decision Log
+type: decision-log
+project: <工程标识>
+updated: YYYY-MM-DD
+priority: higher-than-prd
+description: >
+  开发过程决策日志，优先级高于 PRD；冲突时以本文件最新条目为准并回写 PRD/ADR。
+  只追加，不删除或改写历史。AI 在本文件新增或修改任何条目后，必须同步更新 updated 为当日日期。
+---
+
+# Decision Log
+
+> 偏离 PRD 或做出重要技术选择时在此追加。只追加，不删除或改写历史。
+> **优先级高于 PRD**：冲突时以本文件最新决策为准，并回写 PRD/ADR。
+> 格式：`## DEC-NNN: 标题` + 日期/背景/决策/验证。
+
+---
+````
+
+### docs/.ai/debug-log.md
+
+````markdown
+---
+title: Debug Log
+type: debug-log
+project: <工程标识>
+updated: YYYY-MM-DD
+description: >
+  反复调试的 bug 记录。只追加，不删除或改写历史。
+  AI 在本文件新增或修改任何条目后，必须同步更新 updated 为当日日期。
+---
+
+# Debug Log
+
+> 反复调试的 bug 记录。只追加，不删除历史。
+> 格式：`## BUG-NNN: 标题` + 日期/现象/根因/修复/验证限制/教训。
+
+---
+````
+
+### docs/handoff/.gitkeep
+
+空文件，让 Git 追踪空目录。
+
+### references/decision-log.md（层 C）
+
+````markdown
+# Decision Log — AGENTS.md
+
+模式：<全新初始化|半程合成|已初始化优化>
+来源文件：<旧 AGENTS.md/CLAUDE.md 路径>
+
+## Layer C
+
+<旧值> → keep|update|drop|merge → <新值/去处/原因>
+````
+
 ## 5 产物模板（严格填空，禁止增删章节）
 
-层 A 根 AGENTS.md：
+填充规则：
+
+- `Permissions` 节仅允许 `IMPORTANT:` / `YOU MUST` / `禁止` 开头的行，且必须含文档同步义务
+- `References` 只写 `见 <path>` 指针行，用途说明放 `Conventions`
+- 空表保留表头；无命令写占位，不写解释
+- `<!-- mode: -->` 行保留
 
 ````markdown
 # AGENTS.md
 
+<!-- mode: 全新初始化|半程合成|已初始化优化 -->
+
 ## Permissions
 
-<!-- IMPORTANT: / YOU MUST 开头，置顶，仅此节允许这两个标识 -->
+IMPORTANT: <一句话项目定位与最硬边界>
+YOU MUST 先读 PRD 与 docs/.ai/decision-log.md 再改码
+YOU MUST 每次会话更新 docs/.ai/project-progress.md
+禁止 <P0 范围外的事>
 
 ## Toolchain
 
@@ -74,29 +195,24 @@ consumed-by: references/init-agents-md.md
 
 | 观察到的现象 | 要求 Agent 的行为 |
 | ------------ | ----------------- |
+| 会话文档体系固定 | 进度写 docs/.ai/project-progress.md；决策写 docs/.ai/decision-log.md |
+| bug 追加 docs/.ai/debug-log.md | 格式 BUG-NNN；只追加不删历史 |
+| 交接写 docs/handoff | 命名 handoff-YYYY-MM-DD-*.md |
+| 改 docs/.ai 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |
 
 ## References
 
-- 见 docs/.ai/project-progress.md 项目进度，实时更新
-- 见 docs/.ai/decision-log.md 决策日志，优先级高于 PRD
-- 见 docs/.ai/debug-log.md bug 修复经验
-- 见 docs/handoff/ 会话上下文交接
-
-## 收尾同步
-
-- 更新 docs/.ai/project-progress.md 的任务状态与验证结果
-- 决策变化时在 docs/.ai/decision-log.md 顶部追加条目
-- 修复 bug 后在 docs/.ai/debug-log.md 追加条目
-- 禁止在未同步上述文档时声称任务完成
+见 docs/.ai/decision-log.md
+见 docs/.ai/debug-log.md
+见 docs/.ai/project-progress.md
+见 docs/handoff/
 
 ## Self-Maintenance
 
 <!-- §9 五条原文写入 -->
 ````
 
-层 B（可选）references/project-overview.md：目录索引、依赖方向、开源附加分析。
-
-层 C 决策变更日志（半程/已初始化必交付）：一行一条 `旧值 → keep/update/drop/merge → 新值/原因`。
+层 B（可选）`docs/.ai/project-overview.md`：目录索引、依赖方向、开源附加分析。
 
 ## 6 写入闸（每行过闸，不过闸不写入）
 
@@ -111,6 +227,8 @@ consumed-by: references/init-agents-md.md
 3. 逐行执行 §6 写入闸
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包
 5. 标题语言全文件统一；命令/路径/版本保持英文原文
+
+另核对：`References` 指针逐条真实存在；`docs/.ai` 与 `docs/handoff` 缺口已补齐且未覆盖既有文件。
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
 
