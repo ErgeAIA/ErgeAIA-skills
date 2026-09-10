@@ -17,9 +17,17 @@ vibe-buddy 把这些答案固化成文件：
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
 | `vibe-init` | 初始化项目 / 生成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/.ai/` 各过程文档、`docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
-| `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表 |
+| `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表 |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD.md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针 |
-| `vibe-distill` | 经验蒸馏 / 沉淀经验 | 把已定位根因的 bug 与预防规则追加到 `debug-log.md` |
+| `vibe-distill` | 经验蒸馏 / 提炼可复用经验 | 把一轮开发里**反复成立**的做法提炼成按领域组织的经验条目（主张 / 适用 / Why / How / 反例，分 🔴🟡🟢），落 `docs/.ai/experience/` |
+
+## 记录与提炼是两件事
+
+`vibe-sync` 记**发生了什么**——流水事实（进度、决策、调试记录），只对本项目有意义，严格只追加。
+
+`vibe-distill` 提炼**什么事反复成立**——抽象规则，能离开本项目被复用，因此正文可改写、历史靠 `changelog.md` 保追溯。
+
+判据一句话：**这条经验离开这个项目还成立吗？** 成立才值得蒸馏。所以 `debug-log.md` 归 `vibe-sync` 写，`experience/` 归 `vibe-distill` 写，两者不互相代做。
 
 也支持自然语言触发，例如「上下文快满了，写个交接文档给下一个会话」。
 
@@ -48,7 +56,8 @@ vibe-buddy 把这些答案固化成文件：
     │   ├── debug-log.md             # bug 修复经验，编号递增
     │   ├── agents-changelog.md      # AGENTS.md 变更记录，只在契约改动时写
     │   ├── init-report.md           # 初始化执行报告，每跑一次追加一节
-    │   └── project-overview.md      # 可选，目录索引与依赖方向
+    │   ├── project-overview.md      # 可选，目录索引与依赖方向
+    │   └── experience/              # 可复用经验库，按领域分目录（ui/frontend/…）
     └── handoff/                     # 会话交接文档
         └── handoff-YYYY-MM-DD-*.md
 ```
@@ -73,6 +82,11 @@ vibe-buddy 把这些答案固化成文件：
 | 文档命名沿用既有实践 | `project-progress` / `decision-log` / `debug-log` 三件套与 `handoff/` 目录的组织方式与成熟项目保持一致，降低迁移成本 |
 | `CLAUDE.md` 是指针不是副本 | 整份复制会在两轮维护后与 `AGENTS.md` 漂移 |
 | 不做任务计划 | 待办拆解与排期是计划类技能的正业，塞进来只会让边界模糊 |
+| 记录与提炼分开 | 流水事实只对本项目有意义、必须严格只追加；可复用规则要能带走、且错的规则必须改写。合成一个触发词会让「记录」被「提炼」绑架，反之亦然 |
+| 经验条目五要素 | 主张 / **适用** / Why / How / 反例。缺「适用」既会导致换项目盲抄，也会让「两条看起来冲突」无法收口；缺「反例」则外送汇总时派生不出反模式卡 |
+| 蒸馏不裁决冲突 | 前提不同的"冲突"其实是适用范围不同，两条并存即可；前提相同才是真冲突，那该由人判——AI 只标出不取舍 |
+| 🟢 参数单独分级 | 数值只对当前项目成立，混进跨项目汇总会污染其它项目；因此单列一级并声明不参与汇总 |
+| 台账并入 changelog | 「这段蒸过没」靠 `changelog.md` 里的原料区间比对，不另建台账文件——同一事实两处存放必然漂移，而未蒸馏区间随算随得，写成文件就立刻过时 |
 | 不兼容规范体系 | 规格生命周期有专门的体系负责；本技能只管记忆与交接，保持单一职责 |
 | 交接文档只写「别处读不到的」 | 接手方能自己读 `AGENTS.md`、`docs/.ai/`、git 与代码。旧设计把新增文件表、修改文件表、错误清单、文件上下文清单都抄进交接文档，等于复述，还把文档撑到没人读。现在只展开四类无处可查的：验证状态、下一步聚焦点、卡点与失败路径、待拍板项 |
 | 常驻纪律不写进交接文档 | 「一次只做一个阶段」「不得自行宣称已修复」「既有文件用最小补丁」这类纪律每会话都要生效，写进 `AGENTS.md` 一次即可；抄进交接文档只会让每份文档重复同一段话 |
@@ -93,12 +107,15 @@ vibe-buddy/
 ├── README.md                             # 本文件
 ├── VERSION.md                            # 版本演进
 ├── assets/
-│   └── docs/                             # 过程文档模板，初始化时原样复制
-│       ├── project-progress.md
-│       ├── decision-log.md
-│       ├── debug-log.md
-│       ├── agents-changelog.md
-│       └── init-report.md
+│   ├── docs/                             # 过程文档模板，初始化时原样复制
+│   │   ├── project-progress.md
+│   │   ├── decision-log.md
+│   │   ├── debug-log.md
+│   │   ├── agents-changelog.md
+│   │   └── init-report.md
+│   └── experience/                       # 经验库模板，首次蒸馏时原样复制
+│       ├── README.md
+│       └── changelog.md
 └── references/
     ├── init-agents-md.md                 # 初始化执行契约（执行顺序 / 报告 / 集成）
     ├── init-env-checks.md                # Git 检查与 Codegraph 集成（判定与失败处理）
@@ -106,7 +123,7 @@ vibe-buddy/
     ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构）
     ├── sync-progress.md                  # 进度与决策沉淀契约
     ├── handoff-context.md                # 交接文档契约（只写；接管由 AGENTS.md 义务承担）
-    ├── distill-lessons.md                # 调试经验沉淀契约
+    ├── distill-experience.md             # 可复用经验蒸馏契约
     └── trigger-test-set.md               # 触发回归测试集
 ```
 

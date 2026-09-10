@@ -84,7 +84,8 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 │   ├── debug-log.md            # bug 记录
 │   ├── agents-changelog.md     # AGENTS.md 约定处置，仅初始化/维护时写
 │   ├── init-report.md          # 初始化执行报告，每次 init 追加一节
-│   └── project-overview.md     # 可选，层 B
+│   ├── project-overview.md     # 可选，层 B
+│   └── experience/             # 可复用经验库，按领域分目录（仅建空目录，内容由 vibe-distill 建）
 └── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
 ````
 

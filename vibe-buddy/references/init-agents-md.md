@@ -17,6 +17,7 @@ writes-to:
   - <project>/docs/.ai/agents-changelog.md（层 C）
   - <project>/docs/.ai/init-report.md
   - <project>/docs/.ai/project-overview.md（可选）
+  - <project>/docs/.ai/experience/.gitkeep
   - <project>/docs/handoff/.gitkeep
   - <project>/.git/（仅 git init）
   - <project>/.codegraph/（仅 codegraph init）
@@ -43,7 +44,8 @@ writes-to:
     │   ├── debug-log.md             # bug 记录
     │   ├── agents-changelog.md      # 层 C：AGENTS.md 变更记录
     │   ├── init-report.md           # 本次初始化执行报告
-    │   └── project-overview.md      # 可选，层 B
+    │   ├── project-overview.md      # 可选，层 B
+    │   └── experience/              # 可复用经验库（仅建空目录，内容由 vibe-distill 首次蒸馏时建）
     └── handoff/                     # 交接文档
 ````
 
@@ -115,9 +117,10 @@ writes-to:
 |---|---|---|
 | `docs/.ai/project-progress.md` | 进度，每次会话更新；任务开始时先读它 | `vibe-sync` |
 | `docs/.ai/decision-log.md` | 开发决策（`DEC-NNN`，优先级高于 PRD），随开发持续更新 | `vibe-sync` |
-| `docs/.ai/debug-log.md` | bug 记录，编号 `BUG-NNN` 递增 | `vibe-distill` |
+| `docs/.ai/debug-log.md` | bug 记录，编号 `BUG-NNN` 递增 | `vibe-sync` |
 | `docs/.ai/agents-changelog.md` | AGENTS.md 变更记录，**只在 AGENTS.md 改动时更新** | `vibe-init` 独占 |
 | `docs/.ai/init-report.md` | 初始化执行记录，只追加 | `vibe-init` 独占 |
+| `docs/.ai/experience/` | 可复用经验库，按领域分目录；初始化只建空目录，内容由首次蒸馏时按 `assets/experience/` 模板建立 | `vibe-distill` |
 | `docs/handoff/` | 交接文档，命名 `handoff-YYYY-MM-DD-*.md` | `vibe-handoff` |
 
 全部**只追加**，历史条目永不删除或改写；决策冲突时把旧条目标 `superseded`。
@@ -128,9 +131,9 @@ writes-to:
 
 | 位置 | 写什么 |
 |---|---|
-| `Permissions` | **接管两条**：`YOU MUST 会话开始先读 docs/.ai/ 三件套与 docs/handoff/ 最新一份`、`YOU MUST 先复述现状与待确认项，再动手`；**文档义务两条**：`YOU MUST 每次会话更新 docs/.ai/project-progress.md`、`YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md`；**常驻纪律三条**：每次只推进一个阶段完成即停等验证、不得自行宣称已修复须由用户验证、修改既有文件用最小精确补丁禁整文件重写 |
-| `Conventions` | 会话文档体系、bug 追加、交接命名、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、交接文档同日多份时的取新判据 六条表格行 |
-| `References` | 项目自带文档 + `docs/.ai/` 各过程文档 + `docs/handoff/`，逐条 `见 <path>` 指针 |
+| `Permissions` | **接管两条**：`YOU MUST 会话开始先读 docs/.ai/ 三件套与 docs/handoff/ 最新一份`、`YOU MUST 先复述现状与待确认项，再动手`；**文档义务三条**：`YOU MUST 每次会话更新 docs/.ai/project-progress.md`、`YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md`、`YOU MUST 改某领域代码前先读 docs/.ai/experience/<领域>/（存在时）`；**常驻纪律三条**：每次只推进一个阶段完成即停等验证、不得自行宣称已修复须由用户验证、修改既有文件用最小精确补丁禁整文件重写 |
+| `Conventions` | 会话文档体系、bug 追加（`vibe-sync` 写）、交接命名、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、交接文档同日多份时的取新判据、经验库按领域分目录且正文可改写 七条表格行 |
+| `References` | 项目自带文档 + `docs/.ai/` 各过程文档（含 `docs/.ai/experience/`）+ `docs/handoff/`，逐条 `见 <path>` 指针 |
 
 **接管为什么写在 `Permissions` 而不是做成触发词**：触发词要求用户先想起它，A 层义务每会话自动生效。写进去之后，「新会话先弄清现状」不再依赖任何人记得敲命令——这是本技能对「AI 未调用技能」这个前提的唯一覆盖手段。
 

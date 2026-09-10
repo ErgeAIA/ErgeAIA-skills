@@ -1,33 +1,37 @@
 ---
 name: sync-progress
-description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度文档与决策日志，并按需回填 AGENTS.md 的工具链与命令事实。
-trigger-when: 用户说「同步进度」「更新项目进度」「vibe-sync」，或任务完成、决策变化之后
+description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度、决策与调试记录，并按需回填 AGENTS.md 的工具链与命令事实。
+trigger-when: 用户说「同步进度」「更新项目进度」「把踩的坑记下来」「vibe-sync」，或任务完成、决策变化、调试定位到根因之后
 role: workflow
 reads-from:
   - references/command-policy.md
   - <project>/AGENTS.md
   - <project>/docs/.ai/project-progress.md
   - <project>/docs/.ai/decision-log.md
+  - <project>/docs/.ai/debug-log.md
   - <project>/docs/handoff/ 中最新一份（若存在）
   - git status / git log / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
   - <project>/docs/.ai/project-progress.md
   - <project>/docs/.ai/decision-log.md
+  - <project>/docs/.ai/debug-log.md
   - <project>/AGENTS.md（仅 Toolchain 与 Commands 两个事实表）
 ---
 
-# sync · 沉淀进度与决策
+# sync · 沉淀进度、决策与调试记录
 
 ## 目标
 
 把本次会话里**已经稳定的事实**写进项目长期记忆，让下一次会话不必重读对话历史。这是 `AGENTS.md` 里 `Permissions` 与 `Conventions` 文档义务的执行者。
+
+**只记录，不提炼。** 把「什么事反复成立」提炼成可复用规则，归 `vibe-distill`。
 
 ## 前置检查
 
 | 检查项 | 不通过时 |
 |---|---|
 | `<project>/AGENTS.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
-| `docs/.ai/` 下 `project-progress.md` 与 `decision-log.md` 是否存在 | 缺哪个补哪个：回复缺失项并引导 `vibe-init`，不自行创建 |
+| `docs/.ai/` 下 `project-progress.md`、`decision-log.md` 与 `debug-log.md` 是否存在 | 缺哪个补哪个：回复缺失项并引导 `vibe-init`，不自行创建 |
 | `AGENTS.md` 的 `Toolchain` / `Commands` 是否仍是占位 | 是 → 本次若已确知工具链或命令，按「事实区回填」写入 |
 
 ## 契约区与事实区（动 `AGENTS.md` 前先判）
@@ -82,9 +86,12 @@ writes-to:
 |---|---|---|
 | 进度 | 任务状态变化、阶段推进、实际执行过的验证结果 | `docs/.ai/project-progress.md` |
 | 决策 | 偏离 PRD 或重要技术选择 | `docs/.ai/decision-log.md` |
+| 调试 | **反复调试才定位到根因**的问题与预防规则 | `docs/.ai/debug-log.md`（`BUG-NNN`） |
 | 事实 | 工具链版本、安装/测试/lint/构建命令原文 | `AGENTS.md` 的 `Toolchain` / `Commands` 表 |
 
-不属于以上三类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
+不属于以上四类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
+
+`debug-log` 只收**已定位根因**的问题：还只有现象、根因仍在猜 → 不写，列入终止回复的待确认项。
 
 ## 写入规则 · `project-progress.md`
 
@@ -102,22 +109,31 @@ writes-to:
 - **不代改 PRD 与 ADR**：决策与 PRD 冲突时，在终止回复中提示用户回写 PRD/ADR；本技能只写 `decision-log.md`。
 - 改完同步 frontmatter 的 `updated`。
 
+## 写入规则 · `debug-log.md`
+
+- 格式与 `docs/.ai/debug-log.md` 模板一致：`## BUG-NNN: 标题` + 日期/现象/根因/修复/验证限制/教训。**不另立格式**。
+- 编号 `BUG-NNN` 三位递增：读文件取最大编号加一。
+- **只追加**，不改写既有条目；同一根因已存在则跳过，或补充新的表现。
+- 不贴大段修复代码，需要时写文件路径与行号。
+- 未实际运行的验证不写「已通过」，写「未运行」或「验证限制」。
+- 改完同步 frontmatter 的 `updated`。
+- 某条经验若能提炼成跨项目成立的规则 → 提示用户另跑 `vibe-distill`；本技能只记录，不提炼。
+
 ## 不写什么
 
 - **不写 `docs/.ai/agents-changelog.md`**：那是 `AGENTS.md` 契约改动的记录，由 `vibe-init` 独占。
 - **不回写 `docs/.ai/init-report.md`**：那是初始化执行留痕，不是待办清单；遗留的待确认项由用户或计划类技能跟进。
 - **不动 `AGENTS.md` 契约区**：契约改动走 `vibe-init`。
-- **不写 `docs/.ai/debug-log.md`**：调试经验与 bug 根因归 `vibe-distill`。
+- **不写 `docs/.ai/experience/`**：可复用经验的提炼归 `vibe-distill`；这里只记录流水事实。
 - 同一事实已存在则跳过；只有值变化时更新。
 
 ## 与相邻触发词的分界
 
 | 场景 | 用哪个 |
 |---|---|
-| 任务完成、决策变化，要沉淀稳定事实 | 本文件 |
-| 反复调试的 bug 定位到根因 | `references/distill-lessons.md` |
+| 任务完成、决策变化、调试定位到根因，要沉淀事实 | 本文件 |
+| 一轮开发告一段落，要把反复成立的做法提炼成可复用经验 | `references/distill-experience.md` |
 | 上下文将满，要交给另一个 agent | `references/handoff-context.md` |
-| 新会话开始，要先弄清现状 | `references/resume-context.md` |
 
 ## 终止回复
 
