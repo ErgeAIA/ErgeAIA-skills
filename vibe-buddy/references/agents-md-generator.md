@@ -46,26 +46,30 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 - 已初始化优化 → 增量维护，禁止整体重写
 - 三个信号互相矛盾或无法查证 → 停下问用户，不自行归类
 
-产物头部写一行 HTML 注释，只填三者之一：`<!-- mode: 半程合成 -->`。
+产物头部写一行 HTML 注释，只填三者之一：`<!-- mode: 半程合成 -->`。**改动这行本身也算一次 AGENTS.md 改动，须留痕。**
 
 判为开源（存在 LICENSE/CONTRIBUTING）→ 层 B 追加许可限制与贡献约定。
 
 ## 3 决策保全（半程合成/已初始化优化必做）
 
-1. 摘录现有 AGENTS.md/CLAUDE.md 全部条目，加代码/提交/配置中可识别约定 → 既有约定清单
+1. 摘录既有契约文件全部条目；无契约文件时，摘录代码、提交、配置中可识别的现存约定 → 既有约定清单
 2. 逐条四态处置：keep 原样继承 / update 以代码现状为准改写 / drop 删除 / merge 合并去重
 3. 铁律：update 与 drop 必须写入层 C 变更日志 `docs/.ai/agents-changelog.md`（旧值 → 处置 → 新值/原因），禁止静默丢失
+4. 旧位置残留：旧日志类文件（如项目根 `references/` 下的决策或变更日志）内容合并进新落点，旧文件按 drop 处理并留痕；禁止新旧两处并存
 
-全新初始化跳过本节；若仍发现零散既有约定，按上表同样记录。
+全新初始化跳过四态处置，但仍建 `docs/.ai/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
 
 ## 4 证据采集（只收非可推断事实）
 
 - 目录骨架；一级目录 >12 或单目录 >50 文件 → 分层抽样并标注"已抽样"
+- 运行时痕迹：AGENTS.md / CLAUDE.md / .cursorrules / `.claude/` 是否存在
+- 工程标识：用户指定优先；否则取依赖清单的 name；再取不到用项目根目录名
 - 工具链精确版本及锁定文件
 - 安装/测试/lint/构建/部署/运行命令原文（含 flags、环境要求、来源）
 - 反直觉约定：非默认布局、自定义命名、专用测试器
 - 权限边界：可做 / 需确认 / 禁止
 - monorepo → 各子包独立 AGENTS.md，根文件只留全局标准
+- **采集不到关键事实**（项目定位、命令、权限边界）→ 停下问用户；用户未答则写占位，并在终止回复列入待确认项，禁止编造
 
 ## 4b 项目文档结构生成（与 AGENTS.md 同时产出）
 
@@ -82,18 +86,21 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 └── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
 ````
 
-各文档按 `assets/docs/` 下同名模板原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日：
+各文档按 `assets/docs/` 下同名模板原样复制，替换 `<工程标识>` 并把 `updated` 改为当日：
 
-| 模板 | 落点 |
-| ---- | ---- |
-| `assets/docs/project-progress.md` | `docs/.ai/project-progress.md` |
-| `assets/docs/decision-log.md` | `docs/.ai/decision-log.md` |
-| `assets/docs/debug-log.md` | `docs/.ai/debug-log.md` |
-| `assets/docs/agents-changelog.md` | `docs/.ai/agents-changelog.md` |
+| 模板 | 落点 | 建立条件 |
+| ---- | ---- | -------- |
+| `assets/docs/project-progress.md` | `docs/.ai/project-progress.md` | 总是 |
+| `assets/docs/decision-log.md` | `docs/.ai/decision-log.md` | 总是 |
+| `assets/docs/debug-log.md` | `docs/.ai/debug-log.md` | 总是 |
+| `assets/docs/agents-changelog.md` | `docs/.ai/agents-changelog.md` | 总是（全新初始化也建，写兜底行） |
 
+- `<工程标识>` 取法见 §4；取不到就问用户，不猜
 - 模板已含 YAML frontmatter 与"改完必须把 `updated` 改为当日"的约定，不增删字段
 - `docs/handoff/` 用空文件 `.gitkeep` 占位，让 Git 追踪空目录
 - 同名文件已存在 → 跳过，禁止覆盖，禁止改写历史条目
+- 模板中的 `<...>` 占位：初始化时已确知的当场填，未知的原样保留，由首次 `vibe-sync` 补齐
+- 层 B `docs/.ai/project-overview.md` **无模板、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建，内容为目录索引、依赖方向、开源附加分析；不需要就不建
 
 ## 5 产物模板（严格填空，禁止增删章节）
 
@@ -101,6 +108,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 
 - `Permissions` 节仅允许 `IMPORTANT:` / `YOU MUST` / `禁止` 开头的行，且必须含文档同步义务
 - `References` 只写 `见 <path>` 指针行，用途说明放 `Conventions`
+- 占位符指向的文档若项目不存在（如无 PRD）→ **整项删掉，不留空占位**
 - 空表保留表头；无命令写占位，不写解释
 - `<!-- mode: -->` 只填 §2 判出的那一个值
 
@@ -112,7 +120,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 ## Permissions
 
 IMPORTANT: <一句话项目定位与最硬边界>
-YOU MUST 先读 PRD 与 docs/.ai/decision-log.md 再改码
+YOU MUST 先读 <项目文档，如 PRD.md> 与 docs/.ai/decision-log.md 再改码
 YOU MUST 每次会话更新 docs/.ai/project-progress.md
 YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 禁止 <P0 范围外的事>
@@ -140,7 +148,7 @@ YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 
 ## References
 
-见 <项目自带文档：PRD.md / CONTEXT.md / docs/adr/ 等，逐条列>
+见 <项目自带文档：PRD.md / CONTEXT.md / docs/adr/ 等，逐条列；无则删本行>
 见 docs/.ai/agents-changelog.md
 见 docs/.ai/decision-log.md
 见 docs/.ai/debug-log.md
@@ -151,8 +159,6 @@ YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 
 <!-- §9 五条原文写入 -->
 ````
-
-层 B（可选）`docs/.ai/project-overview.md`：目录索引、依赖方向、开源附加分析。
 
 ## 6 写入闸（每行过闸，不过闸不写入）
 
@@ -168,7 +174,12 @@ YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包
 5. 标题语言全文件统一；命令/路径/版本保持英文原文
 
-另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 各文档已按模板落地且未覆盖既有文件；`AGENTS.md` 本次若有改动，`docs/.ai/agents-changelog.md` 必须有对应行。
+另核对（逐条过，缺一不过）：
+
+- `<!-- mode: -->` 只填一个值
+- `References` 与 `Permissions` 里出现的**每一条路径**都真实存在
+- §4b 各文档已按模板落地且未覆盖既有文件
+- `AGENTS.md` 本次若有改动，`docs/.ai/agents-changelog.md` 必须有对应行
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
 
