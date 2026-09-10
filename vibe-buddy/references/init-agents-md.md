@@ -131,10 +131,12 @@ writes-to:
 
 生成的 `AGENTS.md` 必须让 AI 时刻知道各文档做什么、每次任务完成要同步哪些。按三处落实：
 
+**句子原文的唯一真源是 `references/agents-md-generator.md` §5**：本表只登记「必须有哪几类义务」，不复制句子、不记条数——两处各记一份必然漂移。
+
 | 位置 | 写什么 |
 |---|---|
-| `Permissions` | **接管两条**：`YOU MUST 会话开始先读 docs/.ai/ 三件套与 docs/handoff/ 最新一份`、`YOU MUST 先复述现状与待确认项，再动手`；**文档义务三条**：`YOU MUST 每次会话更新 docs/.ai/project-progress.md`、`YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md`、`YOU MUST 改某领域代码前先读 docs/.ai/experience/<领域>/（存在时）`；**常驻纪律三条**：每次只推进一个阶段完成即停等验证、不得自行宣称已修复须由用户验证、修改既有文件用最小精确补丁禁整文件重写 |
-| `Conventions` | 会话文档体系、bug 追加（`vibe-sync` 写）、交接命名、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、交接文档同日多份时的取新判据、经验库按领域分目录且正文可改写 七条表格行 |
+| `Permissions` | **接管义务**：会话开始先读 `docs/.ai/` 三件套与 `docs/handoff/` 最新一份；先复述现状与待确认项再动手。**文档义务**：改码前先读项目文档与 `decision-log`；每次会话更新 `project-progress.md`；改 AGENTS.md 前先读、改后追加 `agents-changelog.md`；改某领域代码前先读 `docs/.ai/experience/<领域>/`。**常驻纪律**：一阶段一停等验证；不得自行宣称已修复，须由用户验证；既有文件只做最小精确补丁。另含 `IMPORTANT` 定位一句与 `禁止` 两类 |
+| `Conventions` | 会话文档体系、bug 追加（`vibe-sync` 写）、交接命名、交接文档同日多份的取新判据、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、经验库按领域分目录且正文可改写 |
 | `References` | 项目自带文档 + `docs/.ai/` 各过程文档（含 `docs/.ai/experience/`）+ `docs/handoff/`，逐条 `见 <path>` 指针 |
 
 **接管为什么写在 `Permissions` 而不是做成触发词**：触发词要求用户先想起它，A 层义务每会话自动生效。写进去之后，「新会话先弄清现状」不再依赖任何人记得敲命令——这是本技能对「AI 未调用技能」这个前提的唯一覆盖手段。

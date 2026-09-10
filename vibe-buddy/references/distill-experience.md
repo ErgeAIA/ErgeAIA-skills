@@ -6,6 +6,7 @@ role: workflow
 reads-from:
   - references/command-policy.md
   - <project>/AGENTS.md
+  - <project>/docs/.ai/project-progress.md（用于确定轮次边界）
   - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md
   - <project>/docs/.ai/experience/ 既有条目与 changelog（用于去重与防重复蒸馏）
@@ -27,6 +28,7 @@ writes-to:
 | 检查项 | 不通过时 |
 |---|---|
 | `<project>/AGENTS.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
+| `docs/.ai/project-progress.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`；它是轮次边界的唯一来源 |
 | `docs/.ai/decision-log.md` 与 `debug-log.md` 是否存在 | 缺哪个报哪个，引导先跑 `vibe-init`，不自行创建 |
 | `docs/.ai/experience/` 是否存在 | 不存在 → 引导先跑 `vibe-init`；用户坚持现在就要 → 建目录并说明 |
 | 本轮是否有可蒸馏的稳定经验 | 没有 → 明说「本轮无可蒸馏的稳定经验」，不编造 |
@@ -44,15 +46,18 @@ writes-to:
 
 一轮 = 一次集中的开发活动（一个重构轮、一次性能优化、一个发布准备、一轮界面整改）。**不是一次会话**——一轮常跨多个会话。
 
+**轮次的边界取自 `docs/.ai/project-progress.md`**：`vibe-sync` 每追加一条「最后更新」就是一轮的落点，本轮从哪开始到哪结束以那些条目为准。git 只回答「改了哪些提交、哪些文件」，**回答不了「这一轮从哪里开始」**——只靠 git 或记忆划轮次，台账里的「原料」就失去可比性，防重复蒸馏随之失效。
+
 ## 事实源
 
 | 序 | 事实源 | 取什么 |
 | -- | ------ | ------ |
-| 1 | `git log --oneline -n <N>`、`git status --short`、`git diff --stat` | 本轮改了哪些提交、涉及哪些文件；**仅本项目在 Git 仓库内时可用** |
-| 2 | `docs/.ai/decision-log.md` | 本轮相关决策（`DEC-NNN`） |
-| 3 | `docs/.ai/debug-log.md` | 本轮踩的坑与根因（`BUG-NNN`） |
-| 4 | **代码实际形态**（`search_content` 统计） | 实测数字，如「15px 出现 255 处」「286 个按钮」 |
-| 5 | 本次会话上下文 | 仅作补充；与 1–4 冲突时以客观源为准 |
+| 1 | `docs/.ai/project-progress.md` | **本轮从哪里开始到哪里结束**（进展条目即轮次边界），以及本轮已记录的进展 |
+| 2 | `git log --oneline -n <N>`、`git status --short`、`git diff --stat` | 本轮改了哪些提交、涉及哪些文件；**仅本项目在 Git 仓库内时可用** |
+| 3 | `docs/.ai/decision-log.md` | 本轮相关决策（`DEC-NNN`） |
+| 4 | `docs/.ai/debug-log.md` | 本轮踩的坑与根因（`BUG-NNN`） |
+| 5 | **代码实际形态**（`search_content` 统计） | 实测数字，如「15px 出现 255 处」「286 个按钮」 |
+| 6 | 本次会话上下文 | 仅作补充；与 1–5 冲突时以客观源为准 |
 
 - 条目里的数字（处数、文件数、覆盖数）必须**实测**，禁止按印象写
 - 写「How」时给**可直接照抄的原文**：类名全文、命令原文、`文件:行号`
@@ -95,7 +100,7 @@ writes-to:
 ````text
 <project>/docs/.ai/experience/
 ├── README.md       # 总索引 + 适用范围 + 使用步骤 + 🔴 速查 + 外送前置条件
-├── changelog.md    # 兼台账：每轮「原料区间 + 覆盖主题 + 产出 + 事实源」
+├── changelog.md    # 兼台账：每轮「原料 + 覆盖主题 + 产出 + 有意跳过」
 └── <域>/           # 主题 = 领域名，一域一目录
     ├── README.md   # 域内索引（该域条目清单）
     └── *.md        # 分章
@@ -114,7 +119,7 @@ writes-to:
 
 ## 防重复蒸馏
 
-写任何条目之前**先读 `changelog.md`**，比对本轮原料区间是否与已记录区间重叠：
+写任何条目之前**先读 `changelog.md`**，比对本轮原料是否与已记录的重叠：
 
 - 完全重叠 → 停下告诉用户「这段已在 <日期> 的 <轮次> 蒸馏过」，不重复蒸
 - 部分重叠 → 只蒸新增部分，并在备注里说明
@@ -130,13 +135,13 @@ writes-to:
 ````markdown
 ## YYYY-MM-DD · <轮次主题>
 
-- **原料**：`<首个commit>..<末个commit>` · `DEC-NNN` · `BUG-NNN`
+- **原料**：<语义来源清单：读过哪些文件与命令 + 区间> · `DEC-NNN` · `BUG-NNN`
 - **覆盖主题**：
 - **产出**：新增 T16；T12 扩展；新增 R13
-- **有意跳过**：<无 / 原因>
+- **有意跳过**：<评估过但决定不蒸的来源，必须穷举声明；确实没有则写「无」——没写等于没看过>
 ````
 
-**「原料区间」的三种写法**（都要能表达，不能只认已提交的 commit 区间）：
+**「原料」的三种写法**（都要能表达，不能只认已提交的 commit 区间）：
 
 | 情形 | 写法 |
 |---|---|

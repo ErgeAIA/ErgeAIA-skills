@@ -101,7 +101,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 
 - `<工程标识>` 取法见 §4；取不到就问用户，不猜
 - 模板已含 YAML frontmatter 与"改完必须把 `updated` 改为当日"的约定，不增删字段
-- `docs/handoff/` 用空文件 `.gitkeep` 占位，让 Git 追踪空目录
+- `docs/handoff/` 与 `docs/.ai/experience/` 各用空文件 `.gitkeep` 占位，让 Git 追踪空目录
 - 同名文件已存在 → 跳过，禁止覆盖，禁止改写历史条目
 - 模板中的 `<...>` 占位：初始化时已确知的当场填，未知的原样保留，由首次 `vibe-sync` 补齐
 - 层 B `docs/.ai/project-overview.md` **无模板、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建，内容为目录索引、依赖方向、开源附加分析；不需要就不建
@@ -124,9 +124,15 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 ## Permissions
 
 IMPORTANT: <一句话项目定位与最硬边界>
-YOU MUST 先读 <项目文档，如 PRD.md> 与 docs/.ai/decision-log.md 再改码
+YOU MUST 会话开始先读 docs/.ai/ 三件套与 docs/handoff/ 最新一份
+YOU MUST 先复述现状与待确认项，再动手
+YOU MUST 改码前先读 <项目文档，如 PRD.md> 与 docs/.ai/decision-log.md
 YOU MUST 每次会话更新 docs/.ai/project-progress.md
 YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
+YOU MUST 改某领域代码前先读 docs/.ai/experience/<领域>/（存在时）
+YOU MUST 每次只推进一个阶段，完成即停，等用户验证
+禁止自行宣称已修复，修复结果须由用户验证
+禁止整文件重写既有文件，只做最小精确补丁
 禁止 <P0 范围外的事>
 禁止不记录就改动 AGENTS.md 的约定
 
@@ -147,8 +153,10 @@ YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 | 会话文档体系固定 | 进度写 docs/.ai/project-progress.md；决策写 docs/.ai/decision-log.md；两者只追加不删历史 |
 | bug 追加 docs/.ai/debug-log.md | 格式 BUG-NNN；只追加不删历史 |
 | 交接写 docs/handoff | 命名 handoff-YYYY-MM-DD-*.md |
+| 交接文档同日多份 | 按文件名里的日期取最新（兼容 `YYYY-MM-DD` 与 `YYYYMMDD` 两种写法）；同日多份再取 frontmatter `updated` 最新者，仍不可判则列出问用户 |
 | 改 docs/.ai 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |
 | 改 AGENTS.md 须留一行变更记录 | 在 docs/.ai/agents-changelog.md 追加「旧值 → 处置 → 去处」，无记录视为静默丢失 |
+| 经验库按领域分目录 | 可复用经验落 docs/.ai/experience/<领域>/；正文可改写、历史靠 changelog.md，与 docs/.ai 其余三份的「只追加」不同 |
 
 ## References
 
@@ -156,6 +164,7 @@ YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 见 docs/.ai/agents-changelog.md
 见 docs/.ai/decision-log.md
 见 docs/.ai/debug-log.md
+见 docs/.ai/experience/
 见 docs/.ai/project-progress.md
 见 docs/handoff/
 

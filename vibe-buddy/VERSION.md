@@ -12,12 +12,14 @@
 
 **四个触发词**
 
-| 触发词 | 职责 | 产物 |
-|---|---|---|
-| `vibe-init` | 建立协作契约与过程文档；半程项目只补缺失项 | `AGENTS.md`、`CLAUDE.md`（可选）、`docs/.ai/` 三件套与层 C 变更日志、`docs/handoff/` |
-| `vibe-sync` | 沉淀进度与决策 | `docs/.ai/project-progress.md`、`docs/.ai/decision-log.md` |
-| `vibe-handoff` | 生成自包含交接文档 | `docs/handoff/handoff-YYYY-MM-DD[-slug].md` |
-| `vibe-distill` | 沉淀 bug 根因与预防规则 | `docs/.ai/debug-log.md` |
+| 触发词 | 职责 |
+|---|---|
+| `vibe-init` | 建立协作契约与过程文档；半程项目只补缺失项 |
+| `vibe-sync` | 记录流水事实：进度、决策、调试 |
+| `vibe-handoff` | 生成自包含交接文档 |
+| `vibe-distill` | 提炼可复用经验，落 `docs/.ai/experience/` |
+
+产物路径与写入者以 `SKILL.md` 的「产物布局」表为唯一真源；本表不再列产物，避免同一事实两处存放。
 
 接手（接管）**不是触发词**：由目标项目 `AGENTS.md` 的 `Permissions` 义务承担，每会话自动生效。
 
@@ -146,6 +148,21 @@
 
 - **比对没排除本技能自身的产物，防重复随时会失效**：契约只说「比对本轮原料区间」，未定义「原料」的边界。而 `git status` 里的 `?? docs/`、`?? AGENTS.md`、`?? .codegraph/` **全是本技能自己写的**——若按「`status` 有内容即为新原料」判定，每次蒸馏都会看到上一次自己刚写的文件，防重复永久失效 → 补「比对只针对项目自身，排除 `docs/.ai/`、`docs/handoff/`、`AGENTS.md`、`.codegraph/`」。
 - **台账的「原料区间」是 git 级的，表达不了语义覆盖**：复蒸时发现一个首轮**既未列产出、也未列跳过**的来源（`.trae/documents/微信小程序迁移计划.md`，其审查记录含 OKLCH 色彩空间迁移与无障碍对比度合规）——它落在区间内，因此按区间判为「已覆盖」，实际从没被评估过。根因：**git 区间只回答「代码变没变」，回答不了「这个来源看过没」** → 补三条：「『原料』要写成语义来源清单」「『有意跳过』必须穷举声明，没写 = 没看过」「复蒸判定」两行表。
+
+**评审后确定性修复（skill-workshop 深度评审，2026-09-10）**
+
+用 `skill-workshop` 走完整评审链（W1 → W2/W3 → W7 → W4 → W5 → W6），产出 8 段报告；按报告里「确定性修复」清单一次性落地 6 处：
+
+- **`AGENTS.md` 产物模板补齐 A 层义务（P0，真源冲突）**：`references/init-agents-md.md` 要求的接管义务与常驻纪律，在它实际照抄的 `references/agents-md-generator.md` §5 模板里**一条都没有**——模板 `Permissions` 只有 6 行（缺「会话开始先读 `docs/.ai/` 三件套与 `docs/handoff/` 最新一份」「先复述现状与待确认项，再动手」「改某领域代码前先读 `experience/<领域>/`」与三条常驻纪律），`Conventions` 少 2 行，`References` 缺 `docs/.ai/experience/`。**后果**：`vibe-init` 按 §5 填空生成的 `AGENTS.md` 不带接管义务，而 A 层是本技能唯一能覆盖「AI 未调用任何技能」的层——上一轮删掉 `vibe-resume` 换来的收益会归零。现以 §5 为**句子原文唯一真源**并补齐；`init-agents-md.md` 的义务清单改为**只登记类别、不复制句子、不记条数**（条数本身是漂移源头）。
+- **`vibe-distill` 的事实源漏 `project-progress.md`（本轮评审新发现）**：契约以「一轮」为单位，但「本轮从哪里开始」没有客观来源——git 只回答「改了哪些提交」，回答不了轮次边界；而 `vibe-sync` 每次写进 `project-progress.md` 的「最后更新」条目正是轮次落点。补入事实源表首行、`reads-from` 与前置检查，并写明「轮次边界取自 `project-progress.md`」。否则台账的「原料」失去可比性，防重复蒸馏随之失效。
+- **`VERSION.md` 顶部触发词表去副本化**：原表列「职责 + 产物」两列，而 `vibe-distill` 行仍写旧定位（「沉淀 bug 根因与预防规则」→ `debug-log.md`，该职责早已移交 `vibe-sync`），`vibe-sync` 行又漏 `debug-log.md`。现删「产物」列、职责改用与 `SKILL.md` 同口径的一句话，并注明产物以 `SKILL.md`「产物布局」表为唯一真源——同一事实不再两处存放。**校验器不读 `VERSION.md` 内容，这类过时只能靠人工核对发现。**
+- **经验库台账字段统一**：`assets/experience/changelog.md` 模板的 frontmatter 与契约「落盘结构」写「事实源」，而条目格式与模板注释写「有意跳过」——同一条目的字段两套名。现统一为「原料 / 覆盖主题 / 产出 / 有意跳过」，并定 `references/distill-experience.md` 的「防重复蒸馏」节为字段定义唯一真源；模板注释补三种「原料」写法与「有意跳过必须穷举声明，没写等于没看过」。
+- **`README.md` 交接命名补 `[-slug]`**：原写 `handoff-YYYY-MM-DD.md`，与 `SKILL.md`、`handoff-context.md`、`VERSION.md` 的 `[-slug]` 不一致。
+- **`agents-md-generator.md` §4b 补 `docs/.ai/experience/.gitkeep`**：原只规定 `docs/handoff/` 用 `.gitkeep` 占位，而 `init-agents-md.md` 的 `writes-to` 含 `experience/.gitkeep`——空目录不被 Git 追踪，用户提交后目录消失，首次蒸馏又要重建。
+
+**评审同时确认的（未改）**：`spec` / `validate` / `consistency` 三项机器校验 PASS；`routing-check` 的 FAIL 属**工具误用**（其 `WORKFLOW_FILES` 硬编码了 skill-workshop 自身的 9 个工作流，对纯运行型技能必然全部报缺）；`checklist` 的 M5 / V2 / V3 / V5 为关键词未匹配（实质由 `SKILL.md` 的 CHECKPOINT 与验证表、生成规范 §7 自检门承载），**不为迁就扫描器而改写措辞**。
+
+**仍待用户裁决（本次未动）**：`D1`「不覆盖」是否需要护栏（评审倾向不加脚本、改补真跑回归项）；`description` 的 13 个触发短语是否精简；经验条目编号「主题内递增」与总索引速查表的跨域重号问题。
 
 **干跑（三场景）修复**
 
