@@ -39,6 +39,13 @@
 - **Codegraph 集成**：新增 `references/init-env-checks.md`。判定链为 `codegraph --version`（是否安装）→ `codegraph status`（本项目是否已建索引）→ 已装且无索引且有代码则 `codegraph init`；未安装时在报告「建议」写明用途、安装命令 `npx @colbymchenry/codegraph` 与初始化命令 `codegraph init`。不代做 `codegraph install` / `uninstall`（会改写各 agent 配置，含 `AGENTS.md` 标记区块）。
 - **终端命令规则改为白名单制**：原「全程不运行终端命令」硬规则与新增功能冲突，改为只放开 5 条命令（3 条只读检测 + `git init` + `codegraph init`），其余仍禁止；命令失败不阻塞流程，记入报告继续。
 - init 契约新增十步「执行顺序」表，明确 Git 检查在状态识别之前、报告在终止回复之前。
+- **三新增功能的干跑修复**（空目录 / 已有仓库 / 未装 codegraph / 父仓库子目录 四环境）：
+  - Git 检查区分「本项目即仓库根」与「位于父仓库内」，后者不建嵌套仓库，报告写实际根路径并记录 `git init` 的默认分支名
+  - 索引检测限定**只认项目根下的 `.codegraph/`**：codegraph 会向上取最近索引，祖先目录的索引属父项目，不算本项目已有索引
+  - 补「项目有代码」判据（复用生成规范 §2 的既有代码信号），否则跳过分支无法执行
+  - 未安装建议补三类内容：`npx` 执行第三方安装器的风险提示、安装器会改写 `AGENTS.md`／`CLAUDE.md` 的留痕提醒、`.codegraph/` 加入 `.gitignore` 的忽略建议
+  - 报告明确「只列本次实际涉及的步骤行」，避免每次生成一堆「未执行」噪音行；条目类型表降级为可选清单
+  - `codegraph status` 降级为补充信息，退出码不参与判定；记录实际耗时
 
 **干跑（三场景）修复**
 
