@@ -1,5 +1,5 @@
 ---
-version: 2026-05
+version: 2026-09
 source: anthropics-skills/skill-creator
 role: Rubric (examples & thresholds only)
 trigger-when: W7 description 审计阶段（T1-T5 判定）
@@ -31,6 +31,8 @@ consumed-by: W7
 | 主动（正例） | `Make sure to use this skill whenever the user mentions skill analysis, refactoring, or compliance, even if they don't explicitly ask for a 'review'.` |
 | 被动（反例） | `How to build a dashboard.`                                                                                                                            |
 | 主动（正例） | `How to build a dashboard. Use this skill whenever the user mentions dashboards, data visualization, or wants to display company data.`                |
+
+> **人称注记（2026-09 收敛）**：官方（platform.claude.com best-practices，缓存见 [claude-platform-best-practices.md](../specs/claude-platform-best-practices.md)）要求 description **始终第三人称**，社区（agentskills.io）要求「用祈使句」——两者在功能句上冲突，**以官方为准**：功能句用第三人称（如 "Processes Excel files…"），触发句用 `Use when…` / `Use this skill whenever…`（祈使式条件句，两源兼容）。上表反例 `Provides tools for analyzing skills.` 的判定理由是**缺触发句**，而非「被动/非第三人称」——纯第三人称功能句只要补触发句即合法。
 
 ---
 
@@ -80,3 +82,16 @@ consumed-by: W7
 | 不可逆操作（API 调用 / 部署）    | 强           | Dry-run 优先                     |
 | 弹性任务（文案 / 创意 / 翻译）   | 弱           | 给方向，留自由度                 |
 | 探索性任务（分析 / 总结）        | 中           | 给框架，不给死答案               |
+
+---
+
+## 8. 意图句 vs 裸词表对照
+
+| 类型 | 示例 |
+| --- | --- |
+| 裸词表（反例） | `fact-check 验真 查证 核实 中文核查 事实核查 边界 校准` |
+| 意图句（正例） | `Use this skill whenever the user wants to fact-check concrete claims in Chinese tech text. Invoke on "验真"/"fact-check".` |
+| 变体罗列（反例） | `Invoke on 'review'/'audit'/'check'/'inspect'/'examine'`（同义变体 >3，应收敛为核心触发词） |
+| overfitting（反例） | 把失败评测查询里的关键词逐条塞进 description（社区来源明令禁止；应泛化到用户意图类别） |
+
+**判据**：核心触发词必须由意图句承载（功能句 + Use when/Invoke on 触发句）；详见 [spec.md §description 格式约束](../specs/spec.md#description-格式约束（v0-w7-强约束）)「核心触发词 vs 变体清单」。

@@ -1,7 +1,7 @@
 ---
 name: V0-validate
 description: Skill 合规校验工作流；产出 PASS/FAIL 结论；增第 7-8 步版本三处一致 + frontmatter 字段过度工程化硬校验。
-version: 1.1.1
+version: 1.2.0
 <!-- @类型: 工作流 -->
 <!-- @优先级: 必须 -->
 role: Workflow (Judge)
@@ -63,10 +63,12 @@ reads-from:
 - **目录名必须与 name 一致**
 
 ### 第 5 步：description 字段
-- 存在且为字符串
-- 不含 `<` 或 `>` 字符
-- 长度 ≤ 1024
-- 非空（去除空白后长度 > 0）
+- 官方硬校验：存在且为字符串、非空、长度 ≤ 1024、不含 `<` 或 `>` 字符（XML 标签本地加强版）
+- 联锁校验（判据真源见 spec.md §description 格式约束，`quick_validate.py::validate_description_format` 实现）：
+  - YAML 单行 string（含换行 → FAIL）
+  - ≥1 个核心意图关键词（缺失 → FAIL；<2 附软建议——官方模糊反例均为 0 命中）
+  - Pushy/主动触发句式（`Use when…` / `Use this skill whenever…` / `Invoke on…` / 中文主动触发句式 → 缺失 warning，不阻断；2026-09-11 目标驱动裁决降软）
+  - 触发词 ≥3（不足 → warning，不阻断）
 
 ### 第 6 步：目录名匹配
 - Skill 目录名 == `name` 字段值（精确匹配）
@@ -114,6 +116,7 @@ reads-from:
 
 ## 版本历史
 
+- **v1.2.0** (2026-09-11) - 第 5 步补联锁校验描述（单行 / ≥2 核心意图关键词硬；Pushy 句式与触发词 ≥3 降软），消除与 `quick_validate.py::validate_description_format` 的文档-实现漂移
 - **v1.1.1** (2026-08-22) - 第 7 步明确版本块可选（无版本块时跳过三处比对、不判 FAIL）；输出示例计数随 8 步更新（6/6 → 8/8）
 - **v1.1.0** (2026-06-18) - 增第 7 步版本三处一致性硬校验（frontmatter / 头部 / 文末首条）；增第 8 步 frontmatter 字段过度工程化扫描（来自 frontmatter-style-guide.md）
 - **v1.0.0** (2026-06-14) - 初版：6 步硬校验（文件结构 / frontmatter 格式 / 字段允许表 / name / description / 目录名）

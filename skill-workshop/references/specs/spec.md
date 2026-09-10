@@ -1,5 +1,5 @@
 ---
-version: 2026-06
+version: 2026-09
 purpose: Claude Skill 官方规范（reference for AI consumption; download-cached mirror of https://agentskills.io/specification）
 source: https://agentskills.io/specification
 audience: AI agents
@@ -100,14 +100,34 @@ description: Helps with PDFs.
 
 除官方规范的 1-1024 字符上限外，本地校验增加：
 
-| 约束                              | 强约束? | 违反后影响          |
-| --------------------------------- | ------- | ------------------- |
-| YAML 单行 string（**禁用 `\|` 块**） | ✅ 必   | W7 标 T1            |
-| Pushy 句式（"Use this skill whenever..." / "Make sure to invoke it when..." / "Invoke on..."） | ✅ 必   | W7 标 T1            |
-| 至少 3 个核心触发词（中文 / 英文） | ✅ 必   | W7 标 T1            |
-| 推荐：边界声明（"Not for: ..."）   | ⚠️ 推荐 | W7 标 T1 推荐项    |
+| 约束                              | 强约束? | 来源                     | 违反后影响                         |
+| --------------------------------- | ------- | ------------------------ | ---------------------------------- |
+| 非空、字符串                       | ✅ 必   | 官方硬约束               | V0 硬 FAIL                         |
+| 不含 XML 标签（本地实现为不含 `<` `>` 字符，更严） | ✅ 必 | 官方硬约束 + 本地加强 | V0 硬 FAIL                         |
+| 字符数 ≤1024                       | ✅ 必   | 官方硬约束               | V0 硬 FAIL                         |
+| YAML 单行 string（**禁用 `\|` 块**） | ✅ 必   | 本地扩展（外部技能管理软件转义风险） | V0 硬 FAIL / W7 标 T1              |
+| Pushy/主动触发句式（`Use when…` / `Use this skill whenever…` / `Invoke on…` / 中文主动触发句式——含官方 `Use when` 句式） | ⚠️ 软建议（2026-09-11 目标驱动裁决：无事故背书的风格正则不作硬约束） | 社区原则（官方无 Pushy） | V0 warning；W7 T5 判语义质量（P2） |
+| ≥1 个核心意图关键词（意图动词或显式触发词，嵌入句中；<2 附软建议——官方模糊反例均为 0 命中） | ✅ 必   | 本地扩展（对齐官方 "include specific keywords"） | V0 硬 FAIL / W7 标 T1              |
+| 触发词 ≥3                         | ⚠️ 软建议 | 本地扩展（降级）         | V0 warning，不 FAIL                |
+| 边界声明（"Not for: ..."）         | ⚠️ 推荐 | 社区原则（防误触发的镜像） | W7 标 T2（**缺**边界才 P1）；有边界不是反模式 |
+| 功能句**始终第三人称**（避免 I can / You can） | ⚠️ 官方要求（语义，非机器判定） | 官方                 | W7 T5/T1 语义判定                  |
+| 描述同时含功能 + 何时使用          | ⚠️ 官方要求（语义，非机器判定） | 官方                 | W7 T3 分维判定                     |
 
-**联锁参考**：[frontmatter-style-guide.md §9](frontmatter-style-guide.md#九、description-字段联锁规则（w7-必读）) 给出"反例 vs 正例"对照。
+**长度软建议**：几句话到一个短段落（社区来源：agentskills.io "Optimizing skill descriptions"）。官方未给建议字数区间，**不设 200-400 之类自设区间**。
+
+**来源分层声明（收敛原则）**：
+- **官方** = platform.claude.com《Skill 编写最佳实践》（缓存：[claude-platform-best-practices.md](claude-platform-best-practices.md)）——硬约束与人称要求以此为准。
+- **社区** = agentskills.io《Optimizing skill descriptions》（缓存：[optimizing-descriptions.md](optimizing-descriptions.md)）——评测协议与「宁可 pushy」出处；本仓既有文件的 `role: official-spec` 实为社区源，已随本次修正标注。
+- **本地扩展** = 单行 string、意图词 ≥2、边界推荐——为本地工程约束，与官方/社区不冲突，保留。
+- 冲突裁决：官方 > 社区 > 本地；已知冲突（社区「用祈使句」vs 官方「第三人称」）的功能句以官方为准，触发句 `Use when…` 两源兼容。
+
+**核心触发词 vs 变体清单**：
+- 合法：核心触发词**嵌入句中**（如 `Invoke on '验真'/'fact-check'`），3-4 个以内。
+- 反模式：同义触发词变体罗列 >3 个（如 `review/audit/check/inspect/examine`）；把失败评测查询里的关键词逐条塞进 description（overfitting，禁）；裸词表无意图句承载。
+
+**角色分层**：本节是机器判据唯一真源（`scripts/_impl/quick_validate.py::validate_description_format` 按此实现）；语义质量判定归 W7（T1-T5，P 级独立分维）。
+
+**联锁参考**：[frontmatter-style-guide.md §9](frontmatter-style-guide.md#九、description-字段联锁规则（引用-specmd-真源）) 给出"反例 vs 正例"对照。
 
 ### `license` field
 
