@@ -68,7 +68,7 @@ writes-to:
 
 ## 过程文档
 
-目录结构、frontmatter 约定与初始骨架的单一真源是 `references/agents-md-generator.md` §4b，按其中骨架原样落地。
+目录结构与初始模板的单一真源是 `references/agents-md-generator.md` §4b。三件套从 `assets/docs/` 直接复制，只替换 `<工程标识>` 并把 `updated` 改为当日；已有同名文件跳过，不覆盖。
 
 | 文件 | 用途 | 维护者 |
 |---|---|---|

@@ -57,6 +57,7 @@ metadata:
 
 - 要建 `AGENTS.md`、判定路由模式、补齐缺失文档 → `references/init-agents-md.md`
 - 要执行 `AGENTS.md` 的生成规范本身（句式契约、黑名单、自检门） → `references/agents-md-generator.md`
+- 要落地 `docs/.ai/` 三件套 → `assets/docs/project-progress.md` 等三份模板（原样复制，只换 `<工程标识>` 与 `updated`）
 - 要沉淀进度与决策 → `references/sync-progress.md`
 - 要生成交接文档 → `references/handoff-context.md`
 - 新会话要弄清现状并汇报 → `references/resume-context.md`

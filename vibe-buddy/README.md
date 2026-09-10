@@ -75,9 +75,14 @@ vibe-buddy/
 ├── SKILL.md                              # 入口：路由与共用契约
 ├── README.md                             # 本文件
 ├── VERSION.md                            # 版本演进
+├── assets/
+│   └── docs/                             # 过程文档模板，初始化时原样复制
+│       ├── project-progress.md
+│       ├── decision-log.md
+│       └── debug-log.md
 └── references/
     ├── init-agents-md.md                 # 初始化执行契约
-    ├── agents-md-generator.md            # AGENTS.md 生成规范（句式契约 / 自检门）
+    ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构）
     ├── sync-progress.md                  # 进度与决策沉淀契约
     ├── handoff-context.md                # 交接文档契约
     ├── resume-context.md                 # 接管汇报契约

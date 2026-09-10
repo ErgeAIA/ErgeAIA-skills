@@ -17,7 +17,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 3. 祈使句：动词开头、无主语、≤25 字
 4. 指针：`见 <path/章节>` 单行
 
-解释、背景、动机、教程、欢迎语一律禁止写入。§4b 的过程文档骨架不受本条约束。
+解释、背景、动机、教程、欢迎语一律禁止写入。过程文档模板不受本条约束。
 
 ## 1 触发词黑名单（终稿前逐行扫描，命中即删或改写为句式 1-4）
 
@@ -81,90 +81,17 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 └── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
 ````
 
-过程文档一律带 YAML frontmatter：`title` / `type` / `project` / `updated` / `description`；description 内写明"本文件新增或修改后必须把 `updated` 改为当日日期"。骨架如下。
+三件套按 `assets/docs/` 下同名模板原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日：
 
-### docs/.ai/project-progress.md
+| 模板 | 落点 |
+| ---- | ---- |
+| `assets/docs/project-progress.md` | `docs/.ai/project-progress.md` |
+| `assets/docs/decision-log.md` | `docs/.ai/decision-log.md` |
+| `assets/docs/debug-log.md` | `docs/.ai/debug-log.md` |
 
-````markdown
----
-title: Project Progress
-type: project-progress
-project: <工程标识>
-updated: YYYY-MM-DD
-description: >
-  项目开发进度实时记录：阶段、分支、代码状态、最近进展。每次会话更新。
-  AI 在本文件新增进展或修改当前状态后，必须同步更新 updated 为当日日期（YYYY-MM-DD）。
----
-
-# Project Progress
-
-> 记录当前任务状态、分支和最近进展。每次会话更新。
-> 新进展插在「当前状态」之后、旧「最后更新」之前。
-
----
-
-## 当前状态
-
-- **当前分支**：
-- **阶段**：
-- **代码**：
-- **工具链**：
-- **最后更新**：YYYY-MM-DD
-- **下一步**：
-````
-
-### docs/.ai/decision-log.md
-
-````markdown
----
-title: Decision Log
-type: decision-log
-project: <工程标识>
-updated: YYYY-MM-DD
-priority: higher-than-prd
-description: >
-  开发过程决策日志，优先级高于 PRD；冲突时以本文件最新条目为准并回写 PRD/ADR。
-  只追加，不删除或改写历史。AI 在本文件新增或修改任何条目后，必须同步更新 updated 为当日日期。
----
-
-# Decision Log
-
-> 偏离 PRD 或做出重要技术选择时在此追加。只追加，不删除或改写历史。
-> **优先级高于 PRD**：冲突时以本文件最新决策为准，并回写 PRD/ADR。
-> 格式：`## DEC-NNN: 标题` + 日期/背景/决策/验证。
-
----
-
-## Layer C — AGENTS.md 约定处置
-
-> 仅 AGENTS.md 生成或维护时写入。一行一条，禁止静默丢失：
-> `<旧值> → keep|update|drop|merge → <新值/去处/原因>`
-````
-
-### docs/.ai/debug-log.md
-
-````markdown
----
-title: Debug Log
-type: debug-log
-project: <工程标识>
-updated: YYYY-MM-DD
-description: >
-  反复调试的 bug 记录。只追加，不删除或改写历史。
-  AI 在本文件新增或修改任何条目后，必须同步更新 updated 为当日日期。
----
-
-# Debug Log
-
-> 反复调试的 bug 记录。只追加，不删除历史。
-> 格式：`## BUG-NNN: 标题` + 日期/现象/根因/修复/验证限制/教训。
-
----
-````
-
-### docs/handoff/.gitkeep
-
-空文件，让 Git 追踪空目录。
+- 模板已含 YAML frontmatter 与"改完必须把 `updated` 改为当日"的约定，不增删字段
+- `docs/handoff/` 用空文件 `.gitkeep` 占位，让 Git 追踪空目录
+- 同名文件已存在 → 跳过，禁止覆盖，禁止改写历史条目
 
 ## 5 产物模板（严格填空，禁止增删章节）
 
@@ -235,7 +162,7 @@ YOU MUST 每次会话更新 docs/.ai/project-progress.md
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包
 5. 标题语言全文件统一；命令/路径/版本保持英文原文
 
-另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 文档缺口已补齐且未覆盖既有文件。
+另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 三件套已按模板落地且未覆盖既有文件。
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
 
