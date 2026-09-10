@@ -3,7 +3,7 @@ name: command-policy
 description: vibe-buddy 的终端命令策略：全局白名单、各触发词允许的命令子集、执行纪律与失败处理。
 trigger-when: 任何触发词准备运行终端命令前
 role: spec
-consumed-by: references/init-env-checks.md、references/sync-progress.md
+consumed-by: references/init-env-checks.md、references/sync-progress.md、references/handoff-context.md
 ---
 
 # 命令策略
@@ -16,10 +16,10 @@ consumed-by: references/init-env-checks.md、references/sync-progress.md
 
 | 命令 | 用途 | 性质 | 允许的触发词 |
 | ---- | ---- | ---- | ------------ |
-| `git rev-parse --is-inside-work-tree` | 判断是否在 Git 仓库内 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff`、`vibe-resume` |
-| `git rev-parse --show-toplevel` | 定位仓库根 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff`、`vibe-resume` |
-| `git status --short` | 核对工作区改动（未提交改动的主力） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-resume` |
-| `git log --oneline -n <N>` | 核对已有提交 | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-resume` |
+| `git rev-parse --is-inside-work-tree` | 判断是否在 Git 仓库内 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff` |
+| `git rev-parse --show-toplevel` | 定位仓库根 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff` |
+| `git status --short` | 核对工作区改动（未提交改动的主力） | 只读 | `vibe-sync`、`vibe-handoff` |
+| `git log --oneline -n <N>` | 核对已有提交 | 只读 | `vibe-sync`、`vibe-handoff` |
 | `git diff --stat` | 核对**已跟踪**文件的未提交改动（不含未跟踪文件） | 只读 | `vibe-sync`、`vibe-handoff` |
 | `codegraph --version` | 判断是否已安装 | 只读 | `vibe-init` |
 | `codegraph status` | 补充索引信息，不作判定依据 | 只读 | `vibe-init` |

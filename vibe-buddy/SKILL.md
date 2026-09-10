@@ -1,7 +1,7 @@
 ---
 name: vibe-buddy
-description: "当用户要为项目建立或更新 AI 协作契约、跨会话交接上下文、接管新会话、沉淀进度决策与调试经验时，替他读写项目根 AGENTS.md、docs/.ai/ 与 docs/handoff/。触发词：'初始化项目'、'生成 AGENTS.md'、'vibe-init'、'同步进度'、'更新项目进度'、'vibe-sync'、'交接上下文'、'写交接文档'、'vibe-handoff'、'接管项目'、'接手上下文'、'vibe-resume'、'经验蒸馏'、'沉淀经验'、'vibe-distill'。哪怕用户没提技能名也触发。不适用于：任务计划与待办拆解、需求转译成 PRD、代码生成与重构、运行构建或测试命令、规范文档生命周期管理。"
-compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync / vibe-handoff / vibe-resume 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/ 与 docs/handoff/ 下，不写入技能仓库。
+description: "当用户要为项目建立或更新 AI 协作契约、写跨会话交接文档、沉淀进度决策与调试经验时，替他读写项目根 AGENTS.md、docs/.ai/ 与 docs/handoff/。触发词：'初始化项目'、'生成 AGENTS.md'、'vibe-init'、'同步进度'、'更新项目进度'、'vibe-sync'、'交接上下文'、'写交接文档'、'vibe-handoff'、'经验蒸馏'、'沉淀经验'、'vibe-distill'。哪怕用户没提技能名也触发。不适用于：任务计划与待办拆解、需求转译成 PRD、代码生成与重构、运行构建或测试命令、规范文档生命周期管理。"
+compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync 与 vibe-handoff 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/ 与 docs/handoff/ 下，不写入技能仓库。
 metadata:
   author: ErgeAIA
   version: "1.0.0"
@@ -26,8 +26,7 @@ metadata:
 |---|---|---|
 | 项目首次接入协作记忆，或补齐缺失的过程文档 | 「初始化项目」「生成 AGENTS.md」「vibe-init」；或项目缺 `AGENTS.md` 与 `docs/.ai/` | `references/init-agents-md.md` |
 | 任务完成，要沉淀进度与决策，或回填工具链与命令 | 「同步进度」「更新项目进度」「vibe-sync」 | `references/sync-progress.md` |
-| 换会话、换 agent、上下文将满 | 「交接上下文」「写交接文档」「vibe-handoff」 | `references/handoff-context.md` |
-| 新会话开始，要先弄清现状 | 「接管项目」「接手上下文」「vibe-resume」 | `references/resume-context.md` |
+| 换会话、换 agent、上下文将满，要留下一份交接文档 | 「交接上下文」「写交接文档」「vibe-handoff」 | `references/handoff-context.md` |
 | 反复调试的问题定位到根因，要沉淀 | 「经验蒸馏」「沉淀经验」「vibe-distill」 | `references/distill-lessons.md` |
 
 ### @步骤2: 强规则摘要
@@ -36,8 +35,8 @@ metadata:
 - **写入前声明**：操作类型 / 目标路径 / 是否覆盖 / 风险等级；同一触发词内只声明一次。
 - **一次只走一个触发词**：「同步并交接」拆成两轮各自确认，不自动串联。
 - **前置缺失即停**：如 `vibe-sync` 找不到 `docs/.ai/` 时引导先跑 `vibe-init`，绝不代建。
-- **歧义先反问**：只说「交接」而不明方向时，反问是生成交接还是接管。
-- **终端命令白名单**：默认不运行命令。`vibe-init` 可做 Git 仓库检测与初始化、codegraph 检测与建索引；`vibe-sync` / `vibe-handoff` / `vibe-resume` 可做只读 Git 核对（各自允许的子集见白名单）。构建、测试、依赖安装、`git add` / `commit` / `push` 一律不做；白名单单一真源见 `references/command-policy.md`。
+- **接管不由本技能触发**：新会话的「读记忆 + 复述现状」是目标项目 `AGENTS.md` 的 `Permissions` 义务，每次会话自动生效。听到「接管 / 接手 / 继续上次」这类措辞时不必触发本技能——那条义务已经在跑。
+- **终端命令白名单**：默认不运行命令。`vibe-init` 可做 Git 仓库检测与初始化、codegraph 检测与建索引；`vibe-sync` 与 `vibe-handoff` 可做只读 Git 核对（各自允许的子集见白名单）。构建、测试、依赖安装、`git add` / `commit` / `push` 一律不做；白名单单一真源见 `references/command-policy.md`。
 - **产物必须脱敏**：密钥、token、凭据、连接串、个人隐私一律不落盘；无法脱敏则拒绝写入。
 - **不重复已有产物**：规格、计划、决策、提交、diff 已有的内容，用路径引用。
 - **契约区与事实区**：`AGENTS.md` 的契约区（Permissions / Conventions / References / 章节结构）只由 `vibe-init` 写，任何改动都必须在 `docs/.ai/agents-changelog.md` 留一行；事实区（Toolchain / Commands 表数据）可由 `vibe-sync` 回填，属填事实不必留痕。
@@ -65,7 +64,6 @@ metadata:
 - 要落地 `docs/.ai/` 各文档 → `assets/docs/project-progress.md` 等五份模板（原样复制，只换 `<工程标识>` 与 `updated`）
 - 要沉淀进度与决策 → `references/sync-progress.md`
 - 要生成交接文档 → `references/handoff-context.md`
-- 新会话要弄清现状并汇报 → `references/resume-context.md`
 - 要沉淀调试经验与 bug 根因 → `references/distill-lessons.md`
 - 改过 description 要回归触发 → `references/trigger-test-set.md`
 
@@ -74,9 +72,9 @@ metadata:
 | 触发条件 | 一线修复 | 仍失败兜底 |
 |---|---|---|
 | 前置文件缺失（如无 `docs/.ai/` 却要 sync） | 回复缺失项，引导先跑 `vibe-init` | 用户坚持从零建立 → 转 `vibe-init`，不就地代建 |
-| 触发词歧义（「交接」未分方向） | 反问：生成交接文档还是接管上下文 | 用户仍不明确 → 停下，不动任何文件 |
 | `vibe-init` 遇到已有文档 | 只补缺失项，已存在的文件一字不动 | 内容冲突且无法判定 → 停下请用户裁决 |
-| 同日已有同名交接文档 | 加语义后缀（`handoff-YYYY-MM-DD-<slug>.md`） | 后缀仍冲突 → 停下请用户指定文件名 |
+| 同日已有同名交接文档 | 加语义后缀（`handoff-YYYY-MM-DD-<slug>.md`） | 后缀仍冲突 → 加两位序号（`-02`），不回头打扰用户 |
+| 本次会话无可交接内容 | 明说「没有可交接的实质进展」，不生成空文档 | 用户坚持 → 只写有对话依据的条目，宁缺勿造 |
 | 关键事实采集不到（项目定位、命令、权限边界） | 停下问用户，不猜、不编造 | 用户未答 → 写占位并在终止回复列为待确认项 |
 | 白名单命令失败（`git init` / `codegraph init`） | 记「失败 + 原因」，继续后续步骤 | 仍失败 → 不自动重试，在报告建议里提示手动执行 |
 | 同步时上下文已被压缩或记忆不可靠 | 先按客观源（git 核对 / 最新交接文档 / 过程文档）重建事实再落笔 | 无法重建 → 明说「本次进展无法核实」，不写条目、不凭记忆补全 |
@@ -104,15 +102,15 @@ metadata:
 - 不管理规格与变更的生命周期。
 - 不做对外发布，不代发内容。
 - 不实现跨项目共享的个人记忆库。
+- 不提供「接管汇报」触发词：那是目标项目 `AGENTS.md` 的义务，不是本技能的入口。
 
 ## 验证
 
 | 触发词 | 成功判定 |
 |---|---|
-| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作；缺失项已补齐，既有文件未被覆盖 |
+| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务与常驻纪律已写入 `Permissions`；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作；缺失项已补齐，既有文件未被覆盖 |
 | `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；`AGENTS.md` 仅事实区被回填，契约区未动 |
-| `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，含建议调用的技能段，未覆盖既有文件 |
-| `vibe-resume` | 输出结构化汇报（含 Git 状态）；未创建或修改任何文件 |
+| `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，正文只展开「别处读不到」的四类、其余写指针，未覆盖既有文件 |
 | `vibe-distill` | `debug-log.md` 有新增条目（或明确回复无可沉淀经验） |
 
 ## 参考

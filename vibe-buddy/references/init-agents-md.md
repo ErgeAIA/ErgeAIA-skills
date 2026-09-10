@@ -128,9 +128,11 @@ writes-to:
 
 | 位置 | 写什么 |
 |---|---|
-| `Permissions` | `YOU MUST 每次会话更新 docs/.ai/project-progress.md`；`YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md` |
-| `Conventions` | 会话文档体系、bug 追加、交接命名、改文档须同步 `updated`、改 AGENTS.md 须留变更记录 五条表格行 |
+| `Permissions` | **接管两条**：`YOU MUST 会话开始先读 docs/.ai/ 三件套与 docs/handoff/ 最新一份`、`YOU MUST 先复述现状与待确认项，再动手`；**文档义务两条**：`YOU MUST 每次会话更新 docs/.ai/project-progress.md`、`YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md`；**常驻纪律三条**：每次只推进一个阶段完成即停等验证、不得自行宣称已修复须由用户验证、修改既有文件用最小精确补丁禁整文件重写 |
+| `Conventions` | 会话文档体系、bug 追加、交接命名、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、交接文档同日多份时的取新判据 六条表格行 |
 | `References` | 项目自带文档 + `docs/.ai/` 各过程文档 + `docs/handoff/`，逐条 `见 <path>` 指针 |
+
+**接管为什么写在 `Permissions` 而不是做成触发词**：触发词要求用户先想起它，A 层义务每会话自动生效。写进去之后，「新会话先弄清现状」不再依赖任何人记得敲命令——这是本技能对「AI 未调用技能」这个前提的唯一覆盖手段。
 
 ## 保证层级（写文档时按此判断）
 
