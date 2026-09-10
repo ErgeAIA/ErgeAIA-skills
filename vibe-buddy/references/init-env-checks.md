@@ -1,10 +1,11 @@
 ---
 name: init-env-checks
-description: vibe-init 的环境检查契约：Git 仓库检测与初始化、codegraph 索引检测与集成、终端命令白名单与失败处理。
+description: vibe-init 的环境检查契约：Git 仓库检测与初始化、codegraph 索引检测与集成。
 trigger-when: 执行 vibe-init 走到 Git 检查或 Codegraph 集成步骤时
 role: workflow
 reads-from:
   - <project>/.codegraph/（索引存在性）
+  - references/command-policy.md
 writes-to:
   - <project>/.git/（仅 git init）
   - <project>/.codegraph/（仅 codegraph init）
@@ -12,22 +13,7 @@ writes-to:
 
 # init 环境检查 · Git 与 Codegraph
 
-## 终端命令白名单
-
-本技能默认不运行终端命令；`vibe-init` 只放开下表命令，其余一律禁止。
-
-| 命令 | 用途 | 性质 |
-| ---- | ---- | ---- |
-| `git rev-parse --is-inside-work-tree` | 判断是否已在 Git 仓库内 | 只读 |
-| `git rev-parse --show-toplevel` | 定位仓库根，判断是本项目还是父项目 | 只读 |
-| `codegraph --version` | 判断 codegraph 是否已安装 | 只读 |
-| `codegraph status` | 补充索引信息，**不作判定依据** | 只读 |
-| `git init` | 本项目非仓库时初始化 | 写 |
-| `codegraph init` | 已安装且本项目无索引时建索引 | 写 |
-
-**仍然禁止**：构建、测试、格式化、依赖安装、`git add` / `commit` / `push`，以及 `codegraph install` / `uninstall`（会改写各 agent 的配置与指令文件，属外部工具安装，只给建议不代做）。
-
-执行规则：写操作执行前声明意图与目标路径；执行后如实记录退出码、关键输出与实际耗时；任何一条失败都不中断后续步骤，记入报告后继续。
+命令白名单、执行纪律与失败总则见 `references/command-policy.md`。本文件只定义判定逻辑。
 
 ## 一、Git 检查
 

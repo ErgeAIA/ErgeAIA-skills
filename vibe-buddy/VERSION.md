@@ -67,6 +67,13 @@
 - **补决策编号取法**（读文件取最大编号加一）与「新条目置顶」。
 - 术语修正：`last_updated` → frontmatter `updated` + 正文「最后更新」；路由表述去掉 sync 行的「bug 经验」（该归 `vibe-distill`）；`compatibility` 与「非目标」同步白名单口径。
 
+**vibe-sync 补客观事实源与压缩降级**
+
+- **原状态**：sync 完全依赖上下文记忆，`reads-from` 只有三个文档，全文不含 git；`git log` 也不在白名单里。会话压缩后按「记忆」写进度，会静默失真。
+- **新增事实源与核对顺序**：写任何一条前按可信度取事实——① `git log` / `git status` / `git diff --stat`（仅 Git 仓库内）② `docs/handoff/` 最新交接文档 ③ 既有 `project-progress.md` 与 `decision-log.md` ④ 本次上下文（仅作补充）。上下文与 ①–③ 冲突时**以客观源为准**并把冲突记入备注；git 输出只用于核对，**不搬进文档**，需引用时写 commit hash。
+- **新增「上下文被压缩过时」降级路径**：先重建再落笔；只写能核实的，覆盖不到的标 `待确认`；完全无法重建则明说「本次进展无法核实」，不写条目、不用「大概/可能」凑数；发现比本次会话更新的交接文档 → 停下问用户，不覆盖。
+- **命令白名单抽为技能级单一真源**：新增 `references/command-policy.md`，按触发词声明允许子集；`vibe-sync` 新增只读的 `git status` / `git log --oneline -n N` / `git diff --stat`。`init-env-checks.md` 移除重复的白名单表，只留判定逻辑。
+
 **干跑（三场景）修复**
 
 对「全新空白项目 / 半程项目 / 已初始化优化」各干跑一遍，暴露并修复：

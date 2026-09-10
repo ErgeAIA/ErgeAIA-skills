@@ -57,6 +57,7 @@ vibe-buddy 把这些答案固化成文件：
 | 触发词只有 5 个 | 早期版本的 9 个里，「保存进度 / 会话压缩」写同一文件同一位置，「记录踩坑」本是进度同步的子类，「知识整合」只在积累多份经验后才有意义。合并后每个触发词职责唯一，路由无歧义 |
 | 进度与决策不进 `AGENTS.md` | 契约只承载规则，过程只承载事实。混在一起会让契约每轮被改写，既不稳定也不可审计 |
 | 文档义务写进 `Permissions` 与 `Conventions` | 不写进 `AGENTS.md` 就没人执行；但不新增章节——章节固定，义务落在既有两节里，句式契约才守得住 |
+| 同步先核客观源，不只靠记忆 | 会话压缩后上下文会失真。`vibe-sync` 先读 Git 核对、最新交接文档与既有过程文档，冲突时**以客观源为准**，覆盖不到的标「待确认」——这是技能自己的「不猜测」原则 |
 | 终端命令改为白名单制 | 原规则是「全程不运行终端命令」，但初始化的 Git 与 codegraph 检查必须是命令。改为白名单：只放开只读检测与 `git init` / `codegraph init`；构建、测试、依赖安装、`git add` / `commit` / `push` 仍然禁止 |
 | codegraph 只检测与建索引，不代装 | 官方安装器会改写各 agent 的配置文件（含 `AGENTS.md` 的标记区块），属外部工具安装，本技能只给建议不代做 |
 | 初始化报告不进 `References` | 它是执行留痕，不承担日常上下文职责；按本技能 §6 写入闸「删掉此行 Agent 会犯错吗」判定为不写 |
@@ -92,7 +93,8 @@ vibe-buddy/
 │       └── init-report.md
 └── references/
     ├── init-agents-md.md                 # 初始化执行契约（执行顺序 / 报告 / 集成）
-    ├── init-env-checks.md                # Git 检查与 Codegraph 集成（含命令白名单）
+    ├── init-env-checks.md                # Git 检查与 Codegraph 集成（判定与失败处理）
+    ├── command-policy.md                 # 终端命令白名单单一真源（含各触发词允许的子集）
     ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构）
     ├── sync-progress.md                  # 进度与决策沉淀契约
     ├── handoff-context.md                # 交接文档契约
