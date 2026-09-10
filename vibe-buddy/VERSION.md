@@ -32,6 +32,14 @@
 - 所有过程文档带 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），**每次修改须把 `updated` 同步为当日**。
 - 全部**只追加**，历史条目永不删除或改写。`decision-log.md` 与 `agents-changelog.md` 职责分离：前者随开发更新，后者只在改 AGENTS.md 时更新。
 
+**初始化流程三新增（Git 检查 / 初始化报告 / Codegraph 集成）**
+
+- **Git 检查**：`git rev-parse --is-inside-work-tree` 只读检测，无仓库则 `git init`；不做 `add` / `commit` / `push`。
+- **初始化报告**：新增模板 `assets/docs/init-report.md` → `docs/.ai/init-report.md`，每次初始化追加一节，逐条记录实际操作（结果取值 完成 / 跳过 / 未执行 / 失败，禁止虚报），含可扩展的条目类型表与「建议」小节；不列入 `AGENTS.md` 的 `References`。
+- **Codegraph 集成**：新增 `references/init-env-checks.md`。判定链为 `codegraph --version`（是否安装）→ `codegraph status`（本项目是否已建索引）→ 已装且无索引且有代码则 `codegraph init`；未安装时在报告「建议」写明用途、安装命令 `npx @colbymchenry/codegraph` 与初始化命令 `codegraph init`。不代做 `codegraph install` / `uninstall`（会改写各 agent 配置，含 `AGENTS.md` 标记区块）。
+- **终端命令规则改为白名单制**：原「全程不运行终端命令」硬规则与新增功能冲突，改为只放开 5 条命令（3 条只读检测 + `git init` + `codegraph init`），其余仍禁止；命令失败不阻塞流程，记入报告继续。
+- init 契约新增十步「执行顺序」表，明确 Git 检查在状态识别之前、报告在终止回复之前。
+
 **干跑（三场景）修复**
 
 对「全新空白项目 / 半程项目 / 已初始化优化」各干跑一遍，暴露并修复：

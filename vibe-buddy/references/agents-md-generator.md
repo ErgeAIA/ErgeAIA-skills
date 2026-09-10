@@ -82,6 +82,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 │   ├── decision-log.md         # 开发决策，优先级高于 PRD
 │   ├── debug-log.md            # bug 记录
 │   ├── agents-changelog.md     # AGENTS.md 约定处置，仅初始化/维护时写
+│   ├── init-report.md          # 初始化执行报告，每次 init 追加一节
 │   └── project-overview.md     # 可选，层 B
 └── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
 ````
@@ -94,6 +95,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 | `assets/docs/decision-log.md` | `docs/.ai/decision-log.md` | 总是 |
 | `assets/docs/debug-log.md` | `docs/.ai/debug-log.md` | 总是 |
 | `assets/docs/agents-changelog.md` | `docs/.ai/agents-changelog.md` | 总是（全新初始化也建，写兜底行） |
+| `assets/docs/init-report.md` | `docs/.ai/init-report.md` | 总是（每次 init 追加一节） |
 
 - `<工程标识>` 取法见 §4；取不到就问用户，不猜
 - 模板已含 YAML frontmatter 与"改完必须把 `updated` 改为当日"的约定，不增删字段

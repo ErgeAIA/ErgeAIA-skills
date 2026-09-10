@@ -16,7 +16,7 @@ vibe-buddy 把这些答案固化成文件：
 
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
-| `vibe-init` | 初始化项目 / 生成 AGENTS.md | 建立 `AGENTS.md`、`docs/.ai/` 各过程文档与 `docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档 |
+| `vibe-init` | 初始化项目 / 生成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/.ai/` 各过程文档、`docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
 | `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态、验证结果写进 `project-progress.md`，决策追加到 `decision-log.md` |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD.md`，含未提交改动、待办与建议调用的技能 |
 | `vibe-resume` | 接管项目 / 接手上下文 | 只读项目记忆，结构化汇报现状，然后停下等指令 |
@@ -32,12 +32,15 @@ vibe-buddy 把这些答案固化成文件：
 项目根/
 ├── AGENTS.md                        # 规则契约（六节固定，含文档义务与指针）
 ├── CLAUDE.md                        # 可选，指向 AGENTS.md 的指针
+├── .git/                            # 无仓库时由 vibe-init 建立
+├── .codegraph/                      # 已装 codegraph 且无索引时建立
 └── docs/
     ├── .ai/
     │   ├── project-progress.md      # 项目进度，每次会话更新；任务开始时先读它
     │   ├── decision-log.md          # 决策日志，优先级高于 PRD；随开发持续更新
     │   ├── debug-log.md             # bug 修复经验，编号递增
     │   ├── agents-changelog.md      # AGENTS.md 变更记录，只在契约改动时写
+    │   ├── init-report.md           # 初始化执行报告，每跑一次追加一节
     │   └── project-overview.md      # 可选，目录索引与依赖方向
     └── handoff/                     # 会话交接文档
         └── handoff-YYYY-MM-DD-*.md
@@ -54,6 +57,9 @@ vibe-buddy 把这些答案固化成文件：
 | 触发词只有 5 个 | 早期版本的 9 个里，「保存进度 / 会话压缩」写同一文件同一位置，「记录踩坑」本是进度同步的子类，「知识整合」只在积累多份经验后才有意义。合并后每个触发词职责唯一，路由无歧义 |
 | 进度与决策不进 `AGENTS.md` | 契约只承载规则，过程只承载事实。混在一起会让契约每轮被改写，既不稳定也不可审计 |
 | 文档义务写进 `Permissions` 与 `Conventions` | 不写进 `AGENTS.md` 就没人执行；但不新增章节——章节固定，义务落在既有两节里，句式契约才守得住 |
+| 终端命令改为白名单制 | 原规则是「全程不运行终端命令」，但初始化的 Git 与 codegraph 检查必须是命令。改为白名单：只放开只读检测与 `git init` / `codegraph init`；构建、测试、依赖安装、`git add` / `commit` / `push` 仍然禁止 |
+| codegraph 只检测与建索引，不代装 | 官方安装器会改写各 agent 的配置文件（含 `AGENTS.md` 的标记区块），属外部工具安装，本技能只给建议不代做 |
+| 初始化报告不进 `References` | 它是执行留痕，不承担日常上下文职责；按本技能 §6 写入闸「删掉此行 Agent 会犯错吗」判定为不写 |
 | 保证层级分明 | `AGENTS.md` 每次会话自动注入，是唯一能覆盖「AI 未调用本技能」的层；技能内的自检门只在被调用时生效；过程文档模板里的说明只是文件自述，**不算机制**——要保证什么就写进 `AGENTS.md` |
 | 过程文档只追加 | 决策与 bug 记录是审计线索；改写历史会让后来的 agent 读到不自洽的结论 |
 | 文档命名沿用既有实践 | `project-progress` / `decision-log` / `debug-log` 三件套与 `handoff/` 目录的组织方式与成熟项目保持一致，降低迁移成本 |
@@ -82,9 +88,11 @@ vibe-buddy/
 │       ├── project-progress.md
 │       ├── decision-log.md
 │       ├── debug-log.md
-│       └── agents-changelog.md
+│       ├── agents-changelog.md
+│       └── init-report.md
 └── references/
-    ├── init-agents-md.md                 # 初始化执行契约
+    ├── init-agents-md.md                 # 初始化执行契约（执行顺序 / 报告 / 集成）
+    ├── init-env-checks.md                # Git 检查与 Codegraph 集成（含命令白名单）
     ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构）
     ├── sync-progress.md                  # 进度与决策沉淀契约
     ├── handoff-context.md                # 交接文档契约

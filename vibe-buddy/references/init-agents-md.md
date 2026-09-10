@@ -1,10 +1,11 @@
 ---
 name: init-agents-md
-description: vibe-init 的执行契约：前置检查、状态识别与路由、决策保全、过程文档落点、AGENTS.md 文档义务、CLAUDE.md 镜像策略。
+description: vibe-init 的执行契约：执行顺序、前置检查、Git 检查、状态识别与路由、决策保全、过程文档落点、Codegraph 集成、初始化报告、CLAUDE.md 镜像策略。
 trigger-when: 用户说「初始化项目」「生成 AGENTS.md」「vibe-init」，或项目需要建立协作契约、补齐缺失过程文档时
 role: workflow
 reads-from:
   - references/agents-md-generator.md
+  - references/init-env-checks.md
   - <project>/AGENTS.md（若已存在，用于决策保全）
   - <project>/CLAUDE.md（若已存在，用于决策保全）
 writes-to:
@@ -14,8 +15,11 @@ writes-to:
   - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md
   - <project>/docs/.ai/agents-changelog.md（层 C）
+  - <project>/docs/.ai/init-report.md
   - <project>/docs/.ai/project-overview.md（可选）
   - <project>/docs/handoff/.gitkeep
+  - <project>/.git/（仅 git init）
+  - <project>/.codegraph/（仅 codegraph init）
 ---
 
 # init · 建立协作契约与过程文档
@@ -30,15 +34,35 @@ writes-to:
 <project>/
 ├── AGENTS.md
 ├── CLAUDE.md                        # 可选，指针
+├── .git/                            # 无仓库时 git init 建立
+├── .codegraph/                      # 已装 codegraph 且无索引时建立
 └── docs/
     ├── .ai/
     │   ├── project-progress.md      # 进度，每次会话更新
     │   ├── decision-log.md          # 开发决策，优先级高于 PRD
     │   ├── debug-log.md             # bug 记录
-    │   ├── agents-changelog.md      # 层 C：AGENTS.md 约定处置
+    │   ├── agents-changelog.md      # 层 C：AGENTS.md 变更记录
+    │   ├── init-report.md           # 本次初始化执行报告
     │   └── project-overview.md      # 可选，层 B
     └── handoff/                     # 交接文档
 ````
+
+## 执行顺序
+
+按此顺序执行，不跳步、不重排；某步失败记入报告后继续，不中断：
+
+| 序 | 步骤 | 说明 |
+| -- | ---- | ---- |
+| 1 | 前置检查 | 可写性、monorepo 判定 |
+| 2 | Git 检查 | 仓库检测，必要时 `git init` |
+| 3 | 状态识别与路由 | 按可观测信号判定模式 |
+| 4 | 决策保全 | 半程合成 / 已初始化优化 必做 |
+| 5 | 生成 AGENTS.md | §4 → §4b → §5 → §6 → §7 |
+| 6 | 建立过程文档 | 复制模板，补齐缺口 |
+| 7 | CLAUDE.md 镜像 | 按需建指针 |
+| 8 | Codegraph 集成 | 检测索引，或给出安装建议 |
+| 9 | 初始化报告 | 汇总本次全部操作 |
+| 10 | 终止回复 | 按格式回报 |
 
 ## 前置检查
 
@@ -48,6 +72,17 @@ writes-to:
 | `docs/.ai/` 与 `docs/handoff/` 是否已存在 | 存在 → 只补缺失的文件，已存在的一字不动 |
 | 项目根与 `docs/` 是否可写 | 不可写 → 停下报告，不写任何部分文件 |
 | 目标项目是否为 monorepo | 是 → 各子包独立 `AGENTS.md`，根文件只留全局标准 |
+
+## Git 检查
+
+先只读检测：`git rev-parse --is-inside-work-tree`。
+
+- 已是仓库 → 跳过，报告写「已存在仓库，跳过」
+- 不是仓库 → 执行 `git init`，报告写「已初始化仓库」
+- 不执行 `git add` / `commit` / `push`
+- 失败不阻塞，记「失败 + 原因」后继续
+
+命令白名单、Codegraph 判定与失败处理细则见 `references/init-env-checks.md`。
 
 ## 状态识别与路由（写文件前判定一次）
 
@@ -80,7 +115,8 @@ writes-to:
 | `docs/.ai/project-progress.md` | 进度，每次会话更新；任务开始时先读它 | `vibe-sync` |
 | `docs/.ai/decision-log.md` | 开发决策（`DEC-NNN`，优先级高于 PRD），随开发持续更新 | `vibe-sync` |
 | `docs/.ai/debug-log.md` | bug 记录，编号 `BUG-NNN` 递增 | `vibe-distill` |
-| `docs/.ai/agents-changelog.md` | AGENTS.md 变更记录，**只在 AGENTS.md 改动时更新**，每次改动必留一行 | `vibe-init` 独占 |
+| `docs/.ai/agents-changelog.md` | AGENTS.md 变更记录，**只在 AGENTS.md 改动时更新** | `vibe-init` 独占 |
+| `docs/.ai/init-report.md` | 初始化执行记录，只追加 | `vibe-init` 独占 |
 | `docs/handoff/` | 交接文档，命名 `handoff-YYYY-MM-DD-*.md` | `vibe-handoff` |
 
 全部**只追加**，历史条目永不删除或改写；决策冲突时把旧条目标 `superseded`。
@@ -123,6 +159,51 @@ writes-to:
 
 禁止把 `AGENTS.md` 整份复制到 `CLAUDE.md`：两处内容会在下一轮维护后漂移。
 
+## Codegraph 集成
+
+判定顺序：先 `codegraph --version` 查安装，再 `codegraph status` 查本项目索引。
+
+- 已安装且无索引、项目有代码 → 执行 `codegraph init`
+- 已安装且已有索引 → 跳过
+- 未安装 → 不执行，在报告「建议」小节写清用途、安装命令与初始化命令
+- 不执行 `codegraph install` / `uninstall`（会改写各 agent 配置）
+
+完整判定表、建议文案与失败处理见 `references/init-env-checks.md`。
+
+## 初始化报告
+
+在 `docs/.ai/init-report.md` 追加一节，记录本次执行的**全部**操作。模板与条目类型见 `assets/docs/init-report.md`。
+
+追加格式：
+
+````markdown
+## YYYY-MM-DD 初始化报告 — <模式>
+
+| 步骤 | 动作 | 目标 | 结果 | 备注 |
+| ---- | ---- | ---- | ---- | ---- |
+| 前置检查 | 检查可写性与 monorepo | <项目根> | 完成 | — |
+| Git 检查 | 缺失仓库则初始化 | `<project>/.git` | 完成 / 跳过 / 失败 | — |
+| 状态识别 | 三信号查表 | — | 完成 | 判定为 <模式> |
+| 决策保全 | 既有约定四态处置 | `docs/.ai/agents-changelog.md` | 完成 / 跳过 | N 条 |
+| 契约生成 | 生成或增量维护 | `AGENTS.md` | 完成 | N 行 |
+| 过程文档 | 复制模板、补齐缺口 | `docs/.ai/*` | 完成 | 新建 X / 跳过 Y |
+| CLAUDE.md | 建镜像指针 | `<project>/CLAUDE.md` | 完成 / 跳过 | — |
+| Codegraph | 索引检测与初始化 | `<project>/.codegraph` | 完成 / 跳过 / 未执行 | — |
+| 其他技能 | 依赖安装等 | — | 未执行 | 由用户或其他技能执行 |
+
+### 建议
+
+- <未安装 codegraph 时写用途、安装命令、初始化命令>
+- <其他需用户决策的事项>
+````
+
+规则：
+
+- 每行必须反映**实际结果**；未执行写「未执行」并注明原因，禁止虚报
+- 命令输出只留结论，长输出截断，含密钥或敏感路径时脱敏
+- 「建议」小节可为空，但不写空泛客套
+- 本文件**不列入 `AGENTS.md` 的 `References`**：它是执行留痕，不承担日常上下文职责（依 §6 写入闸「删掉此行 Agent 会犯错吗」判定）
+
 ## 终止回复
 
-只回复：判定模式与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数、未决的待确认条目（若有）。
+只回复：判定模式与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。
