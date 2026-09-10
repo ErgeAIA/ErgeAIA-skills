@@ -92,7 +92,7 @@ metadata:
 ## Gotchas
 
 - `AGENTS.md` 是**规则契约**，不承载进度与待办；进度写 `docs/.ai/project-progress.md`。
-- `docs/.ai/` 是**只追加**的过程文档区。决策冲突时把旧条目改标 `superseded`，不删除历史条目。
+- `docs/.ai/` 的**进度 / 决策 / 调试**三份只追加；决策冲突时把旧条目改标 `superseded`，不删除历史条目。
 - `CLAUDE.md` 是**指针**不是副本；整份复制会在下轮维护后与 `AGENTS.md` 漂移。
 - 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。
 - `docs/.ai/` 是**记忆区**不是文档区；人类项目文档（README、设计稿）不放这里。
