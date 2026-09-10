@@ -12,6 +12,7 @@ import time
 import uuid
 
 from .quick_validate import validate_skill
+from ._gate import require_plan
 from .utils import ensure_skill_path, load_and_validate_eval_set, parse_skill_md
 
 
@@ -253,6 +254,16 @@ def main(argv: list[str] | None = None) -> int:
         default=None,
         help="Model to use for claude -p (default: user's configured model)",
     )
+    parser.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (goal/scope/params/stop/rollback)",
+    )
+    parser.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
     args = parser.parse_args(argv)
 
@@ -275,6 +286,9 @@ def main(argv: list[str] | None = None) -> int:
     name, original_description, _content = parse_skill_md(skill_path)
     description = args.description or original_description
     project_root = find_project_root()
+
+    # Plan-gate（目标驱动脚本协议）：真实调用 claude 的高成本命令需先出示计划。
+    require_plan(args.plan, args.plan_text, "eval")
 
     if args.verbose:
         print(f"Evaluating: {description}", file=sys.stderr)

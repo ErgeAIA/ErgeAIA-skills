@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 
+from ._gate import require_plan
 from .utils import parse_skill_md
 
 
@@ -188,6 +189,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--skill-path", required=True, help="Path to skill directory")
     parser.add_argument("--history", default=None, help="Path to history JSON (previous attempts)")
     parser.add_argument("--model", required=True, help="Model for improvement")
+    parser.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (goal/scope/params/stop/rollback)",
+    )
+    parser.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
     parser.add_argument("--verbose", action="store_true", help="Print thinking to stderr")
     args = parser.parse_args(argv)
 
@@ -203,6 +214,9 @@ def main(argv: list[str] | None = None) -> int:
 
     name, _, content = parse_skill_md(skill_path)
     current_description = eval_results["description"]
+
+    # Plan-gate（目标驱动脚本协议）：调用 claude 改写属高成本动作，需先出示计划。
+    require_plan(args.plan, args.plan_text, "improve")
 
     if args.verbose:
         print(f"Current: {current_description}", file=sys.stderr)

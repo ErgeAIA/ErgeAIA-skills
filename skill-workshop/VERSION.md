@@ -1,5 +1,59 @@
 # VERSION.md — skill-workshop
 
+## v1.23.0 (2026-09-11) — 脚本柔性化 Phase 1（plan-gate / checkpoint / profile / dry-run 默认）
+
+### 背景
+用户指示：脚本不应规定每一步怎么做，而应给目标、边界条件、可调参数；AI 保留策略自主权，关键节点设检查点，保留人工介入。三道审查门（第一性/对抗式/钢人）通过后落地。
+
+### 改动
+- **`scripts/_impl/_gate.py` 新增**（纯 stdlib）：`require_plan`（五节计划校验；缺失输出结构化 `decision_required` + exit 2，不是报错而是等决策）与 `emit_checkpoint`（单行 JSON 到 stderr，保持 stdout 机器可解析）。
+- **Plan-gate 接线**：`eval` / `loop` / `improve`（高成本，真实调用 claude）与 `init` / `package` / `generate-templates`（写文件）/ `selfheal --auto` 增 `--plan` / `--plan-text` 参数；无计划时输出 decision_required。**`--plan-text` 快速通道仅限人类，AI 禁用**（审查门 R7）。
+- **Checkpoint 协议**：`loop` 每轮输出 done/next/risks JSON；SKILL.md §2 硬规则要求 AI 必须向用户转述；loop 启动时打印原 description 作回滚基线（R9）。
+- **dry-run 默认（breaking）**：`init` / `package` / `generate-templates` 默认只预览不落盘，`--write` 才实际写文件（对齐 selfheal 既有安全默认）。人类直接调用需加 `--write`。
+- **validate `--profile strict|standard|advisory`**（默认 standard）：advisory 只报不判（findings 照常、exit 恒 0）；`--json` 输出 findings 结构（command/status/profile/decision_required/findings）。分层声明见 `references/config/script-profiles.yaml`（声明性镜像；Phase 2 迁配置消费）。全量 rule-class 折算与 review_ops 系 findings 化归 backlog。
+- **`references/templates/plan-gate-template.md` 新增**：五节计划模板 + 使用约定。
+- SKILL.md：§2 补 Plan-gate / Checkpoint 转述两条硬规则；§4 路由表补 eval-set-template 与 plan-gate-template 行。
+
+### 不做（backlog）
+- Phase 2：quick_validate 全部检查点 findings 化；spec/consistency 等 review_ops 系 `--profile` 接入；script-profiles.yaml 迁为代码消费配置。
+- C 档评审链架构收敛。
+
+### 回归
+- 全部 CLI `--help` 正常；eval 无 plan → decision_required exit 2；init/package/generate-templates 默认 dry-run。
+- spec / validate / consistency / checklist / routing-check 全 PASS；changelog-manager / zuiti 回归 PASS。
+
+---
+
+## v1.22.0 (2026-09-11) — description 口径对齐（消除 6 处自相矛盾 + 校验器分级 + 官方源收敛）
+
+### 背景
+交接审查发现 description 判据在 6 处口径打架（spec.md / frontmatter-style-guide §9 / intent-calibration §3 / W7 6.2 / W5 T2 / optimizing-descriptions §3）——同一套审计链按 §9 写边界会被 W7 6.2 扣 P1；且 §9 的 200-400 字符区间引用来源（SKILL.md 软约束）不存在，属孤儿约束。用户裁决：边界留 description、删自设区间、评测协议落模板、校验器分级调整、目标驱动化。
+
+### 改动
+- **spec.md**：§description 格式约束重写为唯一机器判据真源，新增**三层来源声明**（官方 / 社区 / 本地）与来源标注列；补 XML 标签行与第三人称行。硬判据 = 非空 / ≤1024 / 无 XML 标签 / 单行 string / **≥1 核心意图关键词**（<2 附软建议）；软建议 = Pushy 句式 / 触发词 ≥3；边界缺了才 P1、有边界合法。
+- **官方源缓存**：新增 `references/specs/claude-platform-best-practices.md`（platform.claude.com，2026-09-11 在线核实）——此前仓内多个 `role: official-spec` 文件实为社区 agentskills.io 源，属来源误标；optimizing-descriptions.md 加来源澄清注记。
+- **官方句式兼容**：`quick_validate.py` pushy_patterns 补 `Use when`（官方三正例句式）——修复「按官方正例写的 description 被本地 V0 误判 FAIL」的硬冲突。
+- **人称收敛**：社区「用祈使句」与官方「第三人称」在功能句上冲突，以官方为准（功能句第三人称 + `Use when` 触发句）；intent-calibration §2、optimizing-descriptions §2 加冲突注记。
+- **quick_validate.py**：`validate_description_format` 返回 (ok, message, severity) 三态；「触发词 ≥3」与「Pushy 句式」从硬 FAIL 降为 warning（目标驱动裁决：无事故背书的风格正则不作硬约束），硬判据改为「≥1 核心意图关键词」（显式触发词 + 意图动词命中；中文按子串匹配）；软建议聚合输出不掩盖硬错误。词表扩充自愈约定见 `INTENT_KEYWORDS` 注释。
+- **V0-validate.md** 第 5 步补联锁校验描述（消除与 `quick_validate.py` 的文档-实现漂移）。
+- **W7**：6.1「>200 字无断行」改为「功能句/触发句以「。」语义分段」（原判据在单行硬约束下不可满足）；6.1 触发短语判据改为「变体罗列 >3 / 裸词表」；6.2 移除 Not for 边界反模式；契约节引用错位修正（style-guide 第一节/§9）；T1「动词开头」改「意图可识别」、T3 技术/环境维度降为条件要求。
+- **frontmatter-style-guide.md**：§9 降级为引用式，删除 200-400 孤儿区间与假引用；§6 观察性快照收缩。
+- **intent-calibration.md**：新增 §8 意图句 vs 裸词表对照。
+- **评测协议**：新增 `references/config/eval-set-template.md`（JSON 结构 + 协议唯一真源指针，不复制协议正文）；optimizing-descriptions 与 C2-evaluate 补指针；不新增脚本（run_eval/run_loop 已存在），实跑需 `claude` CLI。
+- **W5 / templates/trigger-test-set.md**：旧术语 `skill-creator` → 本技能 C2 评测链（consistency 的 SKILL-OLD-NAME 只匹配 kz-skill-creator，裸名须人工清）。
+- **review-checklist**：加判级原则（手段类检查项不得优先于目标类）。
+- **skill-foundations.md**：SKILL.md 必含字段中顶层 `version` → `metadata.version`，与 versioning-and-validation.md 对齐。
+- **私密信息泛化**：本文件历史条目中的私有仓库名 / 私有技能名已替换为泛化表述（合规优先，版本号与行为事实保留；早期历史条目以 git 历史为准确，当前 HEAD 为脱敏后版本）。
+- **C 档明确不做**（评审链架构收敛：三套评估并存、W0-W7 状态门重量、清单项 P 级分配）——留作后续独立架构决策。
+- 版本归零漂移：SKILL.md metadata 1.21.0（实际 VERSION 已 1.21.1）→ 1.22.0。
+
+### 回归
+- validate：skill-workshop / changelog-manager / zuiti 三技能 PASS。
+- fixture 五态验证：无意图词=硬 FAIL / 中文意图词=PASS / 引号触发词=PASS / 官方正例（Use when）=PASS / 缺触发句=PASS+软建议。
+- spec / validate / consistency / checklist / routing-check 全 PASS。
+
+---
+
 ## v1.21.1 (2026-08-31) — 修复 description Pushy 校验器英文硬编码
 - **缺陷**：`scripts/_impl/quick_validate.py` 的 `validate_description_format()` 把 Pushy 主动句式**硬编码为英文**（Use this skill whenever / Invoke on / Make sure to invoke it when），纯中文祈使句 description 会被误判 FAIL——违反官方 agentskills.io「关注用户意图、用祈使句」本意，也与本仓中文技能（zuiti 纯中文、skill-workshop/changelog-manager 中文开头）惯例冲突。
 - **修复**：`pushy_patterns` 增补中文主动触发句式（`当用户` / `如需` / `想…时` / `需要…时` / `触发词：`），error message 双语化；纯中文 description 现可通过。
@@ -108,7 +162,7 @@
   - 调用点输出可审计分类 warning：`Semantic markup classification: builder/runtime-class + 依据`。
 - 改 `SKILL.md` L74 硬规则：构建者类强制、运行型豁免。
 - 改 `references/authoring/skill-markup-guide.md`：新增「适用范围与豁免」小节，判定以"有无消费者"为准。
-- 实证：erg-private/fuzheng（运行型）过往首要 FAIL 在 Semantic markup，现已消除；构造带 `@工作流:` 头的假技能仍强制报错——双向分支正确。
+- 实证：私有仓一个运行型技能过往首要 FAIL 在 Semantic markup，现已消除；构造带 `@工作流:` 头的假技能仍强制报错——双向分支正确。
 - 第一性原理判据：`@` 标记价值唯一标准是是否被工具链消费；运行型零消费者，强制即 §2.2 定义的"第三方优化器注释垃圾"（零运行时价值 + token 浪费 + 虚假精度）。
 
 ---
@@ -124,10 +178,10 @@
   - `scripts/_impl/generate_scenario_templates.py`：`WORKFLOW_HEADER_RE`/`COMMENT_RE`/`ACTION_RE` 正则**真实解析**这些标记，从被审 SKILL 抽取工作流结构生成场景模板。
   - `scripts/_impl/init_skill.py`：脚手架强制输出带 `@` 的 SKILL 模板，且校验 `"## @工作流:" in content`。
   - `scripts/_impl/package_skill.py`：打包检查含 semantic markup 项。
-  - 据此，本技能 `@` 标记**全部保留**（不清理）；并反向揭示：§2.2 第1项须补「层 0 机器接口优先」判定（erg-private/skill-review-process.md 已补）。
+  - 据此，本技能 `@` 标记**全部保留**（不清理）；并反向揭示：§2.2 第1项须补「层 0 机器接口优先」判定（私有仓评审流程文档已补）。
 
 ### ⚠️ 系统性矛盾（待架构决策，未自行处置）
-- **矛盾**：skill-workshop 的 V0 校验器（`quick_validate.py` L81-121 `validate_semantic_markup`）**无条件强制** `@工作流:`/`@步骤N:`/`@验证点:`/`@验证方式:`/`- @动作:` 标记；L74 硬规则「新建/重构 Skill 必须使用语义化标记」。但 erg-private 仓内 zhile(2.9.1)/baimiao(3.3.1)/paizi(1.0.1)/huiyi(1.1.1)/fuzheng(0.5.1) 已按 SFA 层 1（LLM 贡献）**清除 `@` 标记**（其脚本搜索 `@工作流|@步骤|@动作` 0 命中，证明无代码消费，清理无害）；suoyin/xhs-style 更早亦清。
+- **矛盾**：skill-workshop 的 V0 校验器（`quick_validate.py` L81-121 `validate_semantic_markup`）**无条件强制** `@工作流:`/`@步骤N:`/`@验证点:`/`@验证方式:`/`- @动作:` 标记；L74 硬规则「新建/重构 Skill 必须使用语义化标记」。但私有仓内 5 个技能（版本 2.9.1 / 3.3.1 / 1.0.1 / 1.1.1 / 0.5.1）已按 SFA 层 1（LLM 贡献）**清除 `@` 标记**（其脚本搜索 `@工作流|@步骤|@动作` 0 命中，证明无代码消费，清理无害）；另 2 个更早亦清。
 - **风险**：这 7 个技能若过 skill-workshop 的 V0 校验 → **会 FAIL**（不满足 `@` 标记强制项），且违反 L74 硬规则。
 - **裁决选项**（由用户定）：
   - **A 恢复 `@`**：把这 7 个技能重建 `@` 标记以服从 V0 契约——但违背「LLM 纯文本消费无需 `@`」的第一性原理（层 1 判定）。
@@ -173,7 +227,7 @@
 
 ### 三段式评审元框架注入 + 冗余文档清理
 
-> **问题来源**：用户实战审查（zhubi/suoyin）发现清单式评审只能发现格式与结构缺陷，发现不了"方向错误的技能"（如 frontmatter 全合规但以过程式指导为主、违背结果导向的第一性设计）。裁判缺第一性原理/双向钢人论证/对抗式审查三种高阶思维，则产出的评审结论不配做判定依据。
+> **问题来源**：用户实战审查（私有仓 2 个技能）发现清单式评审只能发现格式与结构缺陷，发现不了"方向错误的技能"（如 frontmatter 全合规但以过程式指导为主、违背结果导向的第一性设计）。裁判缺第一性原理/双向钢人论证/对抗式审查三种高阶思维，则产出的评审结论不配做判定依据。
 
 - **A 三段式评审元框架**：`review-checklist.md` 使用契约后新增「三段式评审元框架」——W2/W3 逐项扫描前必须先做①第一性锚定（第一性问题/不可违背约束/边界，一句话锚定）→②可疑设计双向钢人论证→③对抗式审查（D 系列）。锚定产出「方向判断：错位」时优先于清单问题。
 - **B 新增 D 设计对抗维度**（D1-D4，对抗式审查固化）：D1 非破坏约束是否被强制（仅靠 LLM 自觉=P0）/ D2 价值权重是否错配 / D3 输入契约是否有缺口 / D4 是否与其他技能抢字段。体系从 9 维 48 项扩为 **10 维 52 项**，SKILL.md §6 与 README 双评估表同步口径。
@@ -280,23 +334,23 @@
 
 ## v1.12.0 (2026-06-19)
 
-### V0 版本约束降级 + zhile 整改联动
+### V0 版本约束降级 + 私有仓技能整改联动
 
-> **问题来源**：zhile v1.9.0-r3 整改要求删除 SKILL.md 头部 `> **版本**: vX.Y.Z` 块 + 文末 `## 版本历史` section，理由是"对 LLM 决策无价值"。但 V0 校验器将这两项设为**硬约束**——斧正也仅为过 V0 保留它们。直接删会触发 V0 FAIL。
+> **问题来源**：私有仓一个技能（v1.9.0-r3）整改要求删除 SKILL.md 头部 `> **版本**: vX.Y.Z` 块 + 文末 `## 版本历史` section，理由是"对 LLM 决策无价值"。但 V0 校验器将这两项设为**硬约束**——另一技能也仅为过 V0 保留它们。直接删会触发 V0 FAIL。
 >
 > **核心价值原则**：「V0 校验的"硬约束"必须真的硬；冗余字段占用上下文永远不可取。VERSION.md 是人类维护点，frontmatter 是 LLM 决策点，混在一起就是职责错位。」
 
 - **V0 校验器放宽**：`scripts/_impl/quick_validate.py::validate_version_consistency()` L291-306 + L317-328 改造——当 SKILL.md 同时存在 frontmatter.version + VERSION.md 时，跳过"头部版本块存在性"和"版本历史 section 存在性"硬校验；仅当两者都缺时才 FAIL（确保极简 Skill 仍能写"无 VERSION"形式）
-- **3 技能 V0 验证**：zhile / 斧正 / skill-workshop 全部 `Project checks: passed with warnings`（仅 1 description 合规提示），验证 v1.12 校验器兼容性
-- **斧正 V0 仍合规**：斧正当前 SKILL.md 仍含 `> **版本**: v0.2.1` + `## 版本历史` section（v1.0.2 自审时为过 V0 强制添加）；新 V0 校验器对斧正形式"宽容"（不再 FAIL），但不**要求**斧正删——斧正后续可自主决定是否同步精简
-- **自我纠错**：原 v1.11 文档中描述 compatibility 字段"已淘汰"措辞在 zhile 整改时被澄清——compatibility 并非 Anthropic 官方淘汰字段，而是**非 LLM 决策依赖字段**，删除理由是减少冗余而非跟随规范
+- **3 技能 V0 验证**：私有仓 2 个技能 + skill-workshop 全部 `Project checks: passed with warnings`（仅 1 description 合规提示），验证 v1.12 校验器兼容性
+- **私有仓另一技能 V0 仍合规**：其 SKILL.md 仍含 `> **版本**: v0.2.1` + `## 版本历史` section（早期自审时为过 V0 强制添加）；新 V0 校验器对该形式"宽容"（不再 FAIL），但不**要求**删除——后续可自主决定是否同步精简
+- **自我纠错**：原 v1.11 文档中描述 compatibility 字段"已淘汰"措辞在私有仓技能整改时被澄清——compatibility 并非 Anthropic 官方淘汰字段，而是**非 LLM 决策依赖字段**，删除理由是减少冗余而非跟随规范
 
 ### 设计决策
 
 | # | 决策 | 选择 | 备选 |
 |---|------|------|------|
 | 1 | V0 硬约束降级 | VERSION.md fallback 存在时降级为 warning | 一律要求头部版本块 + 版本历史 section（保留 V0 FAIL 模式）|
-| 2 | 斧正 SKILL.md 形式 | 暂不主动改（保持兼容）| 主动同步精简斧正头部版本块 / 版本历史 section |
+| 2 | 私有仓技能 SKILL.md 形式 | 暂不主动改（保持兼容）| 主动同步精简其头部版本块 / 版本历史 section |
 
 ---
 
@@ -304,14 +358,14 @@
 
 ### description 联锁规则 + V0 格式校验（修复规范分裂）
 
-- **P0 规范分裂修复**：frontmatter-style-guide 要求"单行 string"、intent-calibration 要求"Pushy 主动风格"，两者无联动，斧正踩了规范分裂的雷没人拦
+- **P0 规范分裂修复**：frontmatter-style-guide 要求"单行 string"、intent-calibration 要求"Pushy 主动风格"，两者无联动，私有仓一个技能踩了规范分裂的雷没人拦
 - `references/specs/frontmatter-style-guide.md` §9 新增"description 字段联锁规则"：5 条硬/软约束表（单行 string / Pushy 句式 / 触发词 ≥3 / 边界声明 / 字符数 200-400）+ 反例 vs 正例对照
 - `references/specs/spec.md` L99-110 补"`description` 格式约束（V0 / W7 强约束）"小节，把联锁规则从设计指南提升到官方规范层级
 - `scripts/_impl/quick_validate.py` 新增 `validate_description_format()` 函数：4 条自动校验（YAML 单行 / ≤1024 / Pushy 句式 / 触发词 ≥3），接入 V0 spec_errors 通道
-- 斧正 v0.2.1 SKILL.md description 整改：YAML `|` 块 → 单行 string，145 字符 → 211 字符，4 触发词 + 边界声明齐全
-- 斧正 v0.2.1 V0 验证从 1 warning 升至 0 warning（"description 格式合规 211 字符 18 触发词"）
+- 私有仓一技能（v0.2.1）SKILL.md description 整改：YAML `|` 块 → 单行 string，145 字符 → 211 字符，4 触发词 + 边界声明齐全
+- 该技能 v0.2.1 V0 验证从 1 warning 升至 0 warning（"description 格式合规 211 字符 18 触发词"）
 - skill-workshop V0 自验：description 367 字符 27 触发词 → 合规
-- 三项校验全通过：V0 validate passed (斧正 + skill-workshop) / consistency PASS / routing-check PASS
+- 三项校验全通过：V0 validate passed (私有仓技能 + skill-workshop) / consistency PASS / routing-check PASS
 
 ## v1.10.0 (2026-06-19)
 
@@ -324,12 +378,12 @@
 
 ## v1.9.0 (2026-06-19)
 
-### V0 校验器 bug 修复 + fuzheng warning 修复
+### V0 校验器 bug 修复 + 私有仓技能 warning 修复
 
 - `scripts/_impl/quick_validate.py` 决策矩阵表头匹配从 `in content` 精确字符串匹配改为正则 `^\|\s*场景\s*\|\s*命中信号\s*\|\s*跳转到\s*\|`（兼容 Markdown 表格对齐空格）
 - 同文件 `index.md` 表头匹配也改为正则（`用户常见说法 | 命中矩阵行 | 建议先打开`）
-- fuzheng `SKILL.md` `## 强规则摘要` → `### @步骤0: 强规则摘要`（H2→H3+语义标记，符合 V0 校验器期望）
-- fuzheng V0 校验从 FAIL → PASS（0 error / 0 warning）
+- 私有仓一技能 `SKILL.md` `## 强规则摘要` → `### @步骤0: 强规则摘要`（H2→H3+语义标记，符合 V0 校验器期望）
+- 该技能 V0 校验从 FAIL → PASS（0 error / 0 warning）
 - skill-workshop V0 校验仍 PASS
 
 ## v1.8.0 (2026-06-19)
@@ -361,7 +415,7 @@
 - 删除 `references/authoring/karpathy-engineering.md`（按用户确认：Karpathy 4 条是给 claude code 等 agent 的工程原则，不属于 skill 创建最佳实践）
 - SKILL.md §4 路由表删除 karpathy-engineering.md 引用（karpathy-engineering.md 删除时同步清理路由表）
 - `references/specs/CHANGELOG.md` best-practices.md 对齐状态从 UNREACHABLE → VERIFIED
-- V0 验证：skill-workshop exit 0 / 0 warning；fuzheng 1 warning（"3+ workflow 应配决策矩阵"——fuzheng 已配，属 validator 误报，留 v1.7 排查）
+- V0 验证：skill-workshop exit 0 / 0 warning；私有仓一技能 1 warning（"3+ workflow 应配决策矩阵"——该技能已配，属 validator 误报，留 v1.7 排查）
 
 ## v1.5.0 (2026-06-18)
 

@@ -14,6 +14,8 @@ from pathlib import Path
 import re
 import sys
 
+from ._gate import require_plan
+
 SKILL_TEMPLATE = """---
 name: {skill_name}
 description: "[TODO: 说明 Skill 解决什么问题，当用户说什么时会触发。例如：帮助用户压缩PDF文件，当用户说'帮我压缩PDF'时触发]"
@@ -416,40 +418,56 @@ def init_skill(skill_name, path):
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
-    if argv and argv[0] in {"-h", "--help"}:
-        print("Usage: python scripts/skill_cli.py init <skill-name> --path <path>")
-        print("\nSkill name requirements:")
-        print("  - Kebab-case identifier (e.g., 'my-data-analyzer')")
-        print("  - Lowercase letters, digits, and hyphens only")
-        print("  - Max 64 characters")
-        print("  - Must match directory name exactly")
-        print("\nExamples:")
-        print("  python scripts/skill_cli.py init my-new-skill --path skills/public")
-        print("  python scripts/skill_cli.py init my-api-helper --path skills/private")
-        print("  python scripts/skill_cli.py init custom-skill --path /custom/location")
+    import argparse
+
+    usage_examples = [
+        "  python scripts/skill_cli.py init my-new-skill --path skills/public",
+        "  python scripts/skill_cli.py init my-api-helper --path skills/private",
+        "  python scripts/skill_cli.py init custom-skill --path /custom/location",
+    ]
+    parser = argparse.ArgumentParser(
+        prog="skill_cli.py init",
+        description="Initialize a new skill skeleton",
+        epilog="Skill name requirements: kebab-case identifier (e.g., 'my-data-analyzer'), "
+        "lowercase letters/digits/hyphens only, max 64 chars, must match directory name.\nExamples:\n"
+        + "\n".join(usage_examples),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("skill_name", help="Kebab-case skill name")
+    parser.add_argument("--path", required=True, help="Parent directory for the new skill")
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="actually create the skill skeleton (default: dry-run preview)",
+    )
+    parser.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (goal/scope/params/stop/rollback)",
+    )
+    parser.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
+    args = parser.parse_args(argv)
+
+    if not args.write:
+        # Dry-run 预览（目标驱动脚本协议：写文件命令默认不落盘）
+        target = Path(args.path).resolve() / args.skill_name
+        print("[dry-run] init preview")
+        print(f"  would create: {target} (SKILL.md, references/, scripts/ scaffold)")
+        print("  add --write to actually create (plan-gate applies)")
         return 0
-    if len(argv) < 3 or argv[1] != "--path":
-        print("Usage: python scripts/skill_cli.py init <skill-name> --path <path>")
-        print("\nSkill name requirements:")
-        print("  - Kebab-case identifier (e.g., 'my-data-analyzer')")
-        print("  - Lowercase letters, digits, and hyphens only")
-        print("  - Max 64 characters")
-        print("  - Must match directory name exactly")
-        print("\nExamples:")
-        print("  python scripts/skill_cli.py init my-new-skill --path skills/public")
-        print("  python scripts/skill_cli.py init my-api-helper --path skills/private")
-        print("  python scripts/skill_cli.py init custom-skill --path /custom/location")
-        return 1
 
-    skill_name = argv[0]
-    path = argv[2]
+    # Plan-gate（目标驱动脚本协议）：写文件动作需先出示计划。
+    require_plan(args.plan, args.plan_text, "init")
 
-    print(f"🚀 Initializing skill: {skill_name}")
-    print(f"   Location: {path}")
+    print(f"🚀 Initializing skill: {args.skill_name}")
+    print(f"   Location: {args.path}")
     print()
 
-    result = init_skill(skill_name, path)
+    result = init_skill(args.skill_name, args.path)
 
     if result:
         return 0

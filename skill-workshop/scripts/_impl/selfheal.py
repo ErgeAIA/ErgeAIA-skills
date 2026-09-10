@@ -28,6 +28,8 @@ import shutil
 import sys
 from pathlib import Path
 
+from ._gate import require_plan
+
 # 明确映射表：被删/笔误文件 -> 正确替代。仅无歧义项才可自动修复。
 REF_MAP: dict[str, str] = {
     "references/specs/spec-zh.md": "references/specs/spec.md",
@@ -230,11 +232,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("skill_path", nargs="?", default=".")
     ap.add_argument("--dry-run", action="store_true", help="只报告不落地（默认开启，除非 --auto）")
     ap.add_argument("--auto", action="store_true", help="自动落地无歧义修复")
+    ap.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (required for --auto from AI)",
+    )
+    ap.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
     ap.add_argument("--explain", action="store_true", help="输出可读性说明")
     args = ap.parse_args(argv)
 
     sp = Path(args.skill_path).resolve()
     dry = args.dry_run or not args.auto  # 默认 dry-run
+
+    # Plan-gate（目标驱动脚本协议）：apply（--auto）属写文件动作，需先出示计划。
+    if not dry:
+        require_plan(args.plan, args.plan_text, "selfheal --auto")
 
     report: dict = {"skill_path": sp.as_posix(), "dry": dry, "fixes": [], "reports": {}}
 

@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站：评审 / 创建你的 Agent Skill，或重构 / 评测 / 合规校验——用统一决策矩阵路由到对应工作流，并保障产出通过结构校验。基于 Python CLI（skill_cli.py 机器校验）与 YAML frontmatter、Markdown 规范文档执行。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
 metadata:
   author: ErgeAIA
-  version: "1.21.0"
+  version: "1.23.0"
 ---
 
 # skill-workshop
@@ -90,6 +90,8 @@ metadata:
 - @动作: 完成后必须跑 `python scripts/skill_cli.py validate <path>`。*Why：人工检查容易遗漏 frontmatter 格式、链接断裂等机械性错误。*
 - @动作: **评审论证质量铁律**（对齐 skill-review-process 0.6，凌驾一切路径）：第一性锚定须从本质矛盾推导（非"必须___绝不___"格式填空）；钢人 AGAINST 必须最强反方、关键变量可测试已实测、结论必须带条件；**论证对象匹配**——仅方向性决策走钢人，格式/触发层决策走清单 + 对抗即可，禁止为凑流程硬升级论证对象。每步评审结论必须落成报告文本，无产物 = 未执行。判据见 [review-checklist.md](references/rubrics/review-checklist.md)「钢人论证质量判据」。*Why：论证质量低（稻草人反方/无条件结论）等于没论证，评审结论不配做判定依据。*
 - @动作: **机器校验分级门禁**：P0 每技能必跑（`spec` + `validate` description 合规）、P1 涉及即跑（`routing-check` 悬空引用/路由一致性、版本三段式）、P2 深度评审必跑（`checklist` + `consistency` 术语一致性）；脚本 FAIL 不得出「通过」结论——评审报告未附机器校验结果 = 无效评审。*Why：人工检查容易遗漏机械性错误（frontmatter 格式/链接断裂/术语残留），脚本 FAIL 出"通过"就是假跑。*
+- @动作: **Plan-gate（目标驱动脚本协议）**：调用 eval/loop/improve 或写文件命令（init/package/generate-templates/selfheal --auto）前，必须先向用户出示五节计划（[plan-gate-template.md](references/templates/plan-gate-template.md)：目标/范围与边界/参数/停止条件/回滚），用户认可后带 `--plan` 执行；脚本输出 `decision_required` = 等用户决策，必须转述，不得绕过；**AI 禁用 `--plan-text` 快速通道（仅限人类直接调用）**。*Why：脚本守边界不挡路，但成本与不可逆动作的否决权始终在用户手里；快速通道对 AI 开放即成后门。*
+- @动作: **Checkpoint 转述义务**：收到脚本 checkpoint 输出（loop 每轮）必须向用户转述「已完成/下一步/风险」，用户可随时打断调整策略；拿不准时主动降 `--profile advisory` 只取证不判断。*Why：脚本供证据，AI 做权衡，用户握方向——三者职责不混。*
 - @动作: **评审流水线状态门**：W1→W2→W3→W4→W5→W6 为严格流水线，每节点前置产物真实完成（W1 有档位结论、W3 有命中编号清单、W5 每条建议有 W3 编号）才算过；禁止跨级跳跃（未走 W3 直接进 W5）。*Why：跳过中间产物会导致建议无证据支撑、报告断链。*
 
 ## 3. 失败模式编码（if-then 三段式）
@@ -131,6 +133,8 @@ metadata:
 | 评测闭环 Agent 提示词 | [analyzer.md](agents/analyzer.md) · [comparator.md](agents/comparator.md) · [grader.md](agents/grader.md)（仅 C2 评测链按需加载） |
 | 场景输入模板 | [index.md](references/examples/index.md)（决策矩阵命中速查，创建/评测前置） |
 | 评测回放 / 编辑器 | [eval_review.html](assets/eval_review.html) · [eval_set_editor.html](assets/eval_set_editor.html)（C2 产出展示） |
+| 触发评测集构建 | [eval-set-template.md](references/config/eval-set-template.md)：eval-set JSON 结构 + 协议唯一真源指针 |
+| Plan-gate 计划 | [plan-gate-template.md](references/templates/plan-gate-template.md)：高成本/写文件命令前置的五节计划模板 |
 
 > **双风格说明（评审链 vs 创建链）**：评审链（W0-W7）使用纯 Markdown 标题 + frontmatter 元数据，创建/重构链（C1-C3）和 authoring/ 使用 `@工作流`/`@步骤N` 语义化标记。两种风格共存是设计选择——评审链为裁判角色设计，步骤间通过 checklist 编号串联；创建链为构建者设计，步骤间通过语义标记串联。阅读时按任务路径加载，不会同时面对两种风格。
 

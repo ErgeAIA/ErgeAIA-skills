@@ -14,6 +14,7 @@ import sys
 import zipfile
 
 from .quick_validate import validate_skill
+from ._gate import require_plan
 from .utils import ensure_skill_path, run_skill_validate
 
 
@@ -145,26 +146,49 @@ def package_skill(skill_path, output_dir=None):
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
-    if argv and argv[0] in {"-h", "--help"}:
-        print(
-            "Usage: python scripts/skill_cli.py package <path/to/skill-folder> [output-directory]"
-        )
-        print("\nExample:")
-        print("  python scripts/skill_cli.py package skills/public/my-skill")
-        print("  python scripts/skill_cli.py package skills/public/my-skill ./dist")
-        return 0
-    if len(argv) < 1:
-        print(
-            "Usage: python scripts/skill_cli.py package <path/to/skill-folder> [output-directory]"
-        )
-        print("\nExample:")
-        print("  python scripts/skill_cli.py package skills/public/my-skill")
-        print("  python scripts/skill_cli.py package skills/public/my-skill ./dist")
-        return 1
+    import argparse
 
-    skill_path = argv[0]
-    output_dir = argv[1] if len(argv) > 1 else None
+    parser = argparse.ArgumentParser(
+        prog="skill_cli.py package",
+        description="Package a skill folder into a distributable .skill file",
+    )
+    parser.add_argument("skill_path", help="Path to the skill folder")
+    parser.add_argument("output_dir", nargs="?", default=None, help="Output directory (default: cwd)")
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="actually write the .skill package (default: dry-run preview)",
+    )
+    parser.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (goal/scope/params/stop/rollback)",
+    )
+    parser.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
+    args = parser.parse_args(argv)
+
+    if not args.write:
+        # Dry-run 预览（目标驱动脚本协议：写文件命令默认不落盘）
+        sp = Path(args.skill_path)
+        ok, msg = ensure_skill_path(sp)
+        valid, vmsg = validate_skill(sp.resolve()) if ok else (False, msg)
+        target_name = sp.resolve().name + ".skill"
+        target = (Path(args.output_dir).resolve() if args.output_dir else Path.cwd()) / target_name
+        print("[dry-run] package preview")
+        print(f"  target: {target}")
+        print(f"  validation: {'PASS' if valid else 'FAIL — ' + vmsg}")
+        print("  add --write to actually package (plan-gate applies)")
+        return 0 if valid else 1
+
+    # Plan-gate（目标驱动脚本协议）：写文件动作需先出示计划。
+    require_plan(args.plan, args.plan_text, "package")
+
+    skill_path = args.skill_path
+    output_dir = args.output_dir
 
     print(f"📦 Packaging skill: {skill_path}")
     if output_dir:

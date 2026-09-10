@@ -13,6 +13,7 @@ from .generate_report import generate_html
 from .improve_description import improve_description
 from .quick_validate import validate_skill
 from .run_eval import find_project_root, run_eval
+from ._gate import emit_checkpoint, require_plan
 from .utils import ensure_skill_path, load_and_validate_eval_set, parse_skill_md
 
 
@@ -135,6 +136,20 @@ def run_loop(
             "total": train_summary["total"],
             "results": train_results["results"],
         })
+
+        # Checkpoint 协议：每轮向 stderr 输出进度，AI 必须向用户转述（SKILL.md §2）。
+        if train_summary["failed"] > 0 and iteration < max_iterations:
+            next_step = "针对 train 失败项泛化修改 description，进入下一轮"
+        else:
+            next_step = "停止迭代，汇总结果"
+        emit_checkpoint(
+            done=f"第 {iteration}/{max_iterations} 轮评测完成 train {train_passed}/{train_total}"
+            + (f", test {test_summary['passed']}/{test_summary['total']}" if test_summary else ""),
+            next=next_step,
+            risks=f"回滚基线为启动时打印的原 description；验证集退化即按计划停止",
+            iteration=iteration,
+            max_iterations=max_iterations,
+        )
 
         if live_report_path:
             partial_output = {
@@ -270,6 +285,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Fraction of eval set to hold out for testing (0 to disable)",
     )
     parser.add_argument("--model", required=True, help="Model for improvement")
+    parser.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (goal/scope/params/stop/rollback)",
+    )
+    parser.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
     parser.add_argument("--verbose", action="store_true", help="Print progress to stderr")
     parser.add_argument(
         "--report",
@@ -302,7 +327,12 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: Skill validation failed: {message}", file=sys.stderr)
         return 1
 
-    name, _, _ = parse_skill_md(skill_path)
+    name, original_description, _ = parse_skill_md(skill_path)
+
+    # Plan-gate（目标驱动脚本协议）：高成本命令需先出示五节计划。
+    # R9：打印原 description 供确认回滚基线。
+    require_plan(args.plan, args.plan_text, "loop")
+    print(f"Original description (rollback baseline): {original_description}", file=sys.stderr)
 
     if args.report != "none":
         if args.report == "auto":

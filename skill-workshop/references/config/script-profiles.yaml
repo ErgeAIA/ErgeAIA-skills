@@ -1,0 +1,45 @@
+# 目标驱动脚本 profile 分层声明（2026-09-11 脚本柔性化 Phase 1）
+#
+# 与代码的关系：本文件是判据分层的**声明性镜像**；Phase 1 由
+# `scripts/_impl/quick_validate.py` 内置 PROFILES 语义实现（校验脚本零第三方依赖，
+# 不引 PyYAML 解析）。Phase 2（见脚本柔性化计划 backlog）再迁为配置消费。
+# 修改本文件时必须同步 quick_validate.py 的 profile 语义，反之亦然。
+
+profiles:
+  strict:
+    # 历史行为。Phase 1 与 standard 一致（description 风格项已在 v1.22.0 降软，
+    # 无回退到「Pushy 硬 FAIL」的计划）；保留名位用于 CI 场景。
+    fail_on: [official-hard, incident-backed]
+  standard:
+    # 默认。官方硬约束 + 事故背书约束判 FAIL；风格类为 warning。
+    fail_on: [official-hard, incident-backed]
+  advisory:
+    # 只报不判：findings 照常输出，PASS/FAIL 不成立（AI 探索阶段用）。
+    fail_on: []
+
+rule_classes:
+  # 官方硬约束（agentskills.io / platform.claude.com）
+  official-hard:
+    - desc-nonempty
+    - desc-length-1024
+    - desc-no-xml-tags
+    - name-format
+    - dir-match
+  # 事故背书约束（VERSION.md 有真实失效史）或机器接口契约
+  incident-backed:
+    - desc-singleline        # 外部管理软件转义风险（v1.11 斧正事故）
+    - version-consistency    # 多次漂移事故
+    - link-integrity         # 断链事故（v1.15 R0）
+    - sem-markup             # 构建者技能的机器消费契约（v1.18.2）
+    - template-placeholders  # 脚手架残留会带病发布
+  # 风格正则 / 形态类（目标驱动：降为 warning）
+  style-regex:
+    - desc-pushy             # v1.22.0 降软
+    - desc-trigger-count     # v1.22.0 降软
+    - desc-intent-count-soft # <2 附软建议（硬底线为 ≥1）
+    - body-length            # 500 行软提醒
+    - ref-trigger-when       # references 缺 trigger-when 警告
+
+# 安全默认（审查门 R4）：新增检查点未归类时，按 style-regex（软）处理——
+# 漏归类只会 warn，不会误 FAIL。
+unclassified_defaults_to: style-regex

@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import sys
 
+from ._gate import require_plan
 from .utils import ensure_skill_path, load_markdown_document, load_skill_document
 
 WORKFLOW_HEADER_RE = re.compile(r"^#{2,3}\s+@工作流:\s*(.+?)\s*$", re.MULTILINE)
@@ -289,7 +290,7 @@ version: {version}
 
 
 def generate_templates(
-    skill_path: Path, output_dir: Path | None = None, force: bool = False
+    skill_path: Path, output_dir: Path | None = None, force: bool = False, write: bool = True
 ) -> int:
     skill_ok, skill_message = ensure_skill_path(skill_path)
     if not skill_ok:
@@ -309,6 +310,17 @@ def generate_templates(
         if output_dir is not None
         else (skill_path / "references" / "examples").resolve()
     )
+    if not write:
+        # Dry-run 预览（目标驱动脚本协议：写文件命令默认不落盘）
+        print("[dry-run] generate-templates preview")
+        print(f"  target dir: {target_dir}")
+        print(f"  workflows detected: {len(workflows)}")
+        for workflow in workflows:
+            slug = normalize_example_slug(workflow)
+            print(f"  would write: {target_dir / ('input-template-' + slug + '.md')}")
+        print(f"  would refresh: {target_dir / 'index.md'}")
+        print("  add --write to actually generate (plan-gate applies)")
+        return 0
     target_dir.mkdir(parents=True, exist_ok=True)
 
     written_files: list[Path] = []
@@ -389,11 +401,31 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="若目标文件已存在则覆盖",
     )
+    parser.add_argument(
+        "--write",
+        action="store_true",
+        help="actually write template files (default: dry-run preview)",
+    )
+    parser.add_argument(
+        "--plan",
+        default=None,
+        help="Plan-gate: path to five-section plan file (goal/scope/params/stop/rollback)",
+    )
+    parser.add_argument(
+        "--plan-text",
+        default=None,
+        help="Plan-gate quick lane with a one-line plan (HUMANS ONLY; AI must use --plan)",
+    )
     args = parser.parse_args(argv)
 
     skill_path = Path(args.skill_path).resolve()
     output_dir = Path(args.output_dir).resolve() if args.output_dir else None
-    return generate_templates(skill_path, output_dir=output_dir, force=args.force)
+    if args.write:
+        # Plan-gate（目标驱动脚本协议）：写文件动作需先出示计划。
+        require_plan(args.plan, args.plan_text, "generate-templates")
+    return generate_templates(
+        skill_path, output_dir=output_dir, force=args.force, write=args.write
+    )
 
 
 if __name__ == "__main__":
