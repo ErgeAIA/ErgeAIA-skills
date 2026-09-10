@@ -17,7 +17,7 @@ vibe-buddy 把这些答案固化成文件：
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
 | `vibe-init` | 初始化项目 / 生成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/.ai/` 各过程文档、`docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
-| `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态、验证结果写进 `project-progress.md`，决策追加到 `decision-log.md` |
+| `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表 |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD.md`，含未提交改动、待办与建议调用的技能 |
 | `vibe-resume` | 接管项目 / 接手上下文 | 只读项目记忆，结构化汇报现状，然后停下等指令 |
 | `vibe-distill` | 经验蒸馏 / 沉淀经验 | 把已定位根因的 bug 与预防规则追加到 `debug-log.md` |

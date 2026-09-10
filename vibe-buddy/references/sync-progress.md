@@ -1,6 +1,6 @@
 ---
 name: sync-progress
-description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度文档与决策日志。
+description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度文档与决策日志，并按需回填 AGENTS.md 的工具链与命令事实。
 trigger-when: 用户说「同步进度」「更新项目进度」「vibe-sync」，或任务完成、决策变化之后
 role: workflow
 reads-from:
@@ -10,6 +10,7 @@ reads-from:
 writes-to:
   - <project>/docs/.ai/project-progress.md
   - <project>/docs/.ai/decision-log.md
+  - <project>/AGENTS.md（仅 Toolchain 与 Commands 两个事实表）
 ---
 
 # sync · 沉淀进度与决策
@@ -23,7 +24,17 @@ writes-to:
 | 检查项 | 不通过时 |
 |---|---|
 | `<project>/AGENTS.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
-| `docs/.ai/` 下两类文档是否存在 | 缺哪个补哪个：回复缺失项并引导 `vibe-init`，不自行创建 |
+| `docs/.ai/` 下 `project-progress.md` 与 `decision-log.md` 是否存在 | 缺哪个补哪个：回复缺失项并引导 `vibe-init`，不自行创建 |
+| `AGENTS.md` 的 `Toolchain` / `Commands` 是否仍是占位 | 是 → 本次若已确知工具链或命令，按「事实区回填」写入 |
+
+## 契约区与事实区（动 `AGENTS.md` 前先判）
+
+| 区域 | 内容 | 谁写 |
+|---|---|---|
+| 契约区 | `Permissions` / `Conventions` / `References` / 章节结构 | 只有 `vibe-init`；改动须在 `docs/.ai/agents-changelog.md` 留一行 |
+| 事实区 | `Toolchain` 与 `Commands` 两个表的行数据 | `vibe-sync` 可回填；属填事实，不属改约定，不必留痕 |
+
+事实区回填规则：只增改表格行，不动表头与其他章节；内容必须来自实际观测——版本号取自锁定文件或实跑输出，命令取自配置文件原文，读不到就保留占位，禁止编造。
 
 ## 只收稳定增量
 
@@ -31,22 +42,35 @@ writes-to:
 
 | 类别 | 判定标准 | 落点 |
 |---|---|---|
-| 进度 | 任务状态变化、当前分支、阶段推进、实际执行过的验证结果 | `docs/.ai/project-progress.md` |
+| 进度 | 任务状态变化、阶段推进、实际执行过的验证结果 | `docs/.ai/project-progress.md` |
 | 决策 | 偏离 PRD 或重要技术选择 | `docs/.ai/decision-log.md` |
+| 事实 | 工具链版本、安装/测试/lint/构建命令原文 | `AGENTS.md` 的 `Toolchain` / `Commands` 表 |
 
-不属于以上两类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
+不属于以上三类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
 
-## 写入规则
+## 写入规则 · `project-progress.md`
 
-- **只追加**，禁止重写整个文件。
-- 更新 `project-progress.md` 顶部的 `last_updated`、当前分支与当前阶段；任务状态与验证结果写进对应小节。
-- 验证结果如实记录实际执行过的命令与结果；**未实际执行不得写"已通过"**。
-- 决策条目追加到 `docs/.ai/decision-log.md` 的 `DEC-NNN` 序列，编号递增（三位）；与既有 active 决策冲突时，把旧条目标 `superseded`，**不删除历史条目**。
-- **不写 `docs/.ai/agents-changelog.md`**：那是 AGENTS.md 变更记录，由 `vibe-init` 独占，只在契约改动时更新。
-- 同一事实已存在则跳过；只有状态变化时更新该条。
-- **不修改 `AGENTS.md`**：契约改动属于 `vibe-init` 的增量维护。
-- 调试经验与 bug 根因归 `vibe-distill`，不在本触发词内重复写。
-- 无稳定增量时明确回复「本次无可同步的稳定增量」，不写任何文件。
+- **可变区直接覆盖**：`当前分支`、`阶段`、`代码`、`工具链`、`下一步`、`本阶段禁止` 覆盖为最新值。
+- **进展为追加区**：每次在「当前状态」块内、上一条「最后更新」**之前**新增一条 `- **最后更新**：YYYY-MM-DD <一句话主题>`，其下用子条目逐条写改了什么、落在哪个路径、产出什么；旧条保留，不删不改。
+- **同步 `updated`**：改完把 frontmatter 的 `updated` 改为当日。漏改等于让 `updated` 说谎。
+- 验证结果只写**本次实际执行过**的命令与输出；未实际执行不得写「已通过」，也不凭推测填。本技能不代跑命令，验证输出由用户在会话中提供。
+- 不删除、不改写任何既有条目；禁止重写整个文件。
+
+## 写入规则 · `decision-log.md`
+
+- 条目追加到 `DEC-NNN` 序列：读文件取最大编号加一，三位补齐。
+- 新条目**置顶**（放在首个 `---` 分隔线之后、既有条目之前）。
+- 与既有 active 决策冲突时，把旧条目标 `superseded`，**不删除历史条目**。
+- **不代改 PRD 与 ADR**：决策与 PRD 冲突时，在终止回复中提示用户回写 PRD/ADR；本技能只写 `decision-log.md`。
+- 改完同步 frontmatter 的 `updated`。
+
+## 不写什么
+
+- **不写 `docs/.ai/agents-changelog.md`**：那是 `AGENTS.md` 契约改动的记录，由 `vibe-init` 独占。
+- **不回写 `docs/.ai/init-report.md`**：那是初始化执行留痕，不是待办清单；遗留的待确认项由用户或计划类技能跟进。
+- **不动 `AGENTS.md` 契约区**：契约改动走 `vibe-init`。
+- **不写 `docs/.ai/debug-log.md`**：调试经验与 bug 根因归 `vibe-distill`。
+- 同一事实已存在则跳过；只有值变化时更新。
 
 ## 与相邻触发词的分界
 
@@ -59,4 +83,4 @@ writes-to:
 
 ## 终止回复
 
-只回复一行统计：写了哪些文件、各追加或更新几条、去重跳过几条。无增量时回复「本次无可同步的稳定增量」。
+只回复一行统计：写了哪些文件、各追加或更新几条、事实区回填几条、去重跳过几条。无增量时回复「本次无可同步的稳定增量」。
