@@ -81,7 +81,7 @@ skill-name/
 
 - `name`
 - `description`
-- `version`
+- `metadata.version`（顶层 `version` 非官方字段，一律放 metadata 内）
 - 主工作流与关键步骤
 - 头部版本块
 - 文末 `## 版本历史`

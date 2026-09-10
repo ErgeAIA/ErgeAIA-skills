@@ -1,7 +1,7 @@
 ---
 name: C2-evaluate
 description: 评测模式主入口；用 eval-set + eval_loop 跑数据驱动的迭代优化，60/40 train/test 分割最多 5 轮。
-version: 1.2.0
+version: 1.3.0
 trigger-when: "评测已有 Skill 时"
 ---
 
@@ -13,7 +13,8 @@ trigger-when: "评测已有 Skill 时"
 
 ## 步骤 1：准备评测集
 
-- 准备 eval-set JSON（参考 `references/evaluation/eval-loop.md`）
+- 按 [eval-set-template.md](../config/eval-set-template.md) 的官方评测协议构建 eval-set JSON（20 条、60/40 train/validation、近邻混淆负样本）
+- 流程细节参考 `references/evaluation/eval-loop.md`
 - 或使用现有 eval-set
 
 ---

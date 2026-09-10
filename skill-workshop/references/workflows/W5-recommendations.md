@@ -1,7 +1,7 @@
 ---
 name: W5-recommendations
 description: 评审模式 W5 整改方向生成（按 W3 命中项动态生成 P0/P1/P2 三优先级整改方向）；W3 至少有一条命中时触发。
-version: 1.3.0
+version: 1.4.0
 <!-- @类型: 工作流 -->
 <!-- @优先级: 必须 -->
 role: Action Mapper (Referee)
@@ -13,8 +13,8 @@ trigger-when: W3 至少有一条命中项时
 
 # W5 整改方向（从 W3 命中项动态生成）
 
-> **版本**: v1.3.0
-> **改动**: v1.3.0 - C 系列映射表补 C5（同规范多文件口径统一）；v1.2.0 - 增 frontmatter name/description/version 三个必填字段（v1.4 PUA 自审整改）
+> **版本**: v1.4.0
+> **改动**: v1.4.0 - T5 与转交段措辞去旧术语 skill-creator，对齐 C2 评测链；v1.3.0 - C 系列映射表补 C5（同规范多文件口径统一）；v1.2.0 - 增 frontmatter name/description/version 三个必填字段（v1.4 PUA 自审整改）
 
 ## 生成规则
 
@@ -70,7 +70,7 @@ trigger-when: W3 至少有一条命中项时
 | T2       | description 需加入「不适用于：...」边界声明        | 节省 Context Budget，避免越界触发 |
 | T3       | description 需补全技术特征 / 项目环境维度          | 三维触发是 description 质量的核心 |
 | T4       | 需拆分多重职责为独立 Skill 或合并到主职责          | 多重职责导致触发竞争              |
-| T5       | description 需加强引导性，建议转交 skill-creator 做触发率校准 | 对抗 Agent 的 undertrigger 倾向   |
+| T5       | description 需加强引导性，建议转交本技能 C2 评测链做触发率校准 | 对抗 Agent 的 undertrigger 倾向   |
 
 ### M 模式与深度类
 
@@ -147,8 +147,8 @@ trigger-when: W3 至少有一条命中项时
 - <整改方向> —— <为什么>（命中：B1、P7）
 
 **转交建议**
-以下整改方向建议转交 skill-creator 执行具体优化：
-- <命中编号>：<方向>（skill-creator 可提供数据驱动的触发率校准与迭代优化）
+以下整改方向建议转交本技能 C2 评测链执行具体优化：
+- <命中编号>：<方向>（C2 评测链提供数据驱动的触发率校准与迭代优化）
 ```
 
 每条方向末尾必须标注**命中的 checklist 编号**，让用户能反向追溯到证据。

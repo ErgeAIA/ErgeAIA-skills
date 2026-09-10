@@ -1,9 +1,10 @@
 ---
-version: 2026-06
+version: 2026-09
 purpose: 官方 description 优化指南（本地缓存）
 source: https://agentskills.io/skill-creation/optimizing-descriptions
 audience: AI agents
 role: official-spec
+# 来源澄清（2026-09-11）：本文为社区 agentskills.io 源，非 Anthropic 官方；官方源缓存见 claude-platform-best-practices.md
 consumed-by: W7 / C2-evaluate / improve_description.py
 trigger-when: 用户要求优化 description / W7 命中 T5 / C2 评测迭代
 last-fetched: 2026-06-24
@@ -27,6 +28,7 @@ Agent 启动时只加载每个 Skill 的 `name` + `description`，据此决定�
 ## 2. 写好 description 的原则
 
 - **用祈使句**：告诉 Agent 何时行动（"Use this skill when..."），不是描述功能（"This skill does..."）
+  - **官方冲突注记（2026-09 收敛）**：Anthropic 官方 best-practices（缓存见 [claude-platform-best-practices.md](claude-platform-best-practices.md)）要求 description **始终第三人称**，与「用祈使句」在功能句上冲突——以官方为准：功能句用第三人称（如 "Extract text and tables from PDF files…"），触发句用 `Use when…`（祈使式条件句，等效满足本条意图）。本条「不是描述功能」的实质是**不要只写功能句而缺触发句**，并非禁止第三人称功能句。
 - **关注用户意图**：描述用户想做什么，不是 Skill 内部机制
 - **宁可 Pushy**：显式列出适用场景，包括用户没直接提域名的情况
 - **保持简洁**：几句话到一小段，硬限 1024 字符
@@ -117,3 +119,4 @@ description: >
 2. 验证 < 1024 字符
 3. 手动试几个 prompt 做 sanity check
 4. 写 5-10 条全新查询跑 eval（从未参与优化的，诚实检验泛化）
+5. 评测集构建与协议细节见 [eval-set-template.md](../config/eval-set-template.md)；实跑依赖 `claude` CLI（`python scripts/skill_cli.py eval` / `loop`）。

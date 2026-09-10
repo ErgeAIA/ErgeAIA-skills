@@ -3,7 +3,7 @@ name: trigger-test-set
 description: "触发测试集模板，用于 description 修改后的回归验证。"
 version: "2026.06"
 source: anthropics-skills/skill-creator/scripts/improve_description.py
-trigger-when: W7 命中 T5 时建议转交 skill-creator 执行触发率测试
+trigger-when: W7 命中 T5 时建议转交本技能 C2 评测链执行触发率测试
 role: background
 ---
 
