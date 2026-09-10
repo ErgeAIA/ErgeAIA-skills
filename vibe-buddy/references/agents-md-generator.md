@@ -26,21 +26,37 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 
 ## 2 路由（写文件前判定一次，并在产物头部注明模式）
 
-信号：是否已存在 AGENTS.md/CLAUDE.md；提交历史与既有约定规模。
+只认可观测信号，逐项查证后按下表判定：
 
-- 全新初始化：无文件、决策负载低 → 直接生成
-- 半程合成：无文件、决策负载高 → 先执行 §3 再生成
-- 已初始化优化：有文件 → 增量维护，禁止整体重写
+| 信号 | 判为「有」的条件 |
+| ---- | ---------------- |
+| 既有契约 | 项目根存在 AGENTS.md / CLAUDE.md / .cursorrules 之一 |
+| 既有代码 | 存在源码目录、依赖清单或锁定文件；或 `git log` 有提交 |
+| 既有项目文档 | 存在 PRD / CONTEXT / 设计稿等面向项目的文档 |
 
-产物头部写一行 HTML 注释注明模式：`<!-- mode: 全新初始化|半程合成|已初始化优化 -->`。
+| 既有契约 | 既有代码 | 既有项目文档 | 模式 |
+| -------- | -------- | ------------ | ---- |
+| 无 | 无 | 无 | 全新初始化 |
+| 无 | 无 | 有 | 半程合成 |
+| 无 | 有 | 任意 | 半程合成 |
+| 有 | 任意 | 任意 | 已初始化优化 |
+
+- 全新初始化 → 空仓起建，直接生成
+- 半程合成 → 先执行 §3 再生成
+- 已初始化优化 → 增量维护，禁止整体重写
+- 三个信号互相矛盾或无法查证 → 停下问用户，不自行归类
+
+产物头部写一行 HTML 注释，只填三者之一：`<!-- mode: 半程合成 -->`。
 
 判为开源（存在 LICENSE/CONTRIBUTING）→ 层 B 追加许可限制与贡献约定。
 
-## 3 决策保全（半程/已初始化模式必做）
+## 3 决策保全（半程合成/已初始化优化必做）
 
 1. 摘录现有 AGENTS.md/CLAUDE.md 全部条目，加代码/提交/配置中可识别约定 → 既有约定清单
 2. 逐条四态处置：keep 原样继承 / update 以代码现状为准改写 / drop 删除 / merge 合并去重
 3. 铁律：update 与 drop 必须写入层 C 变更日志（旧值 → 处置 → 新值/原因），禁止静默丢失
+
+全新初始化跳过本节；若仍发现零散既有约定，按上表同样记录。
 
 ## 4 证据采集（只收非可推断事实）
 
@@ -59,13 +75,11 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 <project>/docs/
 ├── .ai/
 │   ├── project-progress.md     # 进度，每次会话更新
-│   ├── decision-log.md         # 开发决策，优先级高于 PRD
+│   ├── decision-log.md         # 开发决策 + 层 C，优先级高于 PRD
 │   ├── debug-log.md            # bug 记录
 │   └── project-overview.md     # 可选，层 B
 └── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
 ````
-
-层 C 变更日志落在项目根的 `references/decision-log.md`。
 
 过程文档一律带 YAML frontmatter：`title` / `type` / `project` / `updated` / `description`；description 内写明"本文件新增或修改后必须把 `updated` 改为当日日期"。骨架如下。
 
@@ -120,6 +134,11 @@ description: >
 > 格式：`## DEC-NNN: 标题` + 日期/背景/决策/验证。
 
 ---
+
+## Layer C — AGENTS.md 约定处置
+
+> 仅 AGENTS.md 生成或维护时写入。一行一条，禁止静默丢失：
+> `<旧值> → keep|update|drop|merge → <新值/去处/原因>`
 ````
 
 ### docs/.ai/debug-log.md
@@ -147,19 +166,6 @@ description: >
 
 空文件，让 Git 追踪空目录。
 
-### references/decision-log.md（层 C）
-
-````markdown
-# Decision Log — AGENTS.md
-
-模式：<全新初始化|半程合成|已初始化优化>
-来源文件：<旧 AGENTS.md/CLAUDE.md 路径>
-
-## Layer C
-
-<旧值> → keep|update|drop|merge → <新值/去处/原因>
-````
-
 ## 5 产物模板（严格填空，禁止增删章节）
 
 填充规则：
@@ -167,7 +173,7 @@ description: >
 - `Permissions` 节仅允许 `IMPORTANT:` / `YOU MUST` / `禁止` 开头的行，且必须含文档同步义务
 - `References` 只写 `见 <path>` 指针行，用途说明放 `Conventions`
 - 空表保留表头；无命令写占位，不写解释
-- `<!-- mode: -->` 行保留
+- `<!-- mode: -->` 只填 §2 判出的那一个值
 
 ````markdown
 # AGENTS.md
@@ -202,6 +208,7 @@ YOU MUST 每次会话更新 docs/.ai/project-progress.md
 
 ## References
 
+见 <项目自带文档：PRD.md / CONTEXT.md / docs/adr/ 等，逐条列>
 见 docs/.ai/decision-log.md
 见 docs/.ai/debug-log.md
 见 docs/.ai/project-progress.md
@@ -228,7 +235,7 @@ YOU MUST 每次会话更新 docs/.ai/project-progress.md
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包
 5. 标题语言全文件统一；命令/路径/版本保持英文原文
 
-另核对：`References` 指针逐条真实存在；`docs/.ai` 与 `docs/handoff` 缺口已补齐且未覆盖既有文件。
+另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 文档缺口已补齐且未覆盖既有文件。
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
 

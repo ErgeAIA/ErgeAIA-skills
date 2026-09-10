@@ -48,10 +48,9 @@ metadata:
 | AI 协作契约 | `<project>/AGENTS.md` | `vibe-init` |
 | Claude Code 镜像（可选，指针非副本） | `<project>/CLAUDE.md` | `vibe-init` |
 | 项目进度，实时更新 | `<project>/docs/.ai/project-progress.md` | `vibe-init` 建骨架，`vibe-sync` 维护 |
-| 决策日志，优先级高于 PRD | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建骨架，`vibe-sync` 追加 |
+| 决策日志，优先级高于 PRD（层 C 约定处置并入其 `## Layer C` 小节） | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建骨架，`vibe-sync` 追加 |
 | bug 修复经验 | `<project>/docs/.ai/debug-log.md` | `vibe-init` 建骨架，`vibe-distill` 追加 |
 | 项目概览（可选） | `<project>/docs/.ai/project-overview.md` | `vibe-init` |
-| AGENTS.md 变更日志（层 C） | `<project>/references/` 下的 `decision-log.md` | `vibe-init` |
 | 会话交接文档 | `<project>/docs/handoff/handoff-YYYY-MM-DD.md` | `vibe-handoff` |
 
 ## 何时读 references
@@ -101,7 +100,7 @@ metadata:
 
 | 触发词 | 成功判定 |
 |---|---|
-| `vibe-init` | `AGENTS.md` 成文且含过程文档指引与收尾同步规则；`docs/.ai/` 三件套与 `docs/handoff/` 就位；缺失项已补齐，既有文件未被覆盖 |
+| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；`docs/.ai/` 三件套与 `docs/handoff/` 就位；缺失项已补齐，既有文件未被覆盖 |
 | `vibe-sync` | `project-progress.md` 有新增；有决策时 `decision-log.md` 已追加；未改动 `AGENTS.md` |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，含建议调用的技能段，未覆盖既有文件 |
 | `vibe-resume` | 输出结构化汇报；未创建或修改任何文件 |

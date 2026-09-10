@@ -23,12 +23,17 @@
 **过程文档模型**
 
 - `docs/.ai/project-progress.md`：进度，每次会话更新；任务开始时先读它。
-- `docs/.ai/decision-log.md`：开发决策，优先级高于 PRD；编号 `DEC-NNN`（三位），冲突时旧条目标 `superseded`。
+- `docs/.ai/decision-log.md`：开发决策（`DEC-NNN` 三位，优先级高于 PRD，冲突时旧条目标 `superseded`）+ 层 C 小节 `## Layer C — AGENTS.md 约定处置`（一行一条 `旧值 → 处置 → 新值/去处/原因`）。
 - `docs/.ai/debug-log.md`：bug 记录；编号 `BUG-NNN`（三位）递增，含现象/根因/修复/验证限制/教训。
 - `docs/handoff/`：交接文档，命名 `handoff-YYYY-MM-DD-*.md`。
-- `<project>/references/decision-log.md`：层 C——AGENTS.md 变更日志，一行一条 `旧值 → 处置 → 去处/原因`。
 - 所有过程文档带 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），**每次修改须把 `updated` 同步为当日**。
-- 全部**只追加**，历史条目永不删除或改写。
+- 全部**只追加**，历史条目永不删除或改写。层 C 不另立文件：项目只应有一个决策日志真源。
+
+**状态识别（初始态 vs 开发中）**
+
+- 旧判据「决策负载低/高」不可观测、无法判定，已废除。
+- 改用三个可观测信号查表定模式：既有契约（AGENTS.md / CLAUDE.md / .cursorrules）、既有代码（源码目录 / 依赖清单 / 锁定文件 / 有提交）、既有项目文档（PRD / CONTEXT / 设计稿）。任一为「有」即排除全新初始化。
+- 信号矛盾或无法查证 → 停下问用户，不自行归类。判据真源在生成规范 §2，init 契约只留动作列，避免两处漂移。
 
 **AGENTS.md 契约强化**
 

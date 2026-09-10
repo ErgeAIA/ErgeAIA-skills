@@ -30,14 +30,12 @@ vibe-buddy 把这些答案固化成文件：
 
 ```
 项目根/
-├── AGENTS.md                        # 规则契约（含过程文档义务与指针）
+├── AGENTS.md                        # 规则契约（六节固定，含文档义务与指针）
 ├── CLAUDE.md                        # 可选，指向 AGENTS.md 的指针
-├── references/
-│   └── decision-log.md              # 层 C：AGENTS.md 变更日志
 └── docs/
     ├── .ai/
     │   ├── project-progress.md      # 项目进度，每次会话更新；任务开始时先读它
-    │   ├── decision-log.md          # 决策日志，优先级高于 PRD
+    │   ├── decision-log.md          # 决策日志，优先级高于 PRD；含层 C 约定处置小节
     │   ├── debug-log.md             # bug 修复经验，编号递增
     │   └── project-overview.md      # 可选，目录索引与依赖方向
     └── handoff/                     # 会话交接文档
