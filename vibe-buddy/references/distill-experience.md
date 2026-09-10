@@ -4,6 +4,7 @@ description: vibe-distill 的执行契约：把项目开发过程中稳定的决
 trigger-when: 用户说「经验蒸馏」「提炼可复用经验」「vibe-distill」，或一轮开发告一段落、要把其中反复成立的做法固化成规则时
 role: workflow
 reads-from:
+  - references/command-policy.md
   - <project>/AGENTS.md
   - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md

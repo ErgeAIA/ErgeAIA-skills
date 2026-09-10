@@ -1,7 +1,7 @@
 ---
 name: vibe-buddy
 description: "当用户要为项目建立或更新 AI 协作契约、写跨会话交接文档、沉淀进度决策与调试记录、或把开发过程蒸馏成可复用经验时，替他读写项目根 AGENTS.md、docs/.ai/ 与 docs/handoff/。触发词：'初始化项目'、'生成 AGENTS.md'、'vibe-init'、'同步进度'、'更新项目进度'、'把踩的坑记下来'、'vibe-sync'、'交接上下文'、'写交接文档'、'vibe-handoff'、'经验蒸馏'、'提炼可复用经验'、'vibe-distill'。哪怕用户没提技能名也触发。不适用于：任务计划与待办拆解、需求转译成 PRD、代码生成与重构、运行构建或测试命令、规范文档生命周期管理。"
-compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync 与 vibe-handoff 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/ 与 docs/handoff/ 下，不写入技能仓库。
+compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync、vibe-handoff 与 vibe-distill 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/ 与 docs/handoff/ 下，不写入技能仓库。
 metadata:
   author: ErgeAIA
   version: "1.0.0"
@@ -36,7 +36,7 @@ metadata:
 - **一次只走一个触发词**：「同步并交接」拆成两轮各自确认，不自动串联。
 - **前置缺失即停**：如 `vibe-sync` 找不到 `docs/.ai/` 时引导先跑 `vibe-init`，绝不代建。
 - **接管不由本技能触发**：新会话的「读记忆 + 复述现状」是目标项目 `AGENTS.md` 的 `Permissions` 义务，每次会话自动生效。听到「接管 / 接手 / 继续上次」这类措辞时不必触发本技能——那条义务已经在跑。
-- **终端命令白名单**：默认不运行命令。`vibe-init` 可做 Git 仓库检测与初始化、codegraph 检测与建索引；`vibe-sync` 与 `vibe-handoff` 可做只读 Git 核对（各自允许的子集见白名单）。构建、测试、依赖安装、`git add` / `commit` / `push` 一律不做；白名单单一真源见 `references/command-policy.md`。
+- **终端命令白名单**：默认不运行命令。`vibe-init` 可做 Git 仓库检测与初始化、codegraph 检测与建索引；`vibe-sync`、`vibe-handoff` 与 `vibe-distill` 可做只读 Git 核对（各自允许的子集见白名单）。构建、测试、依赖安装、`git add` / `commit` / `push` 一律不做；白名单单一真源见 `references/command-policy.md`。
 - **产物必须脱敏**：密钥、token、凭据、连接串、个人隐私一律不落盘；无法脱敏则拒绝写入。
 - **不重复已有产物**：规格、计划、决策、提交、diff 已有的内容，用路径引用。
 - **契约区与事实区**：`AGENTS.md` 的契约区（Permissions / Conventions / References / 章节结构）只由 `vibe-init` 写，任何改动都必须在 `docs/.ai/agents-changelog.md` 留一行；事实区（Toolchain / Commands 表数据）可由 `vibe-sync` 回填，属填事实不必留痕。
