@@ -67,7 +67,7 @@
 ## v1.19.0 (2026-08-24) — 整合 skill-review-process v6.5-v6.8（铁律/交叉核对/分级门禁/状态机/质量杠杆）
 
 ### 决策背景
-按用户指令将 erge-private 的 skill-review-process（v6.8）审查流程按最新版注入本技能评审链。此前 v1.16-v1.18 已注入「三段式元框架」（对应 v6.3 思维工具箱），本次补齐 v6.5-v6.7 新增内容：0.6 铁律、5.3.1 交叉核对、5.7 分级门禁、0.5 状态机、SFA 质量杠杆。
+按用户指令将本地私有技能仓库的 skill-review-process（v6.8）审查流程按最新版注入本技能评审链。此前 v1.16-v1.18 已注入「三段式元框架」（对应 v6.3 思维工具箱），本次补齐 v6.5-v6.7 新增内容：0.6 铁律、5.3.1 交叉核对、5.7 分级门禁、0.5 状态机、SFA 质量杠杆。
 
 ### Added / Changed
 - **review-checklist.md**：三段式元框架升级为「0.6 铁律版」——第一性锚定补质量杠杆第四问 + 须从本质矛盾推导；新增「钢人论证质量判据」（AGAINST 最强反方/关键变量实测/结论有条件/论证对象匹配/陌生评审测试）；C 维度新增 **C5**（同规范多文件口径一致，对应 5.3.1 交叉核对）；编号体系/维度映射同步 C1-C5。
@@ -191,10 +191,10 @@
 
 ### 版本号统一三段式 + 版本规范固化
 
-- 全 erge-private 技能版本号统一三段式（X.Y → X.Y.0），涉及本技能（1.16 → 1.16.0）与 prompt-workshop / qiao / yibi / memory-restore，共 34 处；复扫 0 残留。
+- 全私有仓库技能版本号统一三段式（X.Y → X.Y.0），涉及本技能（1.16 → 1.16.0）与 prompt-workshop / qiao / yibi / memory-restore，共 34 处；复扫 0 残留。
 - `versioning-and-validation.md` §1 显式固化「版本号强制三段式 X.Y.Z，禁止两段式 v1.1」，并修复其 frontmatter/头部版本漂移（升至 1.18.0）。
 - 本技能版本 1.16.0 → 1.17.0（references 变更同步）。
-- 分发链路约定（2026-08-19 用户明确）：AI 只保证 erge-private 最新，`~/.workbuddy/skills` / `~/.agents/skills` 软连接由用户工具链管理，AI 不碰（作废 v1.16.0 段的"分发修复待办"）。
+- 分发链路约定（2026-08-19 用户明确）：AI 只保证私有仓库最新，`~/.workbuddy/skills` / `~/.agents/skills` 软连接由用户工具链管理，AI 不碰（作废 v1.16.0 段的"分发修复待办"）。
 
 ---
 
@@ -209,7 +209,7 @@
 - **C 渐进披露补 README 层**：`progressive-disclosure-patterns.md` §1 改为三层落点（含 README），§4 验收标准强化为「所有引用路径（含代码块/裸路径）真实存在 + 新增 references 带 trigger-when」。
 - **D validate 治本（quick_validate.py）**：新增 `validate_referenced_asset_paths`（引用路径存在性，覆盖代码块/裸路径，根相对解析→硬错误）与 `validate_reference_trigger_when`（references 缺 trigger-when→警告），并在 `validate_skill()` 接线。
 - **版本一致性**：SKILL.md frontmatter `1.15 → 1.16`；`C3-refactor.md` `1.2.0 → 1.3.0`；`skill-refactoring-workflow.md` `1.1.1 → 1.2.0`；`progressive-disclosure-patterns.md` `1.8.0 → 1.9.0`。
-- **待办（用户决策）**：erge-private 副本当前未挂到运行态（junction 指向旧公共库 `.agents` 版），分发修复稍后单独处理。
+- **待办（用户决策）**：私有仓库副本当前未挂到运行态（junction 指向旧公共库 `.agents` 版），分发修复稍后单独处理。
 
 ---
 

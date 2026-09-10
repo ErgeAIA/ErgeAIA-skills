@@ -21,3 +21,22 @@
 | 10 | README.md 中可复述内容（作者信息、价值主张、安装示意） | 删 | 根 AGENTS.md 不复述，改在质量与文档指针指向 README.md |
 
 **未被覆盖的既有决策**：上表 2/3/4 项内容未丢失，均迁移至 `references/project-overview.md`，根文件仅保留指针，符合「解释性内容归 README/背景文档」原则。
+
+## 2026-09-10 删除已废弃技能 skill-reviewer
+
+该技能早前已标废弃（README 索引划线、release 流程移除），本次按用户指令**物理删除目录**，并同步清理全部引用：
+
+| # | 既有决策（旧值） | 处置 | 新值 / 原因 |
+|---|------------------|------|------------|
+| 1 | `skill-reviewer/`（v4.6.0，九维 48 项评审，36 文件 / 170.9 KB） | 删 | 能力已全部并入 `skill-workshop` 评审链；发布流程早已移除该技能 |
+| 2 | `README.md` / `README.en.md` 技能索引的 skill-reviewer 行（原已划废弃线） | 删 | 目录不存在，索引行成悬空链接 |
+| 3 | 根 `AGENTS.md` 命令表「跑 skill-reviewer 测试」行 | 删 | 对象目录已删除，命令不可执行 |
+| 4 | 根 `AGENTS.md` 工具链「`skill-reviewer` 校验脚本：`PyYAML` 可选依赖」 | 改 | 改指 `skill-workshop` 校验脚本——实测 `skill-workshop/scripts/_impl/{review_ops,utils}.py` 仍 `import yaml`，依赖归属随之转移且描述继续成立 |
+| 5 | 根 `AGENTS.md` 与 `references/project-overview.md` 的「测试」段 | 改 | 如实改写为「本仓库当前无单元测试」（原唯一测试随该技能删除），避免留下失效路径 |
+| 6 | `references/project-overview.md` 目录索引的 skill-reviewer 行 | 删 | 同上；其「评审链源自 skill-reviewer」的溯源描述**保留**（历史属实） |
+| 7 | `references/project-overview.md` 风险段「见 skill-reviewer Gotchas」括注 | 删 | 指向目标已不存在；Windows 路径假设的表述本身保留 |
+| 8 | `references/project-overview.md` 术语一致性段引用的 `validate_review.py --consistency` | 改 | 该脚本随技能删除；改为 `skill-workshop/scripts/skill_cli.py consistency`（功能等价） |
+
+**未同步的位置（有意保留）**：`CHANGELOG.md` / `CHANGELOG.en.md` 中提及 skill-reviewer 的历史条目**按原样保留**——它们记录「当时发生了什么」（标废弃、移出发布流程），属史实，改写即失真；后续变更应新增条目而非修改旧条目。`skill-workshop/scripts` 内若干 `(from skill-reviewer)` 字符串标注亦保留，用作源码溯源。
+
+**本次未落 CHANGELOG 条目**：`CHANGELOG.md` 由 `changelog-manager` 技能按其规范维护，且该文件变更会触发 `release.yml` 发布流程；本次为目录删除与引用清理，是否补条目由用户决定。
