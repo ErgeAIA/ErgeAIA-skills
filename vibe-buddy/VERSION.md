@@ -10,15 +10,16 @@
 
 **定位**：通用的项目 AI 协作记忆管理技能，读写项目根 `AGENTS.md`、`docs/.ai/` 与 `docs/handoff/`，不绑定任何 IDE 或运行时。
 
-**五个触发词**
+**四个触发词**
 
 | 触发词 | 职责 | 产物 |
 |---|---|---|
 | `vibe-init` | 建立协作契约与过程文档；半程项目只补缺失项 | `AGENTS.md`、`CLAUDE.md`（可选）、`docs/.ai/` 三件套与层 C 变更日志、`docs/handoff/` |
 | `vibe-sync` | 沉淀进度与决策 | `docs/.ai/project-progress.md`、`docs/.ai/decision-log.md` |
-| `vibe-handoff` | 生成自包含交接文档 | `docs/handoff/handoff-YYYY-MM-DD.md` |
-| `vibe-resume` | 只读并结构化汇报 | 无 |
+| `vibe-handoff` | 生成自包含交接文档 | `docs/handoff/handoff-YYYY-MM-DD[-slug].md` |
 | `vibe-distill` | 沉淀 bug 根因与预防规则 | `docs/.ai/debug-log.md` |
+
+接手（接管）**不是触发词**：由目标项目 `AGENTS.md` 的 `Permissions` 义务承担，每会话自动生效。
 
 **过程文档模型**
 
