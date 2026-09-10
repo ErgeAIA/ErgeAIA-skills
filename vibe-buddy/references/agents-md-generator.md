@@ -54,7 +54,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 
 1. 摘录现有 AGENTS.md/CLAUDE.md 全部条目，加代码/提交/配置中可识别约定 → 既有约定清单
 2. 逐条四态处置：keep 原样继承 / update 以代码现状为准改写 / drop 删除 / merge 合并去重
-3. 铁律：update 与 drop 必须写入层 C 变更日志（旧值 → 处置 → 新值/原因），禁止静默丢失
+3. 铁律：update 与 drop 必须写入层 C 变更日志 `docs/.ai/agents-changelog.md`（旧值 → 处置 → 新值/原因），禁止静默丢失
 
 全新初始化跳过本节；若仍发现零散既有约定，按上表同样记录。
 
@@ -75,19 +75,21 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 <project>/docs/
 ├── .ai/
 │   ├── project-progress.md     # 进度，每次会话更新
-│   ├── decision-log.md         # 开发决策 + 层 C，优先级高于 PRD
+│   ├── decision-log.md         # 开发决策，优先级高于 PRD
 │   ├── debug-log.md            # bug 记录
+│   ├── agents-changelog.md     # AGENTS.md 约定处置，仅初始化/维护时写
 │   └── project-overview.md     # 可选，层 B
 └── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
 ````
 
-三件套按 `assets/docs/` 下同名模板原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日：
+各文档按 `assets/docs/` 下同名模板原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日：
 
 | 模板 | 落点 |
 | ---- | ---- |
 | `assets/docs/project-progress.md` | `docs/.ai/project-progress.md` |
 | `assets/docs/decision-log.md` | `docs/.ai/decision-log.md` |
 | `assets/docs/debug-log.md` | `docs/.ai/debug-log.md` |
+| `assets/docs/agents-changelog.md` | `docs/.ai/agents-changelog.md` |
 
 - 模板已含 YAML frontmatter 与"改完必须把 `updated` 改为当日"的约定，不增删字段
 - `docs/handoff/` 用空文件 `.gitkeep` 占位，让 Git 追踪空目录
@@ -162,7 +164,7 @@ YOU MUST 每次会话更新 docs/.ai/project-progress.md
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包
 5. 标题语言全文件统一；命令/路径/版本保持英文原文
 
-另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 三件套已按模板落地且未覆盖既有文件。
+另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 各文档已按模板落地且未覆盖既有文件。
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
 

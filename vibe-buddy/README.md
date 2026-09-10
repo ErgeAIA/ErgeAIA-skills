@@ -16,7 +16,7 @@ vibe-buddy 把这些答案固化成文件：
 
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
-| `vibe-init` | 初始化项目 / 生成 AGENTS.md | 建立 `AGENTS.md`、`docs/.ai/` 三件套、`docs/handoff/` 与层 C 变更日志；半程项目先做决策保全，再只补齐缺失文档 |
+| `vibe-init` | 初始化项目 / 生成 AGENTS.md | 建立 `AGENTS.md`、`docs/.ai/` 各过程文档与 `docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档 |
 | `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态、验证结果写进 `project-progress.md`，决策追加到 `decision-log.md` |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD.md`，含未提交改动、待办与建议调用的技能 |
 | `vibe-resume` | 接管项目 / 接手上下文 | 只读项目记忆，结构化汇报现状，然后停下等指令 |
@@ -35,14 +35,15 @@ vibe-buddy 把这些答案固化成文件：
 └── docs/
     ├── .ai/
     │   ├── project-progress.md      # 项目进度，每次会话更新；任务开始时先读它
-    │   ├── decision-log.md          # 决策日志，优先级高于 PRD；含层 C 约定处置小节
+    │   ├── decision-log.md          # 决策日志，优先级高于 PRD；随开发持续更新
     │   ├── debug-log.md             # bug 修复经验，编号递增
+    │   ├── agents-changelog.md      # 层 C：AGENTS.md 约定处置，只在初始化/维护时写
     │   └── project-overview.md      # 可选，目录索引与依赖方向
     └── handoff/                     # 会话交接文档
         └── handoff-YYYY-MM-DD-*.md
 ```
 
-四类过程文档均带 YAML frontmatter；**每次修改都要把 `updated` 改成当日**。
+过程文档均带 YAML frontmatter；**每次修改都要把 `updated` 改成当日**。前三份随开发持续更新，`agents-changelog.md` 只在生成或维护 `AGENTS.md` 时写入。
 
 `docs/.ai/` 三类文档**只追加**：决策冲突时旧条目改标 `superseded`，历史条目永不删除或改写。
 
@@ -79,7 +80,8 @@ vibe-buddy/
 │   └── docs/                             # 过程文档模板，初始化时原样复制
 │       ├── project-progress.md
 │       ├── decision-log.md
-│       └── debug-log.md
+│       ├── debug-log.md
+│       └── agents-changelog.md
 └── references/
     ├── init-agents-md.md                 # 初始化执行契约
     ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构）

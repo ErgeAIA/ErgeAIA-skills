@@ -47,9 +47,10 @@ metadata:
 |---|---|---|
 | AI 协作契约 | `<project>/AGENTS.md` | `vibe-init` |
 | Claude Code 镜像（可选，指针非副本） | `<project>/CLAUDE.md` | `vibe-init` |
-| 项目进度，实时更新 | `<project>/docs/.ai/project-progress.md` | `vibe-init` 建骨架，`vibe-sync` 维护 |
-| 决策日志，优先级高于 PRD（层 C 约定处置并入其 `## Layer C` 小节） | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建骨架，`vibe-sync` 追加 |
-| bug 修复经验 | `<project>/docs/.ai/debug-log.md` | `vibe-init` 建骨架，`vibe-distill` 追加 |
+| 项目进度，实时更新 | `<project>/docs/.ai/project-progress.md` | `vibe-init` 建模板，`vibe-sync` 维护 |
+| 决策日志，优先级高于 PRD，随开发持续更新 | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建模板，`vibe-sync` 追加 |
+| bug 修复经验 | `<project>/docs/.ai/debug-log.md` | `vibe-init` 建模板，`vibe-distill` 追加 |
+| AGENTS.md 约定处置（层 C），不随开发更新 | `<project>/docs/.ai/agents-changelog.md` | `vibe-init` |
 | 项目概览（可选） | `<project>/docs/.ai/project-overview.md` | `vibe-init` |
 | 会话交接文档 | `<project>/docs/handoff/handoff-YYYY-MM-DD.md` | `vibe-handoff` |
 
@@ -57,7 +58,7 @@ metadata:
 
 - 要建 `AGENTS.md`、判定路由模式、补齐缺失文档 → `references/init-agents-md.md`
 - 要执行 `AGENTS.md` 的生成规范本身（句式契约、黑名单、自检门） → `references/agents-md-generator.md`
-- 要落地 `docs/.ai/` 三件套 → `assets/docs/project-progress.md` 等三份模板（原样复制，只换 `<工程标识>` 与 `updated`）
+- 要落地 `docs/.ai/` 各文档 → `assets/docs/project-progress.md` 等四份模板（原样复制，只换 `<工程标识>` 与 `updated`）
 - 要沉淀进度与决策 → `references/sync-progress.md`
 - 要生成交接文档 → `references/handoff-context.md`
 - 新会话要弄清现状并汇报 → `references/resume-context.md`
@@ -101,7 +102,7 @@ metadata:
 
 | 触发词 | 成功判定 |
 |---|---|
-| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；`docs/.ai/` 三件套与 `docs/handoff/` 就位；缺失项已补齐，既有文件未被覆盖 |
+| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；`docs/.ai/` 三件套与层 C 变更日志、`docs/handoff/` 就位；缺失项已补齐，既有文件未被覆盖 |
 | `vibe-sync` | `project-progress.md` 有新增；有决策时 `decision-log.md` 已追加；未改动 `AGENTS.md` |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，含建议调用的技能段，未覆盖既有文件 |
 | `vibe-resume` | 输出结构化汇报；未创建或修改任何文件 |

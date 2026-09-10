@@ -14,7 +14,7 @@
 
 | 触发词 | 职责 | 产物 |
 |---|---|---|
-| `vibe-init` | 建立协作契约与过程文档；半程项目只补缺失项 | `AGENTS.md`、`CLAUDE.md`（可选）、`docs/.ai/` 三件套、`docs/handoff/` |
+| `vibe-init` | 建立协作契约与过程文档；半程项目只补缺失项 | `AGENTS.md`、`CLAUDE.md`（可选）、`docs/.ai/` 三件套与层 C 变更日志、`docs/handoff/` |
 | `vibe-sync` | 沉淀进度与决策 | `docs/.ai/project-progress.md`、`docs/.ai/decision-log.md` |
 | `vibe-handoff` | 生成自包含交接文档 | `docs/handoff/handoff-YYYY-MM-DD.md` |
 | `vibe-resume` | 只读并结构化汇报 | 无 |
@@ -23,12 +23,13 @@
 **过程文档模型**
 
 - `docs/.ai/project-progress.md`：进度，每次会话更新；任务开始时先读它。
-- `docs/.ai/decision-log.md`：开发决策（`DEC-NNN` 三位，优先级高于 PRD，冲突时旧条目标 `superseded`）+ 层 C 小节 `## Layer C — AGENTS.md 约定处置`（一行一条 `旧值 → 处置 → 新值/去处/原因`）。
+- `docs/.ai/decision-log.md`：开发决策（`DEC-NNN` 三位，优先级高于 PRD，冲突时旧条目标 `superseded`），**随开发持续更新**。
 - `docs/.ai/debug-log.md`：bug 记录；编号 `BUG-NNN`（三位）递增，含现象/根因/修复/验证限制/教训。
+- `docs/.ai/agents-changelog.md`：层 C——AGENTS.md 约定处置（一行一条 `旧值 → 处置 → 新值/去处/原因`），**只在生成或维护 AGENTS.md 时写入，不随开发更新**。
 - `docs/handoff/`：交接文档，命名 `handoff-YYYY-MM-DD-*.md`。
-- 三件套模板外置在 `assets/docs/`（`project-progress.md` / `decision-log.md` / `debug-log.md`），初始化时原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日；§4b 不再内联骨架，消除模板与文档两处漂移。
+- 模板外置在 `assets/docs/`（`project-progress.md` / `decision-log.md` / `debug-log.md` / `agents-changelog.md`），初始化时原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日；§4b 不再内联骨架，消除模板与规范两处漂移。
 - 所有过程文档带 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），**每次修改须把 `updated` 同步为当日**。
-- 全部**只追加**，历史条目永不删除或改写。层 C 不另立文件：项目只应有一个决策日志真源。
+- 全部**只追加**，历史条目永不删除或改写。`decision-log.md` 与 `agents-changelog.md` 职责分离：前者随开发更新，后者只在改 AGENTS.md 时更新。
 
 **状态识别（初始态 vs 开发中）**
 

@@ -11,8 +11,9 @@ writes-to:
   - <project>/AGENTS.md
   - <project>/CLAUDE.md（可选，指针）
   - <project>/docs/.ai/project-progress.md
-  - <project>/docs/.ai/decision-log.md（含层 C 小节）
+  - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md
+  - <project>/docs/.ai/agents-changelog.md（层 C）
   - <project>/docs/.ai/project-overview.md（可选）
   - <project>/docs/handoff/.gitkeep
 ---
@@ -32,8 +33,9 @@ writes-to:
 └── docs/
     ├── .ai/
     │   ├── project-progress.md      # 进度，每次会话更新
-    │   ├── decision-log.md          # 开发决策 + 层 C，优先级高于 PRD
+    │   ├── decision-log.md          # 开发决策，优先级高于 PRD
     │   ├── debug-log.md             # bug 记录
+    │   ├── agents-changelog.md      # 层 C：AGENTS.md 约定处置
     │   └── project-overview.md      # 可选，层 B
     └── handoff/                     # 交接文档
 ````
@@ -63,18 +65,19 @@ writes-to:
 
 1. 摘录既有 `AGENTS.md` / `CLAUDE.md` 全部条目，加上代码、提交、配置中可识别的约定，形成既有约定清单。
 2. 逐条四态处置：`keep` 原样继承 / `update` 以代码现状为准改写 / `drop` 删除 / `merge` 合并去重。
-3. 每一条 `update` 与 `drop` 写入 `docs/.ai/decision-log.md` 的 `## Layer C — AGENTS.md 约定处置` 小节，一行一条 `<旧值> → 处置 → <新值/去处/原因>`，**禁止静默丢失**。
+3. 每一条 `update` 与 `drop` 写入 `docs/.ai/agents-changelog.md`，一行一条 `<旧值> → 处置 → <新值/去处/原因>`，**禁止静默丢失**。
 4. 处置不下的条目标记为待确认交给用户裁决，不自行删除。
 
 ## 过程文档
 
-目录结构与初始模板的单一真源是 `references/agents-md-generator.md` §4b。三件套从 `assets/docs/` 直接复制，只替换 `<工程标识>` 并把 `updated` 改为当日；已有同名文件跳过，不覆盖。
+目录结构与初始模板的单一真源是 `references/agents-md-generator.md` §4b。各文档从 `assets/docs/` 直接复制，只替换 `<工程标识>` 并把 `updated` 改为当日；已有同名文件跳过，不覆盖。
 
 | 文件 | 用途 | 维护者 |
 |---|---|---|
 | `docs/.ai/project-progress.md` | 进度，每次会话更新；任务开始时先读它 | `vibe-sync` |
-| `docs/.ai/decision-log.md` | 开发决策（`DEC-NNN`，优先级高于 PRD）+ 层 C 约定处置 | `vibe-sync`（层 C 由 `vibe-init` 写） |
+| `docs/.ai/decision-log.md` | 开发决策（`DEC-NNN`，优先级高于 PRD），随开发持续更新 | `vibe-sync` |
 | `docs/.ai/debug-log.md` | bug 记录，编号 `BUG-NNN` 递增 | `vibe-distill` |
+| `docs/.ai/agents-changelog.md` | 层 C：AGENTS.md 约定处置，**不随开发更新** | `vibe-init` |
 | `docs/handoff/` | 交接文档，命名 `handoff-YYYY-MM-DD-*.md` | `vibe-handoff` |
 
 全部**只追加**，历史条目永不删除或改写；决策冲突时把旧条目标 `superseded`。
@@ -107,4 +110,4 @@ writes-to:
 
 ## 终止回复
 
-只回复：判定模式与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、Layer C 记录条数、未决的待确认条目（若有）。
+只回复：判定模式与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数、未决的待确认条目（若有）。
