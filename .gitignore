@@ -21,3 +21,6 @@ evals/results/
 
 # Trae 配置目录
 .trae/
+
+# CodeBuddy 工作区数据（工作记忆等本地产物）
+.codebuddy/
