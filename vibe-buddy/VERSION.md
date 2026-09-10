@@ -149,6 +149,19 @@
 - **比对没排除本技能自身的产物，防重复随时会失效**：契约只说「比对本轮原料区间」，未定义「原料」的边界。而 `git status` 里的 `?? docs/`、`?? AGENTS.md`、`?? .codegraph/` **全是本技能自己写的**——若按「`status` 有内容即为新原料」判定，每次蒸馏都会看到上一次自己刚写的文件，防重复永久失效 → 补「比对只针对项目自身，排除 `docs/.ai/`、`docs/handoff/`、`AGENTS.md`、`.codegraph/`」。
 - **台账的「原料区间」是 git 级的，表达不了语义覆盖**：复蒸时发现一个首轮**既未列产出、也未列跳过**的来源（`.trae/documents/微信小程序迁移计划.md`，其审查记录含 OKLCH 色彩空间迁移与无障碍对比度合规）——它落在区间内，因此按区间判为「已覆盖」，实际从没被评估过。根因：**git 区间只回答「代码变没变」，回答不了「这个来源看过没」** → 补三条：「『原料』要写成语义来源清单」「『有意跳过』必须穷举声明，没写 = 没看过」「复蒸判定」两行表。
 
+**vibe-init 真跑（lingjian，含白名单命令干跑）**
+
+先对白名单**全部命令**做干跑（临时沙箱，跑完即删），再对 `D:\Workspace\Code\lingjian` 真实执行一次 `vibe-init`（模式 = 已初始化优化）。干跑暴露 2 处契约缺口，已修：
+
+- **零提交仓库里 `git log` 会失败（干跑实测）**：返回 `exit=128` 并报 `fatal: your current branch 'main' does not have any commits yet`。契约只写「零提交是正常状态」，没说这个命令**会报错**——执行者会按执行纪律「任何一条失败都不中断后续步骤」把它记成「失败」，而它是正常状态；且生成规范 §2 的「既有代码」信号正靠 `git log` 有无提交判定，误读会连带判错模式 → 在生成规范 §2、`init-env-checks.md` 失败处理表、`command-policy.md` 执行纪律三处统一为「零提交时 `git log` 返回 128 属正常状态，判『无提交』」。
+- **`git init` 的输出不含分支名（干跑实测）**：实测输出只有 `Initialized empty Git repository in ...`，而契约要求报告写「已初始化仓库，默认分支 <分支名>」——照输出取不到该值，只能编造（违反「禁止虚报」）→ 补「分支名读 `<project>/.git/HEAD` 的 `ref: refs/heads/<名称>`，**不得凭经验填 `main` / `master`**」。
+
+干跑同时**确认契约无误**的三处：`codegraph status` 在无索引时**同样返回 exit=0**（故「退出码不参与判定」是对的）；子目录内 `show-toplevel` 返回父仓库根（「位于父仓库内」分支可执行）；`codegraph init` 二次执行输出 `Already initialized` 且不重建（幂等成立）。
+
+**真跑结果（lingjian）**：`git init`（默认分支 `main`，实测读 `.git/HEAD`）→ 增量维护 `AGENTS.md` **82 → 93 行**（仅 `Permissions` +8、`Conventions` +3、`References` +2/−1；六节结构与既有 27 行项目约定一字未动）→ 新建 `docs/.ai/agents-changelog.md`(152 行)、`init-report.md` 与空目录 `docs/.ai/experience/`（含 `.gitkeep`）→ 旧位置残留 `references/decision-log.md` 内容**逐字存档后删除**（含随之空置的 `references/` 目录），禁止新旧两处并存。
+
+**顺带印证一条既有规则**：行数首测用 `Get-Content | Measure-Object -Line` 得 81 行，那是**数组式计数（跳过空行）**；按契约口径（含空行的总行数）重测为 **93 行**，差 12 行——§7 自检门第 4 条为何强制该口径，本次实测复现。
+
 **评审后确定性修复（skill-workshop 深度评审，2026-09-10）**
 
 用 `skill-workshop` 走完整评审链（W1 → W2/W3 → W7 → W4 → W5 → W6），产出 8 段报告；按报告里「确定性修复」清单一次性落地 6 处：

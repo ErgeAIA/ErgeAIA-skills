@@ -32,7 +32,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 | ---- | ---------------- |
 | 标准契约 | 项目根存在 AGENTS.md / CLAUDE.md / .cursorrules / GEMINI.md 之一 |
 | 非标准规则文件 | agent 目录内存在规则文件，如 `.claude/`、`.codex/`、`.zcode/`、`.cursor/rules/`。**含点目录必须逐一查看，常见列目录工具默认不显示隐藏项** |
-| 既有代码 | 存在源码目录、依赖清单或锁定文件；或 `git log` 有提交 |
+| 既有代码 | 存在源码目录、依赖清单或锁定文件；或 `git log` 有提交。**零提交的仓库里 `git log` 返回 128 并报 `does not have any commits yet`，那是「无提交」而非命令失败** |
 | 既有项目文档 | 存在 PRD / CONTEXT / 设计稿等面向项目的文档 |
 
 | 标准契约 | 其余三项 | 模式 |
