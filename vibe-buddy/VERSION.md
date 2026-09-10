@@ -149,6 +149,19 @@
 - **比对没排除本技能自身的产物，防重复随时会失效**：契约只说「比对本轮原料区间」，未定义「原料」的边界。而 `git status` 里的 `?? docs/`、`?? AGENTS.md`、`?? .codegraph/` **全是本技能自己写的**——若按「`status` 有内容即为新原料」判定，每次蒸馏都会看到上一次自己刚写的文件，防重复永久失效 → 补「比对只针对项目自身，排除 `docs/.ai/`、`docs/handoff/`、`AGENTS.md`、`.codegraph/`」。
 - **台账的「原料区间」是 git 级的，表达不了语义覆盖**：复蒸时发现一个首轮**既未列产出、也未列跳过**的来源（`.trae/documents/微信小程序迁移计划.md`，其审查记录含 OKLCH 色彩空间迁移与无障碍对比度合规）——它落在区间内，因此按区间判为「已覆盖」，实际从没被评估过。根因：**git 区间只回答「代码变没变」，回答不了「这个来源看过没」** → 补三条：「『原料』要写成语义来源清单」「『有意跳过』必须穷举声明，没写 = 没看过」「复蒸判定」两行表。
 
+**description 改为以意图为主（联网核实最新最佳实践）**
+
+联网核对官方与社区源头后，上一版仍有两处偏离最新实践，已改：
+
+- **触发词裸清单 → 意图句**：原「触发词：vibe-init、vibe-sync、vibe-handoff、vibe-distill，以及初始化项目、同步进度、交接上下文、经验蒸馏」是裸词表。据 **agentskills.io「Optimizing skill descriptions」**（四原则之一：**聚焦用户意图而非实现细节**）与 **Anthropic 官方最佳实践**（写法为「功能句 + `Use when…` 触发句」，官方正例的关键词**嵌在 `Use when…` 句内**，非裸列）改为：「当用户要初始化项目、同步进度、写交接文档或做经验蒸馏时使用本技能，包括直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill 的情形」。
+- **边界收敛**：8 类 → 7 个更粗的类别词。原因是 agentskills.io 明确警告：技能适用范围宽时「**不要**把每一种可能的应用都列进描述」——`overly long descriptions bloat the agent's context across many skills`。
+- **字符数 329 → 272**（实测）。**硬约束复核**：官方只有「非空、≤1024 字符、无 XML 标签」三条，**未给建议字数区间**；本技能的 200–400 区间是仓库自设软约束，272 落在区间内。
+- **两条口径校正（据官方原文）**：① 官方要求 description **始终第三人称**——现行写法为无主语祈使句，合规；② **「Pushy 句式」在 Anthropic 官方页面无出处**，它出自 agentskills.io（原文 `Err on the side of being pushy`）。此前把 Pushy 当官方要求记，属来源误标。
+
+**干跑推演**：正面集 **16/17** 字面或近字面命中，1 条降为语义命中——按阈值 ≥90% 达标，**故不加回同义词**（逐条补失败查询关键词正是 agentskills.io 点名的 overfitting）。负面集 **11/11** 不触发。
+
+**遗留**：真实触发率仍未复测；建议升级为官方评测协议（20 条评测集、负样本用近邻混淆项、60/40 train 与 validation 划分、每条跑 3 次、≤5 轮、按 validation 通过率选版本）。
+
 **description 重写为三段式（对齐最佳实践）**
 
 按 `skill-workshop` 的 T 系列判定链（`frontmatter-style-guide.md` §9 字段联锁规则 + `intent-calibration.md` 三维触发矩阵 + W7 Step 6 反模式扫描）与本仓库 §2.2 硬规范逐项核对后重写：
