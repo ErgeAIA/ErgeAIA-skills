@@ -28,6 +28,18 @@ WORKFLOW_HEADER_RE = re.compile(r"^#{2,3}\s+@工作流:\s*.+$", re.MULTILINE)
 STRICT_WORKFLOW_HEADER_RE = re.compile(r"^##\s+@工作流:\s*.+$", re.MULTILINE)
 NONSTANDARD_WORKFLOW_HEADER_RE = re.compile(r"^###\s+@工作流:\s*.+$", re.MULTILINE)
 
+# 核心意图关键词（spec.md §description 格式约束：≥2 为硬判据）。
+# 词表扩充实例登记（日期、技能、新增词）：
+#   2026-09-11 skill-workshop v1.22.0 初始词表。
+# 处置顺序（见 VERSION.md v1.22.0 / 计划 Task 5 Step 3b）：扩词表 > advisory 复核 > 改被审技能。
+INTENT_KEYWORDS = {
+    "提取", "合并", "重构", "审计", "部署", "创建", "评审", "校验", "评测", "生成",
+    "转换", "处理", "分析", "检查", "修复", "优化", "验证", "翻译", "清理", "监控",
+    "create", "review", "refactor", "evaluate", "validate", "analyze", "extract",
+    "merge", "convert", "process", "generate", "check", "fix", "optimize",
+    "verify", "translate", "clean", "monitor", "audit", "deploy",
+}
+
 
 def append_error(bucket: list[str], scope: str, message: str) -> None:
     bucket.append(f"{scope}: {message}")
@@ -86,7 +98,7 @@ def is_builder_class_skill(content):
     whose `@` markup is consumed by the workshop tool-chain — so the markup contract must hold.
 
     Runtime-class: no `@工作流:` header. These skills are pure instruction prompts for the
-    LLM at runtime; nothing in the tool-chain parses their markup (verified: erg-private runtime
+    LLM at runtime; nothing in the tool-chain parses their markup (verified: private-repo runtime
     skills have zero `@` consumers across their scripts). Forcing `@` markup on them is the
     "third-party optimizer comment junk" the review rubric warns against — zero runtime value,
     only token cost + false-precision noise.
@@ -203,14 +215,14 @@ def extract_header_version(content: str) -> str | None:
     return parse_version_token(match.group(1).strip())
 
 
-def validate_description_format(frontmatter: dict) -> tuple[bool, str]:
+def validate_description_format(frontmatter: dict) -> tuple[bool, str, str]:
     """V0/W7 description 联锁校验（见 spec.md §description 格式约束）。
 
-    Returns (ok, message).
+    Returns (ok, message, severity)。severity: "error"（硬 FAIL）| "warning"（软建议）。
     """
     desc = frontmatter.get("description")
     if not desc:
-        return False, "description 字段缺失"
+        return False, "description 字段缺失", "error"
 
     # YAML `|` 块被 yaml 库解析为带换行的 string（多行）。
     # 硬约束：description 必须是单行 string，检测换行符判断。
@@ -218,19 +230,21 @@ def validate_description_format(frontmatter: dict) -> tuple[bool, str]:
         return False, (
             "description 包含换行符（疑似 YAML `|` 多行块），违反单行 string 硬约束。"
             "改为 description: <单行 string>"
-        )
+        ), "error"
 
     # 1-1024 chars
     if len(desc) > 1024:
-        return False, f"description 超过 1024 字符（当前 {len(desc)}）"
+        return False, f"description 超过 1024 字符（当前 {len(desc)}）", "error"
 
-    # Pushy 句式（中英文并列：官方 agentskills.io 用 "Use this skill whenever"，
-    # 但中文技能应以中文祈使句为主——"当用户…时调用 / 如需… / 想…时" 同为主动触发语义）
+    # Pushy 句式（中英文并列；含官方 `Use when` 句式——platform.claude.com 三正例均为 "Use when ..."）。
+    # 2026-09-11 目标驱动裁决：缺失降为软建议——官方无此要求、句式多样（第三人称正例即反证），
+    # 正则是触发准确率的代理指标；真目标由触发率评测承担（references/config/eval-set-template.md）。
     pushy_patterns = [
         r"Use this skill whenever",
         r"Make sure to invoke it when",
         r"Invoke (this skill |on |when)",
         r"Make sure to use this skill",
+        r"Use when\b",  # 官方句式（platform.claude.com best-practices 三正例均为 "Use when ..."）
         # 中文主动触发句式
         r"当用户",  # 当用户贴来… / 当用户提到… / 当用户需要…
         r"如需",    # 如需…时调用
@@ -239,18 +253,16 @@ def validate_description_format(frontmatter: dict) -> tuple[bool, str]:
         r"遇到…?[时唤用]",  # 遇到…时
         r"触发词",  # 显式『触发词：…』列举段（与 Invoke on 等效，中文技能常用）
     ]
+    # 软建议聚合（Pushy 句式 / 触发词数量）——硬错误优先，软建议不提前 return 掩盖硬错误
+    soft_issues: list[str] = []
     if not any(re.search(p, desc, re.IGNORECASE) for p in pushy_patterns):
-        return False, (
-            "description 缺少 Pushy 主动句式。"
-            "应包含 'Use this skill whenever...' / 'Make sure to invoke it when...' / 'Invoke on...'"
-            "或中文主动触发句式（'当用户…时' / '如需…时调用' / '触发词：…'）"
+        soft_issues.append(
+            "缺少主动触发句式（Use when… / Use this skill whenever… / Invoke on… / 中文主动触发句式）"
         )
 
-    # 触发词（至少 3 个，宽松匹配——引号内 / 中文词 / 英文 / 拼音都算）
+    # 核心意图关键词（≥2 为硬判据）：显式触发词（引号内）+ 意图动词命中
     quoted_tokens = re.findall(r'[""「\']([^""」\']+)[""」\']', desc)
-    # 中文 2+ 字 token
     chinese_chars = re.findall(r"[\u4e00-\u9fff]{2,}", desc)
-    # 英文 2+ 字 token（去停用词）
     stopwords = {
         "this", "skill", "use", "when", "the", "and", "for", "with", "not", "from",
         "are", "but", "any", "all", "can", "has", "have", "had", "its", "you", "your",
@@ -262,13 +274,38 @@ def validate_description_format(frontmatter: dict) -> tuple[bool, str]:
     # 中文顿号/斜杠/分号/逗号分隔的词也算
     slash_tokens = re.findall(r"[/、,，;；]\s*([\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9\-_]*)", desc)
     trigger_count = len(set(quoted_tokens + chinese_chars + english_words + slash_tokens))
-    if trigger_count < 3:
-        return False, (
-            f"description 触发词不足（找到 {trigger_count} 个，需 ≥ 3）。"
-            "应列出至少 3 个核心触发词（中文 / 英文 / 拼音）"
-        )
 
-    return True, f"description 格式合规（{len(desc)} 字符，{trigger_count} 个触发词）"
+    core_from_quotes = len(set(quoted_tokens))
+    # 中文按子串匹配（连续 run 如「校验并评测」需命中其中的 校验/评测）；
+    # 英文按去停用词后的 token 精确匹配。
+    cn_intents = {kw for kw in INTENT_KEYWORDS if not kw.isascii() and kw in desc}
+    en_intents = {w.lower() for w in english_words} & INTENT_KEYWORDS
+    core_intent_count = core_from_quotes + len(cn_intents | en_intents)
+
+    if core_intent_count < 1:
+        return False, (
+            f"description 缺少核心意图关键词（找到 {core_intent_count} 个，需 ≥1）。"
+            "应在句中嵌入意图动词（提取/评审/校验/create/review…）或显式触发词"
+        ), "error"
+
+    if core_intent_count < 2:
+        # 软建议：≥2 意图关键词是 W7 T1 的语义指引（官方反例均为 0 命中，硬底线设为 ≥1）
+        soft_issues.append("核心意图关键词偏少（建议 ≥2）")
+
+    if trigger_count < 3:
+        # 软建议：≥3 触发词不再是硬约束（spec.md 2026-09 口径）
+        soft_issues.append("触发词偏少（建议 ≥3）")
+
+    if soft_issues:
+        return True, (
+            f"description 格式合规（{len(desc)} 字符，{trigger_count} 个触发词，"
+            f"{core_intent_count} 个核心意图关键词）。软建议：" + "；".join(soft_issues) + "（不阻断）"
+        ), "warning"
+
+    return True, (
+        f"description 格式合规（{len(desc)} 字符，{trigger_count} 个触发词，"
+        f"{core_intent_count} 个核心意图关键词）"
+    ), "warning"
 
 
 def extract_latest_version_history_entry(content: str) -> str | None:
@@ -1107,7 +1144,20 @@ def format_validation_report(
 
 
 def validate_skill(skill_path):
-    """Basic validation of a skill"""
+    """Basic validation of a skill（向后兼容包装，findings 版见 validate_skill_detailed）"""
+    valid, message, _findings = validate_skill_detailed(skill_path)
+    return valid, message
+
+
+def validate_skill_detailed(skill_path, profile: str = "standard"):
+    """校验并返回 (valid, message, findings)。
+
+    目标驱动 profile（分层声明见 references/config/script-profiles.yaml）：
+    - strict / standard：当前口径（官方硬约束 + 事故背书约束判 FAIL；风格类已降软）。
+      Phase 1 两者行为一致，全量 rule-class 折算归 Phase 2（脚本柔性化 backlog）。
+    - advisory：只报不判——findings 照常输出，但 valid 恒为 True（AI 探索阶段用）。
+    """
+    skill_path = Path(skill_path)
     skill_path = Path(skill_path)
 
     skill_ok, skill_message = ensure_skill_path(skill_path)
@@ -1207,9 +1257,11 @@ def validate_skill(skill_path):
                     ),
                 )
             else:
-                # 联锁校验：YAML 单行 + Pushy 句式 + 触发词 ≥ 3
-                desc_format_ok, desc_format_message = validate_description_format(frontmatter)
-                if not desc_format_ok:
+                # 联锁校验：单行 + ≥2 核心意图关键词（硬）；Pushy 句式 / 触发词 ≥3（软）
+                desc_format_ok, desc_format_message, desc_severity = validate_description_format(
+                    frontmatter
+                )
+                if not desc_format_ok or desc_severity == "error":
                     append_error(spec_errors, "spec", f"Description format: {desc_format_message}")
                 else:
                     append_warning(
@@ -1345,29 +1397,73 @@ def validate_skill(skill_path):
     if not ref_trigger_valid:
         append_warning(project_warnings, "project", ref_trigger_message)
 
+    findings = (
+        [{"severity": "blocker", "message": m} for m in spec_errors + project_errors]
+        + [{"severity": "warn", "message": w} for w in spec_warnings + project_warnings]
+    )
     message = format_validation_report(
         spec_errors=spec_errors,
         project_errors=project_errors,
         spec_warnings=spec_warnings,
         project_warnings=project_warnings,
     )
-    return not spec_errors and not project_errors, message
+    valid = not spec_errors and not project_errors
+    if profile == "advisory":
+        valid = True
+    return valid, message, findings
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
-    if argv and argv[0] in {"-h", "--help"}:
-        print("Usage: python scripts/skill_cli.py validate <skill_directory>")
-        return 0
-    if len(argv) != 1:
-        print("Usage: python scripts/skill_cli.py validate <skill_directory>", file=sys.stderr)
-        return 1
+    import argparse
 
-    valid, message = validate_skill(argv[0])
+    parser = argparse.ArgumentParser(
+        prog="skill_cli.py validate", description="Run static SKILL.md validation"
+    )
+    parser.add_argument("skill_path", help="Skill directory")
+    parser.add_argument(
+        "--profile",
+        choices=["strict", "standard", "advisory"],
+        default="standard",
+        help=(
+            "strict/standard: hard boundaries FAIL (Phase 1 identical); "
+            "advisory: findings only, never a verdict"
+        ),
+    )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Structured findings output (goal-driven script protocol)",
+    )
+    args = parser.parse_args(argv)
+
+    valid, message, findings = validate_skill_detailed(args.skill_path, profile=args.profile)
+
+    if args.json:
+        import json
+
+        print(
+            json.dumps(
+                {
+                    "command": "validate",
+                    "status": "PASS" if valid else "FAIL",
+                    "profile": args.profile,
+                    "decision_required": None,
+                    "findings": findings,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        for line in message.split("\n"):
+            print(line, file=sys.stderr)
+        return 0 if valid else 1
+
     lines = message.split("\n")
     # First line is status → stdout; errors/warnings → stderr
     if lines:
         print(lines[0])
+    if args.profile == "advisory":
+        print("[advisory profile] findings only — not a PASS/FAIL verdict")
     for line in lines[1:]:
         print(line, file=sys.stderr)
     return 0 if valid else 1
