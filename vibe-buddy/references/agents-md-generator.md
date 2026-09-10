@@ -53,7 +53,7 @@ consumed-by: references/init-agents-md.md
 
 层 A 根 AGENTS.md：
 
-```markdown
+````markdown
 # AGENTS.md
 
 ## Permissions
@@ -77,12 +77,22 @@ consumed-by: references/init-agents-md.md
 
 ## References
 
-<!-- 仅指针行 -->
+- 见 docs/.ai/project-progress.md 项目进度，实时更新
+- 见 docs/.ai/decision-log.md 决策日志，优先级高于 PRD
+- 见 docs/.ai/debug-log.md bug 修复经验
+- 见 docs/handoff/ 会话上下文交接
+
+## 收尾同步
+
+- 更新 docs/.ai/project-progress.md 的任务状态与验证结果
+- 决策变化时在 docs/.ai/decision-log.md 顶部追加条目
+- 修复 bug 后在 docs/.ai/debug-log.md 追加条目
+- 禁止在未同步上述文档时声称任务完成
 
 ## Self-Maintenance
 
 <!-- §9 五条原文写入 -->
-```
+````
 
 层 B（可选）references/project-overview.md：目录索引、依赖方向、开源附加分析。
 

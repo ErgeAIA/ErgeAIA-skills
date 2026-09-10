@@ -1,14 +1,14 @@
 ---
 name: resume-context
-description: vibe-resume 的执行契约：只读项目记忆，向用户结构化汇报现状，然后停下等指令。
-trigger-when: 用户说「接管项目」「接手上下文」「vibe-resume」「继续上次的活」，或新会话开始需要先弄清现状时
+description: vibe-resume 的执行契约：只读项目记忆与最新交接文档，向用户结构化汇报现状，然后停下等指令。
+trigger-when: 用户说「接管项目」「接手上下文」「vibe-resume」，或新会话开始需要先弄清现状时
 role: workflow
 reads-from:
   - <project>/AGENTS.md
-  - <project>/docs/.ai/progress.md
-  - <project>/docs/.ai/decisions.md
-  - <project>/docs/.ai/lessons.md
-  - <project>/docs/.ai/handoffs/ 中最新一份
+  - <project>/docs/.ai/project-progress.md
+  - <project>/docs/.ai/decision-log.md
+  - <project>/docs/.ai/debug-log.md
+  - <project>/docs/handoff/ 中最新一份
 writes-to: 无
 ---
 
@@ -16,22 +16,22 @@ writes-to: 无
 
 ## 目标
 
-新会话的第一次响应：把项目现状压缩成一份 30 秒能读完的汇报，交给用户判断下一步。**只读，不写，不改。**
+新会话的第一次响应：把项目现状压成一份 30 秒能读完的汇报，交给用户判断下一步。**只读，不写，不改。**
 
 ## 前置检查
 
 | 检查项 | 不通过时 |
 |---|---|
 | `<project>/AGENTS.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init` |
-| `docs/.ai/handoffs/` 是否有可读交接文档 | 无 → 只依据 `AGENTS.md` 与 `docs/.ai/` 三件套汇报，并说明没有交接文档 |
+| `docs/handoff/` 是否有可读交接文档 | 无 → 只依据 `AGENTS.md` 与 `docs/.ai/` 汇报，并说明没有交接文档 |
 
 ## 读取顺序
 
 1. `AGENTS.md` —— 规则契约，必读
-2. `docs/.ai/progress.md` —— 进度与待办
-3. `docs/.ai/decisions.md` —— 已锁定决策
-4. `docs/.ai/lessons.md` —— 踩坑与预防规则
-5. `docs/.ai/handoffs/` 中**日期最新、序号最大**的一份 —— 上次交接
+2. `docs/.ai/project-progress.md` —— 进度，先读它
+3. `docs/.ai/decision-log.md` —— 已锁定决策，优先级高于 PRD
+4. `docs/.ai/debug-log.md` —— 已知坑与预防规则
+5. `docs/handoff/` 中**最新**的一份交接文档
 6. `docs/.ai/project-overview.md`（存在时）
 
 ## 硬性约束
@@ -46,13 +46,13 @@ writes-to: 无
 
 | 段落 | 内容 |
 |---|---|
-| 读取确认 | 实际读到的文件清单、最新交接文档的文件名与生成日期 |
+| 读取确认 | 实际读到的文件清单、最新交接文档的文件名与日期 |
 | 项目核心信息 | 定位一句话、技术栈、最容易踩的 2 到 3 条协作规则、已锁定决策 2 到 3 条 |
 | 上次进度 | 已完成、进行中与卡点、待用户验证项、交接文档标注的特有风险 |
-| 当前阶段定位 | 处于计划的哪个阶段，是否存在阻塞 |
+| 当前阶段定位 | 处于哪个阶段，是否存在阻塞 |
 | 下一步建议 | 1 到 3 个可执行选项，各附推荐理由、预计涉及文件、风险级别 |
-| 等待指令 | 固定收尾：请用户指定选项或给出新指令，收到明确指令前不做任何文件改动 |
+| 等待指令 | 固定收尾：请用户指定选项或给出新指令；收到明确指令前不做任何文件改动 |
 
 ## 终止回复
 
-按上表输出六段，不追加任何额外解释、不追加安慰语。最后一条固定句必须落在「等待指令」段。
+按上表输出六段，不追加额外解释。最后一句固定落在「等待指令」段。
