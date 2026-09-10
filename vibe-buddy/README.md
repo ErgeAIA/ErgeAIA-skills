@@ -37,13 +37,13 @@ vibe-buddy 把这些答案固化成文件：
     │   ├── project-progress.md      # 项目进度，每次会话更新；任务开始时先读它
     │   ├── decision-log.md          # 决策日志，优先级高于 PRD；随开发持续更新
     │   ├── debug-log.md             # bug 修复经验，编号递增
-    │   ├── agents-changelog.md      # 层 C：AGENTS.md 约定处置，只在初始化/维护时写
+    │   ├── agents-changelog.md      # AGENTS.md 变更记录，只在契约改动时写
     │   └── project-overview.md      # 可选，目录索引与依赖方向
     └── handoff/                     # 会话交接文档
         └── handoff-YYYY-MM-DD-*.md
 ```
 
-过程文档均带 YAML frontmatter；**每次修改都要把 `updated` 改成当日**。前三份随开发持续更新，`agents-changelog.md` 只在生成或维护 `AGENTS.md` 时写入。
+过程文档均带 YAML frontmatter；**每次修改都要把 `updated` 改成当日**。前三份随开发持续更新；`agents-changelog.md` 只在 `AGENTS.md` 变更时写入，且**每次变更必须追加一行——无记录视为静默丢失**。
 
 `docs/.ai/` 三类文档**只追加**：决策冲突时旧条目改标 `superseded`，历史条目永不删除或改写。
 

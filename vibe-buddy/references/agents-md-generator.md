@@ -114,7 +114,9 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 IMPORTANT: <一句话项目定位与最硬边界>
 YOU MUST 先读 PRD 与 docs/.ai/decision-log.md 再改码
 YOU MUST 每次会话更新 docs/.ai/project-progress.md
+YOU MUST 改 AGENTS.md 时同步追加 docs/.ai/agents-changelog.md
 禁止 <P0 范围外的事>
+禁止不记录就改动 AGENTS.md 的约定
 
 ## Toolchain
 
@@ -134,10 +136,12 @@ YOU MUST 每次会话更新 docs/.ai/project-progress.md
 | bug 追加 docs/.ai/debug-log.md | 格式 BUG-NNN；只追加不删历史 |
 | 交接写 docs/handoff | 命名 handoff-YYYY-MM-DD-*.md |
 | 改 docs/.ai 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |
+| 改 AGENTS.md 须留一行变更记录 | 在 docs/.ai/agents-changelog.md 追加「旧值 → 处置 → 去处」，无记录视为静默丢失 |
 
 ## References
 
 见 <项目自带文档：PRD.md / CONTEXT.md / docs/adr/ 等，逐条列>
+见 docs/.ai/agents-changelog.md
 见 docs/.ai/decision-log.md
 见 docs/.ai/debug-log.md
 见 docs/.ai/project-progress.md
@@ -164,7 +168,7 @@ YOU MUST 每次会话更新 docs/.ai/project-progress.md
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包
 5. 标题语言全文件统一；命令/路径/版本保持英文原文
 
-另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 各文档已按模板落地且未覆盖既有文件。
+另核对：`<!-- mode: -->` 只填一个值；`References` 指针逐条真实存在；§4b 各文档已按模板落地且未覆盖既有文件；`AGENTS.md` 本次若有改动，`docs/.ai/agents-changelog.md` 必须有对应行。
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
 

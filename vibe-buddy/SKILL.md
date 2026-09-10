@@ -40,6 +40,7 @@ metadata:
 - **全程不运行终端命令**：构建、测试、Git、包管理一律不做。
 - **产物必须脱敏**：密钥、token、凭据、连接串、个人隐私一律不落盘；无法脱敏则拒绝写入。
 - **不重复已有产物**：规格、计划、决策、提交、diff 已有的内容，用路径引用。
+- **契约改动只走 `vibe-init`**：其他触发词对 `AGENTS.md` 只读；任何契约改动都必须在 `docs/.ai/agents-changelog.md` 留一行，无记录即视为静默丢失。
 
 ## 产物布局
 
@@ -50,7 +51,7 @@ metadata:
 | 项目进度，实时更新 | `<project>/docs/.ai/project-progress.md` | `vibe-init` 建模板，`vibe-sync` 维护 |
 | 决策日志，优先级高于 PRD，随开发持续更新 | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建模板，`vibe-sync` 追加 |
 | bug 修复经验 | `<project>/docs/.ai/debug-log.md` | `vibe-init` 建模板，`vibe-distill` 追加 |
-| AGENTS.md 约定处置（层 C），不随开发更新 | `<project>/docs/.ai/agents-changelog.md` | `vibe-init` |
+| AGENTS.md 变更记录，只在契约改动时写 | `<project>/docs/.ai/agents-changelog.md` | `vibe-init` 独占 |
 | 项目概览（可选） | `<project>/docs/.ai/project-overview.md` | `vibe-init` |
 | 会话交接文档 | `<project>/docs/handoff/handoff-YYYY-MM-DD.md` | `vibe-handoff` |
 

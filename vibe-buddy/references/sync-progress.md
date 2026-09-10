@@ -42,7 +42,7 @@ writes-to:
 - 更新 `project-progress.md` 顶部的 `last_updated`、当前分支与当前阶段；任务状态与验证结果写进对应小节。
 - 验证结果如实记录实际执行过的命令与结果；**未实际执行不得写"已通过"**。
 - 决策条目追加到 `docs/.ai/decision-log.md` 的 `DEC-NNN` 序列，编号递增（三位）；与既有 active 决策冲突时，把旧条目标 `superseded`，**不删除历史条目**。
-- **不写 `docs/.ai/agents-changelog.md`**：那是 AGENTS.md 约定处置区，由 `vibe-init` 独占，不随开发更新。
+- **不写 `docs/.ai/agents-changelog.md`**：那是 AGENTS.md 变更记录，由 `vibe-init` 独占，只在契约改动时更新。
 - 同一事实已存在则跳过；只有状态变化时更新该条。
 - **不修改 `AGENTS.md`**：契约改动属于 `vibe-init` 的增量维护。
 - 调试经验与 bug 根因归 `vibe-distill`，不在本触发词内重复写。
