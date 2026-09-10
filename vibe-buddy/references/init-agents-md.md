@@ -88,11 +88,21 @@ writes-to:
 
 | 位置 | 写什么 |
 |---|---|
-| `Permissions` | `YOU MUST 每次会话更新 docs/.ai/project-progress.md`；`YOU MUST 改 AGENTS.md 时同步追加 docs/.ai/agents-changelog.md` |
+| `Permissions` | `YOU MUST 每次会话更新 docs/.ai/project-progress.md`；`YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md` |
 | `Conventions` | 会话文档体系、bug 追加、交接命名、改文档须同步 `updated`、改 AGENTS.md 须留变更记录 五条表格行 |
 | `References` | 项目自带文档 + `docs/.ai/` 各过程文档 + `docs/handoff/`，逐条 `见 <path>` 指针 |
 
-这三处是**契约层强制机制**：`AGENTS.md` 每次会话自动加载，AI 必然会读到「改契约必须留记录」，从而形成自约束。
+## 保证层级（写文档时按此判断）
+
+规则的效力取决于该文件**是否必然被读到**，分三层：
+
+| 层 | 前提 | 效力 |
+|---|---|---|
+| A | `AGENTS.md` 被运行时自动注入 | 每会话必读，**唯一能覆盖「AI 未调用本技能」这个前提的层**。义务只写在这里才算硬约束 |
+| B | 本技能被调用 | 只在走 `vibe-init` 时生效：§7 自检门、终止回复报告条数 |
+| C | 文件被打开才读到 | 过程文档模板内的说明（如 `agents-changelog.md` 头部那句「每改动一次必须追加一行」）**不构成保证**，只是文件自述 |
+
+结论：**过程文档之间不要互相充当强制机制**。要保证某件事，就把它写进 `AGENTS.md`（A 层）；A 层要覆盖「AI 会去读某个文件」，必须用 `前先读` 这类措辞把读取动作写进义务本身。`References` 只负责让文件被发现，不承担强制力。
 
 具体文本见 `references/agents-md-generator.md` §5。
 

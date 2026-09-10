@@ -114,7 +114,7 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 IMPORTANT: <一句话项目定位与最硬边界>
 YOU MUST 先读 PRD 与 docs/.ai/decision-log.md 再改码
 YOU MUST 每次会话更新 docs/.ai/project-progress.md
-YOU MUST 改 AGENTS.md 时同步追加 docs/.ai/agents-changelog.md
+YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
 禁止 <P0 范围外的事>
 禁止不记录就改动 AGENTS.md 的约定
 
@@ -132,7 +132,7 @@ YOU MUST 改 AGENTS.md 时同步追加 docs/.ai/agents-changelog.md
 
 | 观察到的现象 | 要求 Agent 的行为 |
 | ------------ | ----------------- |
-| 会话文档体系固定 | 进度写 docs/.ai/project-progress.md；决策写 docs/.ai/decision-log.md |
+| 会话文档体系固定 | 进度写 docs/.ai/project-progress.md；决策写 docs/.ai/decision-log.md；两者只追加不删历史 |
 | bug 追加 docs/.ai/debug-log.md | 格式 BUG-NNN；只追加不删历史 |
 | 交接写 docs/handoff | 命名 handoff-YYYY-MM-DD-*.md |
 | 改 docs/.ai 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |

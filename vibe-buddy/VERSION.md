@@ -26,7 +26,7 @@
 - `docs/.ai/decision-log.md`：开发决策（`DEC-NNN` 三位，优先级高于 PRD，冲突时旧条目标 `superseded`），**随开发持续更新**。
 - `docs/.ai/debug-log.md`：bug 记录；编号 `BUG-NNN`（三位）递增，含现象/根因/修复/验证限制/教训。
 - `docs/.ai/agents-changelog.md`：AGENTS.md 变更记录（一行一条 `旧值 → 处置 → 新值/去处/原因`），**只在 AGENTS.md 变更时写入**，每次变更必留一行。
-- **契约层的强制机制**：AGENTS.md 的 `Permissions` 写 `YOU MUST 改 AGENTS.md 时同步追加 docs/.ai/agents-changelog.md` 与 `禁止不记录就改动 AGENTS.md 的约定`；`Conventions` 写一行「改 AGENTS.md 须留变更记录，无记录视为静默丢失」；`References` 列出该文件。AGENTS.md 每次会话自动加载，AI 必然读到该义务，形成自约束。契约改动只走 `vibe-init`，其他触发词对 `AGENTS.md` 只读。
+- **保证层级（写义务时按此判断效力）**：A 层 = `AGENTS.md` 被运行时自动注入，每会话必读，**唯一能覆盖「AI 未调用本技能」这个前提的层**；B 层 = 本技能被调用时生效（自检门、终止回复）；C 层 = 文件被打开才读到（过程文档模板内的自述说明），**不构成保证**。据此，AGENTS.md 的 `Permissions` 写 `YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md` 与 `禁止不记录就改动 AGENTS.md 的约定`，`Conventions` 写「改 AGENTS.md 须留变更记录，无记录视为静默丢失」。`References` 只负责让文件被发现，不承担强制力。契约改动只走 `vibe-init`，其他触发词对 `AGENTS.md` 只读。
 - `docs/handoff/`：交接文档，命名 `handoff-YYYY-MM-DD-*.md`。
 - 模板外置在 `assets/docs/`（`project-progress.md` / `decision-log.md` / `debug-log.md` / `agents-changelog.md`），初始化时原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日；§4b 不再内联骨架，消除模板与规范两处漂移。
 - 所有过程文档带 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），**每次修改须把 `updated` 同步为当日**。
