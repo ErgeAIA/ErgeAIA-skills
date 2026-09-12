@@ -57,3 +57,14 @@
 **顺带同步**：README.md / README.en.md 版本列（skill-workshop v1.21.0→v1.23.1、changelog-manager v2.0.0→v2.0.1、zuiti v0.3.8→v0.3.9；README.en 补齐缺失的 zuiti 行）。
 
 **保留不改**：CHANGELOG 双语文件中提及 release.yml 的历史条目、`docs/handoff/` 与 `docs/superpowers/plans/` 归档文档、本日志 2026-09-10 条目中的 release.yml 表述——均属史实记录，改写即失真。
+
+## 2026-09-12 评审后自动 commit+push 免二次确认
+
+用户明示：任务完成且评审通过后，普通 `git commit` + `git push`（非 `--force`）自动执行，不再等待单独的「确认推送」信号。AGENTS.md `Permissions` 新增「常态工作流（已授权免二次确认）」条款。
+
+| # | 既有决策（旧值） | 处置 | 新值 / 原因 |
+|---|------------------|------|------------|
+| 1 | 提交/推送默认需等待用户显式确认（全局 guardrail + AGENTS.md `需确认` 心智模型） | 改 | AGENTS.md `Permissions` 新增「常态工作流（已授权免二次确认）」：review 通过或用户已发起任务后，`git commit`+`git push`（非 `--force`）自动执行，不再发「确认推送」提示 |
+| 2 | 高风险 git 操作（`push --force`/`rebase`/`reset --hard`）确认门槛 | 存 | 维持不变，仍需显式授权 |
+
+**保留**：破坏性 git 操作、全局安装、对外发布、依赖/包管理器变更等的确认门槛不降低。
