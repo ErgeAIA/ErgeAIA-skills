@@ -13,6 +13,7 @@
 - **validate `--profile strict|standard|advisory`**（默认 standard）：advisory 只报不判（findings 照常、exit 恒 0）；`--json` 输出 findings 结构（command/status/profile/decision_required/findings）。分层声明见 `references/config/script-profiles.yaml`（声明性镜像；Phase 2 迁配置消费）。全量 rule-class 折算与 review_ops 系 findings 化归 backlog。
 - **`references/templates/plan-gate-template.md` 新增**：五节计划模板 + 使用约定。
 - SKILL.md：§2 补 Plan-gate / Checkpoint 转述两条硬规则；§4 路由表补 eval-set-template 与 plan-gate-template 行。
+- **review_ops.py 版本一致性正则修复**：`VERSION_MD_HEADER_RE` 由 `^##\s+v(\S+)` 收敛为 `^##\s+v?(\d+\.\d+\.\d+)`，仅捕获 semver 本体——此前带全角注记的版本标题（如「v1.0.0（未发布 · …）」）会把注记卷入比对误报「SKILL.md version 与 VERSION.md 不一致」，无 `v` 前缀标题则整行漏检；对现有 4 技能标题行为不变（无回归）。
 
 ### 不做（backlog）
 - Phase 2：quick_validate 全部检查点 findings 化；spec/consistency 等 review_ops 系 `--profile` 接入；script-profiles.yaml 迁为代码消费配置。
