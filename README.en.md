@@ -1,3 +1,5 @@
+[切换到中文](README.md)
+
 # ErgeAIA-skills
 
 A curated collection of production-grade Agent Skills following the official [Agent Skills Specification](https://agentskills.io/).
@@ -6,9 +8,9 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 | Skill | Description | Version |
 |-------|-------------|---------|
-| [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills | v1.23.1 |
+| [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills (with the Google 5-mode baseline) | v1.24.0 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.0.1 |
-| [zuiti](zuiti/) | Civil comeback generator ("mouth substitute"): crafts sharp, profanity-free retorts in 6 default styles (3 curated entries each), backed by verified quote/meme drawers and a manual-send gate; validator supports --offset/--output truncation | v0.3.9 |
+| [zuiti](zuiti/) | Civil comeback generator ("mouth substitute"): crafts sharp, profanity-free retorts in 6 default styles (3 curated entries each), backed by verified quote/meme drawers and a manual-send gate | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md contract, docs/.ai/ progress/decision/lesson archive, self-contained cross-session handoff, and distillation of reusable domain-scoped experience (vibe-init / vibe-sync / vibe-handoff / vibe-distill) | v1.0.0 |
 
 ## Getting Started
@@ -22,10 +24,44 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 # Install specific skill (using --skill flag)
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
 
 # List available skills in the repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 ```
+
+## Author
+
+<table>
+<tr>
+<td align="center" valign="middle" width="220">
+<img src="https://github.com/ErgeAIA.png" width="100" style="border-radius: 50%"><br>
+<b>ErgeAIA / 宝藏二哥AIA</b><br>
+<sub>Keep tinkering, never stop</sub>
+</td>
+<td valign="middle" style="padding-left: 18px;">
+
+**About me**: Indie developer / full-stack engineer / ComfyUI enthusiast / Vibe Coding practitioner<br>
+**Stack**: Tauri · Rust · React · Python · Claude · ZCode · Workbuddy<br>
+**Philosophy**: Sharing without barriers — no gatekeeping, no tricks, no holding back
+
+**Links**:
+📺 [Bilibili](https://space.bilibili.com/67221461) · [Zhihu](https://www.zhihu.com/people/meli55a/posts) · WeChat Official Account (ErgeAIA)<br>
+🐙 [GitHub](https://github.com/ErgeAIA) · [Gitee](https://gitee.com/ErgeAIA)<br>
+📦 Featured projects: [ErgeMD](https://github.com/ErgeAIA/ErgeMD) · [ErgeHash](https://github.com/ErgeAIA/ErgeHash) · [catapult-cn](https://github.com/ErgeAIA/catapult-cn)
+
+</td>
+</tr>
+</table>
+
+---
+
+<div align="center">
+
+If ErgeAIA-skills helped you, a Star would be much appreciated!
+
+</div>
 
 ## License
 
@@ -36,12 +72,12 @@ MIT License - see [LICENSE](LICENSE) for details.
 Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
-3. Ensure tests pass
+3. Run `cd skill-workshop && python scripts/skill_cli.py validate` to ensure all skills pass structural checks
 4. Submit a pull request
 
 ## Acknowledgments
 
-This project references resources from [base44/skills](https://github.com/base44/skills). Specifically, the file `skill-reviewer/references/specs/spec-zh.md` is adapted from [spec.md](https://github.com/base44/skills/blob/ec420cf2edd2c7e9a523d5afe2e71498a6357fa4/.claude/skills/review-skills/references/spec.md). We sincerely appreciate the open-source contributions made by the original authors.
+This project's skill-review methodology was originally inspired by [base44/skills](https://github.com/base44/skills) (`spec.md`), which has since been consolidated into `skill-workshop`. We sincerely appreciate the open-source contributions of the original authors.
 
 ## Related
 

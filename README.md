@@ -1,3 +1,5 @@
+[Switch to English](README.en.md)
+
 # ErgeAIA-skills
 
 遵循 [Agent Skills 官方规范](https://agentskills.io/) 的生产级 Agent Skill 合集。
@@ -6,9 +8,9 @@
 
 | 技能 | 说明 | 版本 |
 |------|------|------|
-| [skill-workshop](skill-workshop/) | Skill 全生命周期工作站：创建、评审、重构、评测 Agent Skill（含 Google 5 模式基线） | v1.23.1 |
+| [skill-workshop](skill-workshop/) | Skill 全生命周期工作站：创建、评审、重构、评测 Agent Skill（含 Google 5 模式基线） | v1.24.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.0.1 |
-| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典=古代典故、名人名言=人物金句三来源各一/苏东坡豁达向/儒释道三家大能/格局·路转粉 + 三层禁区 + ⚠️ 人工闸；v0.3.1 引导式提示词取代填空模板、v0.3.2 各风格好/坏样例质量标尺、v0.3.3 语气人格/强度档位/同源互斥/思路后置、v0.3.4 热梗扩军+时效标签/自嘲幽默落点/examples去呆板示范/validate抽屉内同文重复检查、v0.3.5 validate_skill.py 单遍化性能审查优化、v0.3.6 重写 description 三段式+Invoke on、v0.3.7 纯中文祈使句（暗含触发词 + 边界下沉 body）、v0.3.8 校验器补中文 Pushy 句式使纯中文 description 通过、v0.3.9 validate_skill.py 支持 --offset/--output 截断） | v0.3.9 |
+| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：把协作契约写进 AGENTS.md，把进度、决策、踩坑沉淀到 docs/.ai/，跨会话交接靠自包含文档，并把开发过程蒸馏成按领域组织的可复用经验（vibe-init / vibe-sync / vibe-handoff / vibe-distill） | v1.0.0 |
 
 ## 快速开始
@@ -65,4 +67,20 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 
 MIT License — 详见 [LICENSE](LICENSE)。
 
+## 贡献指南
 
+欢迎贡献！请：
+
+1. Fork 本仓库
+2. 创建功能分支
+3. 运行 `cd skill-workshop && python scripts/skill_cli.py validate` 确保所有技能通过结构校验
+4. 提交 Pull Request
+
+## 致谢
+
+本项目的技能评审方法论最初受 [base44/skills](https://github.com/base44/skills) 的 `spec.md` 启发，相关规范已整合进 `skill-workshop`。感谢原作者的开源贡献。
+
+## 相关链接
+
+- [Agent Skills 官方规范](https://agentskills.io/)
+- [ErgeAIA 组织](https://github.com/ErgeAIA)
