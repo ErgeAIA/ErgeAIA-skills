@@ -67,14 +67,6 @@ If ErgeAIA-skills helped you, a Star would be much appreciated!
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## Contributing
-
-Contributions are welcome! Please:
-1. Fork the repository
-2. Create a feature branch
-3. Run `cd skill-workshop && python scripts/skill_cli.py validate` to ensure all skills pass structural checks
-4. Submit a pull request
-
 ## Acknowledgments
 
 This project's skill-review methodology was originally inspired by [base44/skills](https://github.com/base44/skills) (`spec.md`), which has since been consolidated into `skill-workshop`. We sincerely appreciate the open-source contributions of the original authors.

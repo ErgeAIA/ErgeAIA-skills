@@ -67,15 +67,6 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 
 MIT License — 详见 [LICENSE](LICENSE)。
 
-## 贡献指南
-
-欢迎贡献！请：
-
-1. Fork 本仓库
-2. 创建功能分支
-3. 运行 `cd skill-workshop && python scripts/skill_cli.py validate` 确保所有技能通过结构校验
-4. 提交 Pull Request
-
 ## 致谢
 
 本项目的技能评审方法论最初受 [base44/skills](https://github.com/base44/skills) 的 `spec.md` 启发，相关规范已整合进 `skill-workshop`。感谢原作者的开源贡献。
