@@ -41,12 +41,52 @@ INTENT_KEYWORDS = {
 }
 
 
-def append_error(bucket: list[str], scope: str, message: str) -> None:
-    bucket.append(f"{scope}: {message}")
+def _load_profiles() -> dict[str, set[str]]:
+    """Load profile → fail_on rule_class set from references/config/script-profiles.yaml.
+
+    Phase 2：YAML 现在成为代码真正消费的真相源（不再是声明性镜像）。
+    文件缺失或解析失败时回退到内嵌默认值；零第三方依赖（不引 PyYAML）。
+    """
+    defaults = {
+        "strict": {"official-hard", "incident-backed"},
+        "standard": {"official-hard", "incident-backed"},
+        "advisory": set(),
+    }
+    yaml_path = Path(__file__).resolve().parent.parent / "references" / "config" / "script-profiles.yaml"
+    if not yaml_path.is_file():
+        return defaults
+    try:
+        text = yaml_path.read_text(encoding="utf-8")
+    except OSError:
+        return defaults
+    profiles: dict[str, set[str]] = {}
+    for name in ("strict", "standard", "advisory"):
+        m = re.search(rf"^[ \t]*{name}:[ \t]*\n((?:^[ \t]+.*\n?)*)", text, re.M)
+        if not m:
+            continue
+        block = m.group(1)
+        fm = re.search(r"fail_on:[ \t]*\[([^\]]*)\]", block)
+        if fm:
+            items = [x.strip().strip('"\'') for x in fm.group(1).split(",") if x.strip()]
+            profiles[name] = set(items)
+    if not profiles:
+        return defaults
+    for name in defaults:
+        profiles.setdefault(name, defaults[name])
+    return profiles
 
 
-def append_warning(bucket: list[str], scope: str, message: str) -> None:
-    bucket.append(f"{scope}: {message}")
+PROFILES = _load_profiles()
+
+
+def append_error(bucket: list[dict], scope: str, message: str, rule_class: str = "official-hard") -> None:
+    """追加一条 blocker finding（默认 rule_class: official-hard）。"""
+    bucket.append({"rule_class": rule_class, "message": message})
+
+
+def append_warning(bucket: list[dict], scope: str, message: str, rule_class: str = "style-regex") -> None:
+    """追加一条 warning finding（默认 rule_class: style-regex）。"""
+    bucket.append({"rule_class": rule_class, "message": message})
 
 
 def is_nonempty_string(value) -> bool:
@@ -1118,7 +1158,7 @@ def format_validation_report(
 
     if spec_errors:
         lines.append("Spec errors:")
-        lines.extend(f"  - {message}" for message in spec_errors)
+        lines.extend(f"  - {entry['message']}" for entry in spec_errors)
     elif spec_warnings:
         lines.append("Spec checks: passed with warnings")
     else:
@@ -1126,7 +1166,7 @@ def format_validation_report(
 
     if project_errors:
         lines.append("Project errors:")
-        lines.extend(f"  - {message}" for message in project_errors)
+        lines.extend(f"  - {entry['message']}" for entry in project_errors)
     elif project_warnings:
         lines.append("Project checks: passed with warnings")
     else:
@@ -1134,11 +1174,11 @@ def format_validation_report(
 
     if spec_warnings:
         lines.append("Spec warnings:")
-        lines.extend(f"  - {message}" for message in spec_warnings)
+        lines.extend(f"  - {entry['message']}" for entry in spec_warnings)
 
     if project_warnings:
         lines.append("Project warnings:")
-        lines.extend(f"  - {message}" for message in project_warnings)
+        lines.extend(f"  - {entry['message']}" for entry in project_warnings)
 
     return "\n".join(lines)
 
@@ -1153,8 +1193,9 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
     """校验并返回 (valid, message, findings)。
 
     目标驱动 profile（分层声明见 references/config/script-profiles.yaml）：
-    - strict / standard：当前口径（官方硬约束 + 事故背书约束判 FAIL；风格类已降软）。
-      Phase 1 两者行为一致，全量 rule-class 折算归 Phase 2（脚本柔性化 backlog）。
+    - strict / standard：官方硬约束 + 事故背书约束判 blocker；风格类（style-regex）降为 warn。
+      Phase 2：每条 finding 携带 rule_class（来自 script-profiles.yaml，现由代码消费），
+      severity 由 profile 的 fail_on 推导。
     - advisory：只报不判——findings 照常输出，但 valid 恒为 True（AI 探索阶段用）。
     """
     skill_path = Path(skill_path)
@@ -1169,10 +1210,10 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
     except Exception as e:
         return False, str(e)
 
-    spec_errors: list[str] = []
-    spec_warnings: list[str] = []
-    project_errors: list[str] = []
-    project_warnings: list[str] = []
+    spec_errors: list[dict] = []
+    spec_warnings: list[dict] = []
+    project_errors: list[dict] = []
+    project_warnings: list[dict] = []
 
     unexpected_keys = set(frontmatter.keys()) - ALL_ALLOWED_PROPERTIES
     if unexpected_keys:
@@ -1342,33 +1383,33 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
     )
     markup_valid, markup_message = validate_semantic_markup(content, skill_is_builder=is_builder)
     if not markup_valid:
-        append_error(project_errors, "project", markup_message)
+        append_error(project_errors, "project", markup_message, rule_class="incident-backed")
 
     history_position_valid, history_position_message = validate_version_history_position(content, skill_path=skill_path)
     if not history_position_valid:
-        append_error(project_errors, "project", history_position_message)
+        append_error(project_errors, "project", history_position_message, rule_class="incident-backed")
 
     history_valid, history_message = validate_version_history_length(content, skill_path=skill_path)
     if not history_valid:
-        append_error(project_errors, "project", history_message)
+        append_error(project_errors, "project", history_message, rule_class="incident-backed")
 
     version_sync_valid, version_sync_message = validate_version_consistency(frontmatter, content, skill_path=skill_path)
     if not version_sync_valid:
-        append_error(project_errors, "project", version_sync_message)
+        append_error(project_errors, "project", version_sync_message, rule_class="incident-backed")
 
     placeholders_valid, placeholders_message = validate_template_placeholders(content)
     if not placeholders_valid:
-        append_error(project_errors, "project", placeholders_message)
+        append_error(project_errors, "project", placeholders_message, rule_class="incident-backed")
 
     example_templates_valid, example_templates_message = validate_example_input_templates(skill_path)
     if not example_templates_valid:
-        append_error(project_errors, "project", example_templates_message)
+        append_error(project_errors, "project", example_templates_message, rule_class="incident-backed")
 
     routing_pattern_valid, routing_pattern_message, routing_pattern_warnings = (
         validate_workflow_identification_pattern(skill_path, content)
     )
     if not routing_pattern_valid:
-        append_error(project_errors, "project", routing_pattern_message)
+        append_error(project_errors, "project", routing_pattern_message, rule_class="incident-backed")
     for warning in routing_pattern_warnings:
         append_warning(project_warnings, "project", warning)
 
@@ -1387,19 +1428,40 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
 
     links_valid, links_message = validate_markdown_links(skill_path)
     if not links_valid:
-        append_error(project_errors, "project", links_message)
+        append_error(project_errors, "project", links_message, rule_class="incident-backed")
 
     asset_paths_valid, asset_paths_message = validate_referenced_asset_paths(skill_path)
     if not asset_paths_valid:
-        append_error(project_errors, "project", asset_paths_message)
+        append_error(project_errors, "project", asset_paths_message, rule_class="incident-backed")
 
     ref_trigger_valid, ref_trigger_message = validate_reference_trigger_when(skill_path)
     if not ref_trigger_valid:
         append_warning(project_warnings, "project", ref_trigger_message)
 
+    fail_on = PROFILES.get(profile, PROFILES["standard"])
+
+    def _severity(rule_class: str, is_error: bool) -> str:
+        if is_error:
+            return "blocker"
+        return "blocker" if rule_class in fail_on else "warn"
+
     findings = (
-        [{"severity": "blocker", "message": m} for m in spec_errors + project_errors]
-        + [{"severity": "warn", "message": w} for w in spec_warnings + project_warnings]
+        [
+            {
+                "rule_class": f["rule_class"],
+                "severity": _severity(f["rule_class"], True),
+                "message": f["message"],
+            }
+            for f in spec_errors + project_errors
+        ]
+        + [
+            {
+                "rule_class": f["rule_class"],
+                "severity": _severity(f["rule_class"], False),
+                "message": f["message"],
+            }
+            for f in spec_warnings + project_warnings
+        ]
     )
     message = format_validation_report(
         spec_errors=spec_errors,

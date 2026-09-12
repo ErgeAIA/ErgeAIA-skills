@@ -84,6 +84,27 @@ def _err(msg: str, fix: str = "") -> str:
         return f"{msg} | 修复建议：{fix}"
     return msg
 
+def _classify_finding(message: str) -> str:
+    """Extract the bracketed code (e.g. '[M1]') as the finding rule_class for traceability."""
+    m = re.match(r"^\s*\[([A-Za-z0-9\-]+)\]", message)
+    return m.group(1) if m else "review"
+
+def _build_result(errors: list[str], profile: str = "standard") -> dict:
+    """Wrap errors into the standard review result shape with classified findings.
+
+    Phase 2: supplements {"status", "errors"} with a structured "findings" list
+    (each carrying rule_class + severity). profile=advisory downgrades status to
+    PASS but keeps findings (report-only, no verdict).
+    """
+    findings = [
+        {"rule_class": _classify_finding(e), "severity": "blocker", "message": e}
+        for e in errors
+    ]
+    status = "FAIL" if errors else "PASS"
+    if profile == "advisory":
+        status = "PASS"
+    return {"status": status, "errors": errors, "findings": findings}
+
 def _extract_description(text: str, fm_content: str = "") -> tuple[str, bool]:
     found = False
     desc_m = DESC_LINE_RE.search(text)
@@ -197,8 +218,8 @@ def review_report(path: str | Path) -> dict:
     return {"status": "FAIL" if errors else "PASS", "errors": errors}
 
 
-def checklist_scan(path: str | Path) -> dict:
-    """仓库 Checklist 快速扫描。返回 {"status": "PASS"|"FAIL", "errors": [...]}"""
+def checklist_scan(path: str | Path, profile: str = "standard") -> dict:
+    """仓库 Checklist 快速扫描。返回 {"status", "errors", "findings"}"""
     repo = Path(path)
     skill_md = repo / "SKILL.md"
     readme_md = repo / "README.md"
@@ -284,10 +305,10 @@ def checklist_scan(path: str | Path) -> dict:
                         "同步版本号"
                     ))
 
-    return {"status": "FAIL" if errors else "PASS", "errors": errors}
+    return _build_result(errors, profile)
 
 
-def spec_check(path: str | Path) -> dict:
+def spec_check(path: str | Path, profile: str = "standard") -> dict:
     """官方 Spec 校验。返回 {"status": "PASS"|"FAIL", "errors": [...]}"""
     repo = Path(path)
     ALLOWED_ROOT_KEYS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
@@ -351,10 +372,10 @@ def spec_check(path: str | Path) -> dict:
     else:
         failures.append(_err("description 字段缺失", "添加 description"))
 
-    return {"status": "FAIL" if failures else "PASS", "errors": failures}
+    return _build_result(failures, profile)
 
 
-def consistency_check(path: str | Path) -> dict:
+def consistency_check(path: str | Path, profile: str = "standard") -> dict:
     """术语一致性检查。返回 {"status": "PASS"|"FAIL", "errors": [...]}"""
     repo = Path(path)
 
@@ -377,4 +398,4 @@ def consistency_check(path: str | Path) -> dict:
                     rule["fix"]
                 ))
 
-    return {"status": "FAIL" if errors else "PASS", "errors": errors}
+    return _build_result(errors, profile)

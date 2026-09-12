@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站：评审 / 创建你的 Agent Skill，或重构 / 评测 / 合规校验——用统一决策矩阵路由到对应工作流，并保障产出通过结构校验。基于 Python CLI（skill_cli.py 机器校验）与 YAML frontmatter、Markdown 规范文档执行。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
 metadata:
   author: ErgeAIA
-  version: "1.23.1"
+  version: "1.24.0"
 ---
 
 # skill-workshop

@@ -1,5 +1,33 @@
 # VERSION.md — skill-workshop
 
+## v1.24.0 (2026-09-12) — 脚本柔性化 Phase 2（findings 化 + profile 接入 + yaml 迁代码消费）
+
+### 背景
+Phase 1 已落地 `plan-gate` / `checkpoint` / `--profile` / `dry-run` 默认，但 `validate` 的
+findings 仍是无 rule_class 的扁平结构，`script-profiles.yaml` 的 `fail_on` 映射从未被代码消费
+（纯声明性镜像），`review_ops` 系的 `spec` / `consistency` / `checklist` 也未接入 `--profile`。
+本版本补完 Phase 2。
+
+### 改动
+- **`quick_validate.py` findings 化**：每条检查点产出携带 `rule_class` 的 finding
+  （`official-hard` / `incident-backed` / `style-regex`）；事故背书类错误（版本一致性 / 模板占位符 /
+  语义标记 / 链接完整性 / 资产路径）显式标 `incident-backed`，风格类（body 长度 / ref-trigger-when /
+  description 软建议）标 `style-regex`。
+- **`script-profiles.yaml` 迁为代码消费**：新增 `_load_profiles()` 在导入时解析 yaml，按 profile 的
+  `fail_on` 集合推导每条 finding 的 `severity`（属于 fail_on 的 rule_class → `blocker`，
+  否则 → `warn`）；文件缺失/解析失败回退内嵌默认值。零第三方依赖（不引 PyYAML，手写解析）。
+- **`review_ops` 系 `--profile` 接入**：`spec_check` / `consistency_check` / `checklist_scan`
+  新增 `profile` 参数，返回结构补充结构化 `findings`（每条含 `rule_class` + `severity` +
+  `message`）；`advisory` 仅报不判（`status` 恒 PASS，findings 照常）。既有 `status` / `errors`
+  字段保持不变，调用方（`skill_cli.py` / `validate_review.py`）无需改动。
+
+### 回归
+- 全部技能 `validate` / `checklist` / `spec` / `consistency` 自检 PASS（含 skill-workshop /
+  changelog-manager / zuiti / vibe-buddy）；`--profile advisory` 输出 findings 但 `status` 为 PASS。
+- `validate --json` 的 findings 现含 `rule_class` 字段；`review_ops` 子命令 JSON 输出含 `findings`。
+
+---
+
 ## v1.23.1 (2026-09-12) — routing-check 通用化修复
 
 ### 背景
@@ -30,7 +58,6 @@
 - **review_ops.py 版本一致性正则修复**：`VERSION_MD_HEADER_RE` 由 `^##\s+v(\S+)` 收敛为 `^##\s+v?(\d+\.\d+\.\d+)`，仅捕获 semver 本体——此前带全角注记的版本标题（如「v1.0.0（未发布 · …）」）会把注记卷入比对误报「SKILL.md version 与 VERSION.md 不一致」，无 `v` 前缀标题则整行漏检；对现有 4 技能标题行为不变（无回归）。
 
 ### 不做（backlog）
-- Phase 2：quick_validate 全部检查点 findings 化；spec/consistency 等 review_ops 系 `--profile` 接入；script-profiles.yaml 迁为代码消费配置。
 - C 档评审链架构收敛。
 
 ### 回归

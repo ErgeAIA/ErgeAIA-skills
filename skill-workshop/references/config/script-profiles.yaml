@@ -1,9 +1,10 @@
-# 目标驱动脚本 profile 分层声明（2026-09-11 脚本柔性化 Phase 1）
+# 目标驱动脚本 profile 分层声明（2026-09-11 脚本柔性化 Phase 1，2026-09-12 Phase 2 迁代码消费）
 #
-# 与代码的关系：本文件是判据分层的**声明性镜像**；Phase 1 由
-# `scripts/_impl/quick_validate.py` 内置 PROFILES 语义实现（校验脚本零第三方依赖，
-# 不引 PyYAML 解析）。Phase 2（见脚本柔性化计划 backlog）再迁为配置消费。
-# 修改本文件时必须同步 quick_validate.py 的 profile 语义，反之亦然。
+# 与代码的关系：本文件是判据分层的**代码消费真相源**（不再是声明性镜像）。
+# `scripts/_impl/quick_validate.py` 的 `_load_profiles()` 在导入时解析本文件，
+# 按 profile 取 `fail_on` 的 rule_class 集合推导每条 finding 的 severity；
+# 文件缺失/解析失败时回退内嵌默认值（零第三方依赖，不引 PyYAML）。
+# 修改本文件会改变 validate 的 blocker/warn 口径；改后需跑全部技能自检回归。
 
 profiles:
   strict:
