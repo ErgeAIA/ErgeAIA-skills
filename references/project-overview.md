@@ -10,17 +10,19 @@
 
 | 技能目录 | 功能 | 版本 | 入口 |
 |---------|------|------|------|
-| `skill-workshop/` | Skill 全生命周期：创建 / 评审 / 重构 / 评测，16 个 CLI 子命令 | v1.21.0 | `SKILL.md` + `scripts/skill_cli.py` |
-| `changelog-manager/` | 基于 Keep a Changelog 的更新日志助手，双语言 | v2.0.0 | `SKILL.md` |
+| `skill-workshop/` | Skill 全生命周期：创建 / 评审 / 重构 / 评测，18 个 CLI 子命令 | v1.23.1 | `SKILL.md` + `scripts/skill_cli.py` |
+| `changelog-manager/` | 基于 Keep a Changelog 的更新日志助手，双语言 | v2.0.1 | `SKILL.md` |
+| `zuiti/` | 嘴替：文明怼人回复生成（六风格 + 核验屉 + 人工闸） | v0.3.9 | `SKILL.md` + `scripts/validate_skill.py` |
+| `vibe-buddy/` | 项目 AI 协作记忆管理（vibe-init / sync / handoff / distill） | v1.0.0 | `SKILL.md` |
 
-根目录其他文件：`.github/workflows/release.yml`（发版）、`CHANGELOG.md` / `CHANGELOG.en.md`、`LICENSE`（MIT）、`README.md` / `README.en.md`、`.gitignore`。
+根目录其他文件：`CHANGELOG.md` / `CHANGELOG.en.md`（纯人类文档，不触发 CI）、`LICENSE`（MIT）、`README.md` / `README.en.md`、`.gitignore`。
 
 ## 架构与依赖方向
 
 - 纯文档 + Python 脚本，无后端、无数据库、无 `package.json`、无前端框架。
 - 每个技能的 `references/` 按职责分层：`workflows/`、`rubrics/`、`specs/`、`config/`、`templates/`。
 - `skill-workshop` 为合并产物：评审链（源自早期的 `skill-reviewer`，该技能已于 2026-09-10 删除，能力全部并入）+ 创建/评测链（源自 kz-skill-creator），双评估并存（9 维 48 项深度评审 + 8 维加权快速评分）。
-- 发布链路：`git push` 到 main → `release.yml` 读取 `CHANGELOG.md` 头部版本号 → 打 tag 并 `zip` 打包技能 → 创建 Release。
+- 分发链路：`npx skills add https://github.com/ErgeAIA/ErgeAIA-skills` 直读仓库安装，无 CI 发版（原 `release.yml` 发布流程已于 2026-09-12 退役）。
 
 ## 既有决策历史（可在决策矩阵 / 校验器中被引用）
 
@@ -37,11 +39,11 @@
 ## 质量现状
 
 - **测试**：本仓库当前无单元测试——原唯一测试（`skill-reviewer/tests/`，约 30 用例，`unittest`）随该技能删除；`skill-workshop` 一直无 `tests/` 目录。
-- **CI**：`.github/workflows/release.yml`（main 推送触发，仅覆盖 `changelog-manager/` 路径或 `CHANGELOG.md` 变更）。
-- **文档同步度**：各技能 VERSION.md / README 持续更新；`CHANGELOG.md` `[Unreleased]` 处记录 skill-workshop 加入，仍属进行中。
+- **CI**：无（2026-09-12 起；原 `.github/workflows/release.yml` 发布流程退役，push 到 main 不再触发任何自动化）。
+- **文档同步度**：各技能 VERSION.md / README 持续更新；`CHANGELOG.md` `[Unreleased]` 已一次性补记至 2026-09-12。
 
 ## 风险与约束
 
 - **平台**：本仓库常在 Windows / PowerShell 执行，`&&` 需换 `;`；脚本内有 Windows 路径假设。
-- **覆盖缺口**：本仓库无单元测试；CI 未覆盖 `skill-workshop/` 路径与 `CHANGELOG.en.md`。
+- **覆盖缺口**：本仓库无单元测试；无 CI（校验靠本地运行 `skill-workshop` CLI）。
 - **术语一致性**：评审术语锚定 `P-V-H`（Plan-Validate-Handoff）；用 `skill-workshop/scripts/skill_cli.py consistency` 检测旧术语残留。

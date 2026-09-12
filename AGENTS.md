@@ -25,9 +25,8 @@
   - `skill-workshop` 校验脚本：`PyYAML` 为可选依赖（非必需）。
 - **测试**: Python 内置 `unittest`。
 - **包/环境**: `uv`（用于运行测试）。
-- **分发/安装**: `npx skills`（Agent Skills CLI）。
-- **CI/发布**: GitHub Actions（`.github/workflows/release.yml`）。
-- **无**: `package.json`、Node 前端框架、后端、数据库。
+- **分发/安装**: `npx skills`（Agent Skills CLI，直读本仓库安装）。
+- **无**: `package.json`、Node 前端框架、后端、数据库、CI/发布流程（原 `release.yml` 发布流程已于 2026-09-12 退役，见决策日志）。
 - **版本合规约束**: 版本号强制三段式 `X.Y.Z`；`frontmatter.metadata.version` 为唯一必填版本点，技能含 `VERSION.md` 时头部版本块与版本历史 section 可选。
 
 ## 命令表
@@ -39,9 +38,8 @@
 | 列出可安装技能 | `npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list` | `README.md` |
 | 查看 skill-workshop CLI | `cd skill-workshop; python scripts/skill_cli.py --help` | `scripts/skill_cli.py` |
 | 运行 CLI 子命令 | `cd skill-workshop; python scripts/skill_cli.py <subcommand> --help` | `scripts/skill_cli.py` |
-| 发布新版本 | `git push` 到 `main`（触发 GitHub Actions 自动打 tag + 打包 + 建 Release） | `.github/workflows/release.yml` |
 
-**PowerShell 注意**: 本仓库在 Windows / PowerShell 环境执行，`&&` 需替换为 `;`；`release.yml` 在学生流程外（CI 内为 `bash`）。
+**PowerShell 注意**: 本仓库在 Windows / PowerShell 环境执行，`&&` 需替换为 `;`。
 
 ## 反直觉约定
 
@@ -56,7 +54,7 @@
 ## 质量与文档指针
 
 - **测试**: 本仓库**当前无单元测试**——原唯一测试（`skill-reviewer/tests/`，约 30 用例，`unittest`）随该技能删除；`skill-workshop` 一直**无** `tests/` 目录，向其前提功能时勿假定有测试覆盖。
-- **CI**: `.github/workflows/release.yml`（`push` 到 `main`，仅 `changelog-manager/` 路径或 `CHANGELOG.md` 变更时触发），版本号从 `CHANGELOG.md` 头部提取，`CHANGELOG.en.md` 不触发 CI。
+- **CI**: 无。原 `.github/workflows/release.yml` 发布流程已于 2026-09-12 退役（仓库定位纯技能集合，分发走 `npx skills add` 直读仓库）；`CHANGELOG.md` / `CHANGELOG.en.md` 降级为纯人类文档，不触发任何自动化。
 - **文档指针**: 技能入口 `SKILL.md` / `README.md` / `VERSION.md`；背景、决策历史、质量现状、风险 → [`references/project-overview.md`](references/project-overview.md)；顶层 README 仅作对外介绍，不复述规则。
 
 ## 自维护协议

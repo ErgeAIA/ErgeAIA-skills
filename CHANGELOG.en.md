@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-_Last updated: 2026-08-19_
+_Last updated: 2026-09-12_
 
 ### Added
 
 - **skill-workshop skill added to repo**: Skill lifecycle workstation (create/review/refactor/evaluate Agent Skills), v1.17.0, with 16 CLI subcommands and the 9-dimension 48-item review system
+- **vibe-buddy skill added to repo** (2026-09-10): project AI collaboration memory skill v1.0.0 — collaboration contract in AGENTS.md, progress/decision/lesson archive under docs/.ai/, self-contained cross-session handoff, and experience distillation (vibe-init / vibe-sync / vibe-handoff / vibe-distill)
 
 ### Changed
 
@@ -19,11 +20,26 @@ _Last updated: 2026-08-19_
   - Added anti-pattern blacklist section with 10 anti-patterns and danger actions subsection
   - Added CHECKPOINT/STOP visual markers at key decision points in W0/W1/W2 workflows
   - Added failure handling fallback tables to W0/W1/W2 workflows
+- **changelog-manager v2.0.0 → v2.0.1** (2026-09-12): added `trigger-when` load hints to all 6 `references/` files, aligning with the three-layer content rule
+- **skill-workshop v1.17.0 → v1.23.1 evolution** (2026-08-20 ~ 09-12):
+  - v1.18.x: three-stage review meta-framework injection, darwin field-test fixes (review scope unified to 10 dimensions / 52 items), 7 defect fixes from full-script audit, V0 semantic markup builder/runtime classification
+  - v1.19.0: merged skill-review-process v6.5-v6.8 (0.6 iron rules / C5 cross-check / 5.7 graded gates / 0.5 state machine)
+  - v1.20.0: dogfooding self-review fixes (checklist FAIL→PASS, routing-check truth-source three-way comparison, version-scope convergence)
+  - v1.21.x: first-principles self-assessment overhaul (Google 5-pattern baseline), version single-sourcing, Chinese Pushy-pattern support in validators
+  - v1.22.0: description criteria alignment (6 self-contradictions removed + validator three-state grading + official source cache)
+  - v1.23.0: script flexibility Phase 1 (plan-gate / checkpoint / profile / dry-run defaults); version-header regex fix (annotated VERSION.md headers no longer false-positive)
+  - v1.23.1: routing-check workflow-list directory gating — no longer false-positives on flat `references/` layouts
+- **zuiti v0.2.4 → v0.3.9** (2026-08-31 ~ 09-12): verified quote/meme drawer expansion and six-style system, P0-P2 de-stiffening series (guided prompts replace fill-in templates), validate_skill.py single-pass speedup, pure-Chinese imperative description, validate_skill.py `--offset`/`--output` truncation support
 
 ### Deprecated
 
 - **skill-reviewer marked as deprecated**: fully superseded by skill-workshop (whose review chain merged all its capabilities: 9-dimension 48-item review, W0-W7+V0 workflows, compliance validation); no longer recommended for triggering, directory kept for archival; root README skill list and skill-reviewer's SKILL.md / README synced
 - **skill-reviewer removed from the release pipeline**: `.github/workflows/release.yml` no longer packages / releases skill-reviewer (deleted from trigger paths, packaging step, Release body table and attachment list); only changelog-manager remains on the release path
+
+### Removed
+
+- **skill-reviewer skill physically deleted** (2026-09-10): the earlier Deprecated item landed — capabilities fully merged into skill-workshop; root README / project-overview / decision log cleaned up in sync
+- **GitHub Actions release pipeline retired** (2026-09-12): `.github/workflows/release.yml` deleted. The repo is a pure skill collection distributed via `npx skills add` reading the repo directly; `CHANGELOG.md` / `CHANGELOG.en.md` demoted to purely human documents, no longer tied to any automation
 
 ## [1.1.1] - 2026-05-30
 
