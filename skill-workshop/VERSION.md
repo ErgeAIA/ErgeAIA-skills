@@ -1,5 +1,19 @@
 # VERSION.md — skill-workshop
 
+## v1.23.1 (2026-09-12) — routing-check 通用化修复
+
+### 背景
+`skill_cli.py routing-check` 作为通用子命令暴露，但 `routing_check.py` 把 skill-workshop 自身的 9 个工作流文件（W0-W7/V0）硬编码为预期清单且无门控，跑在扁平 `references/` 布局的技能（changelog-manager / vibe-buddy / zuiti）上误报 9 条 `workflow file missing`（exit 1）。模块 docstring 本就写明 "for skill-workshop"，属检查器作用域缺陷，非文档漂移。
+
+### 改动
+- **`routing_check.py`**：工作流清单检查增加 `references/workflows/` 目录存在性门控——目标无该目录时跳过第 1 轮硬编码清单检查；其余三轮（子目录 trigger-when / SKILL.md 表引用 / routing-table.md 真源）本就带存在性门控，不受影响。docstring 同步说明适用范围。
+
+### 回归
+- skill-workshop 自检 PASS（有 workflows 目录，行为不变）；changelog-manager / vibe-buddy / zuiti routing-check 由 FAIL（9 条误报）转 PASS。
+- spec / consistency / validate / checklist 全 PASS。
+
+---
+
 ## v1.23.0 (2026-09-11) — 脚本柔性化 Phase 1（plan-gate / checkpoint / profile / dry-run 默认）
 
 ### 背景

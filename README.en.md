@@ -6,7 +6,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 | Skill | Description | Version |
 |-------|-------------|---------|
-| [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills | v1.21.0 |
+| [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills | v1.23.1 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.0.0 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md contract, docs/.ai/ progress/decision/lesson archive, self-contained cross-session handoff, and distillation of reusable domain-scoped experience (vibe-init / vibe-sync / vibe-handoff / vibe-distill) | v1.0.0 |
 

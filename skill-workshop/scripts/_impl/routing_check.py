@@ -1,10 +1,14 @@
 """
-Routing consistency check for skill-workshop.
+Routing consistency check for Agent Skills.
 
 Verifies three-way consistency between:
   1. SKILL.md §4 routing table (markdown table after "## 4. 渐进式披露")
   2. workflow files' reads-from: blocks (in frontmatter)
   3. authoring/specs/rubrics files' trigger-when: blocks (in frontmatter)
+
+WORKFLOW_FILES 硬编码自 skill-workshop 自身布局：仅当目标技能存在
+references/workflows/ 目录时才适用；扁平 references/ 布局的技能只走
+SKILL.md 表引用与 routing-table.md 真源两类检查（本就带存在性门控）。
 
 References: references/routing-table.md (the truth source)
 Spec: references/authoring/versioning-and-validation.md §4 路由一致性
@@ -166,27 +170,30 @@ def check_routing_consistency(skill_path: Path) -> list[str]:
     skill_table = extract_skill_md_routing_table(skill_md)
 
     # 1. Check workflow files' reads-from is consistent with themselves
+    # （WORKFLOW_FILES 源自 skill-workshop 布局，仅对存在 references/workflows/ 的目标适用，
+    #   否则对扁平 references/ 的技能会误报 workflow file missing——v1.23.1）
     workflow_refs: set[str] = set()
     actual_by_workflow: dict[str, set[str]] = {}
-    for wf_rel in WORKFLOW_FILES:
-        wf_path = skill_path / wf_rel
-        if not wf_path.exists():
-            errors.append(f"[routing-mismatch] workflow file missing: {wf_rel}")
-            continue
-        content = _cached_read(wf_path)
-        fm = extract_frontmatter_block(content)
-        refs = extract_reads_from(fm)
-        actual_by_workflow[Path(wf_rel).name] = {r for r in refs if r.startswith("references/")}
-        for ref in refs:
-            # normalize: references/... or external
-            if ref.startswith("references/"):
-                workflow_refs.add(ref)
-                # Blind-spot fix: a reads-from target that does not exist is a
-                # broken load instruction (e.g. a deleted file still referenced).
-                if not (skill_path / ref).exists():
-                    errors.append(
-                        f"[routing-mismatch] reads-from missing target: {ref} (in {wf_rel})"
-                    )
+    if (skill_path / "references" / "workflows").is_dir():
+        for wf_rel in WORKFLOW_FILES:
+            wf_path = skill_path / wf_rel
+            if not wf_path.exists():
+                errors.append(f"[routing-mismatch] workflow file missing: {wf_rel}")
+                continue
+            content = _cached_read(wf_path)
+            fm = extract_frontmatter_block(content)
+            refs = extract_reads_from(fm)
+            actual_by_workflow[Path(wf_rel).name] = {r for r in refs if r.startswith("references/")}
+            for ref in refs:
+                # normalize: references/... or external
+                if ref.startswith("references/"):
+                    workflow_refs.add(ref)
+                    # Blind-spot fix: a reads-from target that does not exist is a
+                    # broken load instruction (e.g. a deleted file still referenced).
+                    if not (skill_path / ref).exists():
+                        errors.append(
+                            f"[routing-mismatch] reads-from missing target: {ref} (in {wf_rel})"
+                        )
 
     # 2. Check all 9/9 authoring files have trigger-when
     for sub in ("authoring", "specs", "rubrics", "templates", "evaluation", "config"):
