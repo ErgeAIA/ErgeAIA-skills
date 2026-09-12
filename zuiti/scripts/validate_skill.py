@@ -144,6 +144,8 @@ def verify(skill_dir: Path) -> list[tuple[str, str]]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--skill", required=True, help="Skill folder path")
+    parser.add_argument("--offset", type=int, default=0, help="跳过前 N 条错误")
+    parser.add_argument("--output", type=int, default=0, help="最多输出 N 条错误（0=全部）")
     args = parser.parse_args()
 
     skill_dir = Path(args.skill).resolve()
@@ -153,8 +155,13 @@ def main() -> None:
 
     errors = verify(skill_dir)
     if errors:
-        for msg, fix in errors:
+        total = len(errors)
+        shown = errors[max(args.offset, 0):]
+        if args.output > 0:
+            shown = shown[:args.output]
+        for msg, fix in shown:
             print(f"ERROR: {msg} | 修复建议：{fix}", file=sys.stderr)
+        print(f"[VALIDATE] 显示 {len(shown)}/{total} 条", file=sys.stderr)
         sys.exit(1)
 
     print("OK: zuiti 硬校验通过（禁区/D10/A2 物理落地）")

@@ -4,7 +4,7 @@ description: "当用户贴来想回击的评论、私信、弹幕或群聊消息
 compatibility: 纯指令型技能，无外部依赖；面向中文怼人/回击场景，支持中英评论输入。
 metadata:
   author: ErgeAIA
-  version: "0.3.8"
+  version: "0.3.9"
 ---
 
 # zuiti（嘴替）
