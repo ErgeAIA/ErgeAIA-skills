@@ -1,3 +1,8 @@
+---
+description: 从 git 提交记录提取变更条目的规则与 conventional commit 映射表。
+trigger-when: 从 git 提交生成变更时，加载提取规则和 conventional commit 映射表
+---
+
 # Git 提交提取规则
 
 ## 概述

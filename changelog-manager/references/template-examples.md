@@ -1,3 +1,8 @@
+---
+description: CHANGELOG 输出模板与格式规范示例（标准 / 单人 / 大型项目）。
+trigger-when: 输出 CHANGELOG.md 时，加载输出模板和格式规范
+---
+
 # CHANGELOG 模板示例
 
 ## 1. 标准模板（通用项目）

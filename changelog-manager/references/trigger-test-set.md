@@ -1,3 +1,8 @@
+---
+description: description 触发回归验证集：正面集应触发调用，负面集不应触发。
+trigger-when: 修改 description 后执行触发回归验证时加载
+---
+
 # 触发测试集
 
 > 用于 description 修改后的回归验证。正面集应触发调用，负面集不应触发。

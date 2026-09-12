@@ -4,6 +4,13 @@
 
 ---
 
+## v2.0.1 (2026-09-12)
+
+### references 补 trigger-when 加载指引
+
+- 6 个 `references/` 文件（bilingual-guide / classification-guide / git-extraction-rules / output-template / template-examples / trigger-test-set）补 frontmatter `description` + `trigger-when`——对齐 AGENTS.md「内容三层分层」强约束（references 文件须带 trigger-when），checklist C4 由 6 条 FAIL 清零。
+- 加载条件逐条对齐 SKILL.md §渐进式披露表既有表述，纯元数据增补，无行为变更。
+
 ## v2.0.0 (2026-05-30)
 
 ### 双语言支持升级
