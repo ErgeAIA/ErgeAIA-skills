@@ -17,12 +17,14 @@ from _impl import (
     aggregate_benchmark,
     analyze_requirements,
     eval_set_editor,
+    family_diff,
     generate_report,
     generate_scenario_templates,
     improve_description,
     init_skill,
     package_skill,
     quick_validate,
+    reconcile,
     review,
     review_ops,
     routing_check,
@@ -206,6 +208,16 @@ COMMANDS = {
         "main": selfheal.main,
         "description": "Self-heal doc drift & ghost refs (dead-link REF_MAP fix, dry-run default)",
         "aliases": [],
+    },
+    "reconcile": {
+        "main": reconcile.main,
+        "description": "C5 machine assist: fact-anchor declaration sites & multi-value conflicts",
+        "aliases": ["fact-reconcile"],
+    },
+    "family-diff": {
+        "main": family_diff.main,
+        "description": "Family baseline block-set diff vs sibling skills (structure only)",
+        "aliases": ["family"],
     },
 }
 
