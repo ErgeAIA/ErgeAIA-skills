@@ -1,9 +1,9 @@
 ---
 name: skill-workshop
-description: "Skill 质量工作站：评审 / 创建你的 Agent Skill，或重构 / 评测 / 合规校验——用统一决策矩阵路由到对应工作流，并保障产出通过结构校验。基于 Python CLI（skill_cli.py 机器校验）与 YAML frontmatter、Markdown 规范文档执行。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发."
+description: "Skill 质量工作站：评审 / 创建你的 Agent Skill，或重构 / 评测 / 合规校验——用统一决策矩阵路由到对应工作流，并保障产出通过结构校验。基于 Python CLI（skill_cli.py 机器校验）与 YAML frontmatter、Markdown 规范文档执行。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill, or when another skill hands off a Skill project for quality review. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发、应用类项目（前端/后端/Web）的代码质量与架构审查（归项目审查类技能）."
 metadata:
   author: ErgeAIA
-  version: "1.24.0"
+  version: "1.25.0"
 ---
 
 # skill-workshop
@@ -48,6 +48,7 @@ metadata:
 | 重构优化   | 重构/refactor/优化/整理/workflow边界         | [C3-refactor.md](references/workflows/C3-refactor.md)                                 | 改进后 SKILL.md   |
 | 评测迭代   | 评测/evaluate/benchmark/skill迭代            | [C2-evaluate.md](references/workflows/C2-evaluate.md)                                 | benchmark + 报告  |
 | 澄清意图   | 模糊请求/未声明深度                          | [W0-clarify.md](references/workflows/W0-clarify.md)                                   | 路由决策          |
+| 他技转交 Skill 审查 | 其他技能判定目标为 Agent Skill 后转交路径/说明 | 同「深度评审」入口（W1→…→W6） | 8 段结构报告 |
 
 > **路径权重提示**：创建 / 评审 / 重构为高频主路径；评测（C2）为**可选高级路径**（eval loop + benchmark + description 优化），默认不进入，仅当用户明确要跑回归/触发率评测时启动。
 
@@ -89,7 +90,7 @@ metadata:
 - @动作: frontmatter.metadata.version 必填；头部版本块和版本历史 section 可选（VERSION.md 存在时 V0 不强校验）。*Why：版本漂移会导致 Agent 加载过期指令；但头部/文末版本信息是人类维护点，不是 LLM 决策依赖，不应占用上下文。*
 - @动作: 完成后必须跑 `python scripts/skill_cli.py validate <path>`。*Why：人工检查容易遗漏 frontmatter 格式、链接断裂等机械性错误。*
 - @动作: **评审论证质量铁律**（对齐 skill-review-process 0.6，凌驾一切路径）：第一性锚定须从本质矛盾推导（非"必须___绝不___"格式填空）；钢人 AGAINST 必须最强反方、关键变量可测试已实测、结论必须带条件；**论证对象匹配**——仅方向性决策走钢人，格式/触发层决策走清单 + 对抗即可，禁止为凑流程硬升级论证对象。每步评审结论必须落成报告文本，无产物 = 未执行。判据见 [review-checklist.md](references/rubrics/review-checklist.md)「钢人论证质量判据」。*Why：论证质量低（稻草人反方/无条件结论）等于没论证，评审结论不配做判定依据。*
-- @动作: **机器校验分级门禁**：P0 每技能必跑（`spec` + `validate` description 合规）、P1 涉及即跑（`routing-check` 悬空引用/路由一致性、版本三段式）、P2 深度评审必跑（`checklist` + `consistency` 术语一致性）；脚本 FAIL 不得出「通过」结论——评审报告未附机器校验结果 = 无效评审。*Why：人工检查容易遗漏机械性错误（frontmatter 格式/链接断裂/术语残留），脚本 FAIL 出"通过"就是假跑。*
+- @动作: **机器校验分级门禁**：P0 每技能必跑（`spec` + `validate` description 合规）、P1 涉及即跑（`routing-check` 悬空引用/路由一致性、版本三段式、需要副本对账时跑 `reconcile`、跨技能结构差分时跑 `family-diff`）、P2 深度评审必跑（`checklist` + `consistency` 术语一致性）；脚本 FAIL 不得出「通过」结论——评审报告未附机器校验结果 = 无效评审。*Why：人工检查容易遗漏机械性错误（frontmatter 格式/链接断裂/术语残留），脚本 FAIL 出"通过"就是假跑。*
 - @动作: **Plan-gate（目标驱动脚本协议）**：调用 eval/loop/improve 或写文件命令（init/package/generate-templates/selfheal --auto）前，必须先向用户出示五节计划（[plan-gate-template.md](references/templates/plan-gate-template.md)：目标/范围与边界/参数/停止条件/回滚），用户认可后带 `--plan` 执行；脚本输出 `decision_required` = 等用户决策，必须转述，不得绕过；**AI 禁用 `--plan-text` 快速通道（仅限人类直接调用）**。*Why：脚本守边界不挡路，但成本与不可逆动作的否决权始终在用户手里；快速通道对 AI 开放即成后门。*
 - @动作: **Checkpoint 转述义务**：收到脚本 checkpoint 输出（loop 每轮）必须向用户转述「已完成/下一步/风险」，用户可随时打断调整策略；拿不准时主动降 `--profile advisory` 只取证不判断。*Why：脚本供证据，AI 做权衡，用户握方向——三者职责不混。*
 - @动作: **评审流水线状态门**：W1→W2→W3→W4→W5→W6 为严格流水线，每节点前置产物真实完成（W1 有档位结论、W3 有命中编号清单、W5 每条建议有 W3 编号）才算过；禁止跨级跳跃（未走 W3 直接进 W5）。*Why：跳过中间产物会导致建议无证据支撑、报告断链。*
@@ -126,7 +127,7 @@ metadata:
 | 报告装配                           | [evaluation-template.md](references/templates/evaluation-template.md)                                                                                                                                                                         |
 | 语义标记规范                       | [skill-markup-guide.md](references/authoring/skill-markup-guide.md)                                                                                                                                                                           |
 | 评测循环                           | [eval-loop.md](references/evaluation/eval-loop.md)                                                                                                                                                                                            |
-| 一致性规则                         | [consistency-rules.yaml](references/config/consistency-rules.yaml)                                                                                                                                                                            |
+| 一致性规则                         | [consistency-rules.yaml](references/config/consistency-rules.yaml)（仅旧术语；副本对账用 reconcile、家族差分用 family-diff） |
 
 | 任务 | 按需加载 |
 | --- | --- |
@@ -182,12 +183,13 @@ metadata:
 - Agent 框架本身的开发（LangChain、AutoGPT 内核）
 - 非 Markdown / 非 Python 的 Skill
 - frontmatter 字段裁剪决策（哪些字段该删/该留由用户判断，本技能只提供过度工程化检测）
+- 应用类项目（前端 / 后端 / Web）的代码质量与架构审查——交项目审查类技能；本技能只接 **Agent Skill** 目标，含其他技能转交来的 Skill 路径
 
 ---
 
 ## 9. 验证闭环
 
-- **V1 成功判定**：评审报告必须包含 `## 9. 总评` 段落（对应 `references/templates/evaluation-template.md` 第 9 节）。
+- **V1 成功判定**：评审报告必须包含第 8 段「总评」（段名含「总评」；编号口径与 `evaluation-template.md` / README / `review` 子命令一致的固定 8 段——自「一句话结论」起至「总评」止）。
 - **V2 自检标准**：`python scripts/skill_cli.py checklist <path>` 必须返回 PASS。
 - **V3 产出检查**：合规模式输出必须严格遵循 `**Validation**: [PASS/FAIL]` 格式。
 - **V4**：检查被评审 Skill 是否有正面/负面触发测试集（参考 [trigger-test-set.md](references/templates/trigger-test-set.md)）。
