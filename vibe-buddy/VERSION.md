@@ -4,6 +4,33 @@
 
 ---
 
+## v1.1.0 (2026-09-13)
+
+### 新增触发词 `vibe-audit`（只读审查开发类项目）
+
+**定位**：并入第 5 个触发词，对前端 / 后端 / Web 开发类项目做只读审查（代码质量、架构、技术栈），产出带 `路径:行` 证据的审计报告。**不评审 Skill 项目**（转交 skill-workshop）。
+
+**四项裁决**（用户 2026-09-13）：范围含代码质量；报告落点 `docs/.ai/audit/`；Skill 项目转 skill-workshop、vibe-buddy 只针对开发类项目；并入第 5 触发词而非独立技能。
+
+**改动清单**
+
+- `SKILL.md`：路由表新增审查行；核心原则第 5 条「只读层」；STOP 目标类型前置判定；产物布局新增 audit 落点；白名单叙述纳入 vibe-audit；失败模式表 +4；验证表 +1；非目标 +2（不评审 Skill、审计不产待办）；references 索引 +1；`compatibility` 同步；`description` 扩审查锚点并点名 skill-workshop；`metadata.version` → 1.1.0。
+- 新建 `references/audit-project.md`：目标类型判定 / 审查范围（不动栈）/ 事实源 / 证据绑定 / 报告五段结构 / 命名落盘 / 硬性约束 / 终止回复。**`docs/.ai/audit/` 由首次 `vibe-audit` 自建**（含 `.gitkeep`），非 `vibe-init` 预建。
+- `references/command-policy.md`：5 条只读 Git 命令（`rev-parse`×2 / `status` / `log` / `diff --stat`）对 `vibe-audit` 开放；`consumed-by` 补 `audit-project.md`。
+- `references/trigger-test-set.md`：正面集补审查类输入；负面集补 Skill 审计转交；路由校验补 audit 行。
+- `README.md`：触发词表 4→5；产物树补 `audit/`；设计取舍改写「触发词数量」条；相邻边界补 skill-workshop。
+
+**设计取舍**
+
+- **并入而非独立技能**：路由确认、前置检查、脱敏、一次一触发词、白名单纪律均可复用；独立技能会重复整套安全壳。
+- **只读层不改写四条核心原则**：只追加第 5 条，声明写入纪律仅约束报告落点；`不覆盖 / 不静默` 对报告本身仍生效。
+- **audit 目录首次运行时建**（用户裁决）：与 init 预建 `experience/` 不同；`docs/.ai/` 本身仍缺失即停、引导 `vibe-init`。
+- **Skill 判定信号取可观测项**：`SKILL.md` + frontmatter `name`；无法判定即停，不猜。
+
+**修改文件**：`SKILL.md`、`README.md`、`VERSION.md`、`references/audit-project.md`（新）、`references/command-policy.md`、`references/trigger-test-set.md`；根 `README.md` / `README.en.md` 索引版本。
+
+---
+
 ## v1.0.0 (2026-09-10)
 
 ### 初始版本

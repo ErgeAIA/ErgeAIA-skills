@@ -12,7 +12,7 @@ vibe-buddy 把这些答案固化成文件：
 - **进度与决策** —— `docs/.ai/`：进度实时更新，决策日志优先级高于 PRD，bug 根因单独归档，只追加不改写。
 - **交接** —— `docs/handoff/` 下一份自包含文档，另一个 agent 不读历史对话就能接手。
 
-## 四个触发词
+## 五个触发词
 
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
@@ -20,6 +20,7 @@ vibe-buddy 把这些答案固化成文件：
 | `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表 |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD[-slug].md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针 |
 | `vibe-distill` | 经验蒸馏 / 提炼可复用经验 | 把一轮开发里**反复成立**的做法提炼成按领域组织的经验条目（主张 / 适用 / Why / How / 反例，分 🔴🟡🟢），落 `docs/.ai/experience/` |
+| `vibe-audit` | 审查项目 / 审查技术栈（优先斜杠调用） | 对前端 / 后端 / Web 开发类项目做**只读**审查（代码质量、架构、技术栈），报告落 `docs/.ai/audit/`；每条结论带 `路径:行`；**Skill 项目转交 skill-workshop**，不自审 |
 
 ## 记录与提炼是两件事
 
@@ -57,6 +58,8 @@ vibe-buddy 把这些答案固化成文件：
     │   ├── agents-changelog.md      # AGENTS.md 变更记录，只在契约改动时写
     │   ├── init-report.md           # 初始化执行报告，每跑一次追加一节
     │   ├── project-overview.md      # 可选，目录索引与依赖方向
+    │   ├── audit/                 # 审计报告（首次 vibe-audit 时建，含 .gitkeep）
+    │   │   └── audit-YYYY-MM-DD-*.md
     │   └── experience/              # 可复用经验库，按领域分目录（ui/frontend/…）
     └── handoff/                     # 会话交接文档
         └── handoff-YYYY-MM-DD-*.md
@@ -70,7 +73,7 @@ vibe-buddy 把这些答案固化成文件：
 
 | 取舍 | 原因 |
 |---|---|
-| 触发词只有 4 个 | 早期版本的 9 个里，「保存进度 / 会话压缩」写同一文件同一位置，「记录踩坑」本是进度同步的子类，「知识整合」只在积累多份经验后才有意义；「接管」则根本不该是触发词（见上节）。合并后每个触发词职责唯一，路由无歧义 |
+| 触发词为 5 个 | 早期 9 个里「保存进度 / 会话压缩」同落点、「记录踩坑」是 sync 子类、「知识整合」低频、「接管」不该是触发词——先收敛到 4。v1.1.0 再纳入 `vibe-audit`：审查是旁路质检、只读、落点独立（`docs/.ai/audit/`），与建/记/交/炼闭环职责不重叠；Skill 项目审计归 skill-workshop，避免双技能抢「审计」语义 |
 | 进度与决策不进 `AGENTS.md` | 契约只承载规则，过程只承载事实。混在一起会让契约每轮被改写，既不稳定也不可审计 |
 | 文档义务写进 `Permissions` 与 `Conventions` | 不写进 `AGENTS.md` 就没人执行；但不新增章节——章节固定，义务落在既有两节里，句式契约才守得住 |
 | 同步先核客观源，不只靠记忆 | 会话压缩后上下文会失真。`vibe-sync` 先读 Git 核对、最新交接文档与既有过程文档，冲突时**以客观源为准**，覆盖不到的标「待确认」——这是技能自己的「不猜测」原则 |
@@ -98,6 +101,7 @@ vibe-buddy 把这些答案固化成文件：
 - **Git 操作**：提交、分支、合并，交给 Git 类技能。
 - **文档写作**：README、设计稿等面向人类的文档，交给写作类技能。
 - **规格管理**：规格与变更的生命周期，交给对应的规范体系。
+- **Skill 项目评审**：Agent Skill 的质量审计 / 重构 / 评测，交给 skill-workshop；`vibe-audit` 只针对开发类项目（前端 / 后端 / Web）。
 
 ## 目录结构
 
@@ -124,9 +128,10 @@ vibe-buddy/
     ├── sync-progress.md                  # 进度与决策沉淀契约
     ├── handoff-context.md                # 交接文档契约（只写；接管由 AGENTS.md 义务承担）
     ├── distill-experience.md             # 可复用经验蒸馏契约
+    ├── audit-project.md                  # 开发类项目只读审查契约
     └── trigger-test-set.md               # 触发回归测试集
 ```
 
 ## 版本
 
-当前版本：**v1.0.0**，详见 [VERSION.md](VERSION.md)。
+当前版本：**v1.1.0**，详见 [VERSION.md](VERSION.md)。

@@ -11,7 +11,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 | [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills (with the Google 5-mode baseline) | v1.24.0 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.0.1 |
 | [zuiti](zuiti/) | Civil comeback generator ("mouth substitute"): crafts sharp, profanity-free retorts in 6 default styles (3 curated entries each), backed by verified quote/meme drawers and a manual-send gate | v0.3.9 |
-| [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md contract, docs/.ai/ progress/decision/lesson archive, self-contained cross-session handoff, and distillation of reusable domain-scoped experience (vibe-init / vibe-sync / vibe-handoff / vibe-distill) | v1.0.0 |
+| [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md contract, docs/.ai/ progress/decision/lesson archive, self-contained cross-session handoff, and distillation of reusable domain-scoped experience; also read-only audit of dev projects for code quality and stack (vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit) | v1.1.0 |
 
 ## Getting Started
 
