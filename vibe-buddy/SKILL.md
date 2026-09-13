@@ -1,10 +1,10 @@
 ---
 name: vibe-buddy
-description: "管理项目的 AI 协作记忆：把协作契约写进 AGENTS.md，把进度、决策与踩坑记录沉淀到 docs 下的 .ai 目录，写跨会话交接文档，把反复成立的做法提炼成可复用经验。当用户要初始化项目、同步进度、写交接文档或做经验蒸馏时使用本技能，包括直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill 的情形，即使用户没有点名也要用。不适用于任务计划、需求转译、面向人类的文档写作、代码生成与重构、构建与测试执行、Git 操作、规格管理与翻译，这些交给计划类、需求转译类、写作类与 Git 类技能。"
+description: "管理项目的 AI 协作记忆并只读审查开发类项目：把协作契约写进 AGENTS.md，把进度、决策与踩坑记录沉淀到 docs 下的 .ai 目录，写跨会话交接文档，把反复成立的做法提炼成可复用经验，审查前端后端 Web 项目的代码质量架构与技术栈。当用户要初始化项目、同步进度、写交接文档、做经验蒸馏或审查项目与技术栈时使用本技能，包括直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill、vibe-audit 的情形，即使用户没有点名也要用。不适用于任务计划、需求转译、面向人类的文档写作、代码生成与重构、构建与测试执行、Git 操作、规格管理与翻译、Skill 项目评审，这些交给计划类、需求转译类、写作类、Git 类技能与 skill-workshop。"
 compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync、vibe-handoff、vibe-distill 与 vibe-audit 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/ 与 docs/handoff/ 下，不写入技能仓库。
 metadata:
   author: ErgeAIA
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # vibe-buddy
