@@ -1,5 +1,24 @@
 # VERSION.md — skill-workshop
 
+## v1.25.0 (2026-09-13) — 副本对账机检 + 家族基线差分 + 报告编号对齐
+
+### 背景
+评审确认两项盲区：① C5 跨文件副本对账仅有纪律无机器；② 无家族基线差分。另有报告 8/9 编号双轨、未声明接收转交与应用类边界。
+
+### 改动
+- **D6 报告编号对齐**：`evaluation-template.md` 将「评估范围」改为不占编号的前置节，8 段自「一句话结论」起至「总评」止（`## 1`–`## 8`）；SKILL V1 与 README 同步，消除 `## 9. 总评` 双轨。
+- **D4 边界与转交**：description 增 `another skill hands off a Skill project` 与应用类项目 Not for；非目标与决策矩阵补「他技转交 Skill 审查」行。
+- **D1 `reconcile` 子命令**（`scripts/_impl/reconcile.py`）：抽取版本 / 数值阈值 / references 路径的事实锚点声明位，检出多值冲突与幽灵路径；供 W3 的 C5 机检辅助，**不替代语义裁决**。`consistency-rules.yaml` 头注声明职责边界。
+- **D2 `family-diff` 子命令**（`scripts/_impl/family_diff.py`）：相对指定 baseline 或同父目录兄弟技能块集共识，检出结构块缺失；checklist 新增 **F1**（P2）。仅结构，不做风格统一。
+- CLI 子命令 18 → 20；README / SKILL 门禁描述同步；`metadata.version` → 1.25.0。
+- **checklist V4/V5 假阴性收紧**（suoyin 审计对照后）：V4 不再被「无独立正面集/负面集」否定声明骗过——须有测试集文件，或正/负集描述且非否定句；V5 须「可机器判定」类措辞 **且** 具体机检信号（退出码 / validate·checklist PASS 等）。实测：suoyin V4 由假 PASS → FAIL；shuxu / skill-workshop 仍 PASS。
+
+### 回归
+- 新子命令 `--help` 可用；在 skill-workshop 自身跑 `reconcile` / `family-diff`（见任务验证记录）。
+- 既有 validate / consistency / checklist / routing-check 语义不变；V4/V5 收紧后 suoyin checklist 正确 FAIL。
+
+---
+
 ## v1.24.0 (2026-09-12) — 脚本柔性化 Phase 2（findings 化 + profile 接入 + yaml 迁代码消费）
 
 ### 背景

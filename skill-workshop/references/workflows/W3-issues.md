@@ -23,7 +23,7 @@ writes-to: 报告第 4 段
 ## 契约
 
 - **三段式前置**：进入逐项扫描前，必须先按 `references/rubrics/review-checklist.md`「三段式评审元框架」完成第一性锚定（第一性问题/不可违背约束/边界/质量杠杆，一句话锚定），并对可疑设计选择做双向钢人论证。锚定发现方向性错误时，无论清单命中多少项，报告第 2 段必须显式给出「方向判断：错位」。
-- **交叉核对前置（5.3.1，对应 checklist C5）**：进入逐项扫描前，**必须读被评审 Skill 的全部 references/ 与 scripts/**（不只 SKILL.md 主文档），专门找同技能内规则直接打架：同一规范（引号口径、边界措辞、数字/阶段定义）在多个文件中表述不一致；SKILL.md 主文档与 references 的宣称矛盾；scripts 实际行为与 references 声明口径矛盾。判定口诀：**某个规范在 ≥2 个文件出现，就必须逐文件比对口径是否一致**。漏读 references 导致的冲突未发现 = 审查失职。
+- **交叉核对前置（5.3.1，对应 checklist C5）**：进入逐项扫描前，**必须读被评审 Skill 的全部 references/ 与 scripts/**（不只 SKILL.md 主文档），专门找同技能内规则直接打架：同一规范（引号口径、边界措辞、数字/阶段定义）在多个文件中表述不一致；SKILL.md 主文档与 references 的宣称矛盾；scripts 实际行为与 references 声明口径矛盾。判定口诀：**某个规范在 ≥2 个文件出现，就必须逐文件比对口径是否一致**。漏读 references 导致的冲突未发现 = 审查失职。**机检辅助**：先跑 `python scripts/skill_cli.py reconcile <skill>`（必要时 `--inventory`）拿到版本/阈值/路径锚点声明清单，再做语义比对；reconcile PASS ≠ C5 通过。
 - 本工作流**不内嵌**检查项定义，逐项引用 `references/rubrics/review-checklist.md`
 - T1–T5 的判定**强制委托** `W7-description-audit.md`，W3 不自行判定
 - **T 系列裁决权禁令**：W3 在扫描过程中遇到任何与 description、触发意图、三维触发模型相关的问题时，**必须**停止自行判定，将问题标记为待 W7 裁决。W3 仅负责识别"T 系列可能命中"的信号，最终判定权唯一归属 W7。此约束与 SKILL.md §2 调用关系一致，但在本工作流内显式声明以确保 Agent 即使跳过 SKILL.md 也能遵守。

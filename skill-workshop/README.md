@@ -87,7 +87,7 @@ python scripts/skill_cli.py package /path/to/skill
 
 ## 评审报告结构
 
-评审产出 8 段固定报告：
+评审产出 8 段固定报告（「评估范围」为前置说明、不占编号；段名与 `review` 子命令 / `evaluation-template.md` 一致）：
 
 1. **一句话结论** — 阶段判断 + 最强项 + 最大短板
 2. **复杂度判断** — 轻量 / 中等 / 中等偏复杂 / 复杂
@@ -149,13 +149,13 @@ skill-workshop/
 │       ├── C3-refactor.md      # 重构主链
 │       └── W0-W7 + V0          # 评审主链（继承自 skill-reviewer）
 ├── scripts/
-│   ├── skill_cli.py            # 统一 CLI 入口（18 子命令）
+│   ├── skill_cli.py            # 统一 CLI 入口（20 子命令）
 │   └── _impl/                  # 实现模块
 ```
 
 > 评测日志位于仓库根 `.darwin/results.tsv`（与 skill 平级，不在 skill 自身目录内）。
 
-## 18 个 CLI 子命令
+## 20 个 CLI 子命令
 
 | 子命令               | 来源     | 功能                    |
 | -------------------- | -------- | ----------------------- |
@@ -177,6 +177,8 @@ skill-workshop/
 | `editor`             | creator  | eval set 编辑器         |
 | `routing-check`      | reviewer | 路由一致性校验（含真源比对）|
 | `selfheal`           | reviewer | 自愈修复（dry-run 默认）|
+| `reconcile`          | reviewer | C5 机检辅助：事实锚点声明位与多值冲突 |
+| `family-diff`        | reviewer | 家族基线块集差分（结构，非语义统一） |
 
 ## 致谢
 
