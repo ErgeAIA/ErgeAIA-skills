@@ -67,6 +67,7 @@
 3. 提交前自检清单（每次提交前逐项核对）：
    - 命令更名、重构、规范变更后核对本文件准确性，有过期示例立即更新。
    - 版本同步：任一技能 `frontmatter.metadata.version` 升版时，同步根 `README.md` / `README.en.md` 技能列表版本号（易滞后，2026-09-12 教训）。
+   - **推送前版本对齐检查**（2026-09-13）：`git push` 前核对本批技能 `metadata.version` = `VERSION.md` 首条 = 根 README 双语索引版本；不一致禁止推送，先修再推。
    - README 双语文档：章节平行、顶部互链存在、外部链接连通、不引用已删除路径（如 `skill-reviewer/`）。
 4. 周期维护：随版本发布或定期审查，清除失效引用、已关闭事项、废弃约定。
 5. 变更留痕：对 `AGENTS.md` 的每次规则改动，在 [`references/agents-decision-log.md`](references/agents-decision-log.md) 追加「旧值 → 处置 → 新值」记录，禁止静默覆盖既有决策。
