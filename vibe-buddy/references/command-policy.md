@@ -3,7 +3,7 @@ name: command-policy
 description: vibe-buddy 的终端命令策略：全局白名单、各触发词允许的命令子集、执行纪律与失败处理。
 trigger-when: 任何触发词准备运行终端命令前
 role: spec
-consumed-by: references/init-env-checks.md、references/sync-progress.md、references/handoff-context.md、references/distill-experience.md
+consumed-by: references/init-env-checks.md、references/sync-progress.md、references/handoff-context.md、references/distill-experience.md、references/audit-project.md
 ---
 
 # 命令策略
@@ -16,11 +16,11 @@ consumed-by: references/init-env-checks.md、references/sync-progress.md、refer
 
 | 命令 | 用途 | 性质 | 允许的触发词 |
 | ---- | ---- | ---- | ------------ |
-| `git rev-parse --is-inside-work-tree` | 判断是否在 Git 仓库内 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff`、`vibe-distill` |
-| `git rev-parse --show-toplevel` | 定位仓库根 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff`、`vibe-distill` |
-| `git status --short` | 核对工作区改动（未提交改动的主力） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill` |
-| `git log --oneline -n <N>` | 核对已有提交 | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill` |
-| `git diff --stat` | 核对**已跟踪**文件的未提交改动（不含未跟踪文件） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill` |
+| `git rev-parse --is-inside-work-tree` | 判断是否在 Git 仓库内 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
+| `git rev-parse --show-toplevel` | 定位仓库根 | 只读 | `vibe-init`、`vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
+| `git status --short` | 核对工作区改动（未提交改动的主力） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
+| `git log --oneline -n <N>` | 核对已有提交 | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
+| `git diff --stat` | 核对**已跟踪**文件的未提交改动（不含未跟踪文件） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
 | `codegraph --version` | 判断是否已安装 | 只读 | `vibe-init` |
 | `codegraph status` | 补充索引信息，不作判定依据 | 只读 | `vibe-init` |
 | `git init` | 本项目非仓库时初始化 | 写 | `vibe-init` |
