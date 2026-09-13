@@ -33,6 +33,26 @@ SECTION_CONTENT_RES = [
     for name in ["主要优点", "主要问题"]
 ]
 NON_GOALS_RE = re.compile(r"##\s*(\d+\.)?\s*(非目标|Non-Goals)", re.I)
+
+# V4/V5 假阴性收紧（2026-09-13）：禁止「写了无测试集」或空喊「可机器判定」过关
+V4_FILE_NAMES = (
+    "trigger-test-set.md",
+    "eval-set.json",
+    "eval-set.yaml",
+    "eval_set.json",
+    "test-set.md",
+)
+# 同句/邻近否定：无独立 / 无…文件 / 未建 / 由…各自回归
+V4_DISCLAIMER_RE = re.compile(
+    r"无独立|无正面|无负面|未建|不适用|各自回归|无[^。\n]{0,12}文件|尚未|暂无",
+    re.I,
+)
+V5_CONCRETE_RE = re.compile(
+    r"退出码|exit\s*code|机器校验|可逐项核对|断言可机器|machine-checkable"
+    r"|(?:validate|checklist|spec|consistency)\s*(?:/|、|或)?\s*(?:validate|checklist|spec|consistency)?\s*PASS"
+    r"|\bPASS/FAIL\b|退出码\s*0",
+    re.I,
+)
 TRIGGERS_TOPLEVEL_RE = re.compile(r"^triggers:\s*", re.M)
 METADATA_TRIGGERS_RE = re.compile(r"metadata:.*?triggers:", re.S)
 NEXT_KEY_CANDIDATES = ["license", "compatibility", "allowed-tools", "metadata"]
@@ -287,10 +307,54 @@ def checklist_scan(path: str | Path, profile: str = "standard") -> dict:
     for vid, kw in [("V1", "成功判定"), ("V2", "自检标准"), ("V3", "产出检查")]:
         if kw not in skill_text:
             errors.append(_err(f"[{vid}] 未发现验证闭环描述：{kw}", f"添加 {kw} 描述"))
-    if "trigger-test-set" not in skill_text and "正面集" not in skill_text and "负面集" not in skill_text:
-        errors.append(_err("[V4] 未发现评估测试集描述", "添加 V4 描述"))
-    if "可机器判定" not in skill_text and "machine-checkable" not in skill_text:
-        errors.append(_err("[V5] 未发现评估断言可机器判定描述", "添加 V5 描述"))
+
+    # V4：须有真实测试集资产，或「正面集+负面集」且非否定声明
+    v4_file = any((repo / n).is_file() for n in V4_FILE_NAMES)
+    # 也接受 references/ 或 assets/ 下同名
+    if not v4_file:
+        for sub in ("references", "assets", "evals", "tests"):
+            d = repo / sub
+            if d.is_dir():
+                if any(d.rglob("*test-set*")) or any(d.rglob("*eval-set*")):
+                    v4_file = True
+                    break
+    v4_text_ok = False
+    if ("正面集" in skill_text and "负面集" in skill_text) or (
+        "positive" in skill_text.lower() and "negative" in skill_text.lower()
+    ):
+        # 找到含正面集/负面集的句子，若整句是否定声明则不算
+        for line in skill_text.splitlines():
+            if ("正面集" in line and "负面集" in line) or (
+                "positive" in line.lower() and "negative" in line.lower()
+            ):
+                if not V4_DISCLAIMER_RE.search(line):
+                    v4_text_ok = True
+                    break
+    # 仅出现 trigger-test-set 字样且同段是否定 → 不算
+    if not v4_file and not v4_text_ok:
+        # 若全文只有否定式测试集声明，报 FAIL
+        has_ts_word = any(
+            w in skill_text for w in ("trigger-test-set", "触发测试集", "正面集", "负面集")
+        )
+        if has_ts_word:
+            errors.append(_err(
+                "[V4] 仅见测试集否定/转交声明，无本技能正面+负面测试集资产",
+                "补 trigger-test-set 文件或写明本技能可核对的正/负集；仅写「无测试集」不算通过",
+            ))
+        else:
+            errors.append(_err("[V4] 未发现评估测试集描述", "添加 V4 描述或测试集资产"))
+
+    # V5：须「可机器判定」类措辞 + 至少一个具体机检信号
+    v5_phrase = ("可机器判定" in skill_text) or ("machine-checkable" in skill_text.lower())
+    v5_concrete = bool(V5_CONCRETE_RE.search(skill_text))
+    if not (v5_phrase and v5_concrete):
+        if v5_phrase and not v5_concrete:
+            errors.append(_err(
+                "[V5] 声称可机器判定但未见具体机检信号（退出码/断言/校验入口）",
+                "补脚本退出码、字段断言或校验命令等可执行判定",
+            ))
+        else:
+            errors.append(_err("[V5] 未发现评估断言可机器判定描述", "添加 V5 描述"))
 
     version_md = repo / "VERSION.md"
     if version_md.is_file():

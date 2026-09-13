@@ -2,6 +2,10 @@
 # 此文件定义 validate_review.py --consistency 模式使用的检测规则
 # 修改此文件后无需修改 Python 代码，脚本启动时自动加载
 # 规则格式：id / pattern / expected / desc / fix
+#
+# 职责边界（2026-09-13）：consistency 仅做**词级旧术语**扫描。
+# 跨文件「同一事实多处声明」的副本对账用 `skill_cli.py reconcile`（C5 机检辅助）；
+# 家族块集差分用 `skill_cli.py family-diff`。勿把 consistency PASS 读成口径已对齐。
 
 rules:
   - id: PVE-PVH
