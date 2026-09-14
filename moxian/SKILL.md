@@ -7,7 +7,7 @@ metadata:
   version: "0.1.0"
 ---
 
-# 默现 · Moxian
+# 默现 · MoXian
 
 > 默现者，照其所默，默而自现。胸中之隐，默而得显。
 
