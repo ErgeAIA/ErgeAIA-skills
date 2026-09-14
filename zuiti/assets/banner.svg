@@ -1,0 +1,45 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap');
+    </style>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffe9dc" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="400" fill="#1a0f0c"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#F26A1B"/>
+  <rect x="60" y="294" width="3" height="56" fill="#F26A1B"/>
+  <rect x="60" y="347" width="56" height="3" fill="#F26A1B"/>
+  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · CIVIL COMEBACKS</text>
+  <text x="80" y="178" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="96" font-weight="900" fill="#ffe9dc" letter-spacing="-2">zuiti</text>
+  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">ZUITI · VERBAL COUNTER WITHOUT SLURS</text>
+  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">骂人不带脏字的文明回击生成器</text>
+  <text x="80" y="284" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="15" font-weight="500" fill="#e6b49a" letter-spacing="0.5">直球<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>反讽<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>引经据典<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>名人名言<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>格局</text>
+  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan font-weight="700" fill="#F26A1B">6</tspan> 风格 × <tspan font-weight="700" fill="#F26A1B">3</tspan> 条 · 三层禁区 · 名言核验屉 · <tspan font-weight="700" fill="#F26A1B">v0.3.9</tspan></text>
+  <text x="80" y="370" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#c08a6e" letter-spacing="0.3">只生成不发送 · 人工核对后发出</text>
+  <text x="890" y="108" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#F26A1B">AT A GLANCE</text>
+  <rect x="890" y="124" width="126" height="66" rx="2" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <rect x="890" y="124" width="126" height="3" fill="#F26A1B"/>
+  <text x="953" y="160" font-family="'Inter', system-ui, sans-serif" font-size="30" font-weight="900" fill="#ffe9dc" letter-spacing="-1" text-anchor="middle">6</text>
+  <text x="902" y="180" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5" fill="#c08a6e">STYLES</text>
+  <rect x="1030" y="124" width="126" height="66" rx="2" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <rect x="1030" y="124" width="126" height="3" fill="#ffb638"/>
+  <text x="1093" y="160" font-family="'Inter', system-ui, sans-serif" font-size="30" font-weight="900" fill="#ffe9dc" letter-spacing="-1" text-anchor="middle">18</text>
+  <text x="1042" y="180" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5" fill="#c08a6e">REPLIES</text>
+  <line x1="898" y1="212" x2="898" y2="298" stroke="#4a2c22" stroke-width="1"/>
+  <circle cx="898" cy="216" r="4.5" fill="#F26A1B"/>
+  <text x="914" y="220" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#F26A1B">直球</text>
+  <text x="1042" y="220" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">正面回击</text>
+  <circle cx="898" cy="242" r="4.5" fill="#ffb638"/>
+  <text x="914" y="246" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#e6b49a">反讽</text>
+  <text x="1042" y="246" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">软刀子</text>
+  <circle cx="898" cy="268" r="4.5" fill="#c23e12"/>
+  <text x="914" y="272" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#e6b49a">引经据典</text>
+  <text x="1042" y="272" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">核验名言</text>
+  <circle cx="898" cy="294" r="4.5" fill="#5a4038"/>
+  <text x="914" y="298" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#e6b49a">格局</text>
+  <text x="1042" y="298" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">路转粉</text>
+  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">最高级的怼是让黑粉路转粉</text>
+</svg>

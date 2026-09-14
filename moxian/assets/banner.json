@@ -1,0 +1,39 @@
+{
+  "meta": { "name": "banner-moxian" },
+  "content": {
+    "category": "AGENT SKILL · COGNITIVE GAPS",
+    "title": "moxian",
+    "captionEn": "MOXIAN · TACIT KNOWLEDGE GAPS",
+    "subtitle": "照出以为懂、其实没内化的认知缺口",
+    "points": "名词层 · 表达层 · 概念层",
+    "feature": "默认 1–2 条杠杆 · docs/moxian 累积 · v0.1.0",
+    "emFeature": true,
+    "footer": "Polanyi · Nonaka · Argyris · Schön",
+    "caption": "默会知识藏在这三层缺口里"
+  },
+  "style": {
+    "theme": "ember",
+    "bg": "#1a0f0c",
+    "card": "#241512",
+    "border": "#4a2c22",
+    "surface2": "#2f1c17",
+    "text": "#ffe9dc",
+    "muted": "#e6b49a",
+    "dim": "#c08a6e",
+    "accent": "#F26A1B",
+    "accentDeep": "#c23e12",
+    "amber": "#ffb638",
+    "idle": "#5a4038",
+    "showGrid": true,
+    "showLMark": true
+  },
+  "glyph": {
+    "type": "C2",
+    "label": "THREE GAPS",
+    "steps": [
+      { "tag": "01", "title": "名词层", "desc": "术语没追到底 → 词卡" },
+      { "tag": "02", "title": "表达层", "desc": "有主意说不清 → 更锋利的问题" },
+      { "tag": "03", "title": "概念层", "desc": "一整块框架盲 → 微课" }
+    ]
+  }
+}

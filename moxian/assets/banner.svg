@@ -1,0 +1,39 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap');
+    </style>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffe9dc" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="400" fill="#1a0f0c"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#F26A1B"/>
+  <rect x="60" y="294" width="3" height="56" fill="#F26A1B"/>
+  <rect x="60" y="347" width="56" height="3" fill="#F26A1B"/>
+  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · COGNITIVE GAPS</text>
+  <text x="80" y="178" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="96" font-weight="900" fill="#ffe9dc" letter-spacing="-2">moxian</text>
+  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">MOXIAN · TACIT KNOWLEDGE GAPS</text>
+  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">照出以为懂、其实没内化的认知缺口</text>
+  <text x="80" y="284" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="15" font-weight="500" fill="#e6b49a" letter-spacing="0.5">名词层<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>表达层<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>概念层</text>
+  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3">默认 <tspan font-weight="700" fill="#F26A1B">1–2</tspan> 条杠杆 · docs/moxian 累积 · <tspan font-weight="700" fill="#F26A1B">v0.1.0</tspan></text>
+  <text x="80" y="370" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#c08a6e" letter-spacing="0.3">Polanyi · Nonaka · Argyris · Schön</text>
+  <text x="890" y="108" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#F26A1B">THREE GAPS</text>
+  <rect x="890" y="139" width="4" height="44" fill="#F26A1B"/>
+  <rect x="902" y="139" width="258" height="44" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="158" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#F26A1B">01</text>
+  <text x="940" y="158" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#F26A1B">名词层</text>
+  <text x="914" y="174" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">术语没追到底 → 词卡</text>
+  <rect x="890" y="193" width="4" height="44" fill="#c23e12"/>
+  <rect x="902" y="193" width="258" height="44" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="212" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#c23e12">02</text>
+  <text x="940" y="212" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#e6b49a">表达层</text>
+  <text x="914" y="228" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">有主意说不清 → 更锋利的问题</text>
+  <rect x="890" y="247" width="4" height="44" fill="#8a4a2e"/>
+  <rect x="902" y="247" width="258" height="44" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="266" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#8a4a2e">03</text>
+  <text x="940" y="266" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="12" font-weight="700" fill="#e6b49a">概念层</text>
+  <text x="914" y="282" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">一整块框架盲 → 微课</text>
+  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">默会知识藏在这三层缺口里</text>
+</svg>

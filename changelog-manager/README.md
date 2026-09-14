@@ -1,5 +1,9 @@
 # changelog-manager
 
+<p align="center">
+  <img src="assets/banner.svg" alt="changelog-manager" width="100%">
+</p>
+
 项目更新日志（Changelog）维护助手，帮你规范化地记录和管理每个版本的显著变动。
 
 ## 核心功能

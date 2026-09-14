@@ -1,5 +1,9 @@
 # 默现 · MoXian
 
+<p align="center">
+  <img src="assets/banner.svg" alt="moxian" width="100%">
+</p>
+
 照出你「以为懂、其实没内化」的认知缺口，把它引出来、逼成可说出口的问题，并落一份可沉淀的认知卡。
 
 ## 解决什么

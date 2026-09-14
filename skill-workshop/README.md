@@ -1,5 +1,9 @@
 # skill-workshop
 
+<p align="center">
+  <img src="assets/banner.svg" alt="skill-workshop" width="100%">
+</p>
+
 Skill 全生命周期工作站：创建 → 评审 → 重构 → 评测。
 
 由 [skill-reviewer](https://github.com/ErgeAIA/skill-reviewer)（ErgeAIA，裁判）与 [kz-skill-creator](https://gitee.com/kingzeus/skills#kz-skill-creator)（kingzeus，构建者）整合升级而来。前者提供深度评审体系（原 9 维 48 项，v1.18.0 扩为 **10 维 52 项**含三段式元框架 + D 设计对抗维度），后者提供创建/重构/评测的完整工作流与 CLI 工具链。skill-workshop 在二者基础上统一了入口、路由和验证闭环。
