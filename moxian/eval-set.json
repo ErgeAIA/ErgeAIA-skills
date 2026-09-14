@@ -1,0 +1,22 @@
+[
+  { "query": "默现一下", "should_trigger": true },
+  { "query": "moxian", "should_trigger": true },
+  { "query": "我哪没懂", "should_trigger": true },
+  { "query": "照一下我没懂的", "should_trigger": true },
+  { "query": "这段对话里我哪些地方其实没真正理解", "should_trigger": true },
+  { "query": "帮我照出我刚跟 AI 聊完哪些概念没内化", "should_trigger": true },
+  { "query": "我有哪些直觉一直没组织成句", "should_trigger": true },
+  { "query": "刚才讨论里哪些术语我是跟着滑过去没追到底", "should_trigger": true },
+  { "query": "我这块工程概念缺了什么自己还不知道", "should_trigger": true },
+  { "query": "收尾了，帮我默现一下我没意识到的缺口", "should_trigger": true },
+  { "query": "照出我宣称会但其实没做到的认知差", "should_trigger": true },
+  { "query": "我默认了哪些从没检查过的假设", "should_trigger": true },
+  { "query": "帮我澄清一下这个需求到底要什么", "should_trigger": false },
+  { "query": "提炼这次协作里我已经做对的做法，沉淀下来", "should_trigger": false },
+  { "query": "查一下这个 API 的官方准确用法", "should_trigger": false },
+  { "query": "把这个空指针 bug 修了", "should_trigger": false },
+  { "query": "把这段英文翻成中文", "should_trigger": false },
+  { "query": "给这段对话写个总结", "should_trigger": false },
+  { "query": "帮我评审这个 skill 的 SKILL.md 写得合不合规", "should_trigger": false },
+  { "query": "写篇讲认知科学的文章", "should_trigger": false }
+]
