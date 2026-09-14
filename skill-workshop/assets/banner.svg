@@ -1,0 +1,44 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap');
+    </style>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffe9dc" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="400" fill="#1a0f0c"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#F26A1B"/>
+  <rect x="60" y="294" width="3" height="56" fill="#F26A1B"/>
+  <rect x="60" y="347" width="56" height="3" fill="#F26A1B"/>
+  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · LIFECYCLE WORKSTATION</text>
+  <text x="80" y="178" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="76" font-weight="900" fill="#ffe9dc" letter-spacing="-2">skill-workshop</text>
+  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">SKILL · CREATE REVIEW REFACTOR EVAL</text>
+  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">从创建到评测的技能全生命周期工作站</text>
+  <text x="80" y="284" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="15" font-weight="500" fill="#e6b49a" letter-spacing="0.5">创建<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>评审<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>重构<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>评测<tspan font-family="'Inter', system-ui, sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>合规校验</text>
+  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan font-weight="700" fill="#F26A1B">10</tspan> 维 <tspan font-weight="700" fill="#F26A1B">52</tspan> 项深度审查 · 双评估系统 · CLI 工具链 · <tspan font-weight="700" fill="#F26A1B">v1.25.0</tspan></text>
+  <text x="80" y="370" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#c08a6e" letter-spacing="0.3">决策矩阵路由 · P0→P1→P2 定级 · 裁判不下场</text>
+  <text x="890" y="108" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#F26A1B">FOUR MODES</text>
+  <rect x="890" y="132" width="4" height="34" fill="#F26A1B"/>
+  <rect x="902" y="132" width="258" height="34" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="147" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#F26A1B">01</text>
+  <text x="940" y="147" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#F26A1B">CREATE</text>
+  <text x="914" y="160" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">需求到脚手架</text>
+  <rect x="890" y="176" width="4" height="34" fill="#c23e12"/>
+  <rect x="902" y="176" width="258" height="34" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="191" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#c23e12">02</text>
+  <text x="940" y="191" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">REVIEW</text>
+  <text x="914" y="204" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">10 维 52 项定级</text>
+  <rect x="890" y="220" width="4" height="34" fill="#8a4a2e"/>
+  <rect x="902" y="220" width="258" height="34" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="235" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#8a4a2e">03</text>
+  <text x="940" y="235" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">REFACTOR</text>
+  <text x="914" y="248" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">盘点到回归验证</text>
+  <rect x="890" y="264" width="4" height="34" fill="#5a4038"/>
+  <rect x="902" y="264" width="258" height="34" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="914" y="279" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="1.5" fill="#e6b49a">04</text>
+  <text x="940" y="279" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">EVAL</text>
+  <text x="914" y="292" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#e6b49a">触发率与基准</text>
+  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">四条路径统一路由，按需加载工作流</text>
+</svg>

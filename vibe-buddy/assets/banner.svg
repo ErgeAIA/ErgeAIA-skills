@@ -1,0 +1,68 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap');
+    </style>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffe9dc" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="funnelGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F26A1B"/>
+      <stop offset="100%" stop-color="#c23e12"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="400" fill="#1a0f0c"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#F26A1B"/>
+  <rect x="60" y="294" width="3" height="56" fill="#F26A1B"/>
+  <rect x="60" y="347" width="56" height="3" fill="#F26A1B"/>
+  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · PROJECT MEMORY</text>
+  <text x="80" y="178" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="88" font-weight="900" fill="#ffe9dc" letter-spacing="-2">vibe-buddy</text>
+  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">VIBE-BUDDY · AI COLLAB MEMORY</text>
+  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">给项目装上可审计的 AI 协作记忆</text>
+  <text x="80" y="284" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" fill="#e6b49a" letter-spacing="0.3">vibe-init<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-sync<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-handoff<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-distill<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-audit</text>
+  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan font-weight="700" fill="#F26A1B">5</tspan> 触发词 · AGENTS.md 契约 · docs/.ai/ 过程 · <tspan font-weight="700" fill="#F26A1B">v1.1.0</tspan></text>
+  <text x="80" y="370" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#c08a6e" letter-spacing="0.3">契约载规则 · 过程载事实 · 只追加不改写</text>
+  <text x="890" y="108" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#F26A1B">DISTILL</text>
+  <g transform="rotate(-6 900 150)">
+    <text x="878" y="150" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="11" fill="#c08a6e" opacity="0.65">命令忘了</text>
+  </g>
+  <g transform="rotate(4 900 172)">
+    <text x="882" y="172" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" fill="#c08a6e" opacity="0.55">上次做到哪</text>
+  </g>
+  <g transform="rotate(-3 900 194)">
+    <text x="876" y="194" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="11" font-style="italic" fill="#c08a6e" opacity="0.7">口头约定</text>
+  </g>
+  <g transform="rotate(7 900 218)">
+    <text x="884" y="218" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#c08a6e" opacity="0.6">踩过的坑</text>
+  </g>
+  <g transform="rotate(-5 900 242)">
+    <text x="878" y="242" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="11" font-weight="500" fill="#c08a6e" opacity="0.55">半截决策</text>
+  </g>
+  <g transform="rotate(2 900 266)">
+    <text x="880" y="266" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#c08a6e" opacity="0.6">临时笔记</text>
+  </g>
+  <polygon points="1000,150 1060,150 1046,220 1014,220" fill="url(#funnelGrad)" opacity="0.92"/>
+  <rect x="1014" y="220" width="32" height="24" fill="url(#funnelGrad)" opacity="0.92"/>
+  <text x="1030" y="260" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="2" text-anchor="middle" fill="#F26A1B">DISTILL</text>
+  <circle cx="1030" cy="274" r="1.5" fill="#F26A1B"/>
+  <circle cx="1030" cy="280" r="1" fill="#F26A1B" opacity="0.6"/>
+  <line x1="968" y1="160" x2="1000" y2="165" stroke="#F26A1B" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.45"/>
+  <line x1="970" y1="200" x2="1000" y2="185" stroke="#F26A1B" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.45"/>
+  <line x1="972" y1="240" x2="1002" y2="200" stroke="#F26A1B" stroke-width="0.8" stroke-dasharray="2 3" opacity="0.45"/>
+  <path d="M 1083 147 L 1141 147 L 1155 161 L 1155 287 L 1083 287 Z" fill="#ffe9dc" stroke="#F26A1B" stroke-width="1.5"/>
+  <path d="M 1141 147 L 1141 161 L 1155 161 Z" fill="#c08a6e"/>
+  <text x="1095" y="178" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="900" fill="#1a0f0c">AGENTS.md</text>
+  <rect x="1095" y="186" width="48" height="2" fill="#F26A1B"/>
+  <rect x="1095" y="200" width="4" height="4" fill="#1a0f0c"/>
+  <text x="1104" y="204" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#241512">规则契约</text>
+  <rect x="1095" y="214" width="4" height="4" fill="#1a0f0c"/>
+  <text x="1104" y="218" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#241512">命令表</text>
+  <rect x="1095" y="228" width="4" height="4" fill="#1a0f0c"/>
+  <text x="1104" y="232" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" fill="#241512">文档义务</text>
+  <rect x="1095" y="252" width="38" height="1.2" fill="#5a4038" opacity="0.7"/>
+  <rect x="1095" y="258" width="46" height="1.2" fill="#5a4038" opacity="0.7"/>
+  <rect x="1095" y="264" width="30" height="1.2" fill="#5a4038" opacity="0.7"/>
+  <rect x="1095" y="270" width="42" height="1.2" fill="#5a4038" opacity="0.7"/>
+  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">散会话<tspan fill="#F26A1B"> → </tspan>可审计记忆<tspan fill="#F26A1B"> → </tspan>下会话自动接管</text>
+</svg>

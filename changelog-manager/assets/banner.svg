@@ -1,0 +1,39 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap');
+    </style>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffe9dc" stroke-opacity="0.035" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="400" fill="#1a0f0c"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="6" fill="#F26A1B"/>
+  <rect x="60" y="294" width="3" height="56" fill="#F26A1B"/>
+  <rect x="60" y="347" width="56" height="3" fill="#F26A1B"/>
+  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · CHANGELOG AUTOMATION</text>
+  <text x="80" y="178" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="68" font-weight="900" fill="#ffe9dc" letter-spacing="-2">changelog-manager</text>
+  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">CHANGELOG · KEEP A CHANGELOG + SEMVER</text>
+  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">中英双语同步的版本变更日志助手</text>
+  <text x="80" y="284" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="15" font-weight="700" fill="#e6b49a">+init<tspan font-weight="400" fill="#F26A1B"> · </tspan>+add<tspan font-weight="400" fill="#F26A1B"> · </tspan>+release<tspan font-weight="400" fill="#F26A1B"> · </tspan>+generate<tspan font-weight="400" fill="#F26A1B"> · </tspan>+check</text>
+  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan font-weight="700" fill="#F26A1B">6</tspan> 类变更 · 中英双语同步 · <tspan font-weight="700" fill="#F26A1B">Git</tspan> 提交生成 · <tspan font-weight="700" fill="#F26A1B">v2.0.1</tspan></text>
+  <text x="80" y="370" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#c08a6e" letter-spacing="0.3">Keep a Changelog 1.0.0 · Semantic Versioning 2.0.0</text>
+  <text x="890" y="108" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#F26A1B">RELEASE PIPELINE</text>
+  <rect x="890" y="132" width="258" height="38" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="906" y="155" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" fill="#F26A1B">01</text>
+  <text x="932" y="155" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">+add<tspan font-family="'Noto Serif SC', 'Source Han Serif', serif" font-weight="400" fill="#c08a6e"> 记录变更</tspan></text>
+  <rect x="1019" y="170" width="1" height="8" fill="#c08a6e" opacity="0.5"/>
+  <rect x="890" y="178" width="258" height="38" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="906" y="201" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" fill="#c23e12">02</text>
+  <text x="932" y="201" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">[Unreleased]<tspan font-family="'Noto Serif SC', 'Source Han Serif', serif" font-weight="400" fill="#c08a6e"> 暂存</tspan></text>
+  <rect x="1019" y="216" width="1" height="8" fill="#c08a6e" opacity="0.5"/>
+  <rect x="890" y="224" width="258" height="38" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="906" y="247" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" fill="#8a4a2e">03</text>
+  <text x="932" y="247" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">+release<tspan font-family="'Noto Serif SC', 'Source Han Serif', serif" font-weight="400" fill="#c08a6e"> 归档版本</tspan></text>
+  <rect x="1019" y="262" width="1" height="8" fill="#c08a6e" opacity="0.5"/>
+  <rect x="890" y="270" width="258" height="38" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+  <text x="906" y="293" font-family="'Inter', system-ui, sans-serif" font-size="10" font-weight="700" fill="#5a4038">04</text>
+  <text x="932" y="293" font-family="'Inter', system-ui, sans-serif" font-size="12" font-weight="700" fill="#e6b49a">CHANGELOG<tspan font-family="'Noto Serif SC', 'Source Han Serif', serif" font-weight="400" fill="#c08a6e"> 双语产出</tspan></text>
+  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">日常开发 → 追加 → 归档 → 循环</text>
+</svg>

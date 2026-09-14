@@ -1,0 +1,44 @@
+{
+  "meta": { "name": "banner-zuiti" },
+  "content": {
+    "category": "AGENT SKILL · CIVIL COMEBACKS",
+    "title": "zuiti",
+    "captionEn": "ZUITI · VERBAL COUNTER WITHOUT SLURS",
+    "subtitle": "骂人不带脏字的文明回击生成器",
+    "points": "直球 · 反讽 · 引经据典 · 名人名言 · 格局",
+    "feature": "6 风格 × 3 条 · 三层禁区 · 名言核验屉 · v0.3.9",
+    "emFeature": true,
+    "footer": "只生成不发送 · 人工核对后发出",
+    "caption": "最高级的怼是让黑粉路转粉"
+  },
+  "style": {
+    "theme": "ember",
+    "bg": "#1a0f0c",
+    "card": "#241512",
+    "border": "#4a2c22",
+    "surface2": "#2f1c17",
+    "text": "#ffe9dc",
+    "muted": "#e6b49a",
+    "dim": "#c08a6e",
+    "accent": "#F26A1B",
+    "accentDeep": "#c23e12",
+    "amber": "#ffb638",
+    "idle": "#5a4038",
+    "showGrid": true,
+    "showLMark": true
+  },
+  "glyph": {
+    "type": "C2M",
+    "label": "AT A GLANCE",
+    "metrics": [
+      { "value": "6", "label": "STYLES", "bar": "@accent" },
+      { "value": "18", "label": "REPLIES", "bar": "@secondary" }
+    ],
+    "states": [
+      { "name": "直球", "color": "@accent", "gloss": "正面回击" },
+      { "name": "反讽", "color": "@secondary", "gloss": "软刀子" },
+      { "name": "引经据典", "color": "@deep", "gloss": "核验名言" },
+      { "name": "格局", "color": "@idle", "gloss": "路转粉" }
+    ]
+  }
+}

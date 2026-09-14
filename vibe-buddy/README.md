@@ -1,5 +1,9 @@
 # vibe-buddy
 
+<p align="center">
+  <img src="assets/banner.svg" alt="vibe-buddy" width="100%">
+</p>
+
 > 给项目装上可审计的 AI 协作记忆：规则写进 `AGENTS.md`，进度与决策落在 `docs/.ai/`，会话交接落在 `docs/handoff/`。
 
 ## 它解决什么问题

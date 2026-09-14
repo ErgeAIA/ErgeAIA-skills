@@ -1,0 +1,40 @@
+{
+  "meta": { "name": "banner-skill-workshop" },
+  "content": {
+    "category": "AGENT SKILL · LIFECYCLE WORKSTATION",
+    "title": "skill-workshop",
+    "captionEn": "SKILL · CREATE REVIEW REFACTOR EVAL",
+    "subtitle": "从创建到评测的技能全生命周期工作站",
+    "points": "创建 · 评审 · 重构 · 评测 · 合规校验",
+    "feature": "10 维 52 项深度审查 · 双评估系统 · CLI 工具链 · v1.25.0",
+    "emFeature": true,
+    "footer": "决策矩阵路由 · P0→P1→P2 定级 · 裁判不下场",
+    "caption": "四条路径统一路由，按需加载工作流"
+  },
+  "style": {
+    "theme": "ember",
+    "bg": "#1a0f0c",
+    "card": "#241512",
+    "border": "#4a2c22",
+    "surface2": "#2f1c17",
+    "text": "#ffe9dc",
+    "muted": "#e6b49a",
+    "dim": "#c08a6e",
+    "accent": "#F26A1B",
+    "accentDeep": "#c23e12",
+    "amber": "#ffb638",
+    "idle": "#5a4038",
+    "showGrid": true,
+    "showLMark": true
+  },
+  "glyph": {
+    "type": "C2",
+    "label": "FOUR MODES",
+    "steps": [
+      { "tag": "01", "title": "CREATE", "desc": "需求到脚手架" },
+      { "tag": "02", "title": "REVIEW", "desc": "10 维 52 项定级" },
+      { "tag": "03", "title": "REFACTOR", "desc": "盘点到回归验证" },
+      { "tag": "04", "title": "EVAL", "desc": "触发率与基准" }
+    ]
+  }
+}
