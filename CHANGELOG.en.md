@@ -6,9 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-_Last updated: 2026-09-12_
+_Last updated: 2026-09-14_
 
 ### Added
+
+- **moxian skill added to repo**: tacit-knowledge gap externalization, v0.1.0 — surfaces three layers of "thought you understood but never internalized" cognitive gaps in AI-coding conversations (noun layer → word card / expression layer → sharper question / concept layer → micro-lesson), gate defaults to 1-2 cards, saved as a cumulative knowledge card under `docs/moxian/` (moxian / "what did I miss")
 
 - **skill-workshop skill added to repo**: Skill lifecycle workstation (create/review/refactor/evaluate Agent Skills), v1.17.0, with 16 CLI subcommands and the 9-dimension 48-item review system
 - **vibe-buddy skill added to repo** (2026-09-10): project AI collaboration memory skill v1.0.0 — collaboration contract in AGENTS.md, progress/decision/lesson archive under docs/.ai/, self-contained cross-session handoff, and experience distillation (vibe-init / vibe-sync / vibe-handoff / vibe-distill)
