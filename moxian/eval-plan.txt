@@ -1,0 +1,28 @@
+# eval plan-gate 五节计划
+
+## 目标
+为 moxian 技能实跑一次触发评测（20 条、1 runs/query），验证 description 三维触发正确率，消解 skill-workshop W3 报告的 V4 真缺陷（无回归评测集）。
+
+## 范围与边界
+- 仅 `moxian/eval-set.json`（12 正 + 8 负 = 60/40）
+- 仅 `--runs-per-query 1`（快速首跑）
+- 不修改任何 SKILL.md / references / frontmatter
+- 不跑 `loop`（自动迭代改 description）
+- 不跑 `benchmark`（需多轮积累）
+
+## 参数
+- `--eval-set moxian/eval-set.json`
+- `--skill-path moxian`
+- `--runs-per-query 1`
+- `--timeout 30`（单 query 30s，20 条约 10 min 上限）
+- `--model` 用默认（claude CLI 已配置）
+
+## 停止条件
+- 实跑完成且输出 JSON 含 20 条 pass/fail 结果 → 成功，收束
+- 单 query 超时率 > 40% 或 claude CLI 不可达 → 停止，降级为 dry_run 标注
+- 实跑 5 min 无进展 → 停止，回报用户
+
+## 回滚
+- 本命令只读 description 做触发判定，不写任何技能文件
+- 若 eval 产物写入 work 目录，删除即可
+- 回滚基线：`git status` 保持 auto-optimize 分支 5 commits（HEAD = e7fb639 或更新）
