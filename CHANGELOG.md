@@ -6,10 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-09-12_
+_最后更新：2026-09-14_
 
 ### Added
 
+- **moxian（默现）技能加入仓库**：默会知识缺口外化技能 v0.1.0——照出 AI 写码对话里「以为懂、其实没内化」的三层认知缺口（名词层→词卡 / 表达层→更锋利的问题 / 概念层→微课），默认过闸门只给 1-2 条，落一份可累积的认知卡到 `docs/moxian/`（默现 / moxian / 我哪没懂）
 - **skill-workshop 技能加入仓库**：Skill 全生命周期工作站（创建/评审/重构/评测 Agent Skill），v1.17.0，含 16 个 CLI 子命令与 9 维 48 项评审体系
 - **vibe-buddy 技能加入仓库**（2026-09-10）：项目 AI 协作记忆技能 v1.0.0——协作契约写进 AGENTS.md，进度/决策/踩坑沉淀到 docs/.ai/，跨会话自包含交接，开发经验蒸馏（vibe-init / vibe-sync / vibe-handoff / vibe-distill）
 
