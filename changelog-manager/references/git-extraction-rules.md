@@ -27,7 +27,6 @@ trigger-when: 从 git 提交生成变更时，加载提取规则和 conventional
 | `docs:*` | 文档更新（除非是用户面向文档的重大更新） |
 | `ci:*` | CI/CD 配置 |
 | `build:*` | 构建系统配置 |
-| `perf:*` | 性能优化（可归入 Changed） |
 | `Initial commit` | 初始提交 |
 | `update readme` | README 更新 |
 | `bump version` | 版本号更新 |
@@ -112,6 +111,35 @@ trigger-when: 从 git 提交生成变更时，加载提取规则和 conventional
 - 移除：移除、删除、废弃
 - 安全：修复...安全漏洞、升级...修复...漏洞
 
+## 边界状态与幂等
+
+### 无 tag / 首次生成
+
+- `git describe --tags --abbrev=0` 失败（无任何 tag）时，**不要**把裸错误抛给用户。
+- 退化策略：提示「当前仓库没有 tag，是否使用全部提交历史？」；用户确认后使用 `git log`（默认 `--max-count=200`，超出则要求收窄 range）。
+- 非 git 仓库：`+generate` 直接失败，提示改用 `+add` 手动模式。
+
+### 非法 / 反向 range
+
+- range 不存在或反向时，列出本地 tags 供用户选择；仍无法解析则**取消写入**。
+
+### 浅克隆
+
+- 若存在 `.git/shallow`，在预览顶部输出 WARN：历史可能不完整。
+
+### 幂等（禁止双写）
+
+- Plan 阶段为候选 commit 保留内部 `hash`，**仅用于去重，不写入 changelog 正文**。
+- 写入前扫描目标 `[Unreleased]`（或指定版本）已有条目：
+  - 归一化描述（去首尾空白、压缩空白）相同 → **跳过**；
+  - 预览必须列出「新增 / 已存在跳过 / 待写入合计」。
+- 同一 range 连续两次 `+generate`，第二次应报告 **0 条待写入**。
+- 默认不写入 `<!-- cm:hash -->` 标记；若 sidecar 开启 `keepMarkers`，才在条目末尾附加短 hash 注释。
+
+### Issue / PR 链接
+
+- 默认剥离 `(#123)`；若 sidecar `keepIssueLinks: true`，则保留。
+- 与 `.changelog-manager.json` 的约定一致（见 SKILL.md）。
 ## Git 命令参考
 
 ### 获取上次 tag 至今的提交

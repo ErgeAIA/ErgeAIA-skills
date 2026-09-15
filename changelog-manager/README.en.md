@@ -53,6 +53,10 @@ Extract commits since last tag, filter noise, organize by category, preview and 
 
 Check format, dates, categories, links, and output improvement suggestions.
 
+## Project sidecar
+
+Optional `.changelog-manager.json` (`+init` creates defaults): `primaryLang`, `keepIssueLinks`, `tagPrefix`, `keepMarkers`. Chinese changelog uses Chinese category headings; English file keeps English headings. `+generate` is idempotent.
+
 ## Workflow
 
 ```
