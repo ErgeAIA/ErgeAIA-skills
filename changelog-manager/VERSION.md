@@ -15,9 +15,11 @@
 - **Git 边界**：无 tag 回退、非法 range、浅克隆 WARN、非 git 提示手动模式。
 - **中文文件头部本地化**（`# 更新日志` + 中文导语）。
 - **`+check` 结构同构**：版本集合/日期/分类集合/条目数/link key 可判定比对。
-- 文档触点：SKILL.md、bilingual/git-extraction/template-output/classification、双语 README、根索引版本。
+- 文档触点：SKILL.md、bilingual/git-extraction/template-output/classification、`examples/basic-usage`、双语 README、根索引版本。
+- **审查修复**：bilingual-guide 示例与 basic-usage 的中文侧分类头改为中文，消除 SSOT 自相矛盾。
 
 ---
+
 ## v2.0.1 (2026-09-12)
 
 ### references 补 trigger-when 加载指引

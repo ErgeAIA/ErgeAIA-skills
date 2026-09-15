@@ -164,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 变更分类预览
 
-- **待写入**：A 条 ｜ **已存在跳过**：B 条
+- **待写入**：A 条 ｜ **已存在跳过**：B 条 ｜ **合计候选**：A+B 条
 
 ### 中文版 (CHANGELOG.md)
 

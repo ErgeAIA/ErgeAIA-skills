@@ -247,7 +247,7 @@ v1.0.0 -> v1.0.0
 
 **中文版 (CHANGELOG.md)：**
 ```markdown
-### Added
+### 新增
 - 新增了用户登录功能，支持手机号和邮箱登录
 ```
 
@@ -266,7 +266,7 @@ v1.0.0 -> v1.0.0
 
 **中文版 (CHANGELOG.md)：**
 ```markdown
-### Fixed
+### 修复
 - 修复了 Safari 浏览器下页面布局错位的问题
 ```
 
@@ -285,7 +285,7 @@ v1.0.0 -> v1.0.0
 
 **中文版 (CHANGELOG.md)：**
 ```markdown
-### Changed
+### 变更
 - BREAKING: 重命名 getUser 为 fetchUser
 ```
 
@@ -304,7 +304,7 @@ v1.0.0 -> v1.0.0
 
 **中文版 (CHANGELOG.md)：**
 ```markdown
-### Security
+### 安全
 - 修复了 XSS 跨站脚本攻击漏洞
 ```
 

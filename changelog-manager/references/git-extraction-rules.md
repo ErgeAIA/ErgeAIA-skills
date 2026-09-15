@@ -140,6 +140,7 @@ trigger-when: 从 git 提交生成变更时，加载提取规则和 conventional
 
 - 默认剥离 `(#123)`；若 sidecar `keepIssueLinks: true`，则保留。
 - 与 `.changelog-manager.json` 的约定一致（见 SKILL.md）。
+
 ## Git 命令参考
 
 ### 获取上次 tag 至今的提交
