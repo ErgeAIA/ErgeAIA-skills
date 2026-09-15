@@ -11,12 +11,12 @@
 Skill 会创建 `CHANGELOG.md`：
 
 ```markdown
-# Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+本项目所有值得注意的变更都记录在此文件中。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+并且本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ## [Unreleased]
 ```
@@ -27,12 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 用户: +add 新增了文章搜索功能，支持按标题和标签搜索
 ```
 
-Skill 自动归类为 `Added`，写入 `[Unreleased]`：
+Skill 自动归类为「新增」，写入 `[Unreleased]`：
 
 ```markdown
 ## [Unreleased]
 
-### Added
+### 新增
 - 支持文章搜索功能，可按标题和标签进行搜索
 ```
 
@@ -40,15 +40,15 @@ Skill 自动归类为 `Added`，写入 `[Unreleased]`：
 用户: +add 修复了评论提交后页面不刷新的问题
 ```
 
-Skill 自动归类为 `Fixed`：
+Skill 自动归类为「修复」：
 
 ```markdown
 ## [Unreleased]
 
-### Added
+### 新增
 - 支持文章搜索功能，可按标题和标签进行搜索
 
-### Fixed
+### 修复
 - 修复评论提交后页面不自动刷新的问题
 ```
 
@@ -65,10 +65,10 @@ Skill 将 `[Unreleased]` 归档，使用当天日期：
 
 ## [0.1.0] - 2024-05-29
 
-### Added
+### 新增
 - 支持文章搜索功能，可按标题和标签进行搜索
 
-### Fixed
+### 修复
 - 修复评论提交后页面不自动刷新的问题
 ```
 
@@ -89,15 +89,15 @@ Skill 执行以下流程：
 ```
 以下是从 git 提交中提取的变更，请确认：
 
-### Added
+### 新增
 - 支持用户头像上传功能
 - 新增文章草稿自动保存
 
-### Fixed
+### 修复
 - 修复移动端导航栏显示异常
 - 修复图片上传偶尔失败的问题
 
-### Changed
+### 变更
 - 升级 Next.js 从 13 到 14
 
 确认写入 [Unreleased] 吗？(Y/n)
@@ -123,14 +123,14 @@ Skill 执行以下流程：
 
 ## [2.0.0] - 2024-05-29
 
-### Added
+### 新增
 - 全新的插件系统，支持第三方扩展
 
-### Changed
+### 变更
 - ⚠️ BREAKING: 配置文件格式从 JSON 迁移至 YAML
 - ⚠️ BREAKING: API 鉴权方式从 API Key 变更为 OAuth 2.0
 
-### Removed
+### 移除
 - 移除 v1.x 旧版插件接口
 ```
 

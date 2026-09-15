@@ -272,7 +272,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [ ] **浅克隆**：存在 `.git/shallow` 时在预览顶 WARN
 - [ ] 过滤噪音提交（参考 `references/git-extraction-rules.md`；`perf` 默认**保留**并映射为 Changed）
 - [ ] 将 commit message 转写为用户友好描述（内部保留 hash **仅用于去重**，默认不写入正文）
-- [ ] **幂等**：与目标 Unreleased/版本已有条目做归一化去重，预览分列「新增 / 已存在跳过 / 待写入」
+- [ ] **幂等**：与目标 Unreleased/版本已有条目做归一化去重，预览分列「待写入 / 已存在跳过 / 合计」
 - [ ] 按分类分组（中文文件用中文分类头，英文文件用英文分类头）
 - [ ] 生成中英文双语版本（主语言事实源 → 从语言翻译）
 - [ ] 输出预览计划表
@@ -392,7 +392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **V1 格式正确**：CHANGELOG.md 和 CHANGELOG.en.md 符合 Keep a Changelog 格式，包含标准头部、`[Unreleased]` 区块、版本链接
 - **V2 内容质量**：变更条目使用自然语言、按正确分类分组、每条描述清晰无歧义
 - **V3 版本一致性**：版本号遵循 SemVer，发布日期格式正确，链接指向正确
-- **V4 双语一致性**：版本集合/日期/分类集合/条目数/link key 结构同构；分类标题语言符合 D1（中文头 vs 英文头）
+- **V4 双语一致性**：版本集合/日期/分类集合/条目数/link key 结构同构；分类标题语言符合约定（中文文件中文头 / 英文文件英文头）
 - **V5 触发测试集**：修改 description 后，执行 `references/trigger-test-set.md` 验证触发行为
 - **V6 输出可判定**：输出格式符合 `references/output-template.md`，可机器判定
 
