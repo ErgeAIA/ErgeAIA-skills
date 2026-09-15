@@ -9,7 +9,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 | Skill | Description | Version |
 |-------|-------------|---------|
 | [skill-workshop](skill-workshop/) | Skill lifecycle workstation: create, review, refactor & evaluate Agent Skills (with the Google 5-mode baseline) | v1.25.0 |
-| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.0.1 |
+| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.1.0 |
 | [zuiti](zuiti/) | Civil comeback generator ("mouth substitute"): crafts sharp, profanity-free retorts in 6 default styles (3 curated entries each), backed by verified quote/meme drawers and a manual-send gate | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md contract, docs/.ai/ progress/decision/lesson archive, self-contained cross-session handoff, and distillation of reusable domain-scoped experience; also read-only audit of dev projects for code quality and stack (vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit) | v1.1.0 |
 | [moxian](moxian/) | Surface the tacit knowledge you "thought you understood but never internalized": three layers of cognitive gaps (a term you glossed, an intention you can't articulate, a whole concept you didn't know you lacked), externalized into sharper questions and concept micro-lessons, and saved as a cumulative knowledge card under docs/moxian/ (moxian / "what did I miss") | v0.1.0 |

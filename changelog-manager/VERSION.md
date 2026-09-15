@@ -4,6 +4,20 @@
 
 ---
 
+## v2.1.0 (2026-09-14)
+
+### 完整性加固（审查 Spec：changelog-manager-integrity）
+
+- **中文分类头强制**：中文 `CHANGELOG.md` 使用 `### 新增/变更/弃用/移除/修复/安全`；英文文件保持 `### Added` 等。唯一对照表在 `bilingual-guide.md`；`+check` 对新写入 FAIL、对历史英文头 WARN。
+- **消灭 perf 规则矛盾**：`perf` 默认保留并映射为 Changed，不再出现在跳过表。
+- **`+lang` 落盘**：`.changelog-manager.json` sidecar（`primaryLang` / `keepIssueLinks` / `tagPrefix` / `keepMarkers`），`+init` 静默创建默认值。
+- **`+generate` 幂等**：归一化去重；预览分列待写入 / 已存在跳过；hash 仅内部使用，默认不写入正文。
+- **Git 边界**：无 tag 回退、非法 range、浅克隆 WARN、非 git 提示手动模式。
+- **中文文件头部本地化**（`# 更新日志` + 中文导语）。
+- **`+check` 结构同构**：版本集合/日期/分类集合/条目数/link key 可判定比对。
+- 文档触点：SKILL.md、bilingual/git-extraction/template-output/classification、双语 README、根索引版本。
+
+---
 ## v2.0.1 (2026-09-12)
 
 ### references 补 trigger-when 加载指引

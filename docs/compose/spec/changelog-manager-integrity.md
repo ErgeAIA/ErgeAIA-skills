@@ -1,6 +1,6 @@
 ---
 feature: changelog-manager-integrity
-status: designed
+status: in-progress
 updated: 2026-09-14
 branch: compose/changelog-manager-integrity
 commits: 

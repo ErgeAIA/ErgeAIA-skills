@@ -3,7 +3,7 @@ name: changelog-manager
 description: "维护项目更新日志（Changelog）。当用户提到 更新日志/changelog/变更记录/发版记录/release notes/版本历史，或需要创建、更新、初始化 CHANGELOG 时调用。基于 Keep a Changelog 规范，支持从 git 提交记录自动生成、手动追加条目、版本发布归档。内置双语言支持，同时维护中文 CHANGELOG.md 和英文 CHANGELOG.en.md。不适用于：非 Keep a Changelog 格式的自定义日志、git commit message 规范制定、自动创建 git tag/GitHub Release。"
 metadata:
   author: ErgeAIA
-  version: "2.0.1"
+  version: "2.1.0"
 ---
 
 # changelog-manager
@@ -66,6 +66,8 @@ metadata:
 
 **verify**: 每个版本的变更按上述分类分组，不使用自定义分类
 
+**分类标题语言（强制）**：中文 `CHANGELOG.md` 使用 `### 新增/变更/弃用/移除/修复/安全`；英文 `CHANGELOG.en.md` 使用 `### Added/Changed/Deprecated/Removed/Fixed/Security`。唯一对照见 `references/bilingual-guide.md`。
+
 ### 3. 语义化版本对齐
 > 版本号应遵循 SemVer 规范。
 
@@ -125,22 +127,22 @@ metadata:
 ### 中文版 (CHANGELOG.md)
 
 ```markdown
-# Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+本项目所有值得注意的变更都记录在此文件中。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+并且本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ## [Unreleased]
 
 ## [1.0.0] - 2024-01-15
 
-### Added
+### 新增
 - 用户登录与注册功能
 - 个人资料页面
 
-### Fixed
+### 修复
 - 修复首页加载缓慢的问题
 
 [Unreleased]: https://github.com/user/repo/compare/v1.0.0...HEAD
@@ -174,14 +176,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 分类标题中英文对照
 
-| 英文       | 中文 |
+| 英文（.en.md） | 中文（CHANGELOG.md） |
 | ---------- | ---- |
-| Added      | 新增 |
-| Changed    | 变更 |
-| Deprecated | 弃用 |
-| Removed    | 移除 |
-| Fixed      | 修复 |
-| Security   | 安全 |
+| `### Added`      | `### 新增` |
+| `### Changed`    | `### 变更` |
+| `### Deprecated` | `### 弃用` |
+| `### Removed`    | `### 移除` |
+| `### Fixed`      | `### 修复` |
+| `### Security`   | `### 安全` |
+
+**用法**：按目标文件语言选择标题；禁止中英混用。
 
 ## 工作流路由
 
@@ -194,9 +198,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 执行步骤：
 - [ ] 如已有中文文件，询问用户：覆盖 / 合并 / 取消
   🔴 CHECKPOINT · 🛑 STOP：用户未确认前不要创建任何文件
-- [ ] 生成标准模板（含项目名称）
+- [ ] 生成标准模板（含项目名称；中文文件用中文头与中文分类头）
 - [ ] 创建 CHANGELOG.md（中文模板）
 - [ ] 创建 CHANGELOG.en.md（英文模板）
+- [ ] 静默创建默认 `.changelog-manager.json`（已存在则不覆盖）
+- [ ] 底部链接能发现 `origin` 时自动填入（`tagPrefix` 默认 `v`）
 - [ ] 提示用户使用 `+add` 开始记录
 
 **W0 失败处理**：
@@ -260,11 +266,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **⚠️ 此工作流涉及批量变更写入，采用 Plan-Validate-Handoff 模式：**
 
 **Plan（计划阶段）**：
+- [ ] 读取 sidecar（`.changelog-manager.json`）取得 `primaryLang` / `keepIssueLinks` / `keepMarkers`
 - [ ] 执行 `git log` 获取提交记录（指定范围或默认上次 tag 至今）
-- [ ] 过滤噪音提交（参考 `references/git-extraction-rules.md`）
-- [ ] 将 commit message 转写为用户友好描述
-- [ ] 按分类分组
-- [ ] 生成中英文双语版本
+- [ ] **无 tag**：`git describe` 失败时询问是否使用全部历史（默认 `--max-count=200`），禁止抛裸错误
+- [ ] **浅克隆**：存在 `.git/shallow` 时在预览顶 WARN
+- [ ] 过滤噪音提交（参考 `references/git-extraction-rules.md`；`perf` 默认**保留**并映射为 Changed）
+- [ ] 将 commit message 转写为用户友好描述（内部保留 hash **仅用于去重**，默认不写入正文）
+- [ ] **幂等**：与目标 Unreleased/版本已有条目做归一化去重，预览分列「新增 / 已存在跳过 / 待写入」
+- [ ] 按分类分组（中文文件用中文分类头，英文文件用英文分类头）
+- [ ] 生成中英文双语版本（主语言事实源 → 从语言翻译）
 - [ ] 输出预览计划表
 
 **Validate（确认阶段）**：
@@ -281,8 +291,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 执行步骤：
 - [ ] 读取 CHANGELOG.md 和 CHANGELOG.en.md
 - [ ] 检查格式规范（标题层级、分类名称、日期格式）
-- [ ] 检查内容质量（空版本、描述清晰度）
-- [ ] 检查双语文档一致性（版本区块对应、条目数量一致）
+- [ ] **分类标题语言**：中文文件英文头 / 英文文件中文头 → Unreleased 与新版本 **FAIL**；仅历史已发布区块 **WARN（历史遗留）**
+- [ ] 检查内容质量（空版本、描述清晰度；空分类建议省略标题）
+- [ ] 检查双语文档**结构同构**（可判定）：
+  - 版本号集合一致
+  - 各版本日期一致
+  - 各版本分类集合一致（标题经中英映射后）
+  - 各（版本×分类）条目数一致
+  - 底部 link 的 version key 集合一致
+- [ ] 检查链接：能发现 `origin` 时核对 `tagPrefix` 与 compare/release URL；不能发现则 WARN 占位
 - [ ] 输出检查报告（参考 `references/output-template.md`）
 
 ### W5: 语言模式切换（`+lang`）
@@ -292,9 +309,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `+lang en`：主语言为英文，中文由英文翻译生成
 
 执行步骤：
-- [ ] 记录用户选择的语言模式
-- [ ] 在后续 `+add` 和 `+generate` 中应用该模式
-- [ ] 输出当前语言模式确认
+- [ ] 将语言模式**落盘**到项目根 `.changelog-manager.json` 的 `primaryLang`（不存在则创建；默认 `zh`）
+- [ ] 在后续 `+add` 和 `+generate` 中应用该模式（主语言手写，从语言生成）
+- [ ] 输出当前语言模式与配置文件路径
+
+#### 项目 sidecar：`.changelog-manager.json`
+
+```json
+{
+  "primaryLang": "zh",
+  "keepIssueLinks": false,
+  "tagPrefix": "v",
+  "keepMarkers": false
+}
+```
+
+| 字段 | 默认 | 含义 |
+|------|------|------|
+| `primaryLang` | `zh` | 翻译方向：主语言事实源，从语言生成 |
+| `keepIssueLinks` | `false` | `+generate` 是否保留 `(#123)` |
+| `tagPrefix` | `v` | 版本链接 / compare 的 tag 前缀 |
+| `keepMarkers` | `false` | 是否在条目尾写 `<!-- cm:hash -->` 供幂等 |
+
+- `+init` 可静默创建默认 sidecar。
+- 该文件可不提交（个人偏好）；存在则所有快捷命令优先读取。
 
 ## 参考文档（按需加载）
 
@@ -316,6 +354,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 如果用户没有使用 git，应支持纯手动模式（不依赖 git log）
 - 双语言模式下，两个文件的 `[Unreleased]` 区块应同步更新
 - 翻译时保留技术术语原文（如 API、SDK、CLI、REST、JSON 等）
+- 中文文件分类头必须是中文（`### 新增` 等），英文文件必须是英文（`### Added` 等）
+- `+lang` / 链接 / Issue 保留策略落在 `.changelog-manager.json`，不要只写在对话里
+- `+generate` 必须幂等：同一 range 二次执行应 0 条待写入
+- 无 tag 仓库不要假设 `git describe` 总会成功
+- `perf` 提交默认保留并映射为 Changed，不要当噪音跳过
+- 目标仓库若已有变更记录约定（例如只用 `VERSION.md`、禁止 CHANGELOG），**先询问再 `+init`**
 
 ## 操作反例黑名单
 
@@ -348,7 +392,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **V1 格式正确**：CHANGELOG.md 和 CHANGELOG.en.md 符合 Keep a Changelog 格式，包含标准头部、`[Unreleased]` 区块、版本链接
 - **V2 内容质量**：变更条目使用自然语言、按正确分类分组、每条描述清晰无歧义
 - **V3 版本一致性**：版本号遵循 SemVer，发布日期格式正确，链接指向正确
-- **V4 双语一致性**：两个文件的版本区块一一对应，条目数量一致，分类结构一致
+- **V4 双语一致性**：版本集合/日期/分类集合/条目数/link key 结构同构；分类标题语言符合 D1（中文头 vs 英文头）
 - **V5 触发测试集**：修改 description 后，执行 `references/trigger-test-set.md` 验证触发行为
 - **V6 输出可判定**：输出格式符合 `references/output-template.md`，可机器判定
 
@@ -361,7 +405,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 运行时要求
 
-- **文件读写**：需要读写项目目录下的 CHANGELOG.md 和 CHANGELOG.en.md
+- **文件读写**：需要读写项目目录下的 CHANGELOG.md、CHANGELOG.en.md，以及可选 `.changelog-manager.json`
 - **git（可选）**：使用 `+generate` 时需要 git 仓库环境
 - **网络（可选）**：参考 Keep a Changelog 在线文档时需要网络
 - **翻译能力**：内置中英文翻译能力，无需额外 API

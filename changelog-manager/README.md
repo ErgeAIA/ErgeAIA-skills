@@ -76,12 +76,24 @@
 
 | 英文 | 中文 |
 |------|------|
-| Added | 新增 |
-| Changed | 变更 |
-| Deprecated | 弃用 |
-| Removed | 移除 |
-| Fixed | 修复 |
-| Security | 安全 |
+| `### Added`（英文文件） | `### 新增`（中文文件） |
+| `### Changed` | `### 变更` |
+| `### Deprecated` | `### 弃用` |
+| `### Removed` | `### 移除` |
+| `### Fixed` | `### 修复` |
+| `### Security` | `### 安全` |
+
+## 项目配置（sidecar）
+
+可选文件 `.changelog-manager.json`（`+init` 默认创建）：
+
+```json
+{ "primaryLang": "zh", "keepIssueLinks": false, "tagPrefix": "v", "keepMarkers": false }
+```
+
+- `+lang` 会更新 `primaryLang`，跨会话保持翻译方向
+- `+generate` 默认幂等：重复执行同一 range 不应双写
+- 中文文件使用中文分类头，英文文件使用英文分类头
 
 ## 工作流
 

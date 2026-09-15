@@ -12,33 +12,33 @@ trigger-when: 需要生成 release-notes 或检查报告时，加载对应输出
 ### 中文版 (CHANGELOG.md)
 
 ```markdown
-# Changelog
+# 更新日志
 
-All notable changes to this project will be documented in this file.
+本项目所有值得注意的变更都记录在此文件中。
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，
+并且本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 ## [Unreleased]
 
 ## [VERSION] - YYYY-MM-DD
 
-### Added
+### 新增
 - 变更描述
 
-### Changed
+### 变更
 - 变更描述
 
-### Deprecated
+### 弃用
 - 变更描述
 
-### Removed
+### 移除
 - 变更描述
 
-### Fixed
+### 修复
 - 变更描述
 
-### Security
+### 安全
 - 变更描述
 
 [Unreleased]: https://github.com/USER/REPO/compare/vVERSION...HEAD
@@ -88,19 +88,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | 标准头部 | Keep a Changelog + SemVer 声明 | 固定文案 |
 | `[Unreleased]` | 未发布变更区块 | 必须存在，即使为空 |
 | 版本标题 | `## [VERSION] - YYYY-MM-DD` | ISO 8601 日期 |
-| 分类标题 | `### Added/Changed/...` | 仅使用6个标准分类 |
+| 分类标题 | 中文文件中文头 / 英文文件英文头 | 仅 6 个标准分类，语言按文件 |
 | 版本链接 | 底部链接定义 | 格式：`[VERSION]: URL` |
 
-### 分类标题中英文对照
+### 分类标题中英文对照（强制）
 
-| 英文 | 中文 |
+| 英文（.en.md） | 中文（CHANGELOG.md） |
 |------|------|
-| Added | 新增 |
-| Changed | 变更 |
-| Deprecated | 弃用 |
-| Removed | 移除 |
-| Fixed | 修复 |
-| Security | 安全 |
+| `### Added` | `### 新增` |
+| `### Changed` | `### 变更` |
+| `### Deprecated` | `### 弃用` |
+| `### Removed` | `### 移除` |
+| `### Fixed` | `### 修复` |
+| `### Security` | `### 安全` |
 
 ---
 
@@ -117,6 +117,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 | [Unreleased] 区块 | ✅/⚠️/❌ | 详情 |
 | 日期格式 (ISO 8601) | ✅/⚠️/❌ | 详情 |
 | 分类名称 | ✅/⚠️/❌ | 详情 |
+| 分类标题语言 | ✅/⚠️/❌ | 中文文件中文头 / 英文文件英文头；历史遗留 WARN |
+| 双语结构同构 | ✅/⚠️/❌ | 版本/日期/分类集合/条目数/link key |
+| 幂等候选 | ✅/⚠️/❌ | +generate 预览须含已存在跳过 |
 | 版本链接 | ✅/⚠️/❌ | 详情 |
 
 ## 双语文档一致性检查
@@ -161,22 +164,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 变更分类预览
 
+- **待写入**：A 条 ｜ **已存在跳过**：B 条
+
 ### 中文版 (CHANGELOG.md)
 
-### Added
-- 变更描述（来源：commit hash 简写）
+### 新增
 - 变更描述
 
-### Changed
+### 变更
 - 变更描述
 
-### Fixed
+### 修复
 - 变更描述
 
 ### 英文版 (CHANGELOG.en.md)
 
 ### Added
-- Change description (source: commit hash)
 - Change description
 
 ### Changed
@@ -184,6 +187,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Change description
+
+### 已存在跳过
+
+- 与 Unreleased 重复的条目（归一化匹配）列表
 
 ## 确认选项
 
