@@ -4,6 +4,26 @@
 
 ---
 
+## v1.2.0 (2026-09-13)
+
+### vibe-sync 增加「更新日志」能力
+
+**背景**：原 vibe-sync 只写 `docs/.ai/` 进度/决策/调试与 AGENTS 事实区，项目根 `CHANGELOG.md` 无同步入口。
+
+**改动**
+
+- **产物布局**新增可选行：`<project>/CHANGELOG.md`，写入者 `vibe-sync`；**仅文件已存在时追加**，不代建（完整规范归 changelog-manager / 用户自建）。
+- **核心原则「不越界」**显式纳入已存在的根 `CHANGELOG.md` 为追加例外。
+- **路由 / description / compatibility** 补「更新日志」意图词。
+- **`references/sync-progress.md`**：新增「写入规则 · CHANGELOG.md」——只收用户可见变更、格式跟随既有文件、追加 Unreleased 或当日节、不改历史；与 progress 分工写明；写入范围与「不顺手改」条款同步。
+- **失败模式**：无 CHANGELOG 却要写 → 不创建、提示；用户坚持代建须书面确认。
+- **验证表** vibe-sync 行：有 CHANGELOG 且有可见变更时须追加，否则明示跳过。
+- `metadata.version` → 1.2.0。
+
+**设计取舍**：不做成第二个 changelog-manager——只做「已有文件的增量追加」；避免与 Keep a Changelog 全规范技能抢职责。
+
+---
+
 ## v1.1.0 (2026-09-13)
 
 ### 新增触发词 `vibe-audit`（只读审查开发类项目）

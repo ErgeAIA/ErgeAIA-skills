@@ -21,14 +21,14 @@ vibe-buddy 把这些答案固化成文件：
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
 | `vibe-init` | 初始化项目 / 生成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/.ai/` 各过程文档、`docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
-| `vibe-sync` | 同步进度 / 更新项目进度 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表 |
+| `vibe-sync` | 同步进度 / 更新项目进度 / 更新日志 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表；项目根**已有** `CHANGELOG.md` 时，把本轮**用户可见**变更按其既有格式追加（不代建文件） |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD[-slug].md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针 |
 | `vibe-distill` | 经验蒸馏 / 提炼可复用经验 | 把一轮开发里**反复成立**的做法提炼成按领域组织的经验条目（主张 / 适用 / Why / How / 反例，分 🔴🟡🟢），落 `docs/.ai/experience/` |
 | `vibe-audit` | 审查项目 / 审查技术栈（优先斜杠调用） | 对前端 / 后端 / Web 开发类项目做**只读**审查（代码质量、架构、技术栈），报告落 `docs/.ai/audit/`；每条结论带 `路径:行`；**Skill 项目转交 skill-workshop**，不自审 |
 
 ## 记录与提炼是两件事
 
-`vibe-sync` 记**发生了什么**——流水事实（进度、决策、调试记录），只对本项目有意义，严格只追加。
+`vibe-sync` 记**发生了什么**——流水事实（进度、决策、调试记录），只对本项目有意义，严格只追加；若项目根已有 `CHANGELOG.md`，再把用户可见变更摘要追加进去（无文件不代建）。
 
 `vibe-distill` 提炼**什么事反复成立**——抽象规则，能离开本项目被复用，因此正文可改写、历史靠 `changelog.md` 保追溯。
 
@@ -138,4 +138,4 @@ vibe-buddy/
 
 ## 版本
 
-当前版本：**v1.1.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.2.0**，详见 [CHANGELOG.md](CHANGELOG.md)。

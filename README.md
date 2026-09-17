@@ -11,7 +11,7 @@
 | [skill-workshop](skill-workshop/) | Skill 全生命周期工作站：创建、评审、重构、评测 Agent Skill（含 Google 5 模式基线） | v1.25.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.1.0 |
 | [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | v0.3.9 |
-| [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：把协作契约写进 AGENTS.md，把进度、决策、踩坑沉淀到 docs/.ai/，跨会话交接靠自包含文档，并把开发过程蒸馏成按领域组织的可复用经验；另可只读审查开发类项目的代码质量与技术栈（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | v1.1.0 |
+| [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：把协作契约写进 AGENTS.md，把进度、决策、踩坑沉淀到 docs/.ai/，跨会话交接靠自包含文档，并把开发过程蒸馏成按领域组织的可复用经验；另可只读审查开发类项目的代码质量与技术栈；已有 CHANGELOG 时可同步更新日志（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | v1.2.0 |
 | [moxian](moxian/) | 默现：照出对话里「以为懂、其实没内化」的三层认知缺口（术语没追到底 / 有主意说不清 / 一整块不知道自己缺），外化成可说出口的问题与概念，落一份可累积的认知卡到 docs/moxian/（默现 / moxian / 我哪没懂） | v0.1.0 |
 
 ## 快速开始
