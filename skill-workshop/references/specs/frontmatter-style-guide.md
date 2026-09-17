@@ -39,8 +39,8 @@ not-consumed-by: W3（不作为判定依据）
 | `author` | 作者/维护者 | ✅ 建议保留 |
 | `origin` | 提炼背景 | 可选，解释 Skill 来源 |
 | `triggers` | 触发短语列表 | 可选，也可直接写在 description 中 |
-| `created` | 创建日期 | 建议放 VERSION.md |
-| `updated` | 更新日期 | 建议放 VERSION.md |
+| `created` | 创建日期 | 建议放 CHANGELOG.md（或 VERSION.md） |
+| `updated` | 更新日期 | 建议放 CHANGELOG.md（或 VERSION.md） |
 
 ## 三、简洁模板（推荐）
 
@@ -77,11 +77,11 @@ description: 简短描述
 ---
 ```
 
-## 五、VERSION.md 信息归属
+## 五、版本变更记录（CHANGELOG.md / VERSION.md）信息归属
 
-有 VERSION.md 的 Skill，建议将以下信息迁移到该文件：
+使用版本变更记录的 Skill（本仓库统一以 CHANGELOG.md 承载），建议将以下信息迁移到该文件：
 
-| 原可能放 frontmatter 的信息 | 迁移到 VERSION.md |
+| 原可能放 frontmatter 的信息 | 迁移到版本变更记录 |
 |---------------------------|------------------|
 | `created` | CHANGELOG 第一条 |
 | `updated` | CHANGELOG 最新条目日期 |
@@ -89,7 +89,7 @@ description: 简短描述
 | `version` | 文件名本身已是来源 |
 
 **理由**：
-- VERSION.md 天然携带时间线
+- 版本变更记录天然携带时间线
 - 避免 frontmatter 过度工程化
 - 保持 frontmatter 轻量
 
@@ -101,7 +101,7 @@ description: 简短描述
 
 1. **先问必要性**：添加每个字段前问"没有它会怎样？"
 2. **description 优先**：触发信息优先放在 description 中，而非 triggers 数组
-3. **渐进式披露**：复杂信息移到 references/ 或 VERSION.md
+3. **渐进式披露**：复杂信息移到 references/ 或版本变更记录（CHANGELOG.md / VERSION.md）
 4. **官方为准**：本文档与官方规范冲突时，以官方规范为准
 
 ## 八、非审查规则声明

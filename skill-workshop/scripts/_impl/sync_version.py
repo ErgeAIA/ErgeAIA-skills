@@ -2,12 +2,12 @@
 # /// script
 # requires-python = ">=3.10"
 # ///
-"""版本单源化辅助：以 VERSION.md 顶部最新版本为唯一真源，同步写入 SKILL.md frontmatter.version。
+"""版本单源化辅助：以 CHANGELOG.md（优先）或 VERSION.md 顶部最新版本为唯一真源，同步写入 SKILL.md frontmatter.version。
 
 用法：
     python scripts/_impl/sync_version.py <skill_dir>
 
-无第三方依赖（仅标准库）。不交互、不修改 VERSION.md，只改 SKILL.md 的 metadata.version。
+无第三方依赖（仅标准库）。不交互、不修改 CHANGELOG.md/VERSION.md，只改 SKILL.md 的 metadata.version。
 退出码：0 成功 / 1 未找到版本 / 2 写入失败。
 """
 from __future__ import annotations
@@ -16,7 +16,8 @@ import re
 import sys
 from pathlib import Path
 
-VERSION_RE = re.compile(r"^##\s+v(\d+\.\d+\.\d+)", re.MULTILINE)
+# 兼容 Keep a Changelog 的 `## [1.25.0]` 与原 VERSION.md 的 `## v1.25.0` 两种标题。
+VERSION_RE = re.compile(r"^##\s+\[?v?(\d+\.\d+\.\d+)\]?", re.MULTILINE)
 FRONTMATTER_VERSION_RE = re.compile(r'^(?P<indent>\s*)version:\s*"(?P<ver>[^"]+)"\s*$', re.MULTILINE)
 
 
@@ -28,17 +29,20 @@ def read_latest_version(version_md: Path) -> str | None:
 
 def sync(skill_dir: Path) -> int:
     skill_md = skill_dir / "SKILL.md"
-    version_md = skill_dir / "VERSION.md"
     if not skill_md.exists():
         print(f"[sync_version] 缺失 SKILL.md: {skill_md}")
         return 2
-    if not version_md.exists():
-        print(f"[sync_version] 缺失 VERSION.md: {version_md}")
-        return 2
 
-    latest = read_latest_version(version_md)
+    latest = None
+    for record_name in ("CHANGELOG.md", "VERSION.md"):
+        record = skill_dir / record_name
+        if record.is_file():
+            latest = read_latest_version(record)
+            if latest:
+                break
+
     if not latest:
-        print("[sync_version] 未能从 VERSION.md 解析到版本号")
+        print("[sync_version] 未能从 CHANGELOG.md / VERSION.md 解析到版本号")
         return 1
 
     content = skill_md.read_text(encoding="utf-8")
