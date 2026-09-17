@@ -8,7 +8,7 @@
 
 - **YOU MUST**: 遵守 [Agent Skills 官方规范](https://agentskills.io/)；新增/修改技能必须满足合规要求（见「反直觉约定」）。
 - **YOU MUST**: commit message 遵循 Conventional Commits（见「工具链」链路规则，详见仓库 `.trae/rules/git-commit-message.md`）。
-- **YOU MUST**: 涉及版本变更时遵循三段式 `X.Y.Z`，并同步 `frontmatter.metadata.version` 与 `VERSION.md`。
+- **YOU MUST**: 涉及版本变更时遵循三段式 `X.Y.Z`，并同步 `frontmatter.metadata.version` 与 `CHANGELOG.md`。
 
 **需确认（先停下说明影响，等待明确授权再执行）**：
 - 删除文件/目录、修改凭据、数据库/数据变更、高风险 git 操作（`push --force` / `rebase` / `reset --hard`）、全局安装、对外发布、引入新框架/重大依赖、切换包管理器。
@@ -30,7 +30,7 @@
 - **包/环境**: `uv`（用于运行测试）。
 - **分发/安装**: `npx skills`（Agent Skills CLI，直读本仓库安装）。
 - **无**: `package.json`、Node 前端框架、后端、数据库、CI/发布流程（原 `release.yml` 发布流程已于 2026-09-12 退役，见决策日志）。
-- **版本合规约束**: 版本号强制三段式 `X.Y.Z`；`frontmatter.metadata.version` 为唯一必填版本点，技能含 `VERSION.md` 时头部版本块与版本历史 section 可选。
+- **版本合规约束**: 版本号强制三段式 `X.Y.Z`；`frontmatter.metadata.version` 为唯一必填版本点，技能含 `CHANGELOG.md` 时头部版本块与版本历史 section 可选。
 
 ## 命令表
 
@@ -49,7 +49,7 @@
 - **脚本纪律**（所有技能通用）: 无交互式输入（不得出现 `input()`）；CLI 支持 `--help`；结构化退出码 `0=PASS, 1=FAIL, 2=ERROR`；错误写 `stderr`、数据写 `stdout`；多数子命令支持 `--offset` / `--output` 截断。
 - **Agent Skills 合规**（所有技能必须满足）: frontmatter 含 `name` + `description`；渐进式披露（`SKILL.md` 原则上 `<500` 行）；脚本无交互提示；CLI 支持 `--help`；结构化退出码；单元测试覆盖（新增规则须对应用例）。
 - **内容三层分层**（强约束）: `README.md`=人类可读；`SKILL.md`=AI 执行规则（禁放人类可读内容）；`references/`=按需加载（文件须带 `trigger-when`，引用路径必须真实存在）。
-- **`VERSION.md` 外置原则**: 版本演进记录放 `VERSION.md`，按需读取，不污染 `SKILL.md` 上下文。
+- **`CHANGELOG.md` 外置原则**: 版本演进记录放 `CHANGELOG.md`，按需读取，不污染 `SKILL.md` 上下文。
 - **命名**: Skill 名 hyphen-case，长度 `<=64`。
 - **架构偏好**: `references/` 按 `workflows/` / `rubrics/` / `specs/` / `config/` / `templates/` 分层；工作流文件用语义化标记（`@工作流:` / `@步骤N:` / `@验证点`）与 frontmatter（`name` / `description` / `version` / `reads-from` / `writes-to` / `trigger-when`）；多工作流用「决策矩阵」表路由；关键决策/失败回退加 `🔴 CHECKPOINT` / `🛑 STOP` 标记。
 - **.gitignore 要点**: `.trae/`、`.backups/`、`__pycache__/`、`reviews/`、`evals/results/`、`.vscode/`、`.idea/` 不入库；`reviews/`、`evals/results/` 是本地产物。
@@ -58,7 +58,7 @@
 
 - **测试**: 本仓库**当前无单元测试**——原唯一测试（`skill-reviewer/tests/`，约 30 用例，`unittest`）随该技能删除；`skill-workshop` 一直**无** `tests/` 目录，向其前提功能时勿假定有测试覆盖。
 - **CI**: 无。原 `.github/workflows/release.yml` 发布流程已于 2026-09-12 退役（仓库定位纯技能集合，分发走 `npx skills add` 直读仓库）；`CHANGELOG.md` / `CHANGELOG.en.md` 降级为纯人类文档，不触发任何自动化。
-- **文档指针**: 技能入口 `SKILL.md` / `README.md` / `VERSION.md`；背景、决策历史、质量现状、风险 → [`references/project-overview.md`](references/project-overview.md)；顶层 README 仅作对外介绍，不复述规则。
+- **文档指针**: 技能入口 `SKILL.md` / `README.md` / `CHANGELOG.md`；背景、决策历史、质量现状、风险 → [`references/project-overview.md`](references/project-overview.md)；顶层 README 仅作对外介绍，不复述规则。
 
 ## 自维护协议
 
@@ -67,7 +67,7 @@
 3. 提交前自检清单（每次提交前逐项核对）：
    - 命令更名、重构、规范变更后核对本文件准确性，有过期示例立即更新。
    - 版本同步：任一技能 `frontmatter.metadata.version` 升版时，同步根 `README.md` / `README.en.md` 技能列表版本号（易滞后，2026-09-12 教训）。
-   - **推送前版本对齐检查**（2026-09-13）：`git push` 前核对本批技能 `metadata.version` = `VERSION.md` 首条 = 根 README 双语索引版本；不一致禁止推送，先修再推。
+   - **推送前版本对齐检查**（2026-09-13）：`git push` 前核对本批技能 `metadata.version` = `CHANGELOG.md` 顶部最新版本 = 根 README 双语索引版本；不一致禁止推送，先修再推。
    - README 双语文档：章节平行、顶部互链存在、外部链接连通、不引用已删除路径（如 `skill-reviewer/`）。
 4. 周期维护：随版本发布或定期审查，清除失效引用、已关闭事项、废弃约定。
 5. 变更留痕：对 `AGENTS.md` 的每次规则改动，在 [`references/agents-decision-log.md`](references/agents-decision-log.md) 追加「旧值 → 处置 → 新值」记录，禁止静默覆盖既有决策。
