@@ -87,3 +87,17 @@
 | # | 既有决策（旧值） | 处置 | 新值 / 原因 |
 |---|------------------|------|------------|
 | 1 | 提交前自检清单含「版本同步 README 索引」 | 改 | 保留原项，并新增独立硬门槛：git push 前核对 metadata.version = VERSION.md 首条 = 根 README 双语索引；不一致禁止推送 |
+
+## 2026-09-17 版本记录统一为 CHANGELOG.md
+
+用户决策：本仓库版本记录约定统一使用 CHANGELOG.md 管理变更，不再以 VERSION.md 作为版本记录。AGENTS.md 同步更新相关指令；本文件仅作变更留痕，不在 AGENTS.md 内写历史。
+
+| # | 既有决策（旧值） | 处置 | 新值 / 原因 |
+|---|------------------|------|------------|
+| 1 | L11 版本变更同步对象 `VERSION.md` | 改 | `CHANGELOG.md` |
+| 2 | L33 头部版本块可选条件「技能含 `VERSION.md` 时」 | 改 | 「技能含 `CHANGELOG.md` 时」 |
+| 3 | L52「`VERSION.md` 外置原则：版本演进记录放 `VERSION.md`」 | 改 | 「`CHANGELOG.md` 外置原则：版本演进记录放 `CHANGELOG.md`」 |
+| 4 | L61 文档指针「技能入口 … / `VERSION.md`」 | 改 | 「… / `CHANGELOG.md`」 |
+| 5 | L70 推送前对齐「`metadata.version` = `VERSION.md` 首条」 | 改 | 「`metadata.version` = `CHANGELOG.md` 顶部最新版本」 |
+
+**保留**：skill-workshop 校验器（`quick_validate.py` / `review_ops.py` / `reconcile.py` 等）仍兼容 `VERSION.md` 作为 legacy 技能过渡期 fallback，确保未迁移技能不被误伤；新技能统一以 CHANGELOG.md 为准。
