@@ -50,8 +50,8 @@
 | `references/quotes-verified.md` | 名言核验屉（带 `[核验]` + `来源`，禁现编） |
 | `references/examples.md` | 已通过禁区筛选的示范 |
 | `scripts/validate_skill.py` | 工程硬校验（A2/D10/A3 物理落地） |
-| `VERSION.md` | 版本历史（权威源） |
+| `CHANGELOG.md` | 版本历史（权威源） |
 
 ## 版本
 
-当前版本 **v0.3.8**，详见 [VERSION.md](VERSION.md)。
+当前版本 **v0.3.8**，详见 [CHANGELOG.md](CHANGELOG.md)。

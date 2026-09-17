@@ -146,4 +146,4 @@ metadata:
 ## 参考
 
 - 人类使用说明与设计取舍：[`README.md`](README.md)
-- 版本演进：[`VERSION.md`](VERSION.md)
+- 版本演进：[`CHANGELOG.md`](CHANGELOG.md)

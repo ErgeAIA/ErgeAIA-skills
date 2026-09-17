@@ -113,7 +113,7 @@ vibe-buddy 把这些答案固化成文件：
 vibe-buddy/
 ├── SKILL.md                              # 入口：路由与共用契约
 ├── README.md                             # 本文件
-├── VERSION.md                            # 版本演进
+├── CHANGELOG.md                            # 版本演进
 ├── assets/
 │   ├── docs/                             # 过程文档模板，初始化时原样复制
 │   │   ├── project-progress.md
@@ -138,4 +138,4 @@ vibe-buddy/
 
 ## 版本
 
-当前版本：**v1.1.0**，详见 [VERSION.md](VERSION.md)。
+当前版本：**v1.1.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
