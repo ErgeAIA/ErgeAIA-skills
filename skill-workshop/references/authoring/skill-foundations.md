@@ -83,8 +83,8 @@ skill-name/
 - `description`
 - `metadata.version`（顶层 `version` 非官方字段，一律放 metadata 内）
 - 主工作流与关键步骤
-- 头部版本块
-- 文末 `## 版本历史`
+- 头部版本块（可选；存在外部变更记录 CHANGELOG.md/VERSION.md 时可省略）
+- 文末 `## 版本历史`（可选；使用外部变更记录承载版本演进时可省略）
 
 允许但非必需的字段：
 
@@ -147,7 +147,8 @@ skill-name/
 - `README.md`
 - `INSTALLATION_GUIDE.md`
 - `QUICK_REFERENCE.md`
-- `CHANGELOG.md`
+
+> 版本变更记录（`CHANGELOG.md` 或 `VERSION.md`）按仓库约定创建其一即可：本仓库统一使用 `CHANGELOG.md`（Keep a Changelog，由 changelog-manager 维护），`SKILL.md` 不再内联 `## 版本历史`。
 
 ## 5. 渐进加载与正文瘦身
 

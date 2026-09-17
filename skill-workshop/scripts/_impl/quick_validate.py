@@ -31,7 +31,7 @@ NONSTANDARD_WORKFLOW_HEADER_RE = re.compile(r"^###\s+@工作流:\s*.+$", re.MULT
 # 核心意图关键词（spec.md §description 格式约束：≥2 为硬判据）。
 # 词表扩充实例登记（日期、技能、新增词）：
 #   2026-09-11 skill-workshop v1.22.0 初始词表。
-# 处置顺序（见 VERSION.md v1.22.0 / 计划 Task 5 Step 3b）：扩词表 > advisory 复核 > 改被审技能。
+# 处置顺序（见 CHANGELOG.md v1.22.0 / 计划 Task 5 Step 3b）：扩词表 > advisory 复核 > 改被审技能。
 INTENT_KEYWORDS = {
     "提取", "合并", "重构", "审计", "部署", "创建", "评审", "校验", "评测", "生成",
     "转换", "处理", "分析", "检查", "修复", "优化", "验证", "翻译", "清理", "监控",
@@ -207,14 +207,23 @@ def validate_semantic_markup(content, *, skill_is_builder=True):
     return True, "Semantic markup is valid"
 
 
+def _external_version_record(skill_path: Path) -> Path | None:
+    """返回存在的外部变更记录文件（CHANGELOG.md 优先，其次 VERSION.md），无则 None。"""
+    for name in ("CHANGELOG.md", "VERSION.md"):
+        p = skill_path / name
+        if p.is_file():
+            return p
+    return None
+
+
 def validate_version_history_length(content, max_entries=5, *, skill_path: Path | None = None):
-    # If no version history in content, check VERSION.md fallback
+    # If no version history in content, check external version record fallback
     has_history = bool(
         re.search(r"^##\s+(?:版本历史|Version History)\s*$", content, re.MULTILINE)
     )
     if not has_history and skill_path is not None:
-        version_md = skill_path / "VERSION.md"
-        if version_md.is_file():
+        version_md = _external_version_record(skill_path)
+        if version_md is not None:
             content = version_md.read_text(encoding="utf-8")
 
     sections = re.split(r"^##\s+", content, flags=re.MULTILINE)
@@ -372,6 +381,11 @@ def extract_latest_version_history_entry(content: str) -> str | None:
         if match:
             return match.group(1)
 
+    # Format 3: CHANGELOG.md style "## [1.25.0] - date" or "## 1.25.0"
+    m = re.search(r"^##\s+\[?v?(\d+\.\d+\.\d+)\]?", content, re.MULTILINE)
+    if m:
+        return m.group(1)
+
     return None
 
 
@@ -381,10 +395,10 @@ def validate_version_consistency(frontmatter: dict, content: str, *, skill_path:
     header_version = extract_header_version(content)
     history_version = extract_latest_version_history_entry(content)
 
-    # Fallback: read version history from VERSION.md if not in SKILL.md
+    # Fallback: read version history from external record (CHANGELOG.md/VERSION.md) if not in SKILL.md
     if history_version is None and skill_path is not None:
-        version_md = skill_path / "VERSION.md"
-        if version_md.is_file():
+        version_md = _external_version_record(skill_path)
+        if version_md is not None:
             version_md_content = version_md.read_text(encoding="utf-8")
             history_version = extract_latest_version_history_entry(version_md_content)
 
@@ -407,10 +421,10 @@ def validate_version_consistency(frontmatter: dict, content: str, *, skill_path:
         # SKILL.md 头部版本块与版本历史 section 都不是 LLM 决策必需；
         # 真实版本源是 frontmatter.metadata.version。
         # 当 VERSION.md 存在时，以下两个字段应作为人类参考而非 V0 硬约束——降级为 warning。
-        if skill_path is not None and (skill_path / "VERSION.md").is_file():
+        if skill_path is not None and _external_version_record(skill_path) is not None:
             return (
                 True,
-                "Version fields are in sync (skipped header/history checks; VERSION.md fallback present)",
+                "Version fields are in sync (skipped header/history checks; external version record present)",
             )
         return (
             False,
@@ -432,10 +446,10 @@ def validate_version_consistency(frontmatter: dict, content: str, *, skill_path:
     if not history_version:
         # history_version 缺失：frontmatter 与头部一致即可，VERSION.md fallback 已在
         # _load_version_history_content 兜底
-        if skill_path is not None and (skill_path / "VERSION.md").is_file():
+        if skill_path is not None and _external_version_record(skill_path) is not None:
             return (
                 True,
-                "Version fields are in sync (skipped history check; VERSION.md fallback present)",
+                "Version fields are in sync (skipped history check; external version record present)",
             )
         return (
             False,
@@ -505,29 +519,29 @@ def get_body_line_count(content: str) -> int:
 
 
 def _load_version_history_content(skill_path: Path, content: str) -> str:
-    """Return version history content from SKILL.md or VERSION.md fallback.
+    """Return version history content from SKILL.md or external record fallback.
 
     If SKILL.md contains a '## 版本历史' section, use it.
-    Otherwise, read VERSION.md from the same directory.
+    Otherwise, read CHANGELOG.md/VERSION.md from the same directory.
     """
     if re.search(r"^##\s+(?:版本历史|Version History)\s*$", content, re.MULTILINE):
         return content
-    version_md = skill_path / "VERSION.md"
-    if version_md.is_file():
+    version_md = _external_version_record(skill_path)
+    if version_md is not None:
         return version_md.read_text(encoding="utf-8")
     return content
 
 
 def validate_version_history_position(content: str, doc_label: str = "SKILL.md", *, skill_path: Path | None = None):
-    # If SKILL.md has no version history, check VERSION.md fallback
+    # If SKILL.md has no version history, check external record fallback
     has_history_in_content = bool(
         re.search(r"^##\s+(?:版本历史|Version History)\s*$", content, re.MULTILINE)
     )
     if not has_history_in_content and skill_path is not None:
-        version_md = skill_path / "VERSION.md"
-        if version_md.is_file():
-            # Version history lives in VERSION.md — valid arrangement
-            return True, "Version history is in VERSION.md"
+        version_md = _external_version_record(skill_path)
+        if version_md is not None:
+            # Version history lives in CHANGELOG.md/VERSION.md — valid arrangement
+            return True, "Version history is in CHANGELOG.md/VERSION.md"
 
     lines = content.splitlines()
     history_index = None
@@ -567,14 +581,17 @@ def validate_version_history_position(content: str, doc_label: str = "SKILL.md",
 
 
 def validate_version_history_entry_count(content: str, max_entries: int = 5, *, skill_path: Path | None = None):
-    # If no version history in content, check VERSION.md fallback
+    # If no version history in content, check external record fallback
     has_history = bool(
         re.search(r"^##\s+(?:版本历史|Version History)\s*$", content, re.MULTILINE)
     )
     if not has_history and skill_path is not None:
-        version_md = skill_path / "VERSION.md"
-        if version_md.is_file():
-            content = version_md.read_text(encoding="utf-8")
+        record = _external_version_record(skill_path)
+        if record is not None:
+            # 版本历史维护在外部变更记录（CHANGELOG.md/VERSION.md），不强制内联 ## 版本历史，
+            # 也不对其施加 5 条上限（Keep a Changelog 保留完整历史）。
+            return True, "Version history is maintained in external CHANGELOG.md/VERSION.md"
+        # record 为 None：无外部记录，保持原 content 继续内联历史校验
 
     history_match = re.search(
         r"^##\s+(?:版本历史|Version History)\s*$([\s\S]*)",

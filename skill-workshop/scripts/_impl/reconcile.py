@@ -40,7 +40,7 @@ EXAMPLE_MARKERS = (
 )
 
 SEMVER_RE = re.compile(r"\b(\d+\.\d+\.\d+)\b")
-VERSION_HEAD_RE = re.compile(r"^##\s+v?(\d+\.\d+\.\d+)", re.M)
+VERSION_HEAD_RE = re.compile(r"^##\s+\[?v?(\d+\.\d+\.\d+)\]?")  # 兼容 VERSION.md `## vX.Y.Z` 与 CHANGELOG.md `## [X.Y.Z]`
 FM_VERSION_RE = re.compile(r"^\s*version:\s*[\"']?(\d+\.\d+\.\d+)", re.M)
 README_VER_RE = re.compile(r"当前版本：\*\*v?(\d+\.\d+\.\d+)\*\*")
 REF_PATH_RE = re.compile(r"references/[A-Za-z0-9_./-]+\.(?:md|yaml|yml|json|html)")
@@ -54,10 +54,10 @@ def _iter_md(skill_path: Path, include_version: bool = False):
             continue
         if parts[-1] in SKIP_NAMES:
             continue
-        if parts[-1] == "VERSION.md" and not include_version:
+        if parts[-1] in {"VERSION.md", "CHANGELOG.md"} and not include_version:
             continue
-        # skip root planning docs except SKILL/README/VERSION
-        if len(parts) == 1 and parts[0] not in {"SKILL.md", "README.md", "VERSION.md"}:
+        # skip root planning docs except SKILL/README/version records
+        if len(parts) == 1 and parts[0] not in {"SKILL.md", "README.md", "VERSION.md", "CHANGELOG.md"}:
             continue
         yield md, rel
 
@@ -72,7 +72,7 @@ def extract_version_sites(skill_path: Path) -> dict[str, list[str]]:
     Sources:
     - SKILL.md frontmatter metadata.version
     - README.md「当前版本」
-    - VERSION.md 的 `## vX.Y.Z` 标题（历史；仅用于库存，不参与 active 冲突）
+    - 版本记录（CHANGELOG.md / VERSION.md）的 `## vX.Y.Z` 或 `## [x.y.z]` 标题（历史；仅用于库存，不参与 active 冲突）
     """
     sites: dict[str, list[str]] = defaultdict(list)
 
@@ -98,6 +98,13 @@ def extract_version_sites(skill_path: Path) -> dict[str, list[str]]:
         for m in VERSION_HEAD_RE.finditer(text):
             line_no = text[: m.start()].count("\n") + 1
             sites[m.group(1)].append(f"VERSION.md:{line_no}")
+
+    changelog_md = skill_path / "CHANGELOG.md"
+    if changelog_md.is_file():
+        text = _read(changelog_md)
+        for m in VERSION_HEAD_RE.finditer(text):
+            line_no = text[: m.start()].count("\n") + 1
+            sites[m.group(1)].append(f"CHANGELOG.md:{line_no}")
 
     return {k: list(dict.fromkeys(v)) for k, v in sites.items()}
 
@@ -147,18 +154,18 @@ def run_reconcile(skill_path: Path) -> dict:
 
     ver_sites = extract_version_sites(skill_path)
     inventory["versions"] = ver_sites
-    # skill-workshop: allow historical versions in VERSION.md only
+    # skill-workshop: allow historical versions in external version record (CHANGELOG.md/VERSION.md)
     active_vers = {
         v: sites
         for v, sites in ver_sites.items()
-        if any(not s.startswith("VERSION.md") for s in sites)
+        if any(not (s.startswith("VERSION.md") or s.startswith("CHANGELOG.md")) for s in sites)
     }
     if len(active_vers) > 1:
         errors.append({
             "id": "VER-MULTI",
             "message": "同一技能出现多个非历史版本号声明",
             "sites": {v: s for v, s in active_vers.items()},
-            "fix": "以 SKILL.md frontmatter metadata.version 为唯一真源，同步 README 当前版本与 VERSION.md 顶部标题",
+            "fix": "以 SKILL.md frontmatter metadata.version 为唯一真源，同步 README 当前版本与版本记录（CHANGELOG.md/VERSION.md）最新版本",
         })
 
     num_sites = extract_numeric_sites(skill_path)

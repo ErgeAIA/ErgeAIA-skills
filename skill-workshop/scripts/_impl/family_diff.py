@@ -23,7 +23,7 @@ from pathlib import Path
 BLOCK_CHECKS = [
     ("SKILL.md", lambda p: (p / "SKILL.md").is_file()),
     ("README.md", lambda p: (p / "README.md").is_file()),
-    ("VERSION.md", lambda p: (p / "VERSION.md").is_file()),
+    ("CHANGELOG.md/VERSION.md", lambda p: (p / "CHANGELOG.md").is_file() or (p / "VERSION.md").is_file()),
     ("references/", lambda p: (p / "references").is_dir()),
     ("scripts/skill_cli.py or scripts/", lambda p: (p / "scripts").is_dir()),
     (

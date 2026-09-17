@@ -13,7 +13,7 @@ last-updated: 2026-06-18
 # Spec Sources Changelog
 
 > **目的**: 记录 `references/specs/` 目录下三个规范源（spec.md / best-practices.md / validate.md）的拉取、版本、对齐历史，作为 **spec 演进跟踪机制**。
-> **不维护**: 业务功能变更历史（归 VERSION.md）
+> **不维护**: 业务功能变更历史（归 CHANGELOG.md）
 
 ## 跟踪字段
 
@@ -72,6 +72,6 @@ last-updated: 2026-06-18
 
 ## 不在本变更日志
 
-- skill-workshop 自身功能变更 → `VERSION.md`
+- skill-workshop 自身功能变更 → `CHANGELOG.md`
 - review-checklist.md 维度过修订 → `references/rubrics/review-checklist.md` 历史段
 - workflow 路由调整 → `references/routing-table.md` 演练段

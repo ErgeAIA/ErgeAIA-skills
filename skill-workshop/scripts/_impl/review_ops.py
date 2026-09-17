@@ -57,7 +57,7 @@ TRIGGERS_TOPLEVEL_RE = re.compile(r"^triggers:\s*", re.M)
 METADATA_TRIGGERS_RE = re.compile(r"metadata:.*?triggers:", re.S)
 NEXT_KEY_CANDIDATES = ["license", "compatibility", "allowed-tools", "metadata"]
 VERSION_FIELD_RE = re.compile(r'^\s*version:\s*"?([^"\n]+)"?', re.M)
-VERSION_MD_HEADER_RE = re.compile(r'^##\s+v?(\d+\.\d+\.\d+)', re.M)  # 仅捕获 semver 本体；标题注记（如「v1.0.0（未发布 · …）」）不得卷入比对，否则对带注记的版本标题误报不一致
+VERSION_MD_HEADER_RE = re.compile(r'^##\s+\[?v?(\d+\.\d+\.\d+)\]?', re.M)  # 兼容 VERSION.md 的 `## vX.Y.Z` 与 CHANGELOG.md 的 `## [X.Y.Z]`；仅捕获 semver 本体
 H2_RE = re.compile(r"^##\s", re.M)
 LIST_RE = re.compile(r"^\s*[-*]\s", re.M)
 TRIGGER_WHEN_RE = re.compile(r"trigger-when:", re.I)
@@ -188,7 +188,7 @@ def _load_external_rules(script_dir: Path) -> tuple[list[dict], set[str]]:
 
 _LOADED_CONSISTENCY_RULES, _LOADED_CONSISTENCY_IGNORE = _load_external_rules(Path(__file__).resolve().parent)
 _ALL_CONSISTENCY_RULES = _LOADED_CONSISTENCY_RULES
-CONSISTENCY_IGNORE_FILES = {"VERSION.md"} | _LOADED_CONSISTENCY_IGNORE
+CONSISTENCY_IGNORE_FILES = {"CHANGELOG.md", "VERSION.md"} | _LOADED_CONSISTENCY_IGNORE
 
 # ---------- 公开 API ----------
 
@@ -356,16 +356,21 @@ def checklist_scan(path: str | Path, profile: str = "standard") -> dict:
         else:
             errors.append(_err("[V5] 未发现评估断言可机器判定描述", "添加 V5 描述"))
 
-    version_md = repo / "VERSION.md"
-    if version_md.is_file():
-        vm_text = _read(version_md)
+    version_record = None
+    for name in ("CHANGELOG.md", "VERSION.md"):
+        candidate = repo / name
+        if candidate.is_file():
+            version_record = candidate
+            break
+    if version_record is not None:
+        vm_text = _read(version_record)
         vm_m = VERSION_MD_HEADER_RE.search(vm_text)
         if vm_m:
             sv_m = VERSION_FIELD_RE.search(skill_text)
             if sv_m:
                 if sv_m.group(1).strip() != vm_m.group(1):
                     errors.append(_err(
-                        f"SKILL.md version 与 VERSION.md 最新版本不一致",
+                        f"SKILL.md version 与版本记录（{version_record.name}）最新版本不一致",
                         "同步版本号"
                     ))
 

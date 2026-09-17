@@ -78,7 +78,7 @@ python scripts/skill_cli.py init my-skill --path ./output
 python scripts/skill_cli.py package /path/to/skill
 ```
 
-> **版本单源化**：`scripts/_impl/sync_version.py` 以 `VERSION.md` 顶部最新版本为唯一真源，自动同步写入 `SKILL.md` 的 `metadata.version`，避免三处版本漂移（运行：`python scripts/_impl/sync_version.py .`）。
+> **版本单源化**：`scripts/_impl/sync_version.py` 以 `CHANGELOG.md`（优先）或 `VERSION.md` 顶部最新版本为唯一真源，自动同步写入 `SKILL.md` 的 `metadata.version`，避免三处版本漂移（运行：`python scripts/_impl/sync_version.py .`）。
 
 ## 双评估系统
 
@@ -127,7 +127,7 @@ python scripts/skill_cli.py package /path/to/skill
 skill-workshop/
 ├── SKILL.md                    # Agent 执行入口（路由层）
 ├── README.md                   # 本文件（面向人）
-├── VERSION.md                  # 变更历史
+├── CHANGELOG.md                 # 变更历史
 ├── agents/                     # 评测闭环 Agent 提示词
 │   ├── analyzer.md             # 解盲分析器
 │   ├── comparator.md           # 盲评对比器
@@ -199,4 +199,4 @@ skill-workshop 在二者基础上做了统一入口、路由合并、脚本整�
 
 - **README.md**：面向人，讲价值、快速使用、文件结构、CLI 参考
 - **SKILL.md**：面向 Agent 执行，讲触发路由、硬规则、工作流调度、验证闭环
-- **VERSION.md**：变更历史与合并溯源
+- **CHANGELOG.md**：变更历史与合并溯源

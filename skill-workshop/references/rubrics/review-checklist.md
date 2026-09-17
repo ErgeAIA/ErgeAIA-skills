@@ -122,7 +122,7 @@ contract: |
 | ---- | ---------------------------------------------- | ------ | ---------- |
 | O1   | 是否源自真实任务提炼或项目素材合成             | P0     | W2 / W3    |
 | O1a  | metadata 是否包含 `origin` 字段                | P2     | W3         |
-| O1b  | changelog 是否独立为 VERSION.md（非内嵌）      | P2     | W3         |
+| O1b  | changelog 是否独立为 CHANGELOG.md（非内嵌）      | P2     | W3         |
 | O2   | 是否经过至少一轮 execute-then-revise 迭代      | P2     | W2 / W3    |
 | O3   | 是否阅读过执行轨迹 (Trace) 识别 Agent 试错信号 | P2     | W2 / W3    |
 
