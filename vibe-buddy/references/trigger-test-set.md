@@ -22,6 +22,8 @@ vibe-sync，把刚做完的登录模块沉淀一下            # 详细场景
 把这次的稳定增量更新到项目进度里                  # 自然语言
 把这次踩的坑记下来                              # 调试记录，归 vibe-sync
 这个 bug 排查到根因了，记录一下                   # 详细场景
+更新日志 / 把这次改动写进 CHANGELOG              # 更新日志，归 vibe-sync（文件已存在才追加）
+vibe-sync，同步进度并补一条更新日志              # 组合意图，仍路由 vibe-sync，日志按契约可选追加
 上下文快满了，写个交接文档给下一个 agent          # 详细场景
 vibe-handoff                                  # 英文触发词
 交接上下文，我要换到新会话继续做                  # 自然语言
@@ -46,6 +48,7 @@ vibe-audit                                    # 英文触发词（优先斜杠�
 | 输入 | 应路由到 |
 |---|---|
 | 把这次踩的坑记下来 / 这个 bug 定位到根因了 | `vibe-sync` —— 记流水事实，落 `debug-log.md` |
+| 更新日志 / 写进 CHANGELOG | `vibe-sync` —— 仅当项目根 `CHANGELOG.md` 已存在时追加用户可见变更；无文件不代建 |
 | 把这几轮反复的做法提炼成可复用经验 | `vibe-distill` —— 提炼规则，落 `experience/` |
 | 审查项目 / 审查技术栈 / vibe-audit | `vibe-audit` —— 只读审查开发类项目，落 `docs/.ai/audit/`；Skill 项目转 skill-workshop |
 
