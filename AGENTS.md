@@ -50,7 +50,7 @@
 - **Agent Skills 合规**（所有技能必须满足）: frontmatter 含 `name` + `description`；渐进式披露（`SKILL.md` 原则上 `<500` 行）；脚本无交互提示；CLI 支持 `--help`；结构化退出码；单元测试覆盖（新增规则须对应用例）。
 - **内容三层分层**（强约束）: `README.md`=人类可读；`SKILL.md`=AI 执行规则（禁放人类可读内容）；`references/`=按需加载（文件须带 `trigger-when`，引用路径必须真实存在）。
 - **`CHANGELOG.md` 外置原则**: 版本演进记录放 `CHANGELOG.md`，按需读取，不污染 `SKILL.md` 上下文。
-- **命名**: Skill 名 hyphen-case，长度 `<=64`。
+- **命名**: 机器约束强制——Skill 名 hyphen-case，长度 `<=64`，`frontmatter.name` = 目录名。语义分层与命名公式（内容创作链：1–2 音节拼音 + 功能即名 + 无后缀 + 门面仿古定义；编排/工具层：英文连字符功能名；4 音节全拼仅工作流）**唯一全文见 `Skills-Depot/AGENTS.md`「技能命名偏好（两库 SSOT）」**。既有技能目录名不改。
 - **架构偏好**: `references/` 按 `workflows/` / `rubrics/` / `specs/` / `config/` / `templates/` 分层；工作流文件用语义化标记（`@工作流:` / `@步骤N:` / `@验证点`）与 frontmatter（`name` / `description` / `version` / `reads-from` / `writes-to` / `trigger-when`）；多工作流用「决策矩阵」表路由；关键决策/失败回退加 `🔴 CHECKPOINT` / `🛑 STOP` 标记。
 - **.gitignore 要点**: `.trae/`、`.backups/`、`__pycache__/`、`reviews/`、`evals/results/`、`.vscode/`、`.idea/` 不入库；`reviews/`、`evals/results/` 是本地产物。
 
