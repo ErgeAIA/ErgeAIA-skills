@@ -1,7 +1,7 @@
 ---
 name: sync-progress
-description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度、决策与调试记录，并按需回填 AGENTS.md 的工具链与命令事实。
-trigger-when: 用户说「同步进度」「更新项目进度」「把踩的坑记下来」「vibe-sync」，或任务完成、决策变化、调试定位到根因之后
+description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度、决策与调试记录，按需回填 AGENTS.md 事实，并在项目根已有 CHANGELOG.md 时追加用户可见变更日志。
+trigger-when: 用户说「同步进度」「更新项目进度」「把踩的坑记下来」「更新日志」「vibe-sync」，或任务完成、决策变化、调试定位到根因之后
 role: workflow
 reads-from:
   - references/command-policy.md
@@ -9,22 +9,26 @@ reads-from:
   - <project>/docs/.ai/project-progress.md
   - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md
+  - <project>/CHANGELOG.md（若存在）
   - <project>/docs/handoff/ 中最新一份（若存在）
   - git status / git log / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
   - <project>/docs/.ai/project-progress.md
   - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md
+  - <project>/CHANGELOG.md（仅当已存在且本轮有用户可见变更时追加）
   - <project>/AGENTS.md（仅 Toolchain 与 Commands 两个事实表）
 ---
 
-# sync · 沉淀进度、决策与调试记录
+# sync · 沉淀进度、决策、调试与更新日志
 
 ## 目标
 
 把本次会话里**已经稳定的事实**写进项目长期记忆，让下一次会话不必重读对话历史。这是 `AGENTS.md` 里 `Permissions` 与 `Conventions` 文档义务的执行者。
 
 **只记录，不提炼。** 把「什么事反复成立」提炼成可复用规则，归 `vibe-distill`。
+
+**更新日志与进度不是同一件事**：`project-progress.md` 记过程流水；`CHANGELOG.md` 只记**用户/协作者可见**的产品变更摘要（若文件已存在）。
 
 ## 前置检查
 
@@ -56,7 +60,7 @@ writes-to:
 | 3 | `docs/.ai/project-progress.md` 与 `decision-log.md` | 已记录在案的进度与决策，同时用于去重 |
 | 4 | 本次会话上下文 | 仅作补充 |
 
-**写入范围与取材范围是两件事**：能**写**的只有 `docs/.ai/` 与 `AGENTS.md` 的事实区；能**取材**的是**整个仓库**（含只读命令输出）。
+**写入范围与取材范围是两件事**：能**写**的只有 `docs/.ai/`、`AGENTS.md` 的事实区，以及已存在的项目根 `CHANGELOG.md`（追加）；能**取材**的是**整个仓库**（含只读命令输出）。
 
 核对规则：
 
@@ -66,7 +70,7 @@ writes-to:
 - **`git diff --stat` 空 ≠ 没有改动**：它**不显示未跟踪文件**。新项目里常见 `git status --short` 有几十条而 `git diff --stat` 全空，此时以 `git status --short` 为准
 - **零提交是正常状态**：仓库已 `git init` 但尚无任何提交（`vibe-init` 不替用户提交）时，git 只能给出「全部未跟踪」，这只说明尚未提交，**不代表本次会话没有进展**；此时进度以文档与用户提供为准，不因 git 无信息就判定「无可同步」
 - 项目不是 Git 仓库 → 跳过第 1 项，视为无此事实源，不报错
-- **不顺手改任何 `docs/.ai/` 之外的文件**：源码、配置、`.gitignore` 一律只读；发现问题只报告，不动手
+- **不顺手改任何写入范围之外的文件**：源码、配置、`.gitignore` 等一律只读（例外仅：已存在的项目根 `CHANGELOG.md` 可追加）；发现问题只报告，不动手
 
 ### 上下文被压缩过时
 
@@ -88,10 +92,13 @@ writes-to:
 | 决策 | 偏离 PRD 或重要技术选择 | `docs/.ai/decision-log.md` |
 | 调试 | **反复调试才定位到根因**的问题与预防规则 | `docs/.ai/debug-log.md`（`BUG-NNN`） |
 | 事实 | 工具链版本、安装/测试/lint/构建命令原文 | `AGENTS.md` 的 `Toolchain` / `Commands` 表 |
+| 更新日志 | **用户/协作者可见**的功能、修复、破坏性变更、对外行为变化 | 项目根 `CHANGELOG.md`（**仅已存在时**追加） |
 
-不属于以上四类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
+不属于以上各类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
 
 `debug-log` 只收**已定位根因**的问题：还只有现象、根因仍在猜 → 不写，列入终止回复的待确认项。
+
+**CHANGELOG 与 progress 分工**：同一件事可以既进 progress（过程）又进 CHANGELOG（对外摘要）；但**纯过程**（只改 `docs/.ai/`、纯内部重构且对外无感知）**不进** CHANGELOG。
 
 ## 写入规则 · `project-progress.md`
 
@@ -119,12 +126,25 @@ writes-to:
 - 改完同步 frontmatter 的 `updated`。
 - 某条经验若能提炼成跨项目成立的规则 → 提示用户另跑 `vibe-distill`；本技能只记录，不提炼。
 
+## 写入规则 · `CHANGELOG.md`（项目根，可选）
+
+- **前置**：仅当 `<project>/CHANGELOG.md` **已存在**时追加。不存在 → **不创建**，终止回复写「无 CHANGELOG.md，本轮未写更新日志」，并提示用户自建或使用 changelog-manager；用户书面要求代建最小骨架时才可建，并注明非完整 Keep a Changelog 规范。
+- **只收用户可见变更**：新功能、行为修复、破坏性变更、配置/接口对外变化、对使用者有影响的文档。内部过程文档、`docs/.ai/`、无行为变化的重构 **不写**。
+- **格式跟随文件既有风格**：Keep a Changelog 的 `### Added / Fixed / Changed` 或该文件已用的自定义列表；**禁止**另起一套与文件内历史不一致的结构。
+- **追加位置**：优先 `## [Unreleased]`（若存在）；无 Unreleased 则在最新版本节之后、历史节之前新增当日 `## [YYYY-MM-DD]` 或项目惯用小节；**永不改写**已发布历史版本节。
+- **条目口吻**：面向使用者的一句话（做了什么 / 修了什么），可附路径或 issue 指针；不写内部工单式流水。
+- **与 Git 对齐**：可引用本次相关 `commit` hash；未提交改动写「工作区（未提交）」，不编造版本号。
+- **只追加**：不删除、不重排既有条目；同一变更已写过则跳过。
+- CHANGELOG 有更新时，`project-progress.md` 仍必须写过程条目——二者不互相替代。
+
 ## 不写什么
 
 - **不写 `docs/.ai/agents-changelog.md`**：那是 `AGENTS.md` 契约改动的记录，由 `vibe-init` 独占。
 - **不回写 `docs/.ai/init-report.md`**：那是初始化执行留痕，不是待办清单；遗留的待确认项由用户或计划类技能跟进。
 - **不动 `AGENTS.md` 契约区**：契约改动走 `vibe-init`。
 - **不写 `docs/.ai/experience/`**：可复用经验的提炼归 `vibe-distill`；这里只记录流水事实。
+- **不在无 `CHANGELOG.md` 时创建**（见上节）；也不把 CHANGELOG 写成进度流水。
+- **不顺手改源码 / 配置 / `.gitignore`**（`CHANGELOG.md` 除外的根文件仍只读）。
 - 同一事实已存在则跳过；只有值变化时更新。
 
 ## 与相邻触发词的分界
@@ -137,7 +157,8 @@ writes-to:
 
 ## 终止回复
 
-只回复一行统计：写了哪些文件、各追加或更新几条、事实区回填几条、去重跳过几条。
+只回复一行统计：写了哪些文件、各追加或更新几条、CHANGELOG 是否追加（或跳过原因）、事实区回填几条、去重跳过几条。
 
 - 无增量时回复「本次无可同步的稳定增量」
 - 走了「上下文被压缩」降级路径时，注明「已按客观源重建」与待确认条数
+- 无 `CHANGELOG.md` 或无用户可见变更时，明确写「CHANGELOG：跳过（无文件 / 无可见变更）」

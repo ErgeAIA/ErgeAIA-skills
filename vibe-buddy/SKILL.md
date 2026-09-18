@@ -1,10 +1,10 @@
 ---
 name: vibe-buddy
-description: "管理项目的 AI 协作记忆并只读审查开发类项目：把协作契约写进 AGENTS.md，把进度、决策与踩坑记录沉淀到 docs 下的 .ai 目录，写跨会话交接文档，把反复成立的做法提炼成可复用经验，审查前端后端 Web 项目的代码质量架构与技术栈。当用户要初始化项目、同步进度、写交接文档、做经验蒸馏或审查项目与技术栈时使用本技能，包括直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill、vibe-audit 的情形，即使用户没有点名也要用。不适用于任务计划、需求转译、面向人类的文档写作、代码生成与重构、构建与测试执行、Git 操作、规格管理与翻译、Skill 项目评审，这些交给计划类、需求转译类、写作类、Git 类技能与 skill-workshop。"
-compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync、vibe-handoff、vibe-distill 与 vibe-audit 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/ 与 docs/handoff/ 下，不写入技能仓库。
+description: "管理项目的 AI 协作记忆并只读审查开发类项目：把协作契约写进 AGENTS.md，把进度、决策与踩坑记录沉淀到 docs 下的 .ai 目录，写跨会话交接文档，把反复成立的做法提炼成可复用经验，审查前端后端 Web 项目的代码质量架构与技术栈，并可在已有 CHANGELOG 时同步更新日志。当用户要初始化项目、同步进度、更新日志、写交接文档、做经验蒸馏或审查项目与技术栈时使用本技能，包括直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill、vibe-audit 的情形，即使用户没有点名也要用。不适用于任务计划、需求转译、面向人类的文档写作、代码生成与重构、构建与测试执行、Git 操作、规格管理与翻译、Skill 项目评审，这些交给计划类、需求转译类、写作类、Git 类技能与 skill-workshop。"
+compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync、vibe-handoff、vibe-distill 与 vibe-audit 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/、docs/handoff/ 下；vibe-sync 可在项目根 CHANGELOG.md 已存在时追加更新日志。不写入技能仓库。
 metadata:
   author: ErgeAIA
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # vibe-buddy
@@ -15,7 +15,7 @@ metadata:
 
 1. **不覆盖** —— 已有文件只追加；需要新文件时先扫描目录再取名，永不重写既有内容。
 2. **不猜测** —— 读不到的事实写占位符，绝不编造版本号、路径、命令、结论。
-3. **不越界** —— 只**写**协作契约与过程文档区（路径见下方产物布局），不改项目其他文件；**读**可及项目内任意文件与白名单只读命令；不发布。
+3. **不越界** —— 只**写**协作契约与过程文档区（路径见下方产物布局）及**可选**的项目根 `CHANGELOG.md`（仅 `vibe-sync`，且文件已存在时追加），不改项目其他文件；**读**可及项目内任意文件与白名单只读命令；不发布。
 4. **不静默** —— 删除或改写必须留下「旧值 → 处置 → 新值」的可见记录。
 5. **只读层（仅 `vibe-audit`）** —— 写入纪律只约束审计报告这一个落点：对报告文件本身仍「不覆盖 / 不静默」；不改被审项目任何其他文件；发现问题只报告，不代写 `project-progress.md` / `decision-log.md` / `debug-log.md`；只给问题 + 证据 + 方向，不生成待办与排期。第 2、3 条对审计照常生效。
 
@@ -26,7 +26,7 @@ metadata:
 | 场景 | 命中信号 | 跳转到 |
 |---|---|---|
 | 项目首次接入协作记忆，或补齐缺失的过程文档 | 「初始化项目」「生成 AGENTS.md」「vibe-init」；或项目缺 `AGENTS.md` 与 `docs/.ai/` | `references/init-agents-md.md` |
-| 任务完成，要沉淀进度、决策与调试记录，或回填工具链与命令 | 「同步进度」「更新项目进度」「把踩的坑记下来」「vibe-sync」 | `references/sync-progress.md` |
+| 任务完成，要沉淀进度、决策、调试与用户可见变更日志，或回填工具链与命令 | 「同步进度」「更新项目进度」「把踩的坑记下来」「更新日志」「vibe-sync」 | `references/sync-progress.md` |
 | 换会话、换 agent、上下文将满，要留下一份交接文档 | 「交接上下文」「写交接文档」「vibe-handoff」 | `references/handoff-context.md` |
 | 一轮开发告一段落，要把其中反复成立的做法提炼成可复用经验 | 「经验蒸馏」「提炼可复用经验」「vibe-distill」 | `references/distill-experience.md` |
 | 审查开发类项目（前端 / 后端 / Web）的代码质量、架构与技术栈，并要不动栈的优化方向 | 「审查项目」「审查技术栈」「vibe-audit」（优先斜杠调用） | `references/audit-project.md` |
@@ -43,7 +43,7 @@ metadata:
 - **产物必须脱敏**：密钥、token、凭据、连接串、个人隐私一律不落盘；无法脱敏则拒绝写入。
 - **不重复已有产物**：规格、计划、决策、提交、diff 已有的内容，用路径引用。
 - **契约区与事实区**：`AGENTS.md` 的契约区（Permissions / Conventions / References / 章节结构）只由 `vibe-init` 写，任何改动都必须在 `docs/.ai/agents-changelog.md` 留一行；事实区（Toolchain / Commands 表数据）可由 `vibe-sync` 回填，属填事实不必留痕。
-- **记录与提炼分开**：`vibe-sync` 记录流水事实（进度 / 决策 / 调试），`vibe-distill` 提炼可复用规则（`docs/.ai/experience/`），互不代做。
+- **记录与提炼分开**：`vibe-sync` 记录流水事实（进度 / 决策 / 调试）并可选追加 `CHANGELOG.md` 用户可见变更，`vibe-distill` 提炼可复用规则（`docs/.ai/experience/`），互不代做。
 - 🔴 **CHECKPOINT · 蒸馏不裁决冲突**：新旧经验冲突时**先比适用条件**；前提不同即两条并存并各自标注，前提相同才停下问用户，不自行取舍。
 
 ## 产物布局
@@ -61,6 +61,7 @@ metadata:
 | 可复用经验库，按领域分目录 | `<project>/docs/.ai/experience/` | `vibe-init` 建空目录；内容由 `vibe-distill` 写 |
 | 会话交接文档，带 frontmatter | `<project>/docs/handoff/handoff-YYYY-MM-DD[-slug].md` | `vibe-handoff` |
 | 项目审计报告，只追加 | `<project>/docs/.ai/audit/audit-YYYY-MM-DD[-slug].md` | `vibe-audit`；目录缺失时由 `vibe-audit` 首次执行时建（含 `.gitkeep`） |
+| 变更日志（可选，仅已存在时追加） | `<project>/CHANGELOG.md` | `vibe-sync`；**不代建**——无此文件则跳过并在终止回复提示（完整规范归 changelog-manager 或用户自建） |
 
 ## 何时读 references
 
@@ -92,6 +93,7 @@ metadata:
 | 本轮原料区间已蒸馏过 | 指向 `changelog.md` 里已记录的那一轮，不重复蒸 | 用户要求重蒸 → 只蒸新增部分并在备注说明 |
 | 新旧经验冲突 | 先比适用条件：前提不同则两条并存、各自标注 | 前提相同 → 停下问用户，不自行取舍 |
 | 待写内容含密钥 / 凭据 / 隐私 | 脱敏为占位符后写入 | 无法安全脱敏 → 拒绝写入并说明原因 |
+| 项目无 `CHANGELOG.md` 却要写更新日志 | 不创建文件；终止回复说明可自建或用 changelog-manager | 用户明确要求代建最小骨架 → 仅在用户书面确认后建，并注明非 Keep a Changelog 全规范 |
 | 参考文件缺失或读不通 | 报告缺失路径，停止执行 | 用户要求硬做 → 拒绝，缺规则不做 |
 | `vibe-audit` 目标为 Skill 项目 | 只输出转交说明并指向 skill-workshop | 用户坚持本技能内审 → 拒绝，说明标尺不适用 |
 | `vibe-audit` 目标类型无法判定 | 停下问用户，不猜 | 用户未答 → 不执行，列为待确认项 |
@@ -138,7 +140,7 @@ metadata:
 | 触发词 | 成功判定 |
 |---|---|
 | `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务与常驻纪律已写入 `Permissions`；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作；缺失项已补齐，既有文件未被覆盖 |
-| `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；调试定位到根因时 `debug-log.md` 已追加 `BUG-NNN`；`AGENTS.md` 仅事实区被回填，契约区未动 |
+| `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；调试定位到根因时 `debug-log.md` 已追加 `BUG-NNN`；项目根已有 `CHANGELOG.md` 且本轮含用户可见变更时已按其既有格式追加（无文件或无可见变更则明示跳过）；`AGENTS.md` 仅事实区被回填，契约区未动 |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，正文只展开「别处读不到」的四类、其余写指针，未覆盖既有文件 |
 | `vibe-distill` | 条目五要素齐全且各有事实源；编号在主题内递增；`experience/changelog.md` 已追加本轮（原料区间 + 覆盖主题 + 产出）；冲突已标出而非自行取舍 |
 | `vibe-audit` | 每条结论带 `路径:行` 或明写「证据不足」；报告落入 `docs/.ai/audit/` 且 `updated` 为当日；未改动被审项目任何文件；Skill 项目已转交而非自审 |
