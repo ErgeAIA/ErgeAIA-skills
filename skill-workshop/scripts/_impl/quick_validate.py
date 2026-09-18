@@ -24,6 +24,7 @@ PROJECT_PROPERTIES = {
 }
 
 ALL_ALLOWED_PROPERTIES = ALLOWED_SPEC_PROPERTIES | PROJECT_PROPERTIES
+# 仅用于识别历史 builder 标记（分类提示），v2 不再把 @ 当作硬校验对象。
 WORKFLOW_HEADER_RE = re.compile(r"^#{2,3}\s+@工作流:\s*.+$", re.MULTILINE)
 STRICT_WORKFLOW_HEADER_RE = re.compile(r"^##\s+@工作流:\s*.+$", re.MULTILINE)
 NONSTANDARD_WORKFLOW_HEADER_RE = re.compile(r"^###\s+@工作流:\s*.+$", re.MULTILINE)
@@ -42,10 +43,10 @@ INTENT_KEYWORDS = {
 
 
 def _load_profiles() -> dict[str, set[str]]:
-    """Load profile → fail_on rule_class set from references/config/script-profiles.yaml.
+    """Load profile fail_on sets (optional YAML; archived in v2).
 
-    Phase 2：YAML 现在成为代码真正消费的真相源（不再是声明性镜像）。
-    文件缺失或解析失败时回退到内嵌默认值；零第三方依赖（不引 PyYAML）。
+    Runtime v2 keeps embedded defaults only. Historical
+    references/config/script-profiles.yaml now lives under docs/archive/.
     """
     defaults = {
         "strict": {"official-hard", "incident-backed"},
@@ -130,81 +131,37 @@ def get_resolved_project_version(frontmatter: dict) -> str | None:
 
 def is_builder_class_skill(content):
     """
-    Classify a SKILL.md as builder-class or runtime-class based on whether any
-    tooling actually consumes its semantic markup.
+    Classify SKILL.md for diagnostics only (v2 does not gate on this).
 
-    Builder-class: carries a `@工作流:` header (the skeleton `generate_scenario_templates.py`
-    / `quick_validate.py` parse). These are skills created via the workshop scaffolding,
-    whose `@` markup is consumed by the workshop tool-chain — so the markup contract must hold.
-
-    Runtime-class: no `@工作流:` header. These skills are pure instruction prompts for the
-    LLM at runtime; nothing in the tool-chain parses their markup (verified: private-repo runtime
-    skills have zero `@` consumers across their scripts). Forcing `@` markup on them is the
-    "third-party optimizer comment junk" the review rubric warns against — zero runtime value,
-    only token cost + false-precision noise.
+    Legacy builder-class: contains a `@工作流:` heading (old workshop scaffolding).
+    Runtime-class / v2 pure Markdown: no such header — and neither class fails
+    validate for missing `@` markup.
 
     Returns (is_builder, reason) for auditable classification.
     """
     has_workflow_header = bool(re.search(WORKFLOW_HEADER_RE, content))
     if has_workflow_header:
-        return True, "contains '@工作流:' header (workshop scaffolding / tool-chain consumer)"
-    return False, "no '@工作流:' header — runtime-only skill, no @ markup consumer"
+        return True, "contains '@工作流:' header (legacy builder form; markup not enforced in v2)"
+    return False, "no '@工作流:' header — pure Markdown / runtime skill (v2 default)"
 
 
 def validate_semantic_markup(content, *, skill_is_builder=True):
     """
-    Validate semantic markup requirements in SKILL.md content.
+    v2: step-level `@` markup is never a hard validation requirement.
 
-    Checks for:
-    - At least one ## @工作流: header
-    - At least one ### @步骤N: header
-    - HTML comment metadata (@类型, @优先级, @验证点, @验证方式)
-    - Action items using - @动作: format
-
-    When `skill_is_builder` is False (runtime-class skill with no tool-chain consumer),
-    the markup contract is waived — returns valid with a skipped note instead of failing.
+    Historical builder checks are retained only as advisory classification.
+    Pure Markdown skills MUST pass validate without `@工作流` / `@步骤` / `@动作`.
     """
-    if not skill_is_builder:
-        return True, "Semantic markup waived: runtime-class skill (no @ markup consumer in tool-chain)"
-
-    errors = []
-
-    # Check for workflow header (@工作流:)
-    workflows = re.findall(WORKFLOW_HEADER_RE, content)
-    if not workflows:
-        errors.append("Missing required '@工作流:' header")
-
-    # Check for step headers (### @步骤N:)
-    step_pattern = r"^###\s+@步骤\d+:\s*.+$"
-    steps = re.findall(step_pattern, content, re.MULTILINE)
-    if not steps:
-        errors.append("Missing required '### @步骤N:' headers (at least one step required)")
-
-    # Check for HTML comment metadata in steps
-    # Look for <!-- @类型: --> comments
-    type_comment_pattern = r"<!--\s*@类型:\s*[^>]+-->"
-    type_comments = re.findall(type_comment_pattern, content)
-    if not type_comments:
-        errors.append("Missing HTML comment metadata '@类型' (e.g., <!-- @类型: 操作步骤 -->)")
-
-    # Check for @验证点 in content
-    if "@验证点:" not in content:
-        errors.append("Missing required '@验证点:' markers")
-
-    # Check for @验证方式 in content
-    if "@验证方式:" not in content:
-        errors.append("Missing required '@验证方式:' markers")
-
-    # Check for action items (- @动作:)
-    action_pattern = r"^-\s+@动作:"
-    actions = re.findall(action_pattern, content, re.MULTILINE)
-    if not actions:
-        errors.append("Missing action items (use '- @动作:' format for executable actions)")
-
-    if errors:
-        return False, "Semantic markup validation failed:\n  - " + "\n  - ".join(errors)
-
-    return True, "Semantic markup is valid"
+    has_legacy = bool(re.search(WORKFLOW_HEADER_RE, content))
+    if skill_is_builder and has_legacy:
+        return True, (
+            "Semantic markup (legacy '@工作流' form) detected — advisory only in v2; "
+            "not required, not blocking"
+        )
+    return True, (
+        "Semantic markup waived: v2 runtime contract is pure Markdown "
+        "(no @ workflow markers required)"
+    )
 
 
 def _external_version_record(skill_path: Path) -> Path | None:
@@ -418,19 +375,36 @@ def validate_version_consistency(frontmatter: dict, content: str, *, skill_path:
         )
 
     if not header_version:
-        # SKILL.md 头部版本块与版本历史 section 都不是 LLM 决策必需；
-        # 真实版本源是 frontmatter.metadata.version。
-        # 当 VERSION.md 存在时，以下两个字段应作为人类参考而非 V0 硬约束——降级为 warning。
+        # v2 SSOT：正文头部版本块可省略；机器事实 = metadata.version + CHANGELOG/VERSION 顶部。
         if skill_path is not None and _external_version_record(skill_path) is not None:
+            if history_version and resolved_version != history_version:
+                return (
+                    False,
+                    (
+                        "Project version mismatch between metadata.version and external record top: "
+                        f"resolved={resolved_version}, record={history_version}"
+                    ),
+                )
+            if history_version:
+                return (
+                    True,
+                    (
+                        f"Version SSOT in sync: metadata.version={resolved_version} "
+                        f"matches external record top {history_version}"
+                    ),
+                )
             return (
                 True,
-                "Version fields are in sync (skipped header/history checks; external version record present)",
+                (
+                    f"External version record present but no parseable top entry; "
+                    f"metadata.version={resolved_version} accepted as SSOT"
+                ),
             )
         return (
             False,
             (
                 "Missing version info in document header (add '> **版本**: vX.Y.Z' after the main"
-                " title)"
+                " title) or provide CHANGELOG.md / VERSION.md"
             ),
         )
 
@@ -472,9 +446,9 @@ PLACEHOLDER_PATTERNS = [
     re.compile(r"\[TODO(?::|\])"),
     re.compile(r"<!--\s*TODO[:\s]"),
     re.compile(r"\(YYYY-MM-DD\)"),
-    re.compile(r"^##\s+@工作流:\s*主工作流名称\s*$"),
-    re.compile(r"^###\s+@步骤1:\s*第一步标题\s*$"),
-    re.compile(r"^###\s+@步骤2:\s*第二步标题\s*$"),
+    re.compile(r"^##\s+\s*主工作流名称\s*$"),
+    re.compile(r"^###\s+\s*第一步标题\s*$"),
+    re.compile(r"^###\s+\s*第二步标题\s*$"),
 ]
 
 def validate_template_placeholders(content: str):
@@ -1080,7 +1054,7 @@ def validate_workflow_identification_pattern(skill_path: Path, content: str):
 
     if re.search(NONSTANDARD_WORKFLOW_HEADER_RE, content):
         warnings.append(
-            "RECOMMENDED: Found nonstandard '### @工作流:' headers. Use '## @工作流:' for main and"
+            "RECOMMENDED: Found nonstandard '### ' headers. Use '## ' for main and"
             " child workflows to stay consistent with the skill markup guide and avoid parser"
             " drift."
         )

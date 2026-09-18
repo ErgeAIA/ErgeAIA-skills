@@ -1,198 +1,133 @@
 ---
 name: skill-workshop
-description: "Skill 质量工作站：评审 / 创建你的 Agent Skill，或重构 / 评测 / 合规校验——用统一决策矩阵路由到对应工作流，并保障产出通过结构校验。基于 Python CLI（skill_cli.py 机器校验）与 YAML frontmatter、Markdown 规范文档执行。Use this skill whenever the user wants to create, review, refactor, or evaluate an Agent Skill, or when another skill hands off a Skill project for quality review. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'评测 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档创作、Agent 框架开发、应用类项目（前端/后端/Web）的代码质量与架构审查（归项目审查类技能）."
+description: "Skill 质量工作站：创建 / 评审 / 重构 / 合规校验 Agent Skill——L0 轻查默认、L1 疑点展开；CLI：validate/package/init/spec。Use this skill to create, review, refactor, or validate an Agent Skill, or when another skill hands off a Skill project for quality review. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档、Agent 框架、应用类项目代码审查."
 metadata:
   author: ErgeAIA
-  version: "1.25.0"
+  version: "2.0.1"
 ---
 
 # skill-workshop
 
-<!-- @类型: 主工作流 -->
-<!-- @目的: 指导创建、评审、重构、评测高质量的 AI Skill -->
-<!-- @场景: 用户需要创建新 Skill、评审/审查已有 Skill、重构优化或评测迭代 -->
-<!-- @ID: wf-skill-workshop-main -->
+## 定位
 
-## 0. 第一性锚定（本技能自身）
+轻量 **Skill 质量工作站**（v2）。第一性目标：用最低审查成本，可靠发现会导致**触发错误、执行错误、非破坏契约破坏、上下文膨胀**的缺陷。
 
-- **第一性问题**：用户需要一个「技能生产的质量闸门」——在把 skill 交付/发布前，确定性拦住三类失效：① 触发错配（description 不准 → 该触发不触发/误触发）；② 非破坏契约被违反（重构把线上 skill 改坏）；③ 上下文膨胀（塞太多 → Agent 跑偏/Token 浪费）。
-- **不可违背约束**（按重要性）：① 绝不破坏用户现有 skill 产物（非破坏追加）；② 必须遵守平台物理现实（agentskills.io 官方 6 字段规范）；③ 必须可机器校验（不靠人记 52 项）。
-- **边界**：不是 Agent 框架、不是通用代码调试、不替代人类判断（只出报告）。
-- **质量杠杆**：真正决定产出好坏的是 description 语义精度（T 系列）、非破坏护栏（D1）、瘦主文档 + 按需加载（C/S）；其余是辅助杠杆。
-- **一句话锚定**：本技能必须可靠产出「好 skill」（触发准、非破坏、瘦主文档），绝不产出 broken/mis-triggered skill，不管借来的框架多花哨。
+```text
+低成本发现高风险问题 → 有证据的整改方向 → 必要时才深度诊断
+```
 
----
+不是治理系统：不默认跑固定 W1–W7 全量流水线；不强制凑优点、强制拆分、固定收尾套话；不要求每个 Skill 都具备脚本或评测集。
 
-## @工作流: Skill 全生命周期管理
+**不可违背**：① 不破坏用户已有 skill 产物；② 遵守 Agent Skills 官方 frontmatter 约束；③ 机械问题交给 CLI，不靠模型记忆；④ 每条问题必须落到文件证据。
 
-<!-- @类型: 主工作流 -->
-<!-- @后置验证: Skill 通过校验并可被打包发布 -->
-<!-- @ID: wf-skill-lifecycle -->
+**边界**：只处理 Agent Skill（含其他技能转交的 Skill 路径）；不替代人类最终业务判断；评审路径默认只出报告。
 
-### @步骤1: 路由决策
+## 路由
 
-<!-- @类型: 决策步骤 -->
-<!-- @优先级: 必须 -->
-<!-- @验证点: 已把当前请求稳定路由到创建、评审、重构或评测路径 -->
-<!-- @验证方式: 根据用户原话命中决策矩阵，决定后续读取哪份 workflow -->
-<!-- @ID: step-route-by-decision-matrix -->
+| 用户意图 | 进入 | 产出 |
+| --- | --- | --- |
+| 创建 / 做一个 / 封装 skill | 读 `references/creation.md`；需要骨架时 CLI `init` | SKILL.md + 目录 |
+| 帮我看看 / 评审 / 审计 | **L0 默认**；疑点或显式深度 → **L1**（`references/review.md`） | 短报告 |
+| 校验 / 合规 / validate | CLI `spec` + `validate` | PASS/FAIL |
+| 重构 / 优化 / 整理结构 | L0/L1 找问题 → 按 `creation.md` + `validation.md` 整改 → 再校验 | 改进后的技能 |
+| 评测 / benchmark / 触发率 | **L2 条件**：用户明确要求才进入；工具在 `docs/archive/` | 评测结论 |
+| 他技转交 Skill 审查 | 同「评审」入口（默认 L0） | 短报告 |
+| 意图模糊 | 只澄清必要信息；不默认追问三连 | 路由决策 |
 
-## 1. 决策矩阵
+命中清晰信号即直接进入；不要先问「您要哪一种工作流编号」。
 
-| 场景       | 命中信号                                     | 入口工作流                                                                            | 产出              |
-| ---------- | -------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------- |
-| 创建新技能 | 创建/新建/create/做一个/封装成技能           | [C1-create.md](references/workflows/C1-create.md)                                     | SKILL.md + 脚手架 |
-| 深度评审   | 评审/review/审计/诊断/帮我看看/skill质量检查 | [W1-complexity.md](references/workflows/W1-complexity.md) → W2/W3(→W7) → W4 → W5 → W6 | 8 段结构报告      |
-| 快速评分   | 评分/score/快速评估/加权评分                 | [weighted-scoring.md](references/rubrics/weighted-scoring.md)                         | 维度评分表        |
-| 合规校验   | 校验/validate/合规/skill规范                 | [V0-validate.md](references/workflows/V0-validate.md)                                 | PASS / FAIL       |
-| 重构优化   | 重构/refactor/优化/整理/workflow边界         | [C3-refactor.md](references/workflows/C3-refactor.md)                                 | 改进后 SKILL.md   |
-| 评测迭代   | 评测/evaluate/benchmark/skill迭代            | [C2-evaluate.md](references/workflows/C2-evaluate.md)                                 | benchmark + 报告  |
-| 澄清意图   | 模糊请求/未声明深度                          | [W0-clarify.md](references/workflows/W0-clarify.md)                                   | 路由决策          |
-| 他技转交 Skill 审查 | 其他技能判定目标为 Agent Skill 后转交路径/说明 | 同「深度评审」入口（W1→…→W6） | 8 段结构报告 |
+### L0 / L1 / L2（摘要）
 
-> **路径权重提示**：创建 / 评审 / 重构为高频主路径；评测（C2）为**可选高级路径**（eval loop + benchmark + description 优化），默认不进入，仅当用户明确要跑回归/触发率评测时启动。
+- **L0**（默认）：frontmatter、description、主职责内聚、主文档体量、references 结构、明显冲突、输出契约。读取预算：SKILL.md + 最多 1–3 份相关文件。
+- **L1**：第一性锚定、T/E/C 三轴证据化 findings、CONDITIONAL 项、非破坏与脚本纪律（若有）、方向性争议才上钢人。按疑点扩展读取，禁止默认全量预读。
+- **L2**：触发率/回归/基准实测；从 `docs/archive/` 启用历史评测链并在报告标明。
 
-> 🔴 **CHECKPOINT**：命中明确信号（创建/评审/重构/评测/校验/评分/优化 任一清晰）即直接进入对应 workflow；**仅当决策矩阵无明确命中（模糊请求）才触发 W0-clarify 确认**。
+详细分级与反膨胀四问 → `references/core-method.md`；评审判据与报告结构 → `references/review.md`。
 
----
+## 核心约束
 
-### @步骤1b: 触发方式
+1. **主文档只做路由与硬边界**；细节按需读 references；禁止全量预加载目标技能的全部 references/scripts。
+2. **规则分级**：HARD 阻塞「通过」；CONDITIONAL 无对应能力则 N/A；HEURISTIC 有证据才报，不升格 P0。
+3. **废除硬凑**：无优点则省略；无职责耦合则写「无需拆分」；不写固定收尾套话。
+4. **版本 SSOT**：`metadata.version` + 根目录 `CHANGELOG.md`；不默认要求正文三处版本块一致。
+5. **脚本与评测非必须**：无 `scripts/` 的指令型 Skill 可以优秀；有脚本才查无交互/`--help`/退出码/流分离；评测仅 L2、高风险或显式要求。
+6. **新建产物纯净**：不注入步骤级 `@` 标记；路径用标准 Markdown 相对链接或自然语言描述。
+7. **写文件走 plan-gate**：`init` / `package --write` 默认 dry-run；AI 必须先出示计划；脚本 `decision_required` 必须转述给用户。
+8. **验证闭环**：创建/重构后必须跑 `validate`（建议同时 `spec`）；脚本 FAIL 不得宣称通过。
+9. **证据纪律**：结论能指到文件；无产物的步骤视为未执行；未跑命令不得写「已验证」。
+10. **裁判边界**：评审不直接改用户文件；构建路径才写盘，且非破坏。
 
-<!-- @类型: 信息步骤 -->
-<!-- @优先级: 可选 -->
-<!-- @验证点: Agent 能从用户请求中识别本技能 -->
-<!-- @ID: step-trigger-method -->
+## CLI（运行时仅此四项）
 
-## 1b. 触发方式
+```bash
+python scripts/skill_cli.py validate <skill-dir>
+python scripts/skill_cli.py spec <skill-dir>
+python scripts/skill_cli.py init <skill-name> --path <parent> [--write]
+python scripts/skill_cli.py package <skill-dir> [out-dir] [--write]
+```
 
-- **显式触发**：用户直接说"审查/评审/创建/重构/校验 skill"
-- **隐式触发**：用户提到"skill 质量"/"skill 生命周期"/"帮我看看这个 skill"等意图关键词
-- **否定触发**：通用代码调试、非 Skill 文档创作、Agent 框架开发 → 不触发本技能
+退出码：`0=PASS`，`1=FAIL`，`2=ERROR`。诊断写 stderr。PowerShell 下用 `;` 串联命令。
 
----
+已归档子命令（reconcile / family-diff / checklist / consistency / eval / loop 等）见 `docs/archive/scripts/`，调用旧名会得到归档提示。
 
-### @步骤2: 应用硬规则
+## 构建路径（创建 / 重构）
 
-<!-- @类型: 规则步骤 -->
-<!-- @优先级: 必须 -->
-<!-- @验证点: 命中矩阵后已应用本 Skill 的固定约束 -->
-<!-- @验证方式: 能说清哪些是运行期默认动作，哪些是设计期补充工作 -->
-<!-- @ID: step-apply-hard-rules -->
+1. 用本文件路由确认意图（创建 vs 重构 vs 只评审）。
+2. 读 `references/creation.md`（模板与硬字段）与 `references/validation.md`（闸门）。
+3. 落盘前：创建用 `init` dry-run 预览；重构只动目标技能权威源，不碰运行态目录。
+4. 落盘后：`spec` + `validate`；需要分发时再 `package --write`。
+5. 升版：同步 `metadata.version`、`CHANGELOG.md`、根 README，并跑索引同步脚本。
 
-## 2. 硬规则摘要
+评审路径不要跳到第 3–4 步，除非用户明确授权写文件。
 
-- @动作: **Plan-Validate-Handoff (P-V-H) 模式强制使用所有破坏性操作**——评审模式（W1-W7）只输出报告+整改方向不修改文件；创建/重构模式（C1/C3）执行 scaffold/edit/重构前必须先输出 Plan 让用户确认，再跑 V0 验证，最后交付。*Why：任何破坏性操作（文件覆盖/目录创建/SKILL.md 重写）若直接 Execute 风险过高，P-V-H 让用户始终握有否决权。*
-- @动作: 经 skill-workshop 脚手架**新建/重构的 Skill（构建者类，自身带 `@工作流:` 头、被工具链消费）必须使用语义化标记**（`@工作流`/`@步骤N`/`@动作`/`@验证点`），参考 [skill-markup-guide.md](references/authoring/skill-markup-guide.md)。纯运行型技能（无 `@工作流:` 头、无工具链消费者）豁免语义标记，V0 校验自动按"构建者/运行型"分类豁免。*Why：语义标记让 Agent 可机器解析工作流结构；但运行型技能仅作 LLM 运行时指令、`@` 标记无任何消费者，强制它只是 §2.2 定义的"第三方优化器注释垃圾"（虚假精度 + token 浪费），故按第一性原理豁免。*
-- @动作: 主 SKILL.md 只做路由，细节下沉到 references/。按需读取单个文件，**严禁全量预加载**。*Why：上下文窗口是公共资源，全量加载会挤占推理空间。*
-- @动作: W5 整改方向必须标注 W3 checklist 编号（如 `命中：S1、P3`），否则断链。*Why：无编号追溯的建议缺乏证据支撑，用户无法验证建议的合理性。*
-- @动作: W3 遇 T1-T5 **强制委托 W7**，不得自行判定 description。*Why：description 的语义判断需要专门的意图校准标尺，W3 的通用扫描精度不够。*
-- @动作: W2/W3 逐项扫描 checklist 前必须先走**三段式评审元框架**（第一性锚定 → 可疑设计双向钢人 → 对抗式审查 D 系列），第一性锚定产出「方向判断：错位」时优先于清单问题。*Why：清单式扫描只能发现格式与结构缺陷，发现不了"方向错误的技能"——一个 frontmatter 合规、行数达标的过程式 Skill 可能在第一性层面就是错的（指导 AI 怎么做而非结果导向）。元框架定义见 [review-checklist.md](references/rubrics/review-checklist.md)「三段式评审元框架」。*
-- @动作: frontmatter.metadata.version 必填；头部版本块和版本历史 section 可选（存在外部变更记录 CHANGELOG.md 或 VERSION.md 时 V0 不强校验）。*Why：版本漂移会导致 Agent 加载过期指令；但头部/文末版本信息是人类维护点，不是 LLM 决策依赖，不应占用上下文。*
-- @动作: 完成后必须跑 `python scripts/skill_cli.py validate <path>`。*Why：人工检查容易遗漏 frontmatter 格式、链接断裂等机械性错误。*
-- @动作: **评审论证质量铁律**（对齐 skill-review-process 0.6，凌驾一切路径）：第一性锚定须从本质矛盾推导（非"必须___绝不___"格式填空）；钢人 AGAINST 必须最强反方、关键变量可测试已实测、结论必须带条件；**论证对象匹配**——仅方向性决策走钢人，格式/触发层决策走清单 + 对抗即可，禁止为凑流程硬升级论证对象。每步评审结论必须落成报告文本，无产物 = 未执行。判据见 [review-checklist.md](references/rubrics/review-checklist.md)「钢人论证质量判据」。*Why：论证质量低（稻草人反方/无条件结论）等于没论证，评审结论不配做判定依据。*
-- @动作: **机器校验分级门禁**：P0 每技能必跑（`spec` + `validate` description 合规）、P1 涉及即跑（`routing-check` 悬空引用/路由一致性、版本三段式、需要副本对账时跑 `reconcile`、跨技能结构差分时跑 `family-diff`）、P2 深度评审必跑（`checklist` + `consistency` 术语一致性）；脚本 FAIL 不得出「通过」结论——评审报告未附机器校验结果 = 无效评审。*Why：人工检查容易遗漏机械性错误（frontmatter 格式/链接断裂/术语残留），脚本 FAIL 出"通过"就是假跑。*
-- @动作: **Plan-gate（目标驱动脚本协议）**：调用 eval/loop/improve 或写文件命令（init/package/generate-templates/selfheal --auto）前，必须先向用户出示五节计划（[plan-gate-template.md](references/templates/plan-gate-template.md)：目标/范围与边界/参数/停止条件/回滚），用户认可后带 `--plan` 执行；脚本输出 `decision_required` = 等用户决策，必须转述，不得绕过；**AI 禁用 `--plan-text` 快速通道（仅限人类直接调用）**。*Why：脚本守边界不挡路，但成本与不可逆动作的否决权始终在用户手里；快速通道对 AI 开放即成后门。*
-- @动作: **Checkpoint 转述义务**：收到脚本 checkpoint 输出（loop 每轮）必须向用户转述「已完成/下一步/风险」，用户可随时打断调整策略；拿不准时主动降 `--profile advisory` 只取证不判断。*Why：脚本供证据，AI 做权衡，用户握方向——三者职责不混。*
-- @动作: **评审流水线状态门**：W1→W2→W3→W4→W5→W6 为严格流水线，每节点前置产物真实完成（W1 有档位结论、W3 有命中编号清单、W5 每条建议有 W3 编号）才算过；禁止跨级跳跃（未走 W3 直接进 W5）。*Why：跳过中间产物会导致建议无证据支撑、报告断链。*
+## L0 检查清单（评审默认扫这些）
 
-## 3. 失败模式编码（if-then 三段式）
+- [ ] frontmatter：`name`/`description` 合规，无越权顶层字段  
+- [ ] description：做什么 + 何时触发 + 边界是否清楚  
+- [ ] 职责：是否一个连贯用户任务单元（不是机械步骤计数）  
+- [ ] 主文档：体量、是否只路由、是否全量堆砌  
+- [ ] references：该有的 trigger 说明、死链、是否被主文档正确指向  
+- [ ] 明显冲突：已打开文件之间同一规则是否打架  
+- [ ] 输出契约：是否写清必须产出什么  
 
-> 路由/评估/重构的失败模式与兜底处理已下沉到 [references/skill-failure-modes.md](references/skill-failure-modes.md)（按需加载，不在主路由层常驻）。
+有疑点再升 L1，不在 L0 阶段扩大读取面。
 
----
+## 资源指引（按需读取）
 
-## 4. 渐进式披露
-
-> **三库索引**：9 个 authoring 文件 × 5 个 workflow reads-from 块的全部引用关系见 [`references/routing-table.md`](references/routing-table.md)（路由表 ↔ workflow 一致性硬校验的真相源，详见 `versioning-and-validation.md` 第 4 节"路由一致性"）
-
-| 任务                               | 按需加载                                                                                                                                                                                                                                      |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 创建 Skill                         | [C1-create.md](references/workflows/C1-create.md) → [skill-foundations.md](references/authoring/skill-foundations.md)                                                                                                                         |
-| 复杂度判定                         | [complexity-rubric.md](references/rubrics/complexity-rubric.md)                                                                                                                                                                               |
-| 优点/问题扫描                      | [review-checklist.md](references/rubrics/review-checklist.md)                                                                                                                                                                                 |
-| description 审计                   | [intent-calibration.md](references/rubrics/intent-calibration.md) + [frontmatter-style-guide.md](references/specs/frontmatter-style-guide.md) + [progressive-disclosure-patterns.md](references/authoring/progressive-disclosure-patterns.md) |
-| description 优化                   | [optimizing-descriptions.md](references/specs/optimizing-descriptions.md)：三段式结构 + 触发测试集 + 优化循环                                                                                                                                  |
-| frontmatter 字段过度工程化判定     | [frontmatter-style-guide.md](references/specs/frontmatter-style-guide.md)                                                                                                                                                                     |
-| 版本一致性（V0 硬校验 + 规范指南） | [versioning-and-validation.md](references/authoring/versioning-and-validation.md)：V0 校验器检查 frontmatter.version 必填 + 外部变更记录（CHANGELOG.md/VERSION.md）fallback；规范指南含完整版本维护规则                                                                   |
-| 命名与归属                         | [naming-and-ownership.md](references/authoring/naming-and-ownership.md)                                                                                                                                                                       |
-| 业务到工作流映射                   | [business-to-workflow-mapping.md](references/authoring/business-to-workflow-mapping.md)                                                                                                                                                       |
-| 工作流模式                         | [workflow-patterns.md](references/authoring/workflow-patterns.md)                                                                                                                                                                             |
-| 渐进披露模式                       | [progressive-disclosure-patterns.md](references/authoring/progressive-disclosure-patterns.md)                                                                                                                                                 |
-| 重构指引                           | [skill-refactoring-workflow.md](references/authoring/skill-refactoring-workflow.md)                                                                                                                                                           |
-| 评测方法                           | [skill-evaluation-workflow.md](references/authoring/skill-evaluation-workflow.md)                                                                                                                                                             |
-| 快速评分                           | [weighted-scoring.md](references/rubrics/weighted-scoring.md)                                                                                                                                                                                 |
-| 软性建议补充                       | [best-practices.md](references/specs/best-practices.md)                                                                                                                                                                                       |
-| 规范校验                           | [spec.md](references/specs/spec.md)、[validate.md](references/specs/validate.md)                                                                                                                                                              |
-| 规范演进跟踪                       | [CHANGELOG.md](references/specs/CHANGELOG.md)                                                                                                                                                                                                 |
-| 报告装配                           | [evaluation-template.md](references/templates/evaluation-template.md)                                                                                                                                                                         |
-| 语义标记规范                       | [skill-markup-guide.md](references/authoring/skill-markup-guide.md)                                                                                                                                                                           |
-| 评测循环                           | [eval-loop.md](references/evaluation/eval-loop.md)                                                                                                                                                                                            |
-| 一致性规则                         | [consistency-rules.yaml](references/config/consistency-rules.yaml)（仅旧术语；副本对账用 reconcile、家族差分用 family-diff） |
-
-| 任务 | 按需加载 |
+| 文件 | 何时读 |
 | --- | --- |
-| 评测闭环 Agent 提示词 | [analyzer.md](agents/analyzer.md) · [comparator.md](agents/comparator.md) · [grader.md](agents/grader.md)（仅 C2 评测链按需加载） |
-| 场景输入模板 | [index.md](references/examples/index.md)（决策矩阵命中速查，创建/评测前置） |
-| 评测回放 / 编辑器 | [eval_review.html](assets/eval_review.html) · [eval_set_editor.html](assets/eval_set_editor.html)（C2 产出展示） |
-| 触发评测集构建 | [eval-set-template.md](references/config/eval-set-template.md)：eval-set JSON 结构 + 协议唯一真源指针 |
-| Plan-gate 计划 | [plan-gate-template.md](references/templates/plan-gate-template.md)：高成本/写文件命令前置的五节计划模板 |
+| `references/core-method.md` | 路由分级、证据预算、HARD/CONDITIONAL/HEURISTIC、反膨胀四问 |
+| `references/creation.md` | 创建/脚手架、纯净模板、description 轻量写法、目录骨架 |
+| `references/review.md` | T/E/C 三轴、L0/L1 判据、条件项速查、默认报告结构 |
+| `references/validation.md` | 格式 HARD 项、版本对齐、CLI/plan-gate、安全与失败处理 |
 
-> **双风格说明（评审链 vs 创建链）**：评审链（W0-W7）使用纯 Markdown 标题 + frontmatter 元数据，创建/重构链（C1-C3）和 authoring/ 使用 `@工作流`/`@步骤N` 语义化标记。两种风格共存是设计选择——评审链为裁判角色设计，步骤间通过 checklist 编号串联；创建链为构建者设计，步骤间通过语义标记串联。阅读时按任务路径加载，不会同时面对两种风格。
+`docs/archive/`：历史 workflows、旧检查脚本、评测 agents——仅条件诊断时查阅，不写回默认报告模板。
 
----
+## 默认输出（评审短报告）
 
-## 5. 做法优于答案
+1. 一句话结论  
+2. 第一性判断（方向存疑或 L1 时）  
+3. 值得保留的设计（0–N 条，无则整节省略）  
+4. 问题清单（P0/P1/P2 + 文件证据 + HARD/CONDITIONAL/HEURISTIC）  
+5. 最值得做的 ≤3 个动作  
+6. 是否建议继续重构（是/否 + 一句理由）
 
-在评审或创建时，**严禁直接给出修复后的代码全量内容**：
-1. **识别模式**：指出违背了哪项最佳实践。
-2. **解释逻辑**：解释为什么这种改动能提升 Agent 的理解力。
-3. **优化方向**：指出整改方向与原则，不给出具体修改片段。
+## Gotchas
 
----
+- `description` 禁止尖括号；`name` 必须等于目录名且 hyphen-case。
+- `validate .` 在子目录内运行时，路径解析以真实目录名为准；显式传路径更稳妥。
+- `package`/`init` 不带 `--write` 不会落盘；这是 plan-gate 特性。
+- 不要把 `docs/archive/` 里的旧 W 流水线或 54 项清单默认套到新报告上。
+- 升版时同步：`metadata.version` = `CHANGELOG.md` 顶部 = 根 README 索引，并跑 Skills-Depot 的 `sync_skills_browser.py`。
 
-## 6. 双评估系统
+## 非目标
 
-| 体系           | 用途                 | 来源                                                          |
-| -------------- | -------------------- | ------------------------------------------------------------- |
-| **10 维检查清单** | 深度评审（发现问题，含三段式元框架 + D 设计对抗维度） | [review-checklist.md](references/rubrics/review-checklist.md) |
-| **8 维加权**   | 快速评分（结构质量） | [weighted-scoring.md](references/rubrics/weighted-scoring.md) |
+- 通用代码/应用项目审查、Agent 框架开发、与 Skill 无关的文档创作  
+- 默认重建治理式全量检查或强制 8 维评分  
+- 在评审路径中未授权写文件  
+- 运行态目录（`~/.agents/skills` 等）的安装与修改  
 
-两者语义不重叠：
-- 评审/审计 → 用 10 维检查清单（含三段式元框架：第一性锚定/钢人/对抗）
-- 创建后自评/快速评估 → 用 8 维加权
+## 验证闭环
 
----
-
-## 7. Gotchas（坑点）
-
-- **路径假设**：脚本必须在 Skill 根目录运行，否则 Windows 下路径解析可能异常。
-- **正则误报**：自检脚本对 `input(` 极为敏感，开发时须用过滤函数规避。
-- **描述禁忌**：`description` 字段严禁出现尖括号 `<` `>`，否则合规校验必败。
-- **判定权归属**：T1-T5 由 W7 唯一裁决；W3 在 T 系列上不得自行判定。
-- **W5 必须有证据**：W5 任何整改方向必须能在 W3 命中项中找到对应编号。
-- **裁判边界**：评审模式只输出报告，不执行文件写入。
-- **术语一致性**：v4.0 重构后禁止使用旧术语（P-V-E、工作流拆分、优化建议等）。跑 `consistency` 子命令可自动检测。
-- **路径假设（validate .）**：`validate .` 在 Skill 子目录内运行时，`skill_path.name` 返回 `.` 而非目录名，导致 "Name must match parent directory" 误报。V0 校验器已用 `skill_path.resolve().name` 修复，但其他脚本若直接用 `.name` 仍有此风险。
-
----
-
-## 8. 非目标 (Non-Goals)
-
-- 通用代码调试 / 重构（非 Skill 仓库）
-- 与 Skill 无关的文档创作（博客、教程、营销稿）
-- Agent 框架本身的开发（LangChain、AutoGPT 内核）
-- 非 Markdown / 非 Python 的 Skill
-- frontmatter 字段裁剪决策（哪些字段该删/该留由用户判断，本技能只提供过度工程化检测）
-- 应用类项目（前端 / 后端 / Web）的代码质量与架构审查——交项目审查类技能；本技能只接 **Agent Skill** 目标，含其他技能转交来的 Skill 路径
-
----
-
-## 9. 验证闭环
-
-- **V1 成功判定**：评审报告必须包含第 8 段「总评」（段名含「总评」；编号口径与 `evaluation-template.md` / README / `review` 子命令一致的固定 8 段——自「一句话结论」起至「总评」止）。
-- **V2 自检标准**：`python scripts/skill_cli.py checklist <path>` 必须返回 PASS。
-- **V3 产出检查**：合规模式输出必须严格遵循 `**Validation**: [PASS/FAIL]` 格式。
-- **V4**：检查被评审 Skill 是否有正面/负面触发测试集（参考 [trigger-test-set.md](references/templates/trigger-test-set.md)）。
-- **V5**：评估断言可机器判定（非主观评分）。
-- **V6**：W5 每条建议必须包含 checklist 编号标注。
-- **V7**：`python scripts/skill_cli.py consistency <path>` 无旧术语残留。
+- 交付前：`spec` + `validate` 均应 PASS（advisory 发现不阻塞，FAIL 阻塞）。
+- 本技能：版本三处对齐 + 用户验证后方可宣称重构完成。
