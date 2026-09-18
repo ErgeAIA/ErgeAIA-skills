@@ -1,4 +1,4 @@
-"""Shared utilities for kz-skill-creator scripts."""
+"""Shared utilities for skill-workshop scripts."""
 
 from __future__ import annotations
 

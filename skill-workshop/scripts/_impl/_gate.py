@@ -1,11 +1,11 @@
-"""Plan-gate 与 checkpoint 辅助（目标驱动脚本协议）。
+"""Plan-gate helper for write-path CLI commands (init/package --write).
 
-设计原则（见 references/templates/plan-gate-template.md）：
-- 脚本守边界不挡路：本模块不阻止任何行动，只把「未附计划」表达为结构化
-  decision_required 输出（exit 2），由 AI 转述用户后带 --plan 重跑。
-- `--plan-text` 一句话快速通道仅限人类直接调用；AI 必须走五节计划
-  （SKILL.md §2 硬规则）。
-- 无 input()、无网络、无模块级副作用；纯 stdlib。
+Design (see references/validation.md):
+- Scripts do not block work; missing plan is emitted as structured
+  decision_required (exit 2) for the AI/user to supply --plan.
+- `--plan-text` is a one-line lane for humans only; AI must pass a five-section
+  plan file (目标 / 范围与边界 / 参数 / 停止条件 / 回滚).
+- No input(), no network, no import-time side effects; stdlib only.
 """
 
 from __future__ import annotations
@@ -63,10 +63,11 @@ def require_plan(plan_file: str | None, plan_text: str | None, command: str) -> 
 
 
 def emit_checkpoint(done: str, next_step: str, risks: str, **extra) -> None:
-    """输出单行 checkpoint JSON 到 stderr（loop 迭代每轮调用）。
+    """Emit one-line checkpoint JSON on stderr (optional for loop-style drivers).
 
-    走 stderr 保持 stdout 纯净（stdout 是机器可解析的结果 JSON）。
-    SKILL.md §2 硬规则：AI 收到 checkpoint 必须向用户转述思路与下一步。
+    stderr keeps stdout reserved for machine-readable results.
+    Agents that receive checkpoint output must relay done/next/risks to the user
+    (see references/validation.md plan-gate notes).
     """
     print(
         json.dumps(

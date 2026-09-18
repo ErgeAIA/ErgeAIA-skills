@@ -20,7 +20,7 @@ from .utils import ensure_skill_path, run_skill_validate
 
 def should_skip_path(rel_to_skill: Path, file_path: Path) -> bool:
     if any(
-        part in {"dist", "__pycache__", "benchmark", "benchmarks", "runs"}
+        part in {"dist", "__pycache__", "benchmark", "benchmarks", "runs", "archive"}
         for part in rel_to_skill.parts
     ):
         return True
