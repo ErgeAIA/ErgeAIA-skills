@@ -27,8 +27,20 @@ description: 基础格式、版本 SSOT、链接与脚本安全闸门；CLI vali
 6. **版本 SSOT**：`metadata.version`（三段式 `X.Y.Z`）为机器事实；变更史在技能根 `CHANGELOG.md`。**不要求** SKILL 正文头部版本块与文末版本历史（有 CHANGELOG 时可省略）。
 7. **引用**：主文档与保留 references 中的相对路径必须真实存在。
 8. **非破坏**：重构/归档不得覆盖用户未授权的技能产物；写文件走 plan-gate。
-9. **脚本（CONDITIONAL）**：存在 `scripts/` 时——无 `input()` 交互；支持 `--help`；退出码 0=PASS/1=FAIL/2=ERROR；错误走 stderr。
+9. **脚本（CONDITIONAL）**：存在 `scripts/` 时——无 `input()` 交互；支持 `--help`；退出码 0=PASS/1=FAIL/2=ERROR；错误走 stderr。**无 `scripts/` → 本组检查 = N/A，不记缺陷。**
 10. **密钥**：任何配置/文档不得写入 token、密码、连接串。
+11. **Runtime/Governance 分离**：不得把 skill-workshop 治理条文写入被审计技能的运行时文档。
+12. **无平行流程**：整合方法论后不得出现「旧流程 + 新流程」双跑；单一审计主路径。
+
+## 条件检查 N/A（不把不适用判成缺陷）
+
+| 无此能力时 | 对应检查 |
+| --- | --- |
+| 无 `scripts/` | 脚本纪律 / P 系列 |
+| 无 eval 且不要求评测 | V4/V5、Eval Review |
+| 无家族 baseline 指定 | family-diff 类 |
+| 无编排共享字段 | 字段争用 |
+| 无已知 recurring gotcha | 不强制 Gotchas 章 |
 
 ## 版本与发布对齐（本仓库）
 
@@ -46,15 +58,15 @@ uv run --no-project python scripts/sync_skills_browser.py
 
 ## validate 使用注意
 
-- 在技能**目录内**用 `validate .` 时，部分历史实现对路径 `name` 的解析曾用 `.name`；v2 起校验入口以解析后的真实目录名为准。传显式路径最稳妥：`validate path/to/skill-dir`。
-- `validate` 的 findings 可能含 advisory（建议级）；**FAIL 才阻塞**「通过」结论。
-- `spec` 与 `validate` 职责不同：`spec` 管官方字段契约；`validate` 管更广的结构静态问题。交付前两者都跑。
+- 建议传显式路径：`validate path/to/skill-dir`。
+- `validate` findings 可能含 advisory；**FAIL 才阻塞**「通过」结论。
+- `spec` 与 `validate` 职责不同；交付前两者都跑。
+- 重构/方法论整合后：对**本技能自身**也跑 `spec` + `validate`，并记录 Before/After 体量。
 
 ## package 注意
 
-- 默认 **dry-run**，只打印目标路径与校验结果。
-- `--write` 才生成 `.skill`；AI 使用须提供 plan-gate 文件；禁止 AI 走 `--plan-text` 快速通道。
-- 打包目录会跳过 `dist/`、`__pycache__/`、评测运行目录及 `docs/archive/` 等非分发内容。
+- 默认 **dry-run**；`--write` 生成 `.skill` 且须 plan-gate。
+- 打包跳过 `dist/`、`__pycache__/`、评测运行目录及 `docs/archive/` 等。
 
 ## 报告中的验证表述
 

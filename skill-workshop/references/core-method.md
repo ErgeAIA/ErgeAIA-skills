@@ -1,101 +1,201 @@
 ---
-trigger-when: 需要理解 skill-workshop 路由分级、证据驱动读取或规则分级时
+trigger-when: 需要理解 skill-workshop 审计判断框架、分级路由、证据预算或规则生命周期时
 name: core-method
-description: skill-workshop v2 核心方法：L0/L1/L2 路由、证据预算、HARD/CONDITIONAL/HEURISTIC 规则分级、反膨胀四问。
+description: skill-workshop 底层审计判断框架：Core Task 锚点、五问、六类问题、Fast/Deep/Eval、规则生命周期、删除优先与 HARD 防火墙、Evidence-First。
 ---
 
 # 核心方法（core-method）
 
 ## 第一性问题
 
-用**最低审查成本**可靠发现会导致触发错误、执行错误、维护失控或上下文浪费的缺陷。
+用**最低审计成本**可靠发现会导致触发错误、执行错误、维护失控或上下文浪费的缺陷。
 
 ```text
-低成本发现高风险问题 → 给出有证据的整改方向 → 必要时才深度诊断/评测
+低成本发现高风险问题 → 有证据的整改方向 → 必要时才深度诊断/评测
 ```
 
 不是每次先跑完整检查清单，再组装标准化审计文书。
 
-## 任务路由
+## Core Task Definition（审计锚点）
+
+任何深度判断前，先用一句话锚定：
+
+```text
+当用户 ______ 时，Skill 负责 ______。
+```
+
+同步固定五项：
+
+| 项 | 内容 |
+| --- | --- |
+| Input | 真正需要什么输入 |
+| Output | 应该产出什么 |
+| Non-Goals | 明确不负责什么 |
+| Dependencies | 真正依靠哪些能力/文件 |
+| Success condition | 什么算任务完成 |
+
+后面所有规则、references、脚本与检查，都必须回到该定义判断。无法证明服务 Core Task 的规则 → 优先 CONDITIONAL / MIGRATE / DELETE，而不是默认保留。
+
+无法写清 Core Task = **结构性风险**，不是用 checklist 兜底。
+
+## 五问（判断框架）
+
+1. 这个 Skill 到底解决什么用户任务？
+2. 它真正需要什么输入？
+3. 它应该产出什么？
+4. 它真正依靠哪些能力？
+5. 什么才算任务完成？
+
+## 六类核心问题
+
+| 类 | 含义 |
+| --- | --- |
+| 职责漂移 | 核心任务以外能力增多，description/流程失控 |
+| 规则膨胀 | 一条原则被拆成多条表层规则 |
+| 规则重复/冲突 | 多处权威、表述打架 |
+| 模板化/机械化 | 固定句式/节拍/品牌语录替代判断 |
+| 多重权威/引用漂移 | 同一事实多文件维护、死链 |
+| 无证据规则 | 无真实失败依据的硬约束 |
+
+## 任务路由（外部命名）
 
 | 用户意图 | 路径 | 产出 |
 | --- | --- | --- |
 | 创建 / 做一个 skill | 创建流 → `references/creation.md` | SKILL.md + 目录骨架 |
 | 校验 / 合规 / validate | CLI `validate` + `spec` | PASS/FAIL + 错误清单 |
-| 帮我看看 / 评审 / 审计 | 默认 **L0**；疑点或显式深度 → **L1** | 短报告（见 review.md） |
-| 重构 / 优化结构 | L0/L1 发现问题 → 按 creation/validation 原则整改 | 改进后的技能文件 |
-| 评测 / 触发率 / benchmark | **L2 条件触发** | 见下方 L2 |
+| 帮我看看 / 评审 / 审计 | 默认 **Fast Review（L0）**；疑点或显式深度 → **Deep Review（L1）** | 报告（见 review.md） |
+| 重构 / 优化结构 | 先审计 → Rule Compression 整改 → `spec`+`validate` | 改进后的技能 |
+| 评测 / 触发率 / benchmark | **Eval Review（L2）** 条件触发 | 见下方 Eval |
 
 命中清晰信号即进入对应路径；仅当意图无法归类时才向用户澄清一句。
 
-## 审查深度（证据预算）
+**别名**：Fast≡L0，Deep≡L1，Eval≡L2。对外优先用 Fast/Deep/Eval。
+
+## 审查深度（风险驱动 + 证据预算）
 
 | 层级 | 何时进入 | 读取预算 | 产出 |
 | --- | --- | --- | --- |
-| **L0** | 默认（「帮我看看这个 skill」） | `SKILL.md` + 最多 1–3 份相关 reference；必要脚本入口 | **与 review.md 相同的六段短报告**（结论/第一性判断按需/可保留设计/问题清单/≤3 动作/是否继续重构）；可不附完整证据矩阵 |
-| **L1** | 结构性疑点、跨文件冲突、用户显式要求深度/第一性审查 | 按疑点扩展：冲突文件、相关 scripts、契约文档 | 同上报告 + 证据化 findings（文件:位置）与 CONDITIONAL 展开 |
-| **L2** | 明确要求评测/benchmark/触发率回归，或高风险自动执行需要实测 | 全面读取 + 工具链；脚本与 agents 在 `docs/archive/`，需时人工启用 | 触发率/回归结论（须标明使用了归档工具链） |
+| **Fast Review（L0）** | 默认 | 目录清单 + `SKILL.md` + 最多 1–3 份相关 reference；必要脚本入口 | **六段短报告** |
+| **Deep Review（L1）** | 结构性问题 / 用户显式深度 / Fast 发现职责漂移等 | Inventory → 假设 → **定向读**；证据指示再扩展 | 短报告 + 证据化 findings；复杂重构可附 Rule/File Disposition |
+| **Eval Review（L2）** | 高频/高风险/触发或质量有争议/明确 benchmark/重大重构后 | 按需启用工具链（多在 `docs/archive/`） | 实测结论；须标明是否用归档链 |
 
-**禁止**：默认全量预读目标技能的 `references/` 与 `scripts/`。先做目录清单与机械事实（frontmatter、体量、链接、版本声明），发现可疑再打开相关文件。
+**禁止**：默认全量预读目标技能的全部 `references/` 与 `scripts/`（用户明确 exhaustive 时除外）。
+
+### Deep 内部决策阶段（叙述用，非强制门禁编号）
+
+```text
+Understand（Core Task）→ Inventory（资产地图）
+→ Evidence（证据链）→ First-Principles（是否仍一个连贯任务）
+→ Compression（删并条迁）→ Validation Design（针对高风险）
+→ Final Review（判断型报告）
+```
+
+不恢复对外强制 W1–W7 全量流水线。
 
 ## 证据驱动扫描
 
 1. 列目录与体量（主文档行数、references 数量、scripts 是否存在）。
 2. 读 `SKILL.md` 与版本声明（`metadata.version` + `CHANGELOG.md`）。
-3. 记录疑点清单，只打开能证实/证伪疑点的文件。
-4. 每条 finding 必须落到**具体文件**（及行号/章节）证据；无证据不报。
+3. 记录疑点，只打开能证实/证伪疑点的文件。
+4. 每条 finding 落到**具体文件**（及章节/行）证据。
 
-## 规则分级
+### Evidence-First（发现格式）
+
+```text
+Claim → Evidence → Impact → Recommendation
+```
+
+禁止「感觉冗余所以删除」类无证据结论。
+
+### 规则证据测试（重要规则）
+
+```text
+Rule → 防什么真实失败？ → 是否真发生过？ → 严重度？
+→ 是否已有规则覆盖？ → 有无更小替代？
+```
+
+据此标生命周期；**答不出真实失败 → 不得升为 HARD**。
+
+## 规则生命周期
 
 | 级别 | 含义 | 默认行为 |
 | --- | --- | --- |
-| **HARD** | 违反即失效或破坏契约 | 必须报告；阻塞「通过」结论 |
-| **CONDITIONAL** | 目标具备对应能力时才查 | 无该能力 → N/A，不硬凑 |
-| **HEURISTIC** | 经验建议 | 有证据才报；不升格为 P0 |
-| **ARCHIVED** | 历史规则 | 不参与运行时，见 `docs/archive/` |
+| **HARD** | 违反即失效或破坏契约；有重复真实失败证据、无更小替代 | 必须报告；阻塞「通过」 |
+| **CONDITIONAL** | 仅某类 Skill/输入/结构适用 | 条件不成立 → **N/A**，不凑缺陷 |
+| **HEURISTIC** | 经验建议 | 有证据才报；不升格 P0 |
+| **EXPERIMENTAL** | 验证中，不作用于所有 Skill | 不进默认硬门槛 |
+| **ARCHIVED** | 历史规则 | 不参与运行时；见 `docs/archive/` |
 
 ### HARD 示例（运行时）
 
 - 非破坏：重构不得静默覆盖用户已有 skill 产物。
 - 平台字段：frontmatter 必含 `name` + `description`；`name` 与目录一致、hyphen-case。
-- 版本 SSOT：`metadata.version` + `CHANGELOG.md`；不默认要求「三处版本块一致」。
-- 主文档体量：原则 `<500` 行；工作室自用主文档目标 120–150 行。
+- 版本 SSOT：`metadata.version` + `CHANGELOG.md`。
+- 主文档体量：原则 `<500` 行；工作室主文档目标约 120–150 行。
 - 结构性引用路径必须真实存在。
 
-### CONDITIONAL 示例
+### CONDITIONAL / N-A
 
-| 条件 | 才检查 |
+| 条件 | 才检查；否则 |
 | --- | --- |
-| 目标存在 `scripts/` | 脚本无交互、`--help`、退出码 0/1/2、stderr/stdout 分离 |
-| 高频触发 / 高误触发风险 / 用户要求评测 | 评测集与触发质量（L2） |
-| 明确要求家族一致性或指定 baseline | 家族差分（归档诊断） |
-| 被其他 skill 编排且共享输出字段 | 字段争用 |
-| description 有明显触发疑点或用户要求触发优化 | description 深度校准 |
+| 有 `scripts/` | 查脚本纪律；无 → N/A |
+| 高风险/用户要求评测 | Eval；否则 N/A |
+| 指定 baseline/family | family 类诊断；否则 N/A |
+| 编排共享字段 | 字段争用；否则 N/A |
+| 有已知 recurring gotcha | 报 Gotchas；无强制造 Gotchas |
+| 多权威冲突迹象 | reconcile 类诊断（归档工具）；否则不默认跑 |
 
-### 明确废除（不得再作为阻塞规则）
+## 删除优先与 HARD 防火墙
 
-- 强制输出 3–5 条优点（无高价值优点则省略）。
-- 中等复杂度强制「至少识别 1 个拆分候选」（无职责耦合则写「无需拆分」）。
-- 固定报告收尾套话。
-- 「必须存在脚本」作为 P1。
-- 默认强制评测集 / family-diff / 全量 W1–W7 流水线。
-- 「三处版本一致」默认硬约束。
+整改顺序：
 
-## 反膨胀四问（新增规则前）
+```text
+删除 > 合并 > 条件化 > 迁移 > 重写 > 最后才新增
+```
 
-1. 删掉它，哪个真实失败会重新出现？答不出 → 不进 HARD。
-2. 该失败是否足以让 Skill 真正失效？否 → 不是 P0。
-3. 是否只有某类 Skill 才会遇到？是 → CONDITIONAL。
-4. 有没有真实执行证据？无 → 先 HEURISTIC，不要立法。
+新增 HARD 前必须能答：
+
+1. 删除后会产生什么**真实**失败？
+2. 是否重复发生？
+3. 是否影响核心任务？
+4. 是否存在更小替代方案？
+5. 能否用 test/脚本而非 runtime 规则解决？
+
+任一答不出 → 不升级为 HARD。
+
+### 反膨胀（规则侧）
+
+- 一类问题只保留**一个**最小有效原则（强原则优于多条表层规则）。
+- 优先删：重复规则、README 运行规则、已无运行意义的历史兼容、无证据硬规则、固定模板语言、全局记忆已覆盖的信息、脚本已可靠保证的机械项。
+
+## 结构性膨胀五类（Deep 必看）
+
+1. **职责膨胀** — 核心任务外能力增多  
+2. **规则膨胀** — 一原则拆成多表层条  
+3. **文件膨胀** — references 增多但运行需求未增  
+4. **模板膨胀** — 固定句式/流程/结构增多  
+5. **治理膨胀** — 检查 Skill 的规则本身变复杂  
+
+> skill-workshop **不得**被自己的治理体系拖垮。
+
+Complexity ≠ 必须拆分。仍是一个连贯用户任务 → 允许「复杂但无需拆分」。仅当出现多个独立用户任务/触发逻辑/输入输出契约/生命周期/安全标准时，才形成 split candidate。
+
+## Runtime vs Governance
+
+| 层 | 只包含 |
+| --- | --- |
+| **Runtime**（被审计 Skill 自身） | 任务定义、必要流程、必要硬规则、条件 references |
+| **Governance**（仅 workshop 审计时） | rubric、lifecycle、证据模型、架构模型、历史分析 |
+
+**禁止**把治理规则注入被审计 Skill 的运行时文档。
 
 ## 机器闸门
 
-- 每次创建/重构后：`python scripts/skill_cli.py validate <path>`
+- 创建/重构后：`python scripts/skill_cli.py validate <path>`
 - 字段合规：`python scripts/skill_cli.py spec <path>`
-- 交付打包：`python scripts/skill_cli.py package <path>`（默认 dry-run）
+- 打包：`python scripts/skill_cli.py package <path>`（默认 dry-run）
 - 脚本 FAIL 不得写「已通过」。
 
 ## 与 archive 的关系
 
-`docs/archive/` 保存旧 W 流水线、54 项 checklist 脚本、评测 agents 等。  
-**仅当** L1/L2 需要对照历史方法论时查阅；不得把归档规则默认写回运行时报告模板。
+`docs/archive/` 保存旧 W 流水线、旧 checklist 脚本、评测 agents 等。仅条件诊断时查阅；不得默认写回运行时报告模板。reconcile / family-diff / selfheal 等**不**作为默认审计阶段。

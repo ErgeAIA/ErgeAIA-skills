@@ -7,7 +7,25 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 
 > 早期（v1.21.0 之前）的详细变更历史见 `git` 提交记录；本文件仅保留近期若干版本的精简记录。
 
-## [Unreleased]
+## [2.1.0] - 2026-09-19 · 审计方法论整合（判断框架并入，非第二流程）
+
+### 新增（判断框架，并入现有流程）
+- **Core Task Definition** 锚点：审计先写「当用户__时，Skill 负责__」+ Input/Output/Non-Goals/Dependencies/Success。
+- 五问 + 六类核心问题（职责漂移/规则膨胀/重复冲突/模板化/多重权威/无证据规则）。
+- Evidence-First：`Claim → Evidence → Impact → Recommendation`；规则证据测试。
+- 规则生命周期补 **EXPERIMENTAL**；删除优先阶梯 + HARD 防火墙（真实失败证据门槛）。
+- 结构性膨胀五类（含**治理膨胀**）；Runtime vs Governance 分离。
+- 评审分层对外命名 **Fast / Deep / Eval**（≡ L0/L1/L2）；风险表 P0/P1/P2；Deep 扩展字段（Rule/File Disposition 等）。
+
+### 变更
+- `core-method.md` / `review.md` / `SKILL.md` / `validation.md`：吸收通用审计方法论为**唯一主流程的底层判断逻辑**；不新增并行审计流、不恢复默认 W1–W7 门禁、不引入 `@` DSL。
+- CLI 仍仅 validate/spec/init/package；reconcile/family-diff/selfheal/eval 保持归档条件诊断。
+
+### 保留
+- v2 轻量哲学：短报告默认、优点 0–N、无强制拆分、证据预算、禁止默认全量预读。
+
+### 验证
+- 对本技能跑 `spec` + `validate`；Before/After 与整合说明见 `docs/integration-2026-09-19.md`。
 
 ## [2.0.1] - 2026-09-18
 
