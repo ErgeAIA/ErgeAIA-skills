@@ -4,34 +4,27 @@
   <img src="assets/banner.svg" alt="skill-workshop" width="100%">
 </p>
 
-**v2.0.1** · 轻量 Skill 质量工作站：创建 → 评审 → 重构 → 合规校验。
+**v2.1.0** · 轻量 Skill 质量工作站：创建 → 评审 → 重构 → 合规校验。
 
-设计原则：用最低审查成本发现致命缺陷；默认 L0 轻查，疑点再 L1 展开；规则分为 HARD / CONDITIONAL / HEURISTIC。
+设计原则：最低审查成本发现致命缺陷；**Fast/Deep/Eval**（≡ L0/L1/L2）风险驱动分级；判断框架见 `core-method.md`（Core Task、证据链、规则生命周期、删除优先）；规则 HARD / CONDITIONAL / HEURISTIC / EXPERIMENTAL / ARCHIVED。
 
 ## 四种意图
 
 | 意图 | 路径 | 产出 |
 | --- | --- | --- |
 | 创建 | `references/creation.md` + CLI `init` | SKILL.md 骨架 |
-| 评审 | L0/L1 + `references/review.md` | 短报告（证据化 findings） |
-| 重构 | 评审发现问题 → 按 creation/validation 整改 | 改进后的技能 |
+| 评审 | Fast/Deep + `references/review.md` | 报告（证据化 findings） |
+| 重构 | 审计 → Rule Compression → validate | 改进后的技能 |
 | 校验 | CLI `spec` + `validate` | PASS/FAIL |
 
-评测/benchmark 为 L2 条件路径，工具在 `docs/archive/`。
+Eval/评测为条件路径，工具在 `docs/archive/`。
 
 ## CLI
 
 ```bash
-# 结构静态校验
 python scripts/skill_cli.py validate /path/to/skill
-
-# 官方 frontmatter 规范检查
 python scripts/skill_cli.py spec /path/to/skill
-
-# 初始化纯净骨架（默认 dry-run）
 python scripts/skill_cli.py init my-skill --path ./output
-
-# 打包（默认 dry-run；--write 落盘需 plan-gate）
 python scripts/skill_cli.py package /path/to/skill
 ```
 
@@ -49,11 +42,12 @@ python scripts/skill_cli.py package /path/to/skill
 | 文件 | 用途 |
 | --- | --- |
 | [SKILL.md](SKILL.md) | AI 运行时主文档（路由 + 硬约束） |
-| [references/core-method.md](references/core-method.md) | 路由分级与规则分级 |
+| [references/core-method.md](references/core-method.md) | 审计判断框架（Core Task、生命周期、删除优先） |
 | [references/creation.md](references/creation.md) | 极简创建规范与模板 |
-| [references/review.md](references/review.md) | T/E/C 三轴评审标准 |
-| [references/validation.md](references/validation.md) | 格式与安全闸门 |
+| [references/review.md](references/review.md) | Fast/Deep/Eval、T/E/C、P0/P1/P2、报告结构 |
+| [references/validation.md](references/validation.md) | 格式与安全闸门、N/A |
 | [CHANGELOG.md](CHANGELOG.md) | 版本史 |
+| [docs/integration-2026-09-19.md](docs/integration-2026-09-19.md) | 方法论整合记录与 Before/After |
 | [docs/archive/README.md](docs/archive/README.md) | 归档说明（非运行时） |
 
 ## 版本对齐

@@ -8,7 +8,7 @@
 
 | 技能 | 说明 | 版本 |
 |------|------|------|
-| [skill-workshop](skill-workshop/) | Skill 质量工作站：创建、评审、重构、合规校验（L0/L1 轻量路由；评测为条件路径） | v2.0.1 |
+| [skill-workshop](skill-workshop/) | Skill 质量工作站：创建、评审、重构、合规校验（Fast/Deep/Eval≡L0/L1/L2 风险驱动；Core Task+证据链判断框架） | v2.1.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.1.0 |
 | [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：把协作契约写进 AGENTS.md，把进度、决策、踩坑沉淀到 docs/.ai/，跨会话交接靠自包含文档，并把开发过程蒸馏成按领域组织的可复用经验；另可只读审查开发类项目的代码质量与技术栈；已有 CHANGELOG 时可同步更新日志（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | v1.2.0 |
