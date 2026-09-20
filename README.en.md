@@ -6,13 +6,13 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 ## Skills
 
-| Skill | Description | Version |
-|-------|-------------|---------|
-| [skill-workshop](skill-workshop/) | Skill quality workstation: create, review, refactor & validate (L0/L1 lightweight routing; eval is conditional) | v2.0.1 |
-| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | v2.1.0 |
-| [zuiti](zuiti/) | Civil comeback generator ("mouth substitute"): crafts sharp, profanity-free retorts in 6 default styles (3 curated entries each), backed by verified quote/meme drawers and a manual-send gate | v0.3.9 |
-| [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md contract, docs/.ai/ progress/decision/lesson archive, self-contained cross-session handoff, and distillation of reusable domain-scoped experience; also read-only audit of dev projects for code quality and stack; appends project CHANGELOG when the file already exists (vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit) | v1.2.0 |
-| [moxian](moxian/) | Surface the tacit knowledge you "thought you understood but never internalized": three layers of cognitive gaps (a term you glossed, an intention you can't articulate, a whole concept you didn't know you lacked), externalized into sharper questions and concept micro-lessons, and saved as a cumulative knowledge card under docs/moxian/ (moxian / "what did I miss") | v0.1.0 |
+| Skill | Description | Usage example | Version |
+|-------|-------------|---------------|---------|
+| [skill-workshop](skill-workshop/) | Skill quality workstation: create, review, refactor & validate (Fast/Deep/Eval; Core Task + evidence chain) | `Review this skill: ./my-skill` | v2.1.0 |
+| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | `+add Added user login` | v2.1.0 |
+| [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts in 6 styles, verified quotes, human-send gate | `zuiti: reply to this comment for me` | v0.3.9 |
+| [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md, docs/.ai/, handoff, distill, read-only audit | `vibe-init` | v1.2.0 |
+| [moxian](moxian/) | Surface tacit cognitive gaps from AI-coding chats; save cards to docs/moxian/ | `moxian: show what I did not really get` | v0.1.0 |
 
 ## Getting Started
 

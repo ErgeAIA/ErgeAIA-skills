@@ -6,13 +6,13 @@
 
 ## 技能列表
 
-| 技能 | 说明 | 版本 |
-|------|------|------|
-| [skill-workshop](skill-workshop/) | Skill 质量工作站：创建、评审、重构、合规校验（Fast/Deep/Eval≡L0/L1/L2 风险驱动；Core Task+证据链判断框架） | v2.1.0 |
-| [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | v2.1.0 |
-| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | v0.3.9 |
-| [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：把协作契约写进 AGENTS.md，把进度、决策、踩坑沉淀到 docs/.ai/，跨会话交接靠自包含文档，并把开发过程蒸馏成按领域组织的可复用经验；另可只读审查开发类项目的代码质量与技术栈；已有 CHANGELOG 时可同步更新日志（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | v1.2.0 |
-| [moxian](moxian/) | 默现：照出对话里「以为懂、其实没内化」的三层认知缺口（术语没追到底 / 有主意说不清 / 一整块不知道自己缺），外化成可说出口的问题与概念，落一份可累积的认知卡到 docs/moxian/（默现 / moxian / 我哪没懂） | v0.1.0 |
+| 技能 | 说明 | 使用示例 | 版本 |
+|------|------|----------|------|
+| [skill-workshop](skill-workshop/) | Skill 质量工作站：创建、评审、重构、合规校验（Fast/Deep/Eval≡L0/L1/L2；Core Task+证据链） | `帮我看看这个 skill：./my-skill` | v2.1.0 |
+| [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | `+add 新增了用户登录功能` | v2.1.0 |
+| [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | `嘴替：帮我回这句「你这水平还敢开源？」` | v0.3.9 |
+| [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：AGENTS.md 契约、docs/.ai/ 进度与决策、交接与经验蒸馏、只读审查（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | `vibe-init` | v1.2.0 |
+| [moxian](moxian/) | 默现：照出对话里「以为懂、其实没内化」的三层认知缺口，落认知卡到 docs/moxian/（默现 / moxian / 我哪没懂） | `默现：照一下我没懂的` | v0.1.0 |
 
 ## 快速开始
 
