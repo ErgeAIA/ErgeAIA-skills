@@ -14,7 +14,8 @@
 - 删除文件/目录、修改凭据、数据库/数据变更、高风险 git 操作（`push --force` / `rebase` / `reset --hard`）、全局安装、对外发布、引入新框架/重大依赖、切换包管理器。
 
 **常态工作流（已授权免二次确认）**：
-- 任务完成且评审（review）通过、或用户已发起该任务后，普通 `git commit` + `git push`（非 `--force`）自动执行，不再等待单独的「确认推送」信号。高风险 git 操作（`push --force` / `rebase` / `reset --hard`）仍须显式确认。
+- 任务完成且评审（review）通过、或用户已发起该任务后，普通 `git commit` + `git push`（非 `--force`）自动执行，不再等待单独的「确认推送」信号。
+- **技能提交 → 推送链**：本地 `commit` 后对 diff 与版本三处做快速 review，通过则**立即 `push`**（`main` 或当前功能分支），无需逐次询问用户。高风险 git 操作（`push --force` / `rebase` / `reset --hard`）仍须显式确认。
 
 **禁止（不询问，直接不做）**：
 - 触碰运行态软链（`~/.workbuddy/skills` / `~/.agents/skills`）——由用户工具链管理。
