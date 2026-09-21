@@ -47,6 +47,7 @@ _最后更新：2026-09-14_
 ### Changed
 
 - **description 符号归一化（4 个技能）**：changelog-manager、moxian、skill-workshop、zuiti——斜杠 `/` 改顿号、半角 `:` 改全角（保留规格标记 `Not for:`）、破折号 `——` 改逗号。复验：YAML 可解析、无反斜杠/斜杠残留，每文件仅 1 行改动。
+- **description 改写（触发词句子化，不删改丢）**：**skill-workshop 重写为重点**——按「四类意图」表述（创建新技能 / 评审既有技能 / 重构结构与措辞 / 校验规范与合规），触发句覆盖四种意图，四个 subcommand 与 L0/L1 策略保留；zuiti 触发词由 10 条枚举砍为句内 3 条；moxian 改为句内 4 个示例；changelog-manager 触发词并入括号。复验：六项规范 0 问题。
 
 ## [1.1.1] - 2026-05-30
 
