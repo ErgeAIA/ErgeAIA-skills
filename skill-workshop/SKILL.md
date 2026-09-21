@@ -1,6 +1,6 @@
 ---
 name: skill-workshop
-description: "Skill 质量工作站：创建 / 评审 / 重构 / 合规校验 Agent Skill——L0 轻查默认、L1 疑点展开；CLI：validate/package/init/spec。Use this skill to create, review, refactor, or validate an Agent Skill, or when another skill hands off a Skill project for quality review. Invoke on '做个新 skill'/'帮我看看这个 skill'/'audit skill'/'重构 skill'/'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档、Agent 框架、应用类项目代码审查."
+description: "Skill 质量工作站：创建、评审、重构、合规校验 Agent Skill，L0 轻查默认、L1 疑点展开；CLI：validate、package、init、spec。Use this skill to create, review, refactor, or validate an Agent Skill, or when another skill hands off a Skill project for quality review. Invoke on '做个新 skill'、'帮我看看这个 skill'、'audit skill'、'重构 skill'、'校验 skill 规范'. Not for: 通用代码调试、非 Skill 文档、Agent 框架、应用类项目代码审查."
 metadata:
   author: ErgeAIA
   version: "2.1.0"
