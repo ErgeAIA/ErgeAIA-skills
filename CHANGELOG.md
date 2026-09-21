@@ -42,6 +42,12 @@ _最后更新：2026-09-14_
 - **skill-reviewer 技能物理删除**（2026-09-10）：此前 Deprecated 事项落地——能力已全部并入 skill-workshop，根 README / project-overview / 决策日志同步清理
 - **GitHub Actions 发布流程退役**（2026-09-12）：删除 `.github/workflows/release.yml`。仓库定位纯技能集合，分发走 `npx skills add` 直读仓库；`CHANGELOG.md` / `CHANGELOG.en.md` 降级为纯人类文档，不再关联任何自动化
 
+## [2026-09-21]
+
+### Changed
+
+- **description 符号归一化（4 个技能）**：changelog-manager、moxian、skill-workshop、zuiti——斜杠 `/` 改顿号、半角 `:` 改全角（保留规格标记 `Not for:`）、破折号 `——` 改逗号。复验：YAML 可解析、无反斜杠/斜杠残留，每文件仅 1 行改动。
+
 ## [1.1.1] - 2026-05-30
 
 ### Changed
