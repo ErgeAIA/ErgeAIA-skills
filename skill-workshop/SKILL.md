@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Skill 质量工作站，处理 Agent Skill 的四类意图：创建新技能、评审既有技能、重构结构与措辞、校验规范与合规。默认 L0 轻查，只在有疑点时才展开 L1；CLI 提供 validate、package、init、spec 四个子命令。Use this skill whenever 用户要新建一个 skill、要把现有 skill 交来审查、要重构或瘦身 skill、要校验 skill 是否符合规范时；也用于其它技能把 Skill 项目交接过来做质量评审。Not for: 通用代码调试、非 Skill 文档、Agent 框架、应用类项目代码审查。"
 metadata:
   author: ErgeAIA
-  version: "2.1.0"
+  version: "2.2.0"
 ---
 
 # skill-workshop

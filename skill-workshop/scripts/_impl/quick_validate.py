@@ -28,6 +28,8 @@ ALL_ALLOWED_PROPERTIES = ALLOWED_SPEC_PROPERTIES | PROJECT_PROPERTIES
 WORKFLOW_HEADER_RE = re.compile(r"^#{2,3}\s+@工作流:\s*.+$", re.MULTILINE)
 STRICT_WORKFLOW_HEADER_RE = re.compile(r"^##\s+@工作流:\s*.+$", re.MULTILINE)
 NONSTANDARD_WORKFLOW_HEADER_RE = re.compile(r"^###\s+@工作流:\s*.+$", re.MULTILINE)
+# description 原始行（符号硬检查用：未双引号 / 反斜杠 / 斜杠 / 半角冒号）。
+DESC_RAW_RE = re.compile(r"^description:(.*)$", re.M)
 
 # 核心意图关键词（spec.md §description 格式约束：≥2 为硬判据）。
 # 词表扩充实例登记（日期、技能、新增词）：
@@ -221,8 +223,38 @@ def extract_header_version(content: str) -> str | None:
     return parse_version_token(match.group(1).strip())
 
 
+def validate_description_symbols(raw_frontmatter: str) -> list[str]:
+    """description 原始行的符号硬检查（2026-09-21 新增）。
+
+    此前 validate / spec 两条命令都不查符号，导致「未双引号 / 反斜杠 / 斜杠 / 半角冒号」
+    长期无人把关（用户实测：未引号会让外部技能软件与 YAML 头解析出问题）。
+    返回问题列表（空 = 通过）；调用方按 error 计入。
+    """
+    problems: list[str] = []
+    m = DESC_RAW_RE.search(raw_frontmatter or "")
+    if not m:
+        return problems
+    raw = m.group(1).strip()
+    quoted = len(raw) >= 2 and raw.startswith('"') and raw.endswith('"')
+    if not quoted:
+        problems.append('description 未用双引号包裹（须为单行 string，形如 description: "…"）')
+    if chr(92) in raw:
+        problems.append("description 含反斜杠（双引号 YAML 里是转义符，硬禁止）")
+    if "/" in raw:
+        problems.append("description 含斜杠（外部技能软件转义风险，改写为顿号或「某目录」）")
+    body = raw[1:-1] if quoted else raw
+    if re.search(r"(?<!Not for):", body):
+        problems.append("description 含半角冒号（应改全角，规格标记 Not for: 除外）")
+    return problems
+
+
 def validate_description_format(frontmatter: dict) -> tuple[bool, str, str]:
-    """V0/W7 description 联锁校验（见 spec.md §description 格式约束）。
+    """V0/W7 description 联锁校验。
+
+    规范真源：`references/creation.md` §description 写法（活文档）；
+    完整 spec 已存档于 `docs/archive/references/specs/spec.md` §description 格式约束。
+    2026-09-21 修正：删除「触发词偏少（建议 ≥3）」——该软建议把"多堆触发词"当优点；
+    改为按 §核心触发词 vs 变体清单 判反模式（核心触发词嵌句中、3-4 个以内）。
 
     Returns (ok, message, severity)。severity: "error"（硬 FAIL）| "warning"（软建议）。
     """
@@ -298,9 +330,19 @@ def validate_description_format(frontmatter: dict) -> tuple[bool, str, str]:
         # 软建议：≥2 意图关键词是 W7 T1 的语义指引（官方反例均为 0 命中，硬底线设为 ≥1）
         soft_issues.append("核心意图关键词偏少（建议 ≥2）")
 
-    if trigger_count < 3:
-        # 软建议：≥3 触发词不再是硬约束（spec.md 2026-09 口径）
-        soft_issues.append("触发词偏少（建议 ≥3）")
+    # 反堆砌（spec.md §核心触发词 vs 变体清单）：
+    # 合法 = 核心触发词嵌入句中、3-4 个以内；反模式 = 同义变体罗列 >3 个、裸词表无意图句承载。
+    # 2026-09-21：原此处为「触发词偏少（建议 ≥3）」——等于把堆砌当优点，已删除并反向判。
+    quoted_unique = len(set(quoted_tokens))
+    if quoted_unique >= 8:
+        return False, (
+            f"description 疑似裸词表（引号内触发词 {quoted_unique} 个，规范 3-4 个以内）。"
+            "把触发信号嵌进触发句，去掉同义变体罗列"
+        ), "error"
+    if quoted_unique > 4:
+        soft_issues.append(
+            f"引号内触发词 {quoted_unique} 个（规范 3-4 个以内）——疑堆砌或同义变体罗列"
+        )
 
     if soft_issues:
         return True, (
@@ -1289,7 +1331,13 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
                     ),
                 )
             else:
-                # 联锁校验：单行 + ≥2 核心意图关键词（硬）；Pushy 句式 / 触发词 ≥3（软）
+                # 联锁校验：单行 + 核心意图关键词（硬）；Pushy 句式 + 反堆砌（软）；符号（硬）
+                try:
+                    raw_skill_text = (Path(skill_path) / "SKILL.md").read_text(encoding="utf-8")
+                except OSError:
+                    raw_skill_text = ""
+                for symbol_problem in validate_description_symbols(raw_skill_text):
+                    append_error(spec_errors, "spec", f"Description symbol: {symbol_problem}")
                 desc_format_ok, desc_format_message, desc_severity = validate_description_format(
                     frontmatter
                 )

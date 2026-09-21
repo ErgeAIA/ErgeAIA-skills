@@ -7,6 +7,23 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 
 > 早期（v1.21.0 之前）的详细变更历史见 `git` 提交记录；本文件仅保留近期若干版本的精简记录。
 
+## [2.2.0] - 2026-09-21 · description 校验修复（反堆砌 + 符号硬检查 + 规范去悬空）
+
+### 修正（校验机制，有行为变化）
+
+- **删掉反向激励**：`validate_description_format()` 原有软建议「触发词偏少（建议 ≥3）」——该建议把"多堆触发词"当优点，是各技能 description 词表化的机制成因（实证：zuiti 24 组、skill-workshop 自身 10 组仍能通过自家 validate）。现删除。
+- **补反堆砌判据**（对齐 spec.md §核心触发词 vs 变体清单）：引号内触发词 `>4` → 软建议「疑堆砌或同义变体罗列」；`>=8` → 硬 FAIL「疑似裸词表」。规范口径：核心触发词嵌入句中、3-4 个以内。
+- **新增符号硬检查** `validate_description_symbols()`：未双引号包裹 / 含反斜杠 / 含斜杠 / 含半角冒号（规格标记 `Not for:` 除外）→ 硬 FAIL。此前 `validate` 与 `spec` 两条命令**都不查符号**，是本仓长期无人把关的缺口。
+
+### 文档（规范去悬空）
+
+- `references/creation.md §description 写法` 内联三条反模式（同义变体罗列 >3 / 评测查询词逐条塞入 / 裸词表）与符号硬约束；`validate_description_format()` docstring 的真源路径从已不存在的 `references/specs/spec.md` 改为活文档 `references/creation.md`，并标注完整 spec 存档位置。
+
+### 实测
+
+- 正例：skill-workshop（282 字符 / 6 意图词）、zuiti（已补意图词）→ `Spec checks: passed`，且不再出现「触发词偏少」。
+- 反例：斜杠 + 半角冒号 + 8 个引号触发词 → 3 条同时命中；未加引号 → 命中；8 个引号触发词 → 裸词表 FAIL；含反斜杠 → YAML 头解析失败即被拦。
+
 ## [2.1.0] - 2026-09-19 · 审计方法论整合（判断框架并入，非第二流程）
 
 ### 新增（判断框架，并入现有流程）
