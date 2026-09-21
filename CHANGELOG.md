@@ -47,6 +47,7 @@ _最后更新：2026-09-14_
 ### Changed
 
 - **description 符号归一化（4 个技能）**：changelog-manager、moxian、skill-workshop、zuiti——斜杠 `/` 改顿号、半角 `:` 改全角（保留规格标记 `Not for:`）、破折号 `——` 改逗号。复验：YAML 可解析、无反斜杠/斜杠残留，每文件仅 1 行改动。
+- **skill-workshop v2.1.0 → v2.2.0 · description 校验机制修复**（本仓裁判技能自身的缺口）：① 删除反向激励软建议「触发词偏少（建议 ≥3）」——它把"多堆触发词"当优点，是各技能词表化的机制成因（实证：zuiti 24 组、skill-workshop 自身 10 组仍能通过自家 validate）；② 新增反堆砌判据（引号内触发词 >4 软建议、≥8 硬 FAIL「疑似裸词表」）；③ 新增 `validate_description_symbols()` 符号硬检查（未双引号 / 反斜杠 / 斜杠 / 半角冒号，`Not for:` 除外）——此前 `validate` 与 `spec` 两条命令**都不查符号**；④ 规范去悬空：`references/creation.md §description 写法` 内联三条反模式与符号约束，函数 docstring 的真源路径从已不存在的 `references/specs/spec.md` 改指活文档并标注存档位置（`docs/archive/references/specs/spec.md`）。正例 skill-workshop / zuiti 通过，反例（斜杠+半角冒号+裸词表 / 未引号 / 裸词表 / 反斜杠）全部命中。
 - **description 改写（触发词句子化，不删改丢）**：**skill-workshop 重写为重点**——按「四类意图」表述（创建新技能 / 评审既有技能 / 重构结构与措辞 / 校验规范与合规），触发句覆盖四种意图，四个 subcommand 与 L0/L1 策略保留；zuiti 触发词由 10 条枚举砍为句内 3 条；moxian 改为句内 4 个示例；changelog-manager 触发词并入括号。复验：六项规范 0 问题。
 
 ## [1.1.1] - 2026-05-30
