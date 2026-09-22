@@ -4,9 +4,9 @@
   <img src="assets/banner.svg" alt="skill-workshop" width="100%">
 </p>
 
-**v2.3.0** · Agent Skill 全生命周期工作台：创建、评审、优化、重构、校验、打包，从明确任务与边界到验证结果形成闭环。
+**v2.4.0** · Agent Skill 全生命周期工作台：创建、评审、优化、重构、校验、打包，从明确任务与边界到验证结果形成闭环。
 
-设计原则：最低审查成本发现致命缺陷；**Fast/Deep/Eval**（≡ L0/L1/L2）风险驱动分级；判断框架见 `core-method.md`（Core Task、证据链、规则生命周期、删除优先）；优化方法见 `optimization.md`；规则 HARD / CONDITIONAL / HEURISTIC / EXPERIMENTAL / ARCHIVED。
+设计原则：最低审查成本发现致命缺陷；**Fast/Deep/Eval**（≡ L0/L1/L2）风险驱动分级；判断框架见 `core-method.md`（Core Task、证据链、规则生命周期、删除优先）；优化方法见 `optimization.md`；规则 HARD / CONDITIONAL / HEURISTIC / EXPERIMENTAL / ARCHIVED；**校验判据按来源分级**（官方 spec / 有后果的仓约定 = HARD，纯风格与已归档作者体系 = advisory，见 `validation.md`）。
 
 ## 四种模式（职责不混）
 

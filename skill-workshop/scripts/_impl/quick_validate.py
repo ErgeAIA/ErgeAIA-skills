@@ -7,7 +7,7 @@ import functools
 import re
 import sys
 
-from .utils import ensure_skill_path, load_markdown_document, load_skill_document
+from .utils import YAML_AVAILABLE, ensure_skill_path, load_markdown_document, load_skill_document
 
 
 ALLOWED_SPEC_PROPERTIES = {
@@ -873,6 +873,7 @@ def validate_project_doc_frontmatter(frontmatter: dict, doc_label: str) -> list[
 
 
 def validate_example_input_templates(skill_path: Path):
+    """返回 (ok, message, notes)：notes 为归档作者体系结构的建议，不阻断。"""
     templates_reference_dir = skill_path / "references" / "templates"
     examples_dir = skill_path / "references" / "examples"
     required_sections = [
@@ -880,8 +881,11 @@ def validate_example_input_templates(skill_path: Path):
         "## 建议提供的信息",
         "## 可直接复制输入模板",
     ]
-    templates_dir = skill_path / "references" / "templates"
-    errors = []
+    # v2.4.0 反向审计：命名 / 固定三章节 / 「不负责工作流路由」/ 速查表 4 项出自归档作者体系
+    # （docs/archive/references/authoring/progressive-disclosure-patterns.md:98，原文措辞即「结构建议」），
+    # 原先却是 blocker；版本纪律与 frontmatter 完整性仍阻断。
+    blocking: list[str] = []   # 仓库版本纪律与 frontmatter 完整性：仍阻断
+    notes: list[str] = []     # 归档作者体系结构（命名/固定章节/速查表）：只提示
 
     if templates_reference_dir.exists():
         for markdown_path in sorted(templates_reference_dir.rglob("*.md")):
@@ -891,10 +895,10 @@ def validate_example_input_templates(skill_path: Path):
             try:
                 frontmatter, content = load_markdown_document(markdown_path)
             except Exception as exc:
-                errors.append(f"{markdown_path.relative_to(skill_path)} frontmatter error: {exc}")
+                blocking.append(f"{markdown_path.relative_to(skill_path)} frontmatter error: {exc}")
                 continue
 
-            errors.extend(
+            blocking.extend(
                 validate_project_doc_frontmatter(
                     frontmatter, str(markdown_path.relative_to(skill_path))
                 )
@@ -904,7 +908,7 @@ def validate_example_input_templates(skill_path: Path):
                 frontmatter, content, skill_path=skill_path
             )
             if not version_sync_valid:
-                errors.append(f"{markdown_path.relative_to(skill_path)} {version_sync_message}")
+                blocking.append(f"{markdown_path.relative_to(skill_path)} {version_sync_message}")
 
             history_pos_valid, history_pos_message = validate_version_history_position(
                 content,
@@ -912,22 +916,22 @@ def validate_example_input_templates(skill_path: Path):
                 skill_path=skill_path,
             )
             if not history_pos_valid:
-                errors.append(f"{markdown_path.relative_to(skill_path)} {history_pos_message}")
+                blocking.append(f"{markdown_path.relative_to(skill_path)} {history_pos_message}")
 
             history_count_valid, history_count_message = validate_version_history_entry_count(
                 content, skill_path=skill_path
             )
             if not history_count_valid:
-                errors.append(f"{markdown_path.relative_to(skill_path)} {history_count_message}")
+                blocking.append(f"{markdown_path.relative_to(skill_path)} {history_count_message}")
 
     if not examples_dir.exists():
-        if errors:
-            preview = errors[:10]
+        if blocking:
+            preview = blocking[:10]
             message = "Input template validation failed:\n  - " + "\n  - ".join(preview)
-            if len(errors) > len(preview):
-                message += f"\n  - ... and {len(errors) - len(preview)} more"
-            return False, message
-        return True, "Input templates are valid"
+            if len(blocking) > len(preview):
+                message += f"\n  - ... and {len(blocking) - len(preview)} more"
+            return False, message, notes
+        return True, "Input templates are valid", notes
 
     for markdown_path in sorted(examples_dir.rglob("*.md")):
         if not markdown_path.is_file():
@@ -938,36 +942,36 @@ def validate_example_input_templates(skill_path: Path):
         try:
             frontmatter, content = load_markdown_document(markdown_path)
         except Exception as exc:
-            errors.append(f"{markdown_path.relative_to(skill_path)} frontmatter error: {exc}")
+            blocking.append(f"{markdown_path.relative_to(skill_path)} frontmatter error: {exc}")
             continue
 
         if not re.match(r"^input-template-[a-z0-9-]+\.md$", markdown_path.name):
-            errors.append(
-                f"{markdown_path.relative_to(skill_path)} should use"
-                " 'input-template-<english-slug>.md' naming"
+            notes.append(
+                f"{markdown_path.relative_to(skill_path)} 建议改用 'input-template-<english-slug>.md' 命名"
+                "（归档作者体系约定，v2.4.0 起不阻断）"
             )
 
-        errors.extend(
+        blocking.extend(
             validate_project_doc_frontmatter(frontmatter, str(markdown_path.relative_to(skill_path)))
         )
 
         missing_sections = [section for section in required_sections if section not in content]
         if missing_sections:
-            errors.append(
-                f"{markdown_path.relative_to(skill_path)} missing sections: "
-                + ", ".join(missing_sections)
+            notes.append(
+                f"{markdown_path.relative_to(skill_path)} 可按建议补示例章节 "
+                + ", ".join(missing_sections) + "（示例模板结构建议，不阻断）"
             )
 
         if "不负责工作流路由" not in content:
-            errors.append(
-                f"{markdown_path.relative_to(skill_path)} must explicitly state '不负责工作流路由'"
+            notes.append(
+                f"{markdown_path.relative_to(skill_path)} 可显式声明「不负责工作流路由」（归档作者体系约定，不阻断）"
             )
 
         version_sync_valid, version_sync_message = validate_version_consistency(
             frontmatter, content, skill_path=skill_path
         )
         if not version_sync_valid:
-            errors.append(f"{markdown_path.relative_to(skill_path)} {version_sync_message}")
+            blocking.append(f"{markdown_path.relative_to(skill_path)} {version_sync_message}")
 
         history_pos_valid, history_pos_message = validate_version_history_position(
             content,
@@ -975,11 +979,11 @@ def validate_example_input_templates(skill_path: Path):
             skill_path=skill_path,
         )
         if not history_pos_valid:
-            errors.append(f"{markdown_path.relative_to(skill_path)} {history_pos_message}")
+            blocking.append(f"{markdown_path.relative_to(skill_path)} {history_pos_message}")
 
         history_count_valid, history_count_message = validate_version_history_entry_count(content, skill_path=skill_path)
         if not history_count_valid:
-            errors.append(f"{markdown_path.relative_to(skill_path)} {history_count_message}")
+            blocking.append(f"{markdown_path.relative_to(skill_path)} {history_count_message}")
 
     index_path = examples_dir / "index.md"
     if any(
@@ -987,31 +991,30 @@ def validate_example_input_templates(skill_path: Path):
         for path in examples_dir.iterdir()
     ):
         if not index_path.exists():
-            errors.append("references/examples/index.md is missing")
+            notes.append("references/examples/index.md 缺失（沿用示例速查表时才需要，不阻断）")
         else:
             index_content = index_path.read_text(encoding="utf-8")
             if "| 示例文件 | 场景内容 | 对应工作流 |" not in index_content:
-                errors.append(
-                    "references/examples/index.md must include a table header: "
-                    "| 示例文件 | 场景内容 | 对应工作流 |"
+                notes.append(
+                    "references/examples/index.md 建议含表头 | 示例文件 | 场景内容 | 对应工作流 |（不阻断）"
                 )
 
-    if errors:
-        preview = errors[:10]
-        message = "Input template validation failed:\n  - " + "\n  - ".join(preview)
-        if len(errors) > len(preview):
-            message += f"\n  - ... and {len(errors) - len(preview)} more"
-        return False, message
+    if blocking:
+        preview = blocking[:10]
+        message = "示例模板校验失败：\n  - " + "\n  - ".join(preview)
+        if len(blocking) > len(preview):
+            message += f"\n  - ... and {len(blocking) - len(preview)} more"
+        return False, message, notes
 
-    return True, "Input templates are valid"
+    return True, "Input templates are valid", notes
 
 
 def count_workflow_headers(content: str) -> int:
     return len(re.findall(WORKFLOW_HEADER_RE, content))
 
 
-def validate_workflow_identification_pattern(skill_path: Path, content: str):
-    errors = []
+def validate_workflow_identification_pattern(skill_path: Path, content: str) -> list[str]:
+    """Routing-matrix consistency: advisory only, never blocks."""
     warnings = []
 
     if re.search(NONSTANDARD_WORKFLOW_HEADER_RE, content):
@@ -1024,9 +1027,7 @@ def validate_workflow_identification_pattern(skill_path: Path, content: str):
     has_matrix_header = bool(
         re.search(r"^\|\s*场景\s*\|\s*命中信号\s*\|\s*跳转到\s*\|", content, re.MULTILINE)
     )
-    has_strong_rules_step = bool(
-        re.search(r"^###\s+@步骤\d+:\s*.*强规则摘要.*$", content, re.MULTILINE)
-    )
+    has_strong_rules = bool(re.search(r"^#{2,4}.*强规则", content, re.MULTILINE))
     workflow_count = count_workflow_headers(content)
 
     examples_dir = skill_path / "references" / "examples"
@@ -1037,23 +1038,29 @@ def validate_workflow_identification_pattern(skill_path: Path, content: str):
             for path in examples_dir.rglob("input-template-*.md")
         )
 
-    if has_matrix_header and not has_strong_rules_step:
-        errors.append(
-            "SKILL.md uses the routing decision matrix table but is missing a matching '强规则摘要'"
-            " step"
+    # v2.4.0 反向审计：以下三条原为 blocker 并标 incident-backed，实测三点不成立——
+    # (1) 判据出自已归档的作者体系（docs/archive/references/authoring/versioning-and-validation.md:96、
+    #     business-to-workflow-mapping.md:89），归档原文本身是「若采用则成套」的条件建议；
+    # (2) 判定 key 在 `### @步骤N:` 标记上，而本技能 creation.md:130 明令禁止注入步骤级标记，
+    #     按自家规范写的技能一旦用矩阵就永远过不了；
+    # (3) 没有任何事故登记支撑 blocker 级别。
+    # 因 AGENTS.md「架构偏好」仍保留矩阵/强规则写法，判据降为建议而不删除；「强规则」只认标题含该词。
+    if has_matrix_header and not has_strong_rules:
+        warnings.append(
+            "RECOMMENDED: 用了决策矩阵（场景/命中信号/跳转到）但没有强规则摘要——工作流 ≥2 时建议在"
+            " SKILL.md 加一小节强规则摘要（普通标题即可，不要求 @步骤N: 标记）"
         )
-    if has_strong_rules_step and not has_matrix_header:
-        errors.append(
-            "SKILL.md defines a '强规则摘要' step but is missing the routing decision matrix"
-            " table header '| 场景 | 命中信号 | 跳转到 |' (whitespace-tolerant match)"
+    if has_strong_rules and not has_matrix_header:
+        warnings.append(
+            "RECOMMENDED: 定义了强规则摘要但没有决策矩阵，二者易漂移——考虑补一张路由决策矩阵或"
+            "删掉多余的摘要节"
         )
-
     if has_matrix_header and has_example_templates:
         index_path = examples_dir / "index.md"
         if not index_path.exists():
-            errors.append(
-                "references/examples/index.md is missing (required when using the decision matrix"
-                " pattern together with input templates)"
+            warnings.append(
+                "RECOMMENDED: 同时用了决策矩阵与 input-template 素材，但缺 references/examples/index.md"
+                "（归档作者体系的速查表；v2 不强制）"
             )
         else:
             index_content = index_path.read_text(encoding="utf-8")
@@ -1065,14 +1072,13 @@ def validate_workflow_identification_pattern(skill_path: Path, content: str):
                     re.MULTILINE,
                 )
             )
-            if not has_index_section or not has_index_table:
-                errors.append(
-                    "references/examples/index.md must include '## 决策矩阵命中速查' and the"
-                    " table header '| 用户常见说法 | 命中矩阵行 | 建议先打开 |' when the"
-                    " decision matrix pattern is adopted"
+            if not (has_index_section and has_index_table):
+                warnings.append(
+                    "RECOMMENDED: references/examples/index.md 缺「决策矩阵命中速查」节或其速查表"
+                    "（沿用归档作者体系时才需要；v2 不强制）"
                 )
 
-    if workflow_count >= 3 and not (has_matrix_header and has_strong_rules_step):
+    if workflow_count >= 3 and not (has_matrix_header and has_strong_rules):
         warnings.append(
             "RECOMMENDED: This skill has 3 or more workflow headers; consider using a routing"
             " decision matrix plus a strong-rules summary in SKILL.md for more stable workflow"
@@ -1081,7 +1087,7 @@ def validate_workflow_identification_pattern(skill_path: Path, content: str):
     if (
         has_example_templates
         and workflow_count >= 2
-        and not (has_matrix_header and has_strong_rules_step)
+        and not (has_matrix_header and has_strong_rules)
     ):
         warnings.append(
             "RECOMMENDED: This skill already maintains scenario input templates; if workflow"
@@ -1089,14 +1095,7 @@ def validate_workflow_identification_pattern(skill_path: Path, content: str):
             " references/examples/index.md"
         )
 
-    if errors:
-        return (
-            False,
-            "Workflow identification validation failed:\n  - " + "\n  - ".join(errors),
-            warnings,
-        )
-
-    return True, "Workflow identification pattern is valid", warnings
+    return warnings
 
 
 def format_validation_report(
@@ -1177,6 +1176,14 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
     spec_warnings: list[dict] = []
     project_errors: list[dict] = []
     project_warnings: list[dict] = []
+
+    if not YAML_AVAILABLE:
+        append_warning(
+            spec_warnings,
+            "spec",
+            "PyYAML 不可用，frontmatter 走降级解析：值类型判据（如 metadata 值必须为 string，"
+            "裸 true/1/null 会被当成字符串）本轮未生效，报告 PASS 不代表类型合规",
+        )
 
     unexpected_keys = set(frontmatter.keys()) - ALL_ALLOWED_PROPERTIES
     if unexpected_keys:
@@ -1364,16 +1371,15 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
     if not placeholders_valid:
         append_error(project_errors, "project", placeholders_message, rule_class="incident-backed")
 
-    example_templates_valid, example_templates_message = validate_example_input_templates(skill_path)
+    example_templates_valid, example_templates_message, example_template_notes = (
+        validate_example_input_templates(skill_path)
+    )
     if not example_templates_valid:
         append_error(project_errors, "project", example_templates_message, rule_class="incident-backed")
+    for note in example_template_notes:
+        append_warning(project_warnings, "project", note)
 
-    routing_pattern_valid, routing_pattern_message, routing_pattern_warnings = (
-        validate_workflow_identification_pattern(skill_path, content)
-    )
-    if not routing_pattern_valid:
-        append_error(project_errors, "project", routing_pattern_message, rule_class="incident-backed")
-    for warning in routing_pattern_warnings:
+    for warning in validate_workflow_identification_pattern(skill_path, content):
         append_warning(project_warnings, "project", warning)
 
     body_line_count = get_body_line_count(content)

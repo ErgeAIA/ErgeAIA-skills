@@ -224,6 +224,110 @@ class SpecOrderIsAdvisory(unittest.TestCase):
         self.assertEqual(run_cli("spec", d).returncode, 1)
 
 
+MATRIX_BODY = """
+## 工作流：起草
+
+先确认任务与边界。
+
+## 工作流：评审
+
+按清单逐项核对。
+
+| 场景 | 命中信号 | 跳转到 |
+| --- | --- | --- |
+| 新建技能 | 要创建 | 工作流：起草 |
+| 检查技能 | 要评审 | 工作流：评审 |
+"""
+
+EXAMPLE_DOC_OK = """---
+name: basic
+description: 示例输入模板
+version: "1.0.0"
+---
+
+# 基本示例
+
+一句话说明用法。
+"""
+
+
+class ArchivedAuthoringRulesAreAdvisory(unittest.TestCase):
+    """v2.4.0 反向审计：路由矩阵联锁与示例模板固定章节来自已归档的作者体系，运行时文档
+    从未声明、也无事故登记，却挂着 blocker + incident-backed——现只提示不阻断；
+    版本纪律与官方 metadata 契约仍须阻断。"""
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sw-adv-"))
+        self.addCleanup(shutil.rmtree, self.root, True)
+
+    def _examples_doc(self, d: Path, frontmatter: str) -> Path:
+        ex = d / "references" / "examples"
+        ex.mkdir(parents=True, exist_ok=True)
+        (ex / "input-template-basic.md").write_text(frontmatter, encoding="utf-8")
+        return ex
+
+    def test_matrix_without_strong_rules_does_not_block(self):
+        d = write_skill(self.root, "demo-matrix", DESC_A, body=MATRIX_BODY)
+        proc = run_cli("validate", d)
+        blob = proc.stdout + proc.stderr
+        self.assertEqual(proc.returncode, 0, f"缺强规则摘要不该阻断：{blob}")
+        self.assertIn("决策矩阵", blob, "降级后建议仍须可见，否则等于悄悄删判据")
+
+    def test_plain_heading_counts_as_strong_rules(self):
+        # v2 契约是纯净 Markdown：普通标题即算，不得要求 `### @步骤N:`
+        d = write_skill(self.root, "demo-rules", DESC_A,
+                        body="## 强规则摘要\n\n- 改完必验。\n" + MATRIX_BODY)
+        blob = run_cli("validate", d).stdout + run_cli("validate", d).stderr
+        self.assertNotIn("但没有强规则摘要", blob, blob)
+
+    def test_example_template_missing_sections_does_not_block(self):
+        d = write_skill(self.root, "demo-examples", DESC_A)
+        self._examples_doc(d, EXAMPLE_DOC_OK)
+        proc = run_cli("validate", d)
+        blob = proc.stdout + proc.stderr
+        self.assertEqual(proc.returncode, 0, f"示例章节缺失不该阻断：{blob}")
+        self.assertIn("示例章节", blob)
+
+    def test_example_template_version_discipline_still_blocks(self):
+        d = write_skill(self.root, "demo-nover", DESC_A)
+        self._examples_doc(d, "---\nname: basic\ndescription: 示例\n---\n\n# 基本示例\n")
+        proc = run_cli("validate", d)
+        blob = proc.stdout + proc.stderr
+        self.assertEqual(proc.returncode, 1, f"版本纪律仍须阻断：{blob}")
+        self.assertIn("version metadata", blob)
+
+
+class MetadataTypeContract(unittest.TestCase):
+    """官方契约：metadata 是 string→string map（裸 true/1/null 违规）；环境降级时不得假 PASS。"""
+
+    FRONTMATTER = (
+        "---\nname: demo-bool\ndescription: \"当用户要提交代码时给指导。\"\n"
+        "metadata:\n  author: t\n  version: \"1.0.0\"\n"
+        "  disable-model-invocation: true\n---\n\n# demo-bool\n"
+    )
+
+    def setUp(self):
+        self.root = Path(tempfile.mkdtemp(prefix="sw-meta-"))
+        self.addCleanup(shutil.rmtree, self.root, True)
+        self.skill = self.root / "demo-bool"
+        self.skill.mkdir()
+        (self.skill / "SKILL.md").write_text(self.FRONTMATTER, encoding="utf-8")
+        (self.skill / "CHANGELOG.md").write_text(
+            "# 版本历史\n\n## [1.0.0] - 2026-01-01\n\n- 初始版本。\n", encoding="utf-8")
+
+    def test_bool_value_blocks_or_degradation_is_announced(self):
+        from _impl.utils import YAML_AVAILABLE
+
+        proc = run_cli("validate", self.skill)
+        blob = proc.stdout + proc.stderr
+        if YAML_AVAILABLE:
+            self.assertEqual(proc.returncode, 1, f"裸 true 应阻断：{blob}")
+            self.assertIn("must be a string", blob)
+        else:
+            # 降级解析把 true 读成字符串：判据无法生效，必须显式说出来，不得静默 PASS
+            self.assertIn("降级解析", blob, blob)
+
+
 ARCHETYPES = {
     "simple-only-skillmd": {"files": ["SKILL.md"], "desc": DESC_A},
     "single-responsibility": {"files": ["SKILL.md", "references/x.md"], "desc": DESC_C},

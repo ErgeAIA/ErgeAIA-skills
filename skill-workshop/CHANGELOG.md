@@ -7,6 +7,35 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 
 > 早期（v1.21.0 之前）的详细变更历史见 `git` 提交记录；本文件仅保留近期若干版本的精简记录。
 
+## [2.4.0] - 2026-09-22 · 判据反向审计：悬空 HARD 降级，官方契约转交被检技能修复
+
+> 承接 v2.3.0 记下的残余（DEC-016）：`validate` 还有两族判据疑似「启发式冒充 HARD」。本轮只做一件事——给每条 HARD 找来源，找不到来源的降级，来源是官方契约的留着并去修真正的缺陷。
+> **审查留痕【SFA】** 本质 = 让闸门严重度与证据强度对齐；**杠杆** = ① 判据来源分级（官方 / 有后果的仓约定 / 纯风格 / 归档作者体系）② 严重度只按来源给 ③ 环境降级必须说出来；**目标** = 技能作者不必为「运行时文档从未要求过的格式」改文件，而真正的加载风险（YAML 类型、版本 SSOT、断链）仍被拦。
+
+### 变更（校验机制）
+
+- **R1 路由矩阵联锁 → advisory**（`validate_workflow_identification_pattern()`）。证据：判据 key 在 `### @步骤N: …强规则摘要` 这种写法上，而本技能 `references/creation.md:130` 明令「不在新建流程中注入 `@工作流` / `@步骤N` / `@动作` 等步骤级标记」——按自家规范写的技能一旦使用决策矩阵就永远 FAIL；判据出处 `docs/archive/references/authoring/versioning-and-validation.md:96`、`business-to-workflow-mapping.md:89` 原文是「**若**采用矩阵+强规则，则二者须成套」的条件建议，且 `docs/archive/` 已不属 v2 运行时；全仓 `SKILL.md` + `references/` 对「决策矩阵 / 强规则」零提及，却挂着 `incident-backed` 标签且无事故登记。处置：降为建议，函数返回改为纯建议列表，「强规则」判定放宽为标题含该词（不再要求 `@` 写法）。
+- **R2 示例模板族 → advisory，版本纪律仍 HARD**（`validate_example_input_templates()`）。命名 `input-template-<slug>.md`、固定三章节、「不负责工作流路由」声明、`examples/index.md` 速查表出自 `docs/archive/references/authoring/progressive-disclosure-patterns.md:98`，原文措辞即「结构建议至少包含」——建议被实现成 blocker，降级。但同一函数里的 frontmatter 完整性、版本 SSOT、版本历史位置/条数是本仓有真实后果的约定（AIVault/GitHub 读 frontmatter），**不做无差别降级**：拆成 `blocking` / `notes` 两桶，`notes` 走 `append_warning`。
+- **R3 `metadata` 值必须为 string 保留 HARD**：判据来自官方规范（`docs/archive/references/specs/spec.md:153` *"A map from string keys to string values"*、`validate.md:68`），属官方契约而非本仓品味。缺陷在被检技能侧：`erge-private` 的 memory-restore / tech-stack-advisor / vault-keeper 三处 `disable-model-invocation: true` 写成裸布尔，已改为 `"true"`（vault-keeper `CHANGELOG.md` v2.5.1 早已把此项列为「待确认」，本轮收口）；memory-restore 另删去 description 末尾「disable-model-invocation，需用户主动发起」——description 面向检索，不复述实现开关。
+- **新发现：解释器无 PyYAML 时类型判据静默失效**。`utils.py` 在 `import yaml` 失败时退到 `parse_simple_yaml`，该解析器把所有标量当字符串，于是裸 `true` 在 `uv run --no-project python`（实测该环境无 PyYAML）下被判 PASS，而系统 Python（PyYAML 6.0.3）判 FAIL。现 `validate` 在降级路径显式输出「PyYAML 不可用…值类型判据本轮未生效」，并写进 `validation.md`——**假 PASS 比 FAIL 危险**。
+- `validation.md` 新增「判据来源与严重度」四级表与降级说明；HARD 第 5 条补 `metadata` string→string 约束；`SKILL.md` Gotchas 增一条「说不出来源的 blocker 一律降级」。
+
+### 双向钢人（议题：R1/R2 降级 vs 直接删除判据）
+
+- **FOR 降级保留**：`ErgeAIA-skills/AGENTS.md:56`「架构偏好」仍推荐矩阵 + 强规则写法与 `@` 标记，删函数会让主动采用该写法的技能失去唯一反馈；advisory 不改退出码，成本仅是几行提示。
+- **AGAINST（最强形态）**：归档体系本应整体退役，留 advisory 仍是维护负担；且 v2.3.0 刚证明「只要计数可见，作者就会为消掉它而改文本」——该机理对 `RECOMMENDED` 提示同样成立，留着提示就会长出为消提示而写的空章节，这正是本轮反对的「无来源判据」的温和版。更彻底的做法是删判据、把写法留在归档文档里。
+- **取舍**：先降级并解除耦合（不再要求 `@` 标记、措辞显式写「v2 不强制」、退出码不受影响，且有测试锁住「降级不得变成 FAIL」）；若下一轮出现「为消提示而补空章节」的实证，即按 AGAINST 删除。**成立条件** = advisory 永远不进 `PROFILES` 的 FAIL 集合；一旦 strict 档收编它们，本取舍作废需重审。
+
+### 对抗式审查（发现并修复）
+
+- ① 调用点仍按二元组解包新返回值 → `main()` 改三元组、`notes` 走 `append_warning`；② 无 `examples/` 目录的早期返回路径漏第三值（会让整个 `validate` 崩）→ 补齐；③ 注释初稿写「运行时文档从未声明过它们」是未核对的归因，实际 `AGENTS.md:56` 仍列为架构偏好 → 改为引行号的准确表述；④ 测试与文案耦合（断言 `"缺示例章节"`）→ 改稳定子串，并新增「降级后建议仍须可见」断言，防止判据被悄悄删成无反馈。
+
+### 实测
+
+- `python scripts/tests/test_validator.py` → **Ran 23 tests, OK**，两个解释器各跑一遍（`uv run --no-project` 无 PyYAML 走降级分支；系统 Python 有 PyYAML 走 HARD 分支）。
+- 全仓 41 技能：`spec` **41/41 PASS**；`validate` PASS 由 31/41 → **36/41**（fuzheng、paizi 等因 R1/R2 误判者转 PASS），余 5 项是既有真缺陷——changelog-manager、market-researcher 版本漂移，weitou、zhen、zhile 断链。
+- 三处 `disable-model-invocation` 修复后各自 `validate` rc=0；另用 PyYAML 直解全仓 `SKILL.md` frontmatter 复核：非 string 的 metadata 值 **0 处**。
+
 ## [2.3.0] - 2026-09-22 · Optimize 独立工作模式 + description 语义化（废除词法评分）
 
 > 审查留痕 —— **【SFA】** 本质 = 把「会审计」升级为「会优化」；**杠杆** = ① Optimize 与 Audit 深度分离（前者必须全量读运行时资产并真正改文件）② validator 只判结构、语义交评审 ③ 自身回归测试锁住这条边界；**目标** = 简单技能更快结束、复杂技能被真正理解、有问题的技能被真正改掉，且 workshop 自身不长成更复杂的治理系统。

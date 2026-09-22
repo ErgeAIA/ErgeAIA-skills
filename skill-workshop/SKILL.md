@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Agent Skill 全生命周期工作台：用于创建、评审、优化、重构、校验和打包 Skill，从明确任务与边界，到调整结构、规则与实现，再到验证结果，形成完整闭环。用户要新建、完善、重构或校验 Skill 时使用。Not for: 通用代码或应用项目开发与审查。"
 metadata:
   author: ErgeAIA
-  version: "2.3.0"
+  version: "2.4.0"
 ---
 
 # skill-workshop
@@ -118,6 +118,7 @@ Deep：在短报告上附证据化 findings；复杂重构再附 Rule/File Dispo
 - `description` 禁止尖括号（本仓约定）；`name` 必须等于目录名且 hyphen-case。  
 - **validator 只判结构**：v2.3.0 起不再统计触发词、不再数引号词、不再用正则判「主动句式」。若某个 description 的 `validate` 通过但语义很差，那是评审/优化的活，不要反过来给 CLI 加回词法判据。  
 - 斜杠与半角冒号是 **advisory**（风格约定）；未双引号与反斜杠才是 **HARD**（YAML 真实解析风险）。不要为了过检查把自然语言改拧。  
+- **说不出来源的 blocker 一律降级**：判据严重度分四级（官方 spec / 有后果的本仓约定 / 纯风格 / 已归档作者体系），只有前两级可 FAIL；见 `validation.md`「判据来源与严重度」。  
 - `validate` 建议传显式路径。  
 - `package`/`init` 不带 `--write` 不落盘（plan-gate）。  
 - 不要把 `docs/archive/` 旧 W 流水线或巨型 checklist 默认套到新报告上。  

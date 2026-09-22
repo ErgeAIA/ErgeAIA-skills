@@ -8,7 +8,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 | Skill | Description | Usage example | Version |
 |-------|-------------|---------------|---------|
-| [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package (four modes with separated duties; Fast/Deep/Eval ≡ L0/L1/L2; Optimize reads all runtime assets, actually rewrites and regression-checks; the CLI only checks structure — description quality is a semantic review) | `Optimize this skill and give me Before/After` | v2.3.0 |
+| [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package (four modes with separated duties; Fast/Deep/Eval ≡ L0/L1/L2; Optimize reads all runtime assets, actually rewrites and regression-checks; the CLI only checks structure and grades each rule by its source — unsourced blockers were demoted to advisory) | `Optimize this skill and give me Before/After` | v2.4.0 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | `+add Added user login` | v2.1.0 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts in 6 styles, verified quotes, human-send gate | `zuiti: reply to this comment for me` | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md, docs/.ai/, handoff, distill, read-only audit | `vibe-init` | v1.2.0 |
