@@ -10,20 +10,25 @@ description: 基础格式、版本 SSOT、链接与脚本安全闸门；CLI vali
 
 | 命令 | 检查什么 | 退出码 |
 | --- | --- | --- |
-| `python scripts/skill_cli.py spec <path>` | 官方 frontmatter：白名单、字段顺序、name 目录一致与格式、description 有无/尖括号/长度 | 0 PASS / 1 FAIL / 2 ERROR |
-| `python scripts/skill_cli.py validate <path>` | 结构静态校验：frontmatter、引用路径、版本等（详见 `--help` 与 findings） | 同上 |
+| `python scripts/skill_cli.py spec <path>` | **官方** frontmatter 契约：字段白名单、必填、name 与目录一致及格式、description 存在/非空/长度/尖括号（字段**顺序**为 advisory，不阻塞） | 0 PASS / 1 FAIL / 2 ERROR |
+| `python scripts/skill_cli.py validate <path>` | 结构静态校验全量：上述 + **项目级 YAML 稳健性**（双引号单行、无反斜杠、无 `{{…}}`/`TODO` 占位符）+ 版本 SSOT、引用与链接、references `trigger-when` | 同上 |
 | `python scripts/skill_cli.py init <name> --path <dir>` | 纯 Markdown 骨架；默认 dry-run；`--write` 落盘（plan-gate） | 0/1/2 |
 | `python scripts/skill_cli.py package <path> [out]` | 校验后打包 `.skill`；默认 dry-run；`--write` 才落盘（plan-gate） | 0/1/2 |
 
+两命令分工固定：`spec` 只对官方契约负责，`validate` 对本仓额外结构约束负责——同一条 description 在两者结论可以不同且属预期（例如未双引号：`spec` PASS、`validate` FAIL），交付报告以 `validate` 为准。
+
 约定：错误与诊断写 **stderr**，状态/数据写 **stdout**；禁止 `input()` 交互。
+
+**改动 validator 必须带用例**：`python scripts/tests/test_validator.py`（`unittest`，零第三方依赖）锁住本文件的结构判据与「CLI 不判语义」契约；改判据而不改测试 = 未完成。
 
 ## HARD 格式与安全
 
 1. **目录**：技能目录存在 `SKILL.md`。
 2. **Frontmatter**：YAML 块完整；必含 `name`、`description`。
 3. **name**：与父目录名一致；`[a-z0-9-]`；长度 ≤64；无首尾连字符；无 `--`。
-4. **description**：非空；≤1024；不含尖括号 `<` `>`。
-5. **顶层字段白名单**：仅 `name` / `description` / `license` / `compatibility` / `metadata` / `allowed-tools`；建议顺序与之一致；`triggers`/`tags` 等禁止顶层。
+4. **description 结构**：存在、非空、单行 string（禁 `|` `>` 块标量）、≤1024、双引号包裹、无反斜杠、不含尖括号 `<` `>`（本仓约定）、无未完成占位符（`{{…}}` / `TODO`）。
+   **validator 只判结构**：自 v2.3.0 起不再统计触发词、核心意图关键词或引号词数量，也不用正则判「主动触发句式」——实测那些词法判据会把裸词表判成高分、把自然中文描述判成硬错误，反向激励堆词。语义与触发质量由评审/优化模式按 `optimization.md` §10、§11 判断。
+5. **顶层字段白名单**：仅 `name` / `description` / `license` / `compatibility` / `metadata` / `allowed-tools`；`triggers`/`tags` 等禁止顶层。**字段顺序只是本仓建议，官方无顺序要求 → 顺序不一致记 advisory，不阻塞交付**。
 6. **版本 SSOT**：`metadata.version`（三段式 `X.Y.Z`）为机器事实；变更史在技能根 `CHANGELOG.md`。**不要求** SKILL 正文头部版本块与文末版本历史（有 CHANGELOG 时可省略）。
 7. **引用**：主文档与保留 references 中的相对路径必须真实存在。
 8. **非破坏**：重构/归档不得覆盖用户未授权的技能产物；写文件走 plan-gate。

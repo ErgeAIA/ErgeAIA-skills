@@ -62,24 +62,27 @@ description: skill-workshop 底层审计判断框架：Core Task 锚点、五问
 | 用户意图 | 路径 | 产出 |
 | --- | --- | --- |
 | 创建 / 做一个 skill | 创建流 → `references/creation.md` | SKILL.md + 目录骨架 |
-| 校验 / 合规 / validate | CLI `validate` + `spec` | PASS/FAIL + 错误清单 |
-| 帮我看看 / 评审 / 审计 | 默认 **Fast Review（L0）**；疑点或显式深度 → **Deep Review（L1）** | 报告（见 review.md） |
-| 重构 / 优化结构 | 先审计 → Rule Compression 整改 → `spec`+`validate` | 改进后的技能 |
+| 校验 / 合规 / validate | CLI `validate` + `spec` | PASS/FAIL + 错误清单（只判结构） |
+| 帮我看看 / 评审 / 审计 | 默认 **Fast Review（L0）**；疑点或显式深度 → **Deep Review（L1）** | 报告（见 review.md），不改文件 |
+| **优化 / 重构 / 改好 / 审查后帮我改** | **OPTIMIZE** → `references/optimization.md`（Deep 判断纪律 + 全量读取 + 实际重写 + 回归） | 改进后的技能 + Before/After |
 | 评测 / 触发率 / benchmark | **Eval Review（L2）** 条件触发 | 见下方 Eval |
 
 命中清晰信号即进入对应路径；仅当意图无法归类时才向用户澄清一句。
 
-**别名**：Fast≡L0，Deep≡L1，Eval≡L2。对外优先用 Fast/Deep/Eval。
+**别名**：Fast≡L0，Deep≡L1，Eval≡L2。对外优先用 Fast/Deep/Eval/Optimize。
 
 ## 审查深度（风险驱动 + 证据预算）
 
 | 层级 | 何时进入 | 读取预算 | 产出 |
 | --- | --- | --- | --- |
 | **Fast Review（L0）** | 默认 | 目录清单 + `SKILL.md` + 最多 1–3 份相关 reference；必要脚本入口 | **六段短报告** |
-| **Deep Review（L1）** | 结构性问题 / 用户显式深度 / Fast 发现职责漂移等 | Inventory → 假设 → **定向读**；证据指示再扩展 | 短报告 + 证据化 findings；复杂重构可附 Rule/File Disposition |
+| **Deep Review（L1）** | 结构性问题 / 用户显式深度 / Fast 发现职责漂移等 | Inventory → 假设 → **定向读**；证据指示再扩展 | 短报告 + 证据化 findings |
 | **Eval Review（L2）** | 高频/高风险/触发或质量有争议/明确 benchmark/重大重构后 | 按需启用工具链（多在 `docs/archive/`） | 实测结论；须标明是否用归档链 |
 
-**禁止**：默认全量预读目标技能的全部 `references/` 与 `scripts/`（用户明确 exhaustive 时除外）。
+**Optimize 不在这张深度表里**：它与 Fast/Deep/Eval 不同类——那三级是「读多少、判多深」的审计成本分级，Optimize 是「动手改文件」的工作模式，复用 Deep 的判断纪律但读取预算与产出都不同（见 `optimization.md`）。
+
+**禁止**：**审计**（Fast/Deep）默认全量预读目标技能的全部 `references/` 与 `scripts/`——该预算约束的是审计成本。
+**OPTIMIZE 相反**：不改运行机制就改不动它，因此必须先全量读完、还原 Trigger→Input→Routing→Core Work→Tools→Output→Validation 的真实链路，再判断删什么、并什么、移什么。只读 `SKILL.md` 就动手重写属于 Optimize 的 P1 失效。
 
 ### Deep 内部决策阶段（叙述用，非强制门禁编号）
 
@@ -102,8 +105,10 @@ Understand（Core Task）→ Inventory（资产地图）
 ### Evidence-First（发现格式）
 
 ```text
-Claim → Evidence → Impact → Recommendation
+Claim → Evidence（文件:位置）→ Impact → Recommendation → Confidence
 ```
+
+`Confidence` 取 `CONFIRMED`（指得到文件与行为）/ `INFERRED`（机制推断）/ `UNKNOWN`；没有证据的猜测只能记作 Hypothesis，不得写成确定缺陷。
 
 禁止「感觉冗余所以删除」类无证据结论。
 
@@ -152,6 +157,9 @@ Rule → 防什么真实失败？ → 是否真发生过？ → 严重度？
 ```text
 删除 > 合并 > 条件化 > 迁移 > 重写 > 最后才新增
 ```
+
+**处置标记唯一真源**（review / optimization 只引用，不再各写一份）：
+`KEEP`（保留）/ `MERGE`（并入他处）/ `MOVE`（迁移位置或文件）/ `CONDITIONALIZE`（加成立条件，条件不成立即 N/A）/ `REWRITE`（原处重写）/ `ARCHIVE`（移入 `docs/archive/`）/ `DELETE` / `ADD`（须写它解决哪个实际失败）。
 
 新增 HARD 前必须能答：
 

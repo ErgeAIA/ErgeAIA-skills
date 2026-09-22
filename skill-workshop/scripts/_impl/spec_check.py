@@ -73,6 +73,7 @@ def spec_check(path: str | Path, profile: str = "standard") -> dict:
         return {
             "status": "FAIL",
             "errors": [_err("SKILL.md 读取失败或为空", f"确认路径存在：{skill_md}")],
+            "advisories": [],
             "findings": [],
         }
 
@@ -81,6 +82,7 @@ def spec_check(path: str | Path, profile: str = "standard") -> dict:
         return {
             "status": "FAIL",
             "errors": [_err("缺少 frontmatter", "添加 YAML frontmatter")],
+            "advisories": [],
             "findings": [],
         }
 
@@ -92,6 +94,7 @@ def spec_check(path: str | Path, profile: str = "standard") -> dict:
             top_keys.append(m.group(1))
 
     failures = []
+    advisories = []
     for key in top_keys:
         if key not in ALLOWED_ROOT_KEYS:
             failures.append(_err(f"未知顶层属性：{key}", f"移除 '{key}' 或移入 metadata"))
@@ -101,11 +104,13 @@ def spec_check(path: str | Path, profile: str = "standard") -> dict:
         if key not in top_keys:
             failures.append(_err(f"缺少必需字段：{key}", f"添加 '{key}' 字段"))
 
+    # 字段顺序：官方规范无顺序要求（缓存 spec 通篇无 order 条款，本仓文档也只写「建议顺序」），
+    # 因此不得作为阻塞项；v2.3.0 由 FAIL 降为 advisory。
     allowed_in_order = [k for k in EXPECTED_KEY_ORDER if k in top_keys]
     if allowed_in_order != top_keys:
-        failures.append(
+        advisories.append(
             _err(
-                "字段顺序错误",
+                "字段顺序与仓库建议不一致（非官方约束，不影响加载）",
                 "按 name→description→license→compatibility→metadata→allowed-tools 排列",
             )
         )
@@ -134,7 +139,8 @@ def spec_check(path: str | Path, profile: str = "standard") -> dict:
         failures.append(_err("description 字段缺失", "添加 description"))
     else:
         if "<" in desc or ">" in desc:
-            failures.append(_err("description 含尖括号", "移除 < 与 >"))
+            # 本仓约定（避免被 Markdown 渲染吞掉、避免安装器解析歧义），非官方字段约束。
+            failures.append(_err("description 含尖括号（本仓约定）", "移除 < 与 >"))
         if not desc.strip():
             failures.append(_err("description 为空", "填写实际描述"))
         if len(desc) > 1024:
@@ -145,8 +151,8 @@ def spec_check(path: str | Path, profile: str = "standard") -> dict:
         status = "PASS"
     findings = [
         {"rule_class": "spec", "severity": "blocker", "message": e} for e in failures
-    ]
-    return {"status": status, "errors": failures, "findings": findings}
+    ] + [{"rule_class": "spec-convention", "severity": "advisory", "message": a} for a in advisories]
+    return {"status": status, "errors": failures, "advisories": advisories, "findings": findings}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -184,6 +190,8 @@ def main(argv: list[str] | None = None) -> int:
     else:
         for e in sliced:
             print(f"- {e}", file=sys.stderr)
+        for a in result.get("advisories", []):
+            print(f"~ {a}", file=sys.stderr)
         print(result["status"])
     return 1 if result["status"] == "FAIL" else 0
 
