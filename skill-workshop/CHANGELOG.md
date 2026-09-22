@@ -33,7 +33,7 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 ### 实测
 
 - `python scripts/tests/test_validator.py` → **Ran 23 tests, OK**，两个解释器各跑一遍（`uv run --no-project` 无 PyYAML 走降级分支；系统 Python 有 PyYAML 走 HARD 分支）。
-- 全仓 41 技能：`spec` **41/41 PASS**；`validate` PASS 由 31/41 → **36/41**（fuzheng、paizi 等因 R1/R2 误判者转 PASS），余 5 项是既有真缺陷——changelog-manager、market-researcher 版本漂移，weitou、zhen、zhile 断链。
+- 全仓 41 技能：`spec` **41/41 PASS**；`validate` PASS 由 31/41 → **36/41**。隔离实测（同一批技能文件、同一解释器，只换判据版本）：旧判据 7 FAIL / 新判据 5 FAIL，转绿的正是 fuzheng、paizi（都栽在 R1 矩阵↔强规则 interlock 上）；另 3 项（memory-restore、tech-stack-advisor、vault-keeper）由 metadata 修复转绿。余 5 项是既有真缺陷——changelog-manager、market-researcher 版本漂移，weitou、zhen、zhile 断链。
 - 三处 `disable-model-invocation` 修复后各自 `validate` rc=0；另用 PyYAML 直解全仓 `SKILL.md` frontmatter 复核：非 string 的 metadata 值 **0 处**。
 
 ## [2.3.0] - 2026-09-22 · Optimize 独立工作模式 + description 语义化（废除词法评分）
