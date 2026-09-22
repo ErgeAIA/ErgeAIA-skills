@@ -12,6 +12,10 @@ try:
 except Exception:
     yaml = None
 
+# 降级解析（parse_simple_yaml）把所有标量当字符串：YAML 的 true / 1 / null 到不了
+# 类型判据，官方 metadata string→string 一类检查会静默失效。调用方须据此显式提示。
+YAML_AVAILABLE = yaml is not None
+
 
 def extract_frontmatter_text(content: str) -> str:
     lines = content.splitlines()
