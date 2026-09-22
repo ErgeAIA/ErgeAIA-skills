@@ -1,6 +1,6 @@
 ---
 name: skill-workshop
-description: "Skill 质量工作站：创建、审计、优化、校验 Agent Skill。当用户要新建一个 skill、想知道某个 skill 好不好、说要优化或重构某个 skill、或要校验技能规范时用它——审计只出判断与建议，优化会真正改文件并验证核心能力没有丢。Not for: 通用代码调试、非 Skill 文档、Agent 框架、应用类项目代码审查。"
+description: "Agent Skill 全生命周期工作台：用于创建、评审、优化、重构、校验和打包 Skill，从明确任务与边界，到调整结构、规则与实现，再到验证结果，形成完整闭环。用户要新建、完善、重构或校验 Skill 时使用。Not for: 通用代码或应用项目开发与审查。"
 metadata:
   author: ErgeAIA
   version: "2.3.0"
@@ -10,7 +10,7 @@ metadata:
 
 ## 定位
 
-轻量 **Skill 质量工作站**。Core Task：
+**Agent Skill 全生命周期工作台**（轻量，不是治理系统）。Core Task：
 
 ```text
 当用户要创建、评审、优化或校验一个 Agent Skill 时，

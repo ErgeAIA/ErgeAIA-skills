@@ -29,7 +29,7 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 - `validate_description_symbols()` 返回 `(硬问题, 风格建议)`：双引号与反斜杠留 HARD（YAML 真实解析风险），斜杠与半角冒号降为 advisory；结构不合法时不叠加风格建议。
 - `spec_check.py`：字段顺序由 FAIL 降 advisory（输出以 `~ ` 开头，`--json` 增 `advisories` 字段）；尖括号判据标注为本仓约定，不再冒充官方规范。
 - 文档同步：`core-method.md` 路由与深度表加 OPTIMIZE 行、把「禁止默认全量预读」限定为只约束审计；`review.md` 加「Optimize 不是第四深度」的指界说明、P0/P1/P2 按「核心任务失效 / 明显影响质量成本 / 文档小问题」重定义并禁止风格问题挤占报告位、新增 description 与触发质量定级口径；`creation.md` description 写法改为 `Trigger + Job + Boundary` 模型（不再要求同义动词全列、命令名全列、引号关键词，不再设 3-4 个配额）；`validation.md` 更新 CLI 判据范围与「改 validator 必带用例」；README 修 **v2.1.0 → v2.3.0 版本漂移**（README 与 SKILL/CHANGELOG 此前不一致）并改写为四模式说明。
-- 自身 description 按新模型重写（去掉「默认 L0 轻查…CLI 提供四个子命令」的机制自述与「Use this skill whenever + 四类意图」双份句式）。
+- 自身 description 与门面按用户定稿改为「Agent Skill 全生命周期工作台：用于创建、评审、优化、重构、校验和打包 Skill，从明确任务与边界，到调整结构、规则与实现，再到验证结果，形成完整闭环…」——补回此前遗漏的**打包**环节与生命周期闭环叙事，`Not for` 收敛为「通用代码或应用项目开发与审查」；同步 `SKILL.md` 定位行、技能 README 与根 `README.md` / `README.en.md` 索引行的同名表述。AUDIT/OPTIMIZE 的深度差别仍由 `SKILL.md` 路由表承担（主文档每次加载，不必挤进 description）。
 
 ### 实测
 
