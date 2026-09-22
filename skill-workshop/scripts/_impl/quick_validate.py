@@ -28,20 +28,8 @@ ALL_ALLOWED_PROPERTIES = ALLOWED_SPEC_PROPERTIES | PROJECT_PROPERTIES
 WORKFLOW_HEADER_RE = re.compile(r"^#{2,3}\s+@工作流:\s*.+$", re.MULTILINE)
 STRICT_WORKFLOW_HEADER_RE = re.compile(r"^##\s+@工作流:\s*.+$", re.MULTILINE)
 NONSTANDARD_WORKFLOW_HEADER_RE = re.compile(r"^###\s+@工作流:\s*.+$", re.MULTILINE)
-# description 原始行（符号硬检查用：未双引号 / 反斜杠 / 斜杠 / 半角冒号）。
+# description 原始行（YAML 结构检查用：是否双引号包裹、是否含转义符）。
 DESC_RAW_RE = re.compile(r"^description:(.*)$", re.M)
-
-# 核心意图关键词（spec.md §description 格式约束：≥2 为硬判据）。
-# 词表扩充实例登记（日期、技能、新增词）：
-#   2026-09-11 skill-workshop v1.22.0 初始词表。
-# 处置顺序（见 CHANGELOG.md v1.22.0 / 计划 Task 5 Step 3b）：扩词表 > advisory 复核 > 改被审技能。
-INTENT_KEYWORDS = {
-    "提取", "合并", "重构", "审计", "部署", "创建", "评审", "校验", "评测", "生成",
-    "转换", "处理", "分析", "检查", "修复", "优化", "验证", "翻译", "清理", "监控",
-    "create", "review", "refactor", "evaluate", "validate", "analyze", "extract",
-    "merge", "convert", "process", "generate", "check", "fix", "optimize",
-    "verify", "translate", "clean", "monitor", "audit", "deploy",
-}
 
 
 def _load_profiles() -> dict[str, set[str]]:
@@ -223,137 +211,69 @@ def extract_header_version(content: str) -> str | None:
     return parse_version_token(match.group(1).strip())
 
 
-def validate_description_symbols(raw_frontmatter: str) -> list[str]:
-    """description 原始行的符号硬检查（2026-09-21 新增）。
+def validate_description_symbols(raw_frontmatter: str) -> tuple[list[str], list[str]]:
+    """description 原始行检查，返回 (硬问题, 风格建议)。
 
-    此前 validate / spec 两条命令都不查符号，导致「未双引号 / 反斜杠 / 斜杠 / 半角冒号」
-    长期无人把关（用户实测：未引号会让外部技能软件与 YAML 头解析出问题）。
-    返回问题列表（空 = 通过）；调用方按 error 计入。
+    只有会造成 YAML 真实解析失败的两条留在硬判据：未双引号包裹、含反斜杠（双引号标量里
+    反斜杠是转义符，实测会让外部技能管理软件与 YAML 头解析出错）。斜杠与半角冒号在双引号内
+    完全合法，把它们判硬错会逼作者把自然语言改拧，2026-09-22 反向审计后降为风格建议。
     """
     problems: list[str] = []
+    advisories: list[str] = []
     m = DESC_RAW_RE.search(raw_frontmatter or "")
     if not m:
-        return problems
+        return problems, advisories
     raw = m.group(1).strip()
     quoted = len(raw) >= 2 and raw.startswith('"') and raw.endswith('"')
     if not quoted:
         problems.append('description 未用双引号包裹（须为单行 string，形如 description: "…"）')
     if chr(92) in raw:
         problems.append("description 含反斜杠（双引号 YAML 里是转义符，硬禁止）")
-    if "/" in raw:
-        problems.append("description 含斜杠（外部技能软件转义风险，改写为顿号或「某目录」）")
+    if problems:
+        # 结构本身不合法时先修结构：此时对未加引号的原文挑风格符号只会叠加噪音。
+        return problems, advisories
     body = raw[1:-1] if quoted else raw
+    if "/" in body:
+        advisories.append("description 含斜杠（本仓风格：并列词改顿号，字面路径改写为「某目录」）")
     if re.search(r"(?<!Not for):", body):
-        problems.append("description 含半角冒号（应改全角，规格标记 Not for: 除外）")
-    return problems
+        advisories.append("description 含半角冒号（本仓风格：改全角；规格标记 Not for: 除外）")
+    return problems, advisories
+
+
+PLACEHOLDER_RE = re.compile(r"\{\{.*?\}\}|TODO|FIXME", re.S)
 
 
 def validate_description_format(frontmatter: dict) -> tuple[bool, str, str]:
-    """V0/W7 description 联锁校验。
+    """description 的结构校验：存在、非空、单行 string、长度、未完成占位符。
 
-    规范真源：`references/creation.md` §description 写法（活文档）；
-    完整 spec 已存档于 `docs/archive/references/specs/spec.md` §description 格式约束。
-    2026-09-21 修正：删除「触发词偏少（建议 ≥3）」——该软建议把"多堆触发词"当优点；
-    改为按 §核心触发词 vs 变体清单 判反模式（核心触发词嵌句中、3-4 个以内）。
+    语义质量（触发是否自然、是否堆词、是否说清用户任务）不是机器判据，由
+    `references/optimization.md` §Description 语义评审与评审模式承担。
+    v2.2.0 及更早的意图词表计数、引号词计数与 Pushy 句式正则已于 v2.3.0 删除：
+    实测它们把裸词表判成合规高分、把自然中文描述判成硬错误，属于反向激励。
 
-    Returns (ok, message, severity)。severity: "error"（硬 FAIL）| "warning"（软建议）。
+    Returns (ok, message, severity)；severity 为 "error"（硬 FAIL）或 "info"（不再刷屏）。
     """
     desc = frontmatter.get("description")
     if not desc:
         return False, "description 字段缺失", "error"
+    if not isinstance(desc, str):
+        return False, f"description 必须是字符串，实为 {type(desc).__name__}", "error"
 
-    # YAML `|` 块被 yaml 库解析为带换行的 string（多行）。
-    # 硬约束：description 必须是单行 string，检测换行符判断。
-    if isinstance(desc, str) and "\n" in desc.strip():
+    # YAML 的块标量（| 或 >）会被解析成带换行的字符串；官方与本仓均要求单行 string。
+    if "\n" in desc.strip():
         return False, (
-            "description 包含换行符（疑似 YAML `|` 多行块），违反单行 string 硬约束。"
-            "改为 description: <单行 string>"
+            "description 含换行（疑似 YAML 块标量 | 或 >），违反单行 string 约束；"
+            '改为 description: "<单行文本>"'
         ), "error"
 
-    # 1-1024 chars
     if len(desc) > 1024:
         return False, f"description 超过 1024 字符（当前 {len(desc)}）", "error"
 
-    # Pushy 句式（中英文并列；含官方 `Use when` 句式——platform.claude.com 三正例均为 "Use when ..."）。
-    # 2026-09-11 目标驱动裁决：缺失降为软建议——官方无此要求、句式多样（第三人称正例即反证），
-    # 正则是触发准确率的代理指标；真目标由触发率评测承担（references/config/eval-set-template.md）。
-    pushy_patterns = [
-        r"Use this skill whenever",
-        r"Make sure to invoke it when",
-        r"Invoke (this skill |on |when)",
-        r"Make sure to use this skill",
-        r"Use when\b",  # 官方句式（platform.claude.com best-practices 三正例均为 "Use when ..."）
-        # 中文主动触发句式
-        r"当用户",  # 当用户贴来… / 当用户提到… / 当用户需要…
-        r"如需",    # 如需…时调用
-        r"想[要]?…?[时唤用呼]",  # 想回击时 / 想怼人时 / 想生成…时
-        r"需要…?[时唤用]",  # 需要创建…时
-        r"遇到…?[时唤用]",  # 遇到…时
-        r"触发词",  # 显式『触发词：…』列举段（与 Invoke on 等效，中文技能常用）
-    ]
-    # 软建议聚合（Pushy 句式 / 触发词数量）——硬错误优先，软建议不提前 return 掩盖硬错误
-    soft_issues: list[str] = []
-    if not any(re.search(p, desc, re.IGNORECASE) for p in pushy_patterns):
-        soft_issues.append(
-            "缺少主动触发句式（Use when… / Use this skill whenever… / Invoke on… / 中文主动触发句式）"
-        )
+    hit = PLACEHOLDER_RE.search(desc)
+    if hit:
+        return False, f"description 含未完成占位符：{hit.group(0)[:30]!r}", "error"
 
-    # 核心意图关键词（≥2 为硬判据）：显式触发词（引号内）+ 意图动词命中
-    quoted_tokens = re.findall(r'[""「\']([^""」\']+)[""」\']', desc)
-    chinese_chars = re.findall(r"[\u4e00-\u9fff]{2,}", desc)
-    stopwords = {
-        "this", "skill", "use", "when", "the", "and", "for", "with", "not", "from",
-        "are", "but", "any", "all", "can", "has", "have", "had", "its", "you", "your",
-        "whenever", "make", "sure", "invoke", "even", "explicitly", "ask", "mentions",
-        "wants", "wants", "should", "would", "could", "should", "says", "want",
-    }
-    english_words_raw = re.findall(r"\b[A-Za-z][A-Za-z0-9\-_]{2,}\b", desc)
-    english_words = [w for w in english_words_raw if w.lower() not in stopwords]
-    # 中文顿号/斜杠/分号/逗号分隔的词也算
-    slash_tokens = re.findall(r"[/、,，;；]\s*([\u4e00-\u9fffA-Za-z][\u4e00-\u9fffA-Za-z0-9\-_]*)", desc)
-    trigger_count = len(set(quoted_tokens + chinese_chars + english_words + slash_tokens))
-
-    core_from_quotes = len(set(quoted_tokens))
-    # 中文按子串匹配（连续 run 如「校验并评测」需命中其中的 校验/评测）；
-    # 英文按去停用词后的 token 精确匹配。
-    cn_intents = {kw for kw in INTENT_KEYWORDS if not kw.isascii() and kw in desc}
-    en_intents = {w.lower() for w in english_words} & INTENT_KEYWORDS
-    core_intent_count = core_from_quotes + len(cn_intents | en_intents)
-
-    if core_intent_count < 1:
-        return False, (
-            f"description 缺少核心意图关键词（找到 {core_intent_count} 个，需 ≥1）。"
-            "应在句中嵌入意图动词（提取/评审/校验/create/review…）或显式触发词"
-        ), "error"
-
-    if core_intent_count < 2:
-        # 软建议：≥2 意图关键词是 W7 T1 的语义指引（官方反例均为 0 命中，硬底线设为 ≥1）
-        soft_issues.append("核心意图关键词偏少（建议 ≥2）")
-
-    # 反堆砌（spec.md §核心触发词 vs 变体清单）：
-    # 合法 = 核心触发词嵌入句中、3-4 个以内；反模式 = 同义变体罗列 >3 个、裸词表无意图句承载。
-    # 2026-09-21：原此处为「触发词偏少（建议 ≥3）」——等于把堆砌当优点，已删除并反向判。
-    quoted_unique = len(set(quoted_tokens))
-    if quoted_unique >= 8:
-        return False, (
-            f"description 疑似裸词表（引号内触发词 {quoted_unique} 个，规范 3-4 个以内）。"
-            "把触发信号嵌进触发句，去掉同义变体罗列"
-        ), "error"
-    if quoted_unique > 4:
-        soft_issues.append(
-            f"引号内触发词 {quoted_unique} 个（规范 3-4 个以内）——疑堆砌或同义变体罗列"
-        )
-
-    if soft_issues:
-        return True, (
-            f"description 格式合规（{len(desc)} 字符，{trigger_count} 个触发词，"
-            f"{core_intent_count} 个核心意图关键词）。软建议：" + "；".join(soft_issues) + "（不阻断）"
-        ), "warning"
-
-    return True, (
-        f"description 格式合规（{len(desc)} 字符，{trigger_count} 个触发词，"
-        f"{core_intent_count} 个核心意图关键词）"
-    ), "warning"
+    return True, f"description 结构合规（{len(desc)} 字符）", "info"
 
 
 def extract_latest_version_history_entry(content: str) -> str | None:
@@ -1232,16 +1152,26 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
     - advisory：只报不判——findings 照常输出，但 valid 恒为 True（AI 探索阶段用）。
     """
     skill_path = Path(skill_path)
-    skill_path = Path(skill_path)
 
     skill_ok, skill_message = ensure_skill_path(skill_path)
     if not skill_ok:
-        return False, skill_message
+        # 三个返回元素必须齐全：main() 以 (valid, message, findings) 解包，
+        # 少一个元素会让坏路径变成 ValueError 崩溃而不是报告。
+        return False, skill_message, []
 
     try:
         frontmatter, content = load_skill_document(skill_path)
     except Exception as e:
-        return False, str(e)
+        # 未加引号的 description 含 `: ` 时 YAML 直接解析失败——这是要报给作者的缺陷，
+        # 不是运行环境错误，因此按 FAIL 返回并给可执行的修复建议。
+        # 建议同时进 message：main() 的非 --json 路径只渲染 message，findings 不会被打印。
+        hint = ('修复建议：description 用双引号包裹成单行 string（description: "…"），'
+                "并确认 YAML 键值缩进一致")
+        return False, f"frontmatter 解析失败：{e}\n  - {hint}", [{
+            "rule_class": "official-hard",
+            "message": hint,
+            "severity": "blocker",
+        }]
 
     spec_errors: list[dict] = []
     spec_warnings: list[dict] = []
@@ -1330,25 +1260,19 @@ def validate_skill_detailed(skill_path, profile: str = "standard"):
                         f"({len(normalized_description)} characters). Maximum is 1024 characters."
                     ),
                 )
-            else:
-                # 联锁校验：单行 + 核心意图关键词（硬）；Pushy 句式 + 反堆砌（软）；符号（硬）
-                try:
-                    raw_skill_text = (Path(skill_path) / "SKILL.md").read_text(encoding="utf-8")
-                except OSError:
-                    raw_skill_text = ""
-                for symbol_problem in validate_description_symbols(raw_skill_text):
-                    append_error(spec_errors, "spec", f"Description symbol: {symbol_problem}")
-                desc_format_ok, desc_format_message, desc_severity = validate_description_format(
-                    frontmatter
-                )
-                if not desc_format_ok or desc_severity == "error":
-                    append_error(spec_errors, "spec", f"Description format: {desc_format_message}")
-                else:
-                    append_warning(
-                        project_warnings,
-                        "project",
-                        f"Description format: {desc_format_message}",
-                    )
+            # 结构检查与长度互不遮蔽：超长描述仍要报出引号/转义/占位符问题
+            try:
+                raw_skill_text = (Path(skill_path) / "SKILL.md").read_text(encoding="utf-8")
+            except OSError:
+                raw_skill_text = ""
+            symbol_problems, symbol_advisories = validate_description_symbols(raw_skill_text)
+            for problem in symbol_problems:
+                append_error(spec_errors, "spec", f"Description symbol: {problem}")
+            for advice in symbol_advisories:
+                append_warning(project_warnings, "project", f"Description style: {advice}")
+            desc_ok, desc_message, desc_severity = validate_description_format(frontmatter)
+            if not desc_ok or desc_severity == "error":
+                append_error(spec_errors, "spec", f"Description format: {desc_message}")
 
     license_value = frontmatter.get("license")
     if license_value is not None:

@@ -13,8 +13,10 @@ description: Fast/Deep/Eval 评审分层；Core Task 锚点；T/E/C 三轴；Evi
 | 级别 | 何时 | 平均读取 | 报告 |
 | --- | --- | --- | --- |
 | **Fast Review（L0）** | 默认「帮我看看」 | SKILL + 1–3 refs | **六段短报告** |
-| **Deep Review（L1）** | Fast 发现结构问题；用户要第一性/深度；明显膨胀或职责混杂 | 定向扩展 | 短报告 + 证据化 findings；（重构任务可附处置表） |
+| **Deep Review（L1）** | Fast 发现结构问题；用户要第一性/深度；明显膨胀或职责混杂 | 定向扩展 | 短报告 + 证据化 findings |
 | **Eval Review（L2）** | 高频/高风险/触发或质量争议/benchmark/重大重构后 | 按工具链 | 实测结论 |
+
+**Optimize 不是第四个深度**，而是与之并列的工作模式：它复用 Deep 的判断纪律，但要求全量读取、给出目标架构、真正改文件并做能力回归——见 `optimization.md`。用户说「优化 / 重构 / 改好 / 审查后帮我改」时直接切过去，不要停留在本文件的报告产出上。
 
 ### Fast → Deep 升级信号（任一）
 
@@ -78,7 +80,7 @@ Input / Output / Non-Goals / Dependencies / Success condition
 - 安全与非破坏（若目标会改文件）。  
 - 方向性争议才用钢人；格式/触发问题不升级仪式。  
 
-**禁止**：进入问题扫描前强制读完目标全部 references/scripts。
+**禁止**：审计（Fast/Deep）在进入问题扫描前强制读完目标全部 references/scripts——那是 OPTIMIZE 的前置动作（`optimization.md` §2）。
 
 ## Eval Review（条件）
 
@@ -88,9 +90,17 @@ Input / Output / Non-Goals / Dependencies / Success condition
 
 | 级 | 含义 | 示例 |
 | --- | --- | --- |
-| **P0 Core Failure** | 会导致严重失效 | 触发完全错误、核心输出错误、关键引用断裂、严重职责冲突、核心质量失真 |
-| **P1 Structural Risk** | 结构/规则风险 | 职责漂移、多重权威、重复规则、无证据硬规则、上下文膨胀、过度模板化 |
-| **P2 Maintenance** | 维护/文档 | README 不同步、历史残留、命名、文档重复 |
+| **P0 Core Failure** | **核心任务失效**：用户拿到结果就是错的或拿不到结果 | 根本无法触发、核心输出错误、关键引用断裂、核心安全契约失效、职责严重冲突 |
+| **P1 Structural Risk** | 明显影响质量、可维护性或上下文成本 | 职责漂移、多重权威、重复规则、无证据硬规则、上下文膨胀、过度模板化 |
+| **P2 Maintenance** | 文档级与小型维护问题 | README 小幅不同步、历史残留、命名、文档重复 |
+
+定级看**对核心任务的影响**，不看显眼程度：「标题不够漂亮」「描述略长」「README 差一行」不得挤占核心优化的注意力与报告位置。
+
+### Description 与触发质量怎么定级
+
+结构不合规（缺字段、非单行、超 1024、YAML 转义风险、未完成占位符）→ CLI 硬 FAIL。
+语义问题（看不出干什么、只有裸词表、无边界易误触发、写的是内部机制）→ 由评审判断，一般 P1；**完全无法被真实用户话术触发**才算 P0。
+禁止把「触发词数量少」当缺陷——数量不是判据，路由结果才是（见 `optimization.md` §11）。
 
 默认 **P2 不阻塞**核心结论。
 
@@ -134,7 +144,7 @@ Input / Output / Non-Goals / Dependencies / Success condition
 Core Task Definition
 Current Architecture / Runtime Flow
 Major Findings（Evidence-First）
-Rule Disposition：KEEP / CONDITIONALIZE / MERGE / MOVE / ARCHIVE / DELETE / ADD
+Rule Disposition（标记真源见 core-method.md §删除优先）
 File-by-File Disposition
 Target Architecture
 Optimization Plan
