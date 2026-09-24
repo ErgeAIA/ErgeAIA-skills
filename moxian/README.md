@@ -39,4 +39,4 @@ vibe-buddy 蒸馏你**已做完**的决策与做法（显性经验）；moxian �
 
 ## 版本
 
-v0.1.0（初始）。详见 [CHANGELOG.md](CHANGELOG.md)。发版前不升级版本号。
+v0.2.0。详见 [CHANGELOG.md](CHANGELOG.md)。
