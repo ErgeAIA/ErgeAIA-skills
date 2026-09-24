@@ -4,7 +4,7 @@ description: "管理项目的 AI 协作记忆并只读审查开发类项目：�
 compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync、vibe-handoff、vibe-distill 与 vibe-audit 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/、docs/handoff/ 下；vibe-sync 可在项目根 CHANGELOG.md 已存在时追加更新日志。不写入技能仓库。
 metadata:
   author: ErgeAIA
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # vibe-buddy
@@ -139,7 +139,7 @@ metadata:
 
 | 触发词 | 成功判定 |
 |---|---|
-| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务与常驻纪律已写入 `Permissions`；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作；缺失项已补齐，既有文件未被覆盖 |
+| `vibe-init` | 模式判定有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务与常驻纪律已写入 `Permissions`；`References` 每条为条件式指针（含触发条件）；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作；缺失项已补齐，既有文件未被覆盖 |
 | `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；调试定位到根因时 `debug-log.md` 已追加 `BUG-NNN`；项目根已有 `CHANGELOG.md` 且本轮含用户可见变更时已按其既有格式追加（无文件或无可见变更则明示跳过）；`AGENTS.md` 仅事实区被回填，契约区未动 |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，正文只展开「别处读不到」的四类、其余写指针，未覆盖既有文件 |
 | `vibe-distill` | 条目五要素齐全且各有事实源；编号在主题内递增；`experience/changelog.md` 已追加本轮（原料区间 + 覆盖主题 + 产出）；冲突已标出而非自行取舍 |

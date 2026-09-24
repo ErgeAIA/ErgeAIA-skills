@@ -10,16 +10,19 @@ consumed-by: references/init-agents-md.md
 
 ## 0 句式契约（最高优先级，逐行强制）
 
-AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改写：
+AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改写：
 
 1. 命令原文：仅存在于代码块或表格"命令"列
 2. 表格行：`场景 | 命令 | 来源` 或 `现象 | 要求行为`
 3. 祈使句：动词开头、无主语、≤25 字
 4. 指针：`见 <path/章节>` 单行
+5. 条件式指针：`- <触发条件> → 见 <path/章节>` 单行
+
+`References` 节**只许句式 5**——每行写清「何时去读」，不许退回句式 4；其他节的单点指引仍用句式 4。
 
 解释、背景、动机、教程、欢迎语一律禁止写入。过程文档模板不受本条约束。
 
-## 1 触发词黑名单（终稿前逐行扫描，命中即删或改写为句式 1-4）
+## 1 触发词黑名单（终稿前逐行扫描，命中即删或改写为句式 1-5）
 
 因为 / 所以 / 这是由于 / 通常 / 一般 / 建议 / 旨在 / 用于描述 /
 可以理解为 / 简单来说 / 换句话说 / 这意味着 / 我们 / 本文件将 / 为了确保
@@ -111,7 +114,8 @@ AGENTS.md 每行必须且仅能命中四种句式之一，越界行删除或改�
 填充规则：
 
 - `Permissions` 节仅允许 `IMPORTANT:` / `YOU MUST` / `禁止` 开头的行，且必须含文档同步义务
-- `References` 只写 `见 <path>` 指针行，用途说明放 `Conventions`
+- `References` 每行写**条件式指针** `- <触发条件> → 见 <path>`：触发条件用祈使/场景短句回答「何时去读」；项目自带文档按**使用场景**登记（如「报编号取色」），不按目录罗列
+- `References` 禁止裸 `见 <path>`、禁止长说明与教程体、禁止「是什么 / 何时查」多列宽表；「何时读」归本节，不再寄放 `Conventions`（该节只留维护动作约定）
 - 占位符指向的文档若项目不存在（如无 PRD）→ **整项删掉，不留空占位**
 - 空表保留表头；无命令写占位，不写解释
 - `<!-- mode: -->` 只填 §2 判出的那一个值
@@ -160,13 +164,13 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 
 ## References
 
-见 <项目自带文档：PRD.md / CONTEXT.md / docs/adr/ 等，逐条列；无则删本行>
-见 docs/.ai/agents-changelog.md
-见 docs/.ai/decision-log.md
-见 docs/.ai/debug-log.md
-见 docs/.ai/experience/
-见 docs/.ai/project-progress.md
-见 docs/handoff/
+- <项目场景> → 见 <项目自带文档：PRD.md / CONTEXT.md / docs/INDEX.json 等，按使用场景逐条登记；无则删本行>
+- 会话开始复述现状 → 见 docs/.ai/project-progress.md
+- 核对最近交接 → 见 docs/handoff/
+- 规则冲突、回溯口径 → 见 docs/.ai/decision-log.md
+- 反复踩坑排查 → 见 docs/.ai/debug-log.md
+- 查 AGENTS 自身变更 → 见 docs/.ai/agents-changelog.md
+- 同领域可复用做法 → 见 docs/.ai/experience/
 
 ## Self-Maintenance
 
@@ -181,7 +185,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 
 ## 7 自检门（草稿 → 扫描 → 终稿；五项全过才输出）
 
-1. 逐行核对句式四选一
+1. 逐行核对句式五选一（`References` 节只认句式 5）
 2. 逐行扫描 §1 黑名单词
 3. 逐行执行 §6 写入闸
 4. 行数：目标 ≤250，硬上限 500；近 300 未写尽 → 裁剪，超 500 → 拆层 B 或下沉子包。**口径 = 含空行的总行数**，须实测读取，禁止估算
@@ -191,6 +195,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 
 - `<!-- mode: -->` 只填一个值
 - `References` 与 `Permissions` 里出现的**每一条路径**都真实存在
+- `References` 每条含触发条件（形如 `- <何时> → 见 <path>`）：出现裸 `见 <path>`、无触发条件行、人读宽表或教程体 → **不通过**
 - `Permissions` 的**义务类别**必须与 §5 逐类对齐：接管义务 / 文档义务 / 常驻纪律，加上 `IMPORTANT` 与 `禁止`，**缺类不算通过**。增量维护（半程合成 / 已初始化优化）时**必须逐类比对**——只核句式、黑名单与行数会漏掉整类缺失，这正是一份缺了接管义务的产物仍能通过其余全部检查的原因
 - §4b 各文档已按模板落地且未覆盖既有文件
 - `AGENTS.md` 本次若有改动，`docs/.ai/agents-changelog.md` 必须有对应行
@@ -201,6 +206,8 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 好：Commands 行 `| 测试 | pnpm test | package.json |`；Conventions 行 `| 测试器为 vitest 非 jest | 直接运行 pnpm test，勿引入 jest |`
 坏：我们采用 pnpm 作为包管理器，为了保证 workspace 一致性
 好：Toolchain 行 `| 包管理 | pnpm@9 | pnpm-lock.yaml |`；Permissions 行 `YOU MUST 使用 pnpm，禁止 npm/yarn/bun 安装依赖`
+坏：`## References` 下写 `见 docs/INDEX.json`
+好：References 行 `- 报编号取色 / 查对比度 → 见 docs/INDEX.json`
 
 ## 9 自维护协议（原文写入产物 Self-Maintenance 节）
 
