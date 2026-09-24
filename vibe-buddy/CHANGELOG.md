@@ -4,6 +4,33 @@
 
 ---
 
+## v1.3.0 (2026-09-24)
+
+### References 改为条件式指针（修复「缺何时读」的渐进式披露半成品）
+
+**背景**：多个项目（含 ThemeVault）由 `vibe-init` 生成的 `AGENTS.md` 里，`## References` 只有一排 `见 <path>` 裸指针——AI 知道「有这些文件」，却不知道什么任务该打开哪一个、不打开会不会做错，指引链断在中间。根因在生成规范侧：`References` 被定成纯指针，「用途/何时读」寄放到从未落地的 `Conventions`；`§0` 句式契约又把条件式指针挤出合法句式；`§7` 自检门不拦无条件指针。生成物因此只能是裸列表（依据 2026-09-24 的 References 渐进式披露缺陷审查报告）。
+
+**改动**
+
+- `references/agents-md-generator.md §0`：句式四选一 → **五选一**，新增「条件式指针 `- <触发条件> → 见 <path/章节>`」；`References` 节**只许**此句式。`§1` 黑名单改写口径同步为句式 1-5。
+- `§5 填充规则`：废除「`References` 只写 `见 <path>`、用途说明放 `Conventions`」，改为「条件式指针；触发条件按**使用场景**登记，不按目录罗列；禁止裸指针 / 长说明 / 教程体 / 多列宽表」。
+- `§5 模板 ## References`：换成条件式指针骨架（项目自带文档按场景占位 + 过程文档六条）。
+- `§7 自检门`：句式核对改五选一；另核对新增「`References` 每条含触发条件，裸 `见 <path>` / 无触发条件 / 人读宽表 → 不通过」。
+- `§8 坏行 → 好行`：补 References 对照例（`见 docs/INDEX.json` → `- 报编号取色 / 查对比度 → 见 docs/INDEX.json`）。
+- `references/init-agents-md.md`：义务表 `References` 行改条件式指针；保证层级补「`References` 负责发现 + 调度，把读取变成强制义务仍归 `Permissions`」。
+- `SKILL.md`：`vibe-init` 验证行补「`References` 每条为条件式指针（含触发条件）」；`metadata.version` → 1.3.0。
+- `README.md`：设计取舍新增「`References` 每条必须带『何时读』」一行；版本改 1.3.0。根 `README.md` / `README.en.md` 索引同步。
+
+**设计取舍**
+
+- CHANGELOG v1.0.0 的「用途说明归 `Conventions`」**部分废除**：通用维护动作仍留 `Conventions` 表，「何时读某文件」改由 `References` 条件式指针承担——两处各存一份必然漂移。
+- 「`References` 不承担强制力」**保留**：强制 = `Permissions` 的 `前先读`；调度 = `References` 的 `何时 → 路径`，两者不互相替代。
+- 不放宽到人读宽表：`AGENTS.md` 是 AI 契约，人读说明仍归各项目 README。
+
+**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`；根 `README.md` / `README.en.md` 索引版本。
+
+---
+
 ## v1.2.0 (2026-09-13)
 
 ### vibe-sync 增加「更新日志」能力
