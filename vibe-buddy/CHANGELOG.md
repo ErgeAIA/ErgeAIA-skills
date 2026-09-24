@@ -4,6 +4,22 @@
 
 ---
 
+## v1.4.0 (2026-09-24)
+
+### description 去堆词 + 移除人类专属「参考」节
+
+**背景**：原 `description` 存在关键词堆砌——job/trigger/not-for 三层重复枚举（"审查前端后端 Web" 与 "审查项目与技术栈" 同义重复；vibe-* 命令名与动作名两遍列出），且 SKILL 正文末的 `## 参考` 只指向 README/CHANGELOG（人类文档），与 AI 执行无关。
+
+**改动**
+- `SKILL.md` frontmatter `description`：删去同义重复（"前端后端 Web"/"项目与技术栈"、"更新日志"子句并入"同步进度"）与冗余 not-for 项（面向人类文档写作/规格管理与翻译已归"对应技能"），改为 Trigger+Job+Boundary 单一表述；仍 ≤1024、双引号、无尖括号。
+- `SKILL.md`：删除 `## 参考` 节（人类文档指针，AI 执行不需要）。
+- `metadata.version` → 1.4.0。
+- 根 `README.md` / `README.en.md` 索引版本 → 1.4.0。
+
+**修改文件**：`SKILL.md`、`CHANGELOG.md`、根 `README.md` / `README.en.md`。
+
+---
+
 ## v1.3.0 (2026-09-24)
 
 ### References 改为条件式指针（修复「缺何时读」的渐进式披露半成品）
