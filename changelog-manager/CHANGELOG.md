@@ -4,7 +4,27 @@
 
 ---
 
-## v2.1.0 (2026-09-14)
+## 2.1.2 (2026-09-24)
+
+### 渐进式披露优化
+
+- 删除 YAML 头 `compatibility` 字段（与正文「运行时要求」重复，且 YAML 头常驻 agent 上下文，属上下文浪费）；其安全约束「git 仅只读、绝不执行 commit/add/push/tag/release」并入「运行时要求」。
+- 将 W0–W5 详细步骤、失败处理表与 `.changelog-manager.json` sidecar 字段下沉到新 reference `references/workflows.md`；SKILL.md 仅保留路由摘要 + CHECKPOINT 指针。
+- SKILL.md 由 340 行降至约 200 行；触发条件句尾多余 `**` 一并清理。
+
+## 2.1.1 (2026-09-24)
+
+### skill-workshop 复审查清理
+
+- 删除 SKILL.md 内联「分类标题中英文对照」表与中英文标准格式模板（与 `bilingual-guide.md` / `template-examples.md` 重复），改为指向 references 的唯一真相源，降低上下文成本（SSOT）。
+- 合并「操作反例黑名单」入 Gotchas（反模式已被执行原则 verify 与危险动作覆盖），补齐「单条单分类」「只记外部行为变更」两条。
+- description 精简：去掉文件名实现细节、补「发版记录 / release notes」触发同义词，保留 Not for 边界。
+- 触发条件去掉 `CRITICAL` 强制句式；渐进式披露表补 `trigger-test-set.md` 行。
+- 删除纯人类向的「角色」小节；新增 `compatibility` 字段说明运行约束（可选 git 只读、无第三方依赖、产物落调用方目录）。
+- 技能自身 CHANGELOG 版本号去 `v` 前缀，与 `metadata.version` 对齐。
+- README / README.en.md 项目结构树补全 `assets/`、`CHANGELOG.md`、`README.en.md`；分类标题对照改为指向 SSOT。
+
+## 2.1.0 (2026-09-14)
 
 ### 完整性加固（审查 Spec：changelog-manager-integrity）
 
@@ -20,14 +40,14 @@
 
 ---
 
-## v2.0.1 (2026-09-12)
+## 2.0.1 (2026-09-12)
 
 ### references 补 trigger-when 加载指引
 
 - 6 个 `references/` 文件（bilingual-guide / classification-guide / git-extraction-rules / output-template / template-examples / trigger-test-set）补 frontmatter `description` + `trigger-when`——对齐 AGENTS.md「内容三层分层」强约束（references 文件须带 trigger-when），checklist C4 由 6 条 FAIL 清零。
 - 加载条件逐条对齐 SKILL.md §渐进式披露表既有表述，纯元数据增补，无行为变更。
 
-## v2.0.0 (2026-05-30)
+## 2.0.0 (2026-05-30)
 
 ### 双语言支持升级
 
@@ -73,7 +93,7 @@
 
 ---
 
-## v1.1.0 (2026-05-29)
+## 1.1.0 (2026-05-29)
 
 ### 初始版本
 

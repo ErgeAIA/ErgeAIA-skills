@@ -74,14 +74,7 @@
 
 ### 分类标题对照
 
-| 英文 | 中文 |
-|------|------|
-| `### Added`（英文文件） | `### 新增`（中文文件） |
-| `### Changed` | `### 变更` |
-| `### Deprecated` | `### 弃用` |
-| `### Removed` | `### 移除` |
-| `### Fixed` | `### 修复` |
-| `### Security` | `### 安全` |
+中文文件用中文分类头、英文文件用英文分类头，禁止混用。完整中英文映射以 `references/bilingual-guide.md` 为**唯一真相源**。
 
 ## 项目配置（sidecar）
 
@@ -126,12 +119,17 @@
 ```
 changelog-manager/
 ├── SKILL.md                      # 技能定义
+├── CHANGELOG.md                  # 技能版本演进（本仓库约定）
+├── README.md                    # 中文说明
+├── README.en.md                 # 英文说明
+├── assets/
+│   └── banner.svg
 ├── examples/
 │   └── basic-usage.md           # 基础使用示例
 └── references/
     ├── classification-guide.md  # 变更分类详细指南
     ├── git-extraction-rules.md   # Git 提交提取规则
-    ├── bilingual-guide.md        # 双语言处理指南
+    ├── bilingual-guide.md        # 双语言处理指南（分类标题唯一真相源）
     ├── output-template.md        # 输出模板
     ├── template-examples.md      # CHANGELOG 模板示例
     └── trigger-test-set.md       # 触发测试集
