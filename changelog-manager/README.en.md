@@ -86,11 +86,17 @@ Daily Dev → +add to [Unreleased] → +release at publish → repeat
 ```
 changelog-manager/
 ├── SKILL.md                      # Skill definition
+├── CHANGELOG.md                  # Skill version history (repo convention)
+├── README.md                    # Chinese docs
+├── README.en.md                 # English docs
+├── assets/
+│   └── banner.svg
 ├── examples/
 │   └── basic-usage.md           # Basic usage examples
 └── references/
     ├── classification-guide.md  # Detailed classification guide
     ├── git-extraction-rules.md   # Git commit extraction rules
+    ├── bilingual-guide.md        # Bilingual guide (category-heading SSOT)
     ├── output-template.md        # Output templates
     ├── template-examples.md      # CHANGELOG template examples
     └── trigger-test-set.md       # Trigger test set
