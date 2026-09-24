@@ -1,10 +1,10 @@
 ---
 name: vibe-buddy
 description: "管理项目的 AI 协作记忆并只读审查开发类项目：把协作契约写进 AGENTS.md，把进度、决策、踩坑沉淀到 docs/.ai/，写跨会话交接，把可复用做法提炼成经验库，并审查前端、后端、Web 项目的代码质量、架构与技术栈。当用户要初始化协作记忆、同步进度、写交接、做经验蒸馏或审查技术栈时使用，含直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill、vibe-audit 的情形。不做任务计划、需求转译、代码生成与重构、构建测试、Git 操作与 Skill 评审——交给对应技能或 skill-workshop。"
-compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，只有白名单内的少量命令可跑：vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；vibe-sync、vibe-handoff、vibe-distill 与 vibe-audit 可做只读 Git 核对。产物落在目标项目自身的 AGENTS.md、docs/.ai/、docs/handoff/ 下；vibe-sync 可在项目根 CHANGELOG.md 已存在时追加更新日志。不写入技能仓库。
+compatibility: 纯文件读写型技能；无网络、无第三方依赖。默认不运行终端命令，仅白名单内的少量命令可跑（vibe-init 做 Git 仓库检测与初始化、codegraph 检测与建索引；其余 vibe-* 做只读 Git 核对）。产物只落在调用方项目内，不写入技能仓库。
 metadata:
   author: ErgeAIA
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # vibe-buddy

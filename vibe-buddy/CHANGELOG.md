@@ -4,6 +4,21 @@
 
 ---
 
+## v1.4.1 (2026-09-24)
+
+### compatibility 去与 description/body 的重复
+
+**背景**：评估 `compatibility` 时发现它与 `description`（产物落点 AGENTS.md / docs/.ai/）及正文 `产物布局` 表（CHANGELOG 仅已存在时追加）重复陈述同一事实，存在漂移风险。按本仓 skill-workshop 方法论（删除优先 + DRY）去重。
+
+**改动**
+- `SKILL.md` frontmatter `compatibility`：删去产物路径落点枚举（AGENTS.md、docs/.ai/、docs/handoff/）与 CHANGELOG 子句（已分别在 `description` 与 `产物布局` 表表达）；保留约束独有信息——无网络/无依赖、命令白名单机制（init 做 Git/codegraph、其余 vibe-* 只读 Git 核对）、不写入技能仓库。
+- `metadata.version` → 1.4.1。
+- 根 `README.md` / `README.en.md` 索引版本 → 1.4.1。
+
+**修改文件**：`SKILL.md`、`CHANGELOG.md`、根 `README.md` / `README.en.md`。
+
+---
+
 ## v1.4.0 (2026-09-24)
 
 ### description 去堆词 + 移除人类专属「参考」节
