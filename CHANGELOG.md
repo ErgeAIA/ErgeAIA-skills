@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-09-14_
+_最后更新：2026-09-25_
 
 ### Added
 
@@ -15,6 +15,21 @@ _最后更新：2026-09-14_
 - **vibe-buddy 技能加入仓库**（2026-09-10）：项目 AI 协作记忆技能 v1.0.0——协作契约写进 AGENTS.md，进度/决策/踩坑沉淀到 docs/.ai/，跨会话自包含交接，开发经验蒸馏（vibe-init / vibe-sync / vibe-handoff / vibe-distill）
 
 ### Changed
+
+- **vibe-buddy v1.0.0 → v1.5.0**（2026-09-13 ~ 09-25）：
+  - v1.1.0：并入 `vibe-audit` 第五触发词——只读审查开发类项目（代码质量 / 架构 / 技术栈），报告落 `docs/.ai/audit/`，Skill 项目转交 skill-workshop 不自审
+  - v1.2.0：`vibe-sync` 增加「更新日志」能力——项目根已有 `CHANGELOG.md` 时按其既有格式追加用户可见变更，不代建
+  - v1.3.0：`References` 改为条件式指针（生成规范句式四选一扩为五选一，自检门拦截裸 `见 <path>`）
+  - v1.4.0 / v1.4.1：description 去关键词堆砌、删除人类专属「参考」节；`compatibility` 与正文去重
+  - v1.5.0（breaking）：**AGENTS.md 成为唯一项目级协作契约源**——停止新建 / 维护 / 镜像 `CLAUDE.md`，新增 CLAUDE → AGENTS 受控迁移（初始化状态机 A–E、四态处置留痕、冲突按事实裁决、安全删除闸、AGENTS 唯一源校验）
+- **changelog-manager v2.0.1 → v2.1.2**（2026-09-24）：2.1.1 = 复审查清理（双语分类标题唯一真相源对齐、README 结构补全、description 去关键词堆砌）；2.1.2 = 删除 YAML 头 `compatibility`（约束并入「运行时要求」），W0–W5 详细步骤、失败处理表与 sidecar 字段下沉 `references/workflows.md`，SKILL.md 340 → 200 行
+- **skill-workshop v1.23.1 → v2.4.0**（2026-09-18 ~ 09-22）：
+  - v2.0.x：重构为轻量质量工作站（52 → 4 references、SKILL.md 收敛至 120–150 行、四模式 CREATE / AUDIT / OPTIMIZE / VALIDATE 职责分离、CLI 收敛为 validate / package / init / spec，首个自身测试）
+  - v2.1.0：审计方法论整合（Core Task Definition 锚点、五问 + 六类核心问题并入现有流程）
+  - v2.2.0：description 校验修复（删除「触发词偏少」反向激励软建议 + 符号硬检查 + 规范去悬空）
+  - v2.3.0：Optimize 独立工作模式 + description 判据从词法评分迁到语义评审（CLI 只判结构，新增 Description 语义评审 10 问与 Trigger Quality 四维）
+  - v2.4.0：判据按来源分级——无来源的悬空 HARD 降 advisory，官方契约（metadata 值 string）保留并把缺陷转交被检技能修复；环境降级（无 PyYAML）必须显式声明
+- **moxian v0.1.0 → v0.2.0**（2026-09-25）：frontmatter 清理（移除非规范 `compatibility` 字段，仅保留 `metadata`）；Non-Goals 补 `@会话` 依赖宿主能力的说明；删除冗余产物 `assets/banner.json`
 
 - **skill-reviewer 版本号三段式规范化**：`4.6` → `4.6.0`
 - **changelog-manager 安全性增强**
