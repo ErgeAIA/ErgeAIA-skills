@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-_Last updated: 2026-09-14_
+_Last updated: 2026-09-25_
 
 ### Added
 
@@ -16,6 +16,21 @@ _Last updated: 2026-09-14_
 - **vibe-buddy skill added to repo** (2026-09-10): project AI collaboration memory skill v1.0.0 — collaboration contract in AGENTS.md, progress/decision/lesson archive under docs/.ai/, self-contained cross-session handoff, and experience distillation (vibe-init / vibe-sync / vibe-handoff / vibe-distill)
 
 ### Changed
+
+- **vibe-buddy v1.0.0 → v1.5.0** (2026-09-13 ~ 09-25):
+  - v1.1.0: added the fifth trigger `vibe-audit` — read-only review of development projects (code quality / architecture / tech stack), reports under `docs/.ai/audit/`; Skill projects are handed off to skill-workshop instead of self-review
+  - v1.2.0: `vibe-sync` gained the "update log" capability — appends user-visible changes to an existing root `CHANGELOG.md` in its own format, never creates the file
+  - v1.3.0: `References` switched to conditional pointers (generator syntax contract extended from four to five forms; the self-check gate rejects bare `见 <path>` pointers)
+  - v1.4.0 / v1.4.1: description de-keyword-stuffed, human-only "references" section removed; `compatibility` de-duplicated against the body
+  - v1.5.0 (breaking): **AGENTS.md becomes the single project-level collaboration contract source** — no longer creates / maintains / mirrors `CLAUDE.md`; adds the CLAUDE → AGENTS controlled migration (init state machine A–E, four-state disposal with audit trail, fact-based conflict adjudication, safety deletion gate, AGENTS single-source verification)
+- **changelog-manager v2.0.1 → v2.1.2** (2026-09-24): 2.1.1 = re-review cleanup (bilingual section-title single source aligned, README structure completed, description de-stuffed); 2.1.2 = removed the YAML `compatibility` field (constraints merged into "runtime requirements"), W0–W5 detailed steps, failure-handling tables and sidecar fields sunk into `references/workflows.md`, SKILL.md 340 → 200 lines
+- **skill-workshop v1.23.1 → v2.4.0** (2026-09-18 ~ 09-22):
+  - v2.0.x: rebuilt as a lightweight quality workstation (52 → 4 references, SKILL.md tightened to 120–150 lines, four modes CREATE / AUDIT / OPTIMIZE / VALIDATE with separated duties, CLI converged to validate / package / init / spec, first self-tests)
+  - v2.1.0: audit methodology integration (Core Task Definition anchor, five questions + six core problem classes merged into the existing flow)
+  - v2.2.0: description validation fixes (removed the counter-incentive "too few trigger words" hint + hard symbol checks + dangling-spec cleanup)
+  - v2.3.0: OPTIMIZE as an independent mode + description criteria moved from lexical scoring to semantic review (CLI judges structure only; added the 10-question Description semantic review and the four Trigger Quality dimensions)
+  - v2.4.0: criteria graded by source — unsourced dangling HARD rules demoted to advisory; official contracts (string-typed metadata values) kept with defects handed back to the checked skills; degraded environments (no PyYAML) must be declared
+- **moxian v0.1.0 → v0.2.0** (2026-09-25): frontmatter cleanup (removed the non-standard `compatibility` field, keeping only `metadata`); Non-Goals now documents the `@session` host-capability dependency; removed the redundant `assets/banner.json`
 
 - **skill-reviewer version normalized to three segments**: `4.6` → `4.6.0`
 - **changelog-manager safety enhancements**
