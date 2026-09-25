@@ -1,16 +1,16 @@
 ---
 name: init-agents-md
-description: vibe-init 的执行契约：执行顺序、前置检查、Git 检查、状态识别与路由、决策保全、过程文档落点、Codegraph 集成、初始化报告、CLAUDE.md 镜像策略。
+description: vibe-init 的执行契约：执行顺序、前置检查、Git 检查、状态机与路由、决策保全、CLAUDE 受控迁移、AGENTS 唯一源校验、过程文档落点、Codegraph 集成、初始化报告。
 trigger-when: 用户说「初始化项目」「生成 AGENTS.md」「vibe-init」，或项目需要建立协作契约、补齐缺失过程文档时
 role: workflow
 reads-from:
   - references/agents-md-generator.md
   - references/init-env-checks.md
-  - <project>/AGENTS.md（若已存在，用于决策保全）
-  - <project>/CLAUDE.md（若已存在，用于决策保全）
+  - <project>/AGENTS.md（若已存在，用于决策保全与迁移主源）
+  - <project>/CLAUDE.md（若已存在，作为迁移输入源，迁移完成后删除）
 writes-to:
   - <project>/AGENTS.md
-  - <project>/CLAUDE.md（可选，指针）
+  - <project>/CLAUDE.md（仅受控迁移：安全闸全过后删除源文件；本技能从不创建）
   - <project>/docs/.ai/project-progress.md
   - <project>/docs/.ai/decision-log.md
   - <project>/docs/.ai/debug-log.md
@@ -33,8 +33,7 @@ writes-to:
 
 ````text
 <project>/
-├── AGENTS.md
-├── CLAUDE.md                        # 可选，指针
+├── AGENTS.md                        # 唯一项目级协作契约源
 ├── .git/                            # 无仓库时 git init 建立
 ├── .codegraph/                      # 已装 codegraph 且无索引时建立
 └── docs/
@@ -57,20 +56,20 @@ writes-to:
 | -- | ---- | ---- |
 | 1 | 前置检查 | 可写性、monorepo 判定 |
 | 2 | Git 检查 | 仓库检测，必要时 `git init` |
-| 3 | 状态识别与路由 | 按可观测信号判定模式 |
-| 4 | 决策保全 | 半程合成 / 已初始化优化 必做 |
-| 5 | 生成 AGENTS.md | §4 → §4b → §5 → §6 → §7 |
+| 3 | 状态识别与路由 | 按初始化状态机 A–E 判定 |
+| 4 | 决策保全 | 状态 B / C / D / E 必做（判定依据见下） |
+| 5 | 状态迁移 / 生成 AGENTS.md | 全新 / 增量走生成规范；迁移先写目标、验证目标、后删源 |
 | 6 | 建立过程文档 | 复制模板，补齐缺口 |
-| 7 | CLAUDE.md 镜像 | 按需建指针 |
+| 7 | AGENTS 唯一源校验 | 实读复核 + 迁移留痕核对（见「AGENTS 唯一源校验」节） |
 | 8 | Codegraph 集成 | 检测索引，或给出安装建议 |
-| 9 | 初始化报告 | 汇总本次全部操作 |
-| 10 | 终止回复 | 按格式回报 |
+| 9 | 初始化报告 | 汇总本次全部操作（含迁移处置计数） |
+| 10 | 终止回复 | 按格式回报（含迁移结果与源文件处置） |
 
 ## 前置检查
 
 | 检查项 | 不通过时 |
 |---|---|
-| 项目根是否已有 `AGENTS.md` 或 `CLAUDE.md` | 有 → 走「已初始化优化」；无 → 继续查状态信号 |
+| 项目根是否已有 `AGENTS.md` / `CLAUDE.md`（含点目录逐查，不得只看列目录工具的默认输出） | 按下方「初始化状态机 A–E」路由；判入迁移态时先保全再处置 |
 | agent 目录内是否已有规则文件（`.claude/`、`.codex/`、`.zcode/`、`.cursor/rules/` 等） | 有 → 纳入决策保全，按既有约定处置；**含点目录必须查，不能只看列目录工具的默认输出** |
 | `docs/.ai/` 与 `docs/handoff/` 是否已存在 | 存在 → 只补缺失的文件，已存在的一字不动 |
 | 项目根与 `docs/` 是否可写 | 不可写 → 停下报告，不写任何部分文件 |
@@ -89,17 +88,23 @@ writes-to:
 
 ## 状态识别与路由（写文件前判定一次）
 
-**判据真源**：`references/agents-md-generator.md` §2。按其中三个可观测信号（既有契约 / 既有代码 / 既有项目文档）查证后定模式，三个信号矛盾或无法查证时停下问用户，不自行归类。本技能按模式执行对应动作：
+**判据真源**：`references/agents-md-generator.md` §2。先按项目根实际文件状态对号入座（含点目录逐查），再按其中三个可观测信号（既有契约 / 既有代码 / 既有项目文档）定模式；信号矛盾或无法查证时停下问用户，不自行归类。
 
-| 模式 | 本技能的动作 |
-|---|---|
-| 全新初始化 | 生成契约 + 建立全部过程文档 |
-| 半程合成 | 先做决策保全，再生成契约与文档 |
-| 已初始化优化 | 增量维护，**禁止整体重写**；文档只补缺失 |
+### 初始化状态机（A–E）
 
-产物头部按 `<!-- mode: <模式> -->` 只填一个值。判为开源项目（存在 `LICENSE` / `CONTRIBUTING`）→ 层 B 追加许可限制与贡献约定。
+| 状态 | 条件（以项目根实际文件为准） | 模式 | 动作 |
+|---|---|---|---|
+| A 全新项目 | 无 `AGENTS.md`，无 `CLAUDE.md` | 全新初始化 | 创建 `AGENTS.md`；**不创建 `CLAUDE.md`**；其余过程文档按原流程建立 |
+| B 只有 AGENTS.md | 有 `AGENTS.md`，无 `CLAUDE.md` | 已初始化优化 | 读取并增量维护，只做必要增量优化；**不创建 `CLAUDE.md`** |
+| C 只有 CLAUDE.md | 无 `AGENTS.md`，有 `CLAUDE.md` | 半程合成 + 受控迁移 | 按「CLAUDE 受控迁移」把 `CLAUDE.md` 整理为 `AGENTS.md`，验证后删除源 |
+| D AGENTS + CLAUDE 并存 | 两者都存在 | 已初始化优化 + 受控迁移 | 以 `AGENTS.md` 为主源，把 `CLAUDE.md` 有效规则合并进去，冲突裁决留痕后删除 `CLAUDE.md` |
+| E AGENTS + `.claude/` | 有 `AGENTS.md`，无 `CLAUDE.md`，项目存在 `.claude/` | 已初始化优化 | 继续以 `AGENTS.md` 为项目根协作契约；`.claude/` 内规则文件只作为决策保全输入纳入；**不因 `.claude/` 存在而创建 `CLAUDE.md`** |
 
-## 决策保全（半程合成 / 已初始化优化必做）
+- 状态机先于模式：先对号入座，再落 `<!-- mode: -->`。mode 行仍只填 §2 三值之一（C 落 `半程合成`、D 落 `已初始化优化`），迁移性质记入 `init-report.md` 与 `agents-changelog.md`，**不新增第四个 mode 值**。
+- 状态 B / E 不得因为「运行时已支持 `AGENTS.md`」就新建 `CLAUDE.md`。
+- 判为开源项目（存在 `LICENSE` / `CONTRIBUTING`）→ 层 B 追加许可限制与贡献约定。
+
+## 决策保全（状态 B / C / D / E 必做）
 
 1. 摘录既有契约文件全部条目；**无契约文件时**，摘录代码、提交、配置中可识别的现存约定，形成既有约定清单。
 2. 逐条四态处置：`keep` 原样继承 / `update` 以代码现状为准改写 / `drop` 删除 / `merge` 合并去重。
@@ -163,19 +168,86 @@ writes-to:
 
 具体文本见 `references/agents-md-generator.md` §5。
 
-## CLAUDE.md 镜像
+## CLAUDE 受控迁移（状态 C / D）
 
-仅当检测到 Claude Code 使用痕迹（项目存在 `.claude/`）或用户显式要求时创建。
+`AGENTS.md` 是唯一项目级协作契约源；`CLAUDE.md` 在迁移中只是**输入源**，不是长期运行时源。迁移完成后项目根不得再以 `CLAUDE.md` 作为协作契约存在。
 
-写入内容是**指针，不是副本**：
+迁移不是机械重命名，也不是保留指针。每条旧规则按「keep / update / merge / drop」四态处置（处置与留痕规则同决策保全节），并逐条检查是否存在 Claude 专属语法、Claude 专属工具说明或已过时规则——此类条目按 `drop` 处置并留痕。
 
-````markdown
-# CLAUDE.md
+### 执行顺序（状态 C：只有 CLAUDE.md）
 
-本项目的协作契约见 AGENTS.md，那是唯一真相源。
-````
+1. 完整读取 `CLAUDE.md`
+2. 提取全部有效项目规则
+3. 按 `references/agents-md-generator.md` 的生成规范结构化整理
+4. 形成新的 `AGENTS.md`（六节结构）
+5. 对照旧 `CLAUDE.md` 做完整内容保全
+6. 把无法明确处置的内容标记为待确认
+7. 写入 `AGENTS.md`
+8. 实读验证 `AGENTS.md` 已成功落盘且内容完整
+9. 在 `docs/.ai/agents-changelog.md` 记录迁移
+10. 删除 `CLAUDE.md`
+11. 在 `init-report.md` 记录迁移与删除
 
-禁止把 `AGENTS.md` 整份复制到 `CLAUDE.md`：两处内容会在下一轮维护后漂移。
+**严禁先删 `CLAUDE.md` 再建 `AGENTS.md`**——必须先保证 AGENTS 成功落盘，再删除源文件。
+
+### 执行顺序（状态 D：AGENTS + CLAUDE 并存）
+
+1. 完整读取 `AGENTS.md`
+2. 完整读取 `CLAUDE.md`
+3. 分别建立规则清单
+4. 对两份规则做去重、冲突与来源分析
+5. 以 `AGENTS.md` 作为主源
+6. `CLAUDE.md` 中 AGENTS 没有的有效规则 → 合并进 `AGENTS.md`
+7. `CLAUDE.md` 中与 AGENTS 冲突的规则 → 按项目真实代码 / 配置 / 文档裁决
+8. 可验证的过时规则 → `drop`
+9. 无法裁决的冲突 → 标记待确认，不自行取舍
+10. 将全部 update / drop / merge / migration 留痕到 `agents-changelog.md`
+11. 写入最终 `AGENTS.md`
+12. 实读验证 `AGENTS.md` 完整且可读
+13. 删除 `CLAUDE.md`
+14. 在 `init-report.md` 记录此次迁移
+
+### 迁移保全规则
+
+- 旧 `CLAUDE.md` 中每条有效规则必须落入三处之一：`keep` / `merge` → 进入 `AGENTS.md`；`drop` → 在 `agents-changelog.md` 记录原因。**不得出现「既不进 AGENTS.md、也无 drop 记录」的规则。**
+- 待确认条目写入终止回复交用户裁决；未裁决前源文件保留。
+- 源文件未被 git 跟踪时，先按决策保全的留档规则把原文存入 `agents-changelog.md` 存档小节，再执行处置。
+- 迁移记录若早于「建立过程文档」步骤落盘：先按 §4b 模板建立 `docs/.ai/agents-changelog.md`，再写迁移条目——**处置留痕必须先于源文件删除**。
+
+### 冲突裁决（状态 D）
+
+裁决依据是**事实，不是文件名**——`AGENTS.md` 并不天然比 `CLAUDE.md` 正确，不能把「文件名优先」误写成「事实优先」。完整裁决阶梯见 `references/agents-md-generator.md` §2b，要点：
+
+1. 两份文件都作为历史来源读取
+2. 代码 / 配置 / 实际项目状态作为事实证据
+3. 当前真实事实明确 → update `AGENTS.md`
+4. 只是文本版本不同但意图一致 → merge
+5. 一条明显过时 → drop 并留痕
+6. 两条都合理且适用条件不同 → 并存，各自标注适用条件
+7. 相同适用条件且无法裁决 → 停下问用户，不猜测
+
+### 安全删除闸
+
+删除旧 `CLAUDE.md` 前必须**全部满足**，任何一项不满足即禁止删除：
+
+- `AGENTS.md` 已创建 / 更新成功
+- `AGENTS.md` 重新实读通过（内容完整、可读）
+- 迁移内容校验通过（每条有效规则已落入 keep / merge，或已有 drop 留痕）
+- `docs/.ai/agents-changelog.md` 已成功写入迁移记录
+
+闸门不过时，终止回复必须写明：**迁移未完成，原 CLAUDE.md 保留**。后续步骤照常继续，但不得宣称迁移完成。
+
+## AGENTS 唯一源校验（执行顺序步骤 7）
+
+校验靠实读与核对，不是纯字符串匹配：
+
+1. 列出项目根实际文件，确认不存在本次执行新建的 `CLAUDE.md`（`.claude/` 目录不是 `CLAUDE.md`，不在此列）
+2. `AGENTS.md` 存在——重新打开并实读内容，非仅做存在性检测
+3. `AGENTS.md` 可读：六节结构完整，迁移并入的内容确实就位
+4. `AGENTS.md` 是当前唯一项目级协作契约：本技能未创建、未保留任何 `CLAUDE.md` 契约文件；项目其他既有第三方规则文件（`.cursorrules` / `GEMINI.md` 等）不属于本闸处置范围，其内容已在决策保全中读取与处置
+5. 若原存在 `CLAUDE.md`：迁移记录已在 `agents-changelog.md`，处置计数与本次初始化报告一致，源文件已按安全闸删除（或明确保留并写明原因）
+
+校验失败 → 按失败模式处理：能修复的当场修复并复验；不能修复的列明未过项，不宣称完成。
 
 ## Codegraph 集成
 
@@ -205,7 +277,7 @@ writes-to:
 | 决策保全 | 既有约定四态处置 | `docs/.ai/agents-changelog.md` | 完成 / 跳过 | N 条 |
 | 契约生成 | 生成或增量维护 | `AGENTS.md` | 完成 | N 行 |
 | 过程文档 | 复制模板、补齐缺口 | `docs/.ai/*` | 完成 | 新建 X / 跳过 Y |
-| CLAUDE.md | 建镜像指针 | `<project>/CLAUDE.md` | 完成 / 跳过 | — |
+| 契约迁移 | `CLAUDE.md` → `AGENTS.md`（状态 C / D） | 源 `<project>/CLAUDE.md` → `AGENTS.md` | 完成 / 跳过 / 失败（保留源） | keep N / update N / merge N / drop N；冲突待确认 N |
 | Codegraph | 索引检测与初始化 | `<project>/.codegraph` | 完成 / 跳过 / 未执行 | — |
 | 其他技能 | 依赖安装等 | — | 未执行 | 由用户或其他技能执行 |
 
@@ -226,4 +298,4 @@ writes-to:
 
 ## 终止回复
 
-只回复：判定模式与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。
+只回复：判定状态（A–E）与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数、迁移执行结果（状态 C / D：迁移类型、四态处置计数、冲突与裁决情况、`CLAUDE.md` 是否已删除——未删则写明卡在哪条闸）、AGENTS 唯一源校验结论、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。

@@ -20,7 +20,7 @@ vibe-buddy 把这些答案固化成文件：
 
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
-| `vibe-init` | 初始化项目 / 生成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/.ai/` 各过程文档、`docs/handoff/`；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
+| `vibe-init` | 初始化项目 / 生成 AGENTS.md / 把 CLAUDE.md 迁移整理成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/.ai/` 各过程文档、`docs/handoff/`；项目已有 `CLAUDE.md` 时走受控迁移（并入 `AGENTS.md`、验证后删源）；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
 | `vibe-sync` | 同步进度 / 更新项目进度 / 更新日志 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表；项目根**已有** `CHANGELOG.md` 时，把本轮**用户可见**变更按其既有格式追加（不代建文件） |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD[-slug].md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针 |
 | `vibe-distill` | 经验蒸馏 / 提炼可复用经验 | 把一轮开发里**反复成立**的做法提炼成按领域组织的经验条目（主张 / 适用 / Why / How / 反例，分 🔴🟡🟢），落 `docs/.ai/experience/` |
@@ -50,8 +50,7 @@ vibe-buddy 把这些答案固化成文件：
 
 ```
 项目根/
-├── AGENTS.md                        # 规则契约（六节固定，含文档义务与指针）
-├── CLAUDE.md                        # 可选，指向 AGENTS.md 的指针
+├── AGENTS.md                        # 规则契约（六节固定，含文档义务与指针），唯一项目级协作契约源
 ├── .git/                            # 无仓库时由 vibe-init 建立
 ├── .codegraph/                      # 已装 codegraph 且无索引时建立
 └── docs/
@@ -88,7 +87,7 @@ vibe-buddy 把这些答案固化成文件：
 | 保证层级分明 | `AGENTS.md` 每次会话自动注入，是唯一能覆盖「AI 未调用本技能」的层；技能内的自检门只在被调用时生效；过程文档模板里的说明只是文件自述，**不算机制**——要保证什么就写进 `AGENTS.md` |
 | 过程文档只追加 | 决策与 bug 记录是审计线索；改写历史会让后来的 agent 读到不自洽的结论 |
 | 文档命名沿用既有实践 | `project-progress` / `decision-log` / `debug-log` 三件套与 `handoff/` 目录的组织方式与成熟项目保持一致，降低迁移成本 |
-| `CLAUDE.md` 是指针不是副本 | 整份复制会在两轮维护后与 `AGENTS.md` 漂移 |
+| `AGENTS.md` 是唯一协作契约源 | 两份契约并存时运行时读取有歧义、维护必然漂移；`vibe-init` 不创建、不维护、不镜像 `CLAUDE.md`，旧 `CLAUDE.md` 按受控迁移并入 `AGENTS.md`（先写目标、验证、留痕，后删源） |
 | 不做任务计划 | 待办拆解与排期是计划类技能的正业，塞进来只会让边界模糊 |
 | 记录与提炼分开 | 流水事实只对本项目有意义、必须严格只追加；可复用规则要能带走、且错的规则必须改写。合成一个触发词会让「记录」被「提炼」绑架，反之亦然 |
 | 经验条目五要素 | 主张 / **适用** / Why / How / 反例。缺「适用」既会导致换项目盲抄，也会让「两条看起来冲突」无法收口；缺「反例」则外送汇总时派生不出反模式卡 |
@@ -139,4 +138,4 @@ vibe-buddy/
 
 ## 版本
 
-当前版本：**v1.3.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.5.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
