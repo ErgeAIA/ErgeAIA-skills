@@ -35,9 +35,13 @@ vibe-distill，把这几轮的做法沉淀成经验库           # 详细场景
 审查技术栈                                     # 中文触发词
 vibe-audit                                    # 英文触发词（优先斜杠调用）
 帮我审查一下这个后端项目的架构                    # 自然语言 + 开发类项目
+这个项目只有 CLAUDE.md，帮我迁移到 AGENTS.md     # 契约迁移，归 vibe-init
+项目里已经有 AGENTS 和 CLAUDE，整理成一个唯一规则文件 # 双源合并迁移，归 vibe-init
+把 Claude 的项目规则迁移到 AGENTS.md             # 自然语言迁移
+初始化这个项目，不要生成 CLAUDE.md               # 带约束的初始化
 ```
 
-**覆盖**：五个触发词（init / sync / handoff / distill / audit）全覆盖，含英文触发词、中文触发词、自然语言变体、带前置条件、口语短触发。
+**覆盖**：五个触发词（init / sync / handoff / distill / audit）全覆盖，含英文触发词、中文触发词、自然语言变体、带前置条件、口语短触发，以及初始化状态机 C / D 的迁移场景。
 
 **语气覆盖**：正式（vibe-init）、口语（把这次踩的坑记下来）、详细（带具体模块名）、短触发（同步进度）。
 
@@ -70,6 +74,7 @@ vibe-audit                                    # 英文触发词（优先斜杠�
 把 AGENTS.md 翻译成英文                       # 翻译任务
 审计这个 skill / 帮我评审 skill 质量            # Skill 项目评审，交给 skill-workshop
 帮我把这个 skill 重构一下                      # Skill 重构，交给 skill-workshop
+保留一个 Claude 专属 CLAUDE.md                  # 边界：用户明确意图，不强制删除
 ```
 
 **易混淆说明**：
@@ -86,6 +91,7 @@ vibe-audit                                    # 英文触发词（优先斜杠�
 | 接管项目 / 继续上次的活 | 接管是目标项目 `AGENTS.md` 的 `Permissions` 义务，每会话自动生效，**不设触发词**。若这里触发了本技能，说明「接管不由本技能触发」这条强规则没被读到 |
 | 翻译 AGENTS.md | 翻译任务，与协作记忆管理无关 |
 | 审计 skill / 评审 skill / 重构 skill | Agent Skill 质量工作归 skill-workshop；`vibe-audit` 只针对开发类项目，命中 `SKILL.md`+`name` 即转交不自审 |
+| 保留一个 Claude 专属 `CLAUDE.md` | 用户明确要求保留 Claude 专属规则时不属于默认 `vibe-init`：按用户明确意图处置（保留或单独迁移），不得强制删除；**默认 `vibe-init` 仍执行 `AGENTS.md` 单源策略**，不创建、不保留 `CLAUDE.md` |
 
 ## 回归方法
 
@@ -96,6 +102,7 @@ vibe-audit                                    # 英文触发词（优先斜杠�
 5. Skill 审计类措辞（「审计这个 skill」「评审 skill 质量」）应**不触发**本技能，或触发后必须转交 skill-workshop 而非自审。
 6. 陈述句（「我刚才……」）应被识别为非命令。
 7. 每次修改 `description` 或触发词后必须完整回归。
+8. 迁移类输入（「迁移到 AGENTS.md」「整理成唯一规则文件」）应路由 `vibe-init` 并按初始化状态机执行；任何路径都不得新建 `CLAUDE.md`，触发后新建即回归失败。
 
 ## 阈值
 
@@ -108,6 +115,14 @@ vibe-audit                                    # 英文触发词（优先斜杠�
 | Skill 审计不自审率 | 100% | 命中 Skill 信号时必须转交 skill-workshop；自审即回归失败 |
 
 ## 回归记录
+
+### 2026-09-25 · AGENTS 唯一源与受控迁移（v1.5.0）
+
+**改动**：`vibe-init` 初始化行为模型 breaking change——`AGENTS.md` 成为唯一项目级协作契约源，停止新建 `CLAUDE.md`，新增初始化状态机 A–E 与 CLAUDE 受控迁移（安全删除闸 + AGENTS 唯一源校验），删除旧指针/镜像策略。description 能力句补「把旧 CLAUDE.md 迁移并入」、触发句补「把 CLAUDE.md 迁移整理成 AGENTS.md」。正面集 +4、负面/边界集 +1、回归方法 +1（第 8 条：迁移路由后新建 `CLAUDE.md` 即失败）。
+
+**干跑推演**：正面集 25/25 可判定命中——迁移 4 条由新增能力句与触发句字面/近字面覆盖，「初始化这个项目，不要生成 CLAUDE.md」由 AGENTS 唯一源强规则承接（约束被遵守而非仅触发）。边界集 1 条（保留 Claude 专属 `CLAUDE.md`）按「用户明确意图」处理：不触发默认强制删除，默认 `vibe-init` 仍执行单源策略。原有 21 条正面与 13 条负面行为不变；技能内路由（记录 / 提炼 / 审查）不受影响。
+
+**风险项**：真实触发率未在带技能索引的运行时复测；「迁移」措辞与泛文档迁移类请求可能交叉，依赖 `CLAUDE.md` / `AGENTS.md` 实体词区分；用户明确保留意图与默认单源策略的边界靠本表易混淆说明承载。
 
 ### 2026-09-13 · 并入 vibe-audit（v1.1.0）
 

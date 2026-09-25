@@ -4,6 +4,34 @@
 
 ---
 
+## v1.5.0 (2026-09-25)
+
+### AGENTS.md 唯一源：停止新建 CLAUDE.md，新增 CLAUDE → AGENTS 受控迁移（breaking change）
+
+**背景**：原模型是「AGENTS.md 为主 + 可选 CLAUDE.md 指针镜像」。当前 Claude Code 已支持 `AGENTS.md`，但其默认读取行为是项目存在 `CLAUDE.md` 时优先读 `CLAUDE.md`、不存在才回退 `AGENTS.md`（另提供同时读取两者的配置模式）——只要 `CLAUDE.md` 还在，`AGENTS.md` 就当不上唯一源。据此把初始化行为模型升级为：**`AGENTS.md` = 唯一项目级协作契约源；`CLAUDE.md` = 不再由本技能创建、维护或作为镜像指针**。
+
+**改动**
+
+- **初始化状态机 A–E**（`references/init-agents-md.md`）：A 全新项目（建 AGENTS.md，不建 CLAUDE.md）/ B 只有 AGENTS.md（增量维护）/ C 只有 CLAUDE.md（受控迁移）/ D AGENTS + CLAUDE 并存（合并迁移）/ E AGENTS + `.claude/`（`.claude/` 只是决策保全输入，不因此创建 CLAUDE.md）。mode 行仍只填三值之一，不新增第四值。
+- **CLAUDE 受控迁移**：状态 C 十一步、状态 D 十四步执行顺序；四态处置（keep / update / merge / drop）沿用决策保全；逐条检查 Claude 专属语法、Claude 专属工具说明与过时规则（按 drop 留痕）。
+- **冲突裁决阶梯**（`references/agents-md-generator.md` 新增 §2b）：裁决依据是事实不是文件名——代码 / 配置 / 实际项目状态为证据；事实明确 → update、意图一致 → merge、明显过时 → drop、适用条件不同 → 并存、同条件无法裁决 → 停下问用户。不写「AGENTS 永远覆盖 CLAUDE」。
+- **安全删除闸**：`AGENTS.md` 创建/更新成功 + 重新实读通过 + 逐条处置无悬空规则 + `agents-changelog.md` 迁移记录已写入，四项全过才删源；任一失败禁止删除，终止回复写明「迁移未完成，原 CLAUDE.md 保留」。严禁先删 CLAUDE.md 再建 AGENTS.md。
+- **AGENTS 唯一源校验**（执行顺序步骤 7）：实读 `AGENTS.md`（非仅存在性检测）+ 项目根无新建 `CLAUDE.md` + 迁移留痕核对；替代旧「CLAUDE.md 镜像」步骤。
+- **删除旧镜像模型**：`SKILL.md` 产物布局「Claude Code 镜像」行、Gotchas「CLAUDE.md 是指针」、`init-agents-md.md` 指针模板与镜像节、README 产物树与取舍表行、init-report 模板「镜像指针建立」行全部移除，换为唯一源表述。
+- **核心原则对齐**：「不覆盖 / 禁止整体重写」与迁移的冲突以**受控重组例外**消解——普通维护 = 增量；迁移 = 可重组但必须可追溯（完整读源、逐条留痕、先写目标、验证、后删源）。「不越界」纳入唯一的删除动作（迁移完成后删源）。
+- **触发回归**：description 能力句补「把旧 CLAUDE.md 迁移并入」、触发句补「把 CLAUDE.md 迁移整理成 AGENTS.md」；正面集 +4、负面/边界集 +1（用户明确要求保留 Claude 专属 CLAUDE.md → 按用户意图处置，默认 vibe-init 仍单源）、回归方法 +1。干跑推演见 `references/trigger-test-set.md` 回归记录。
+- `metadata.version` → 1.5.0。
+
+**设计取舍**
+
+- 不把「Claude Code 2.1.277 起支持 AGENTS.md」的版本号写进任何规则——实现逻辑只建立在「当前 Claude Code 已支持 AGENTS.md、默认存在 CLAUDE.md 时优先读它」这个事实上，版本号只留在本变更说明里，避免把产品版本硬编码成流程条件。
+- 迁移不做成机械重命名也不保留指针：指针仍会在维护后漂移，且并存时运行时读取歧义；删除源文件是收敛到单源的必要动作，用安全闸 + 未跟踪源先留档（决策保全既有规则）兜住不可逆风险。
+- `.cursorrules` / `GEMINI.md` 等其他第三方规则文件不在本闸处置范围：其内容照旧走决策保全读取与处置，本轮只收敛 CLAUDE 语义。
+
+**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/init-agents-md.md`、`references/agents-md-generator.md`、`references/trigger-test-set.md`、`assets/docs/init-report.md`；根 `README.md` / `README.en.md` 索引版本。
+
+---
+
 ## v1.4.1 (2026-09-24)
 
 ### compatibility 去与 description/body 的重复
