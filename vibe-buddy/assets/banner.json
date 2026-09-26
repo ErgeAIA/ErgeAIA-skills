@@ -1,15 +1,15 @@
 {
   "meta": { "name": "banner-vibe-buddy" },
   "content": {
-    "category": "AGENT SKILL · PROJECT MEMORY",
+    "category": "AGENT SKILL · PROJECT COLLAB",
     "title": "vibe-buddy",
-    "captionEn": "VIBE-BUDDY · AI COLLAB MEMORY",
-    "subtitle": "给项目装上可审计的 AI 协作记忆",
+    "captionEn": "VIBE-BUDDY · AI CODING BUDDY",
+    "subtitle": "给项目装上可审计的 AI 协作档案",
     "points": "vibe-init · vibe-sync · vibe-handoff · vibe-distill · vibe-audit",
-    "feature": "5 触发词 · AGENTS.md 契约 · docs/.ai/ 过程 · v1.1.0",
+    "feature": "5 触发词 · AGENTS.md 契约 · docs/.ai/ 过程 · v1.6.0",
     "emFeature": true,
     "footer": "契约载规则 · 过程载事实 · 只追加不改写",
-    "caption": "散会话 → 可审计记忆 → 下会话自动接管"
+    "caption": "散会话 → 可审计档案 → 下会话自动接管"
   },
   "style": {
     "theme": "ember",

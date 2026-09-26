@@ -9,7 +9,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | Skill | One-liner | Usage example | Version |
 |-------|-----------|---------------|---------|
 | [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package | `Optimize this skill and give me Before/After` | v2.5.0 |
-| [vibe-buddy](vibe-buddy/) | Project AI collaboration memory and read-only audit: AGENTS.md contract, progress / handoff / distill, code & architecture review | `vibe-init` | v1.5.1 |
+| [vibe-buddy](vibe-buddy/) | Project-side collaboration management for AI-assisted coding: AGENTS.md contract, progress / handoff / experience, read-only project audit | `vibe-init` | v1.6.0 |
 | [git-manager](git-manager/) | Git workflow safety rail: branches, commits, merges by convention; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog maintenance, generate from git commits, bilingual support | `+add Added user login` | v2.1.3 |
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |

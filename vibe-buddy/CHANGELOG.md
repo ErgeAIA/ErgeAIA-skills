@@ -4,6 +4,23 @@
 
 ---
 
+## v1.6.0 (2026-09-27)
+
+### 定位纠正为「AI 编程全过程的项目侧协作管理」
+
+- `description` 重写为 Job + Trigger + Boundary：能力只枚举一次，Not for 收敛为 4 个真邻居（skill-workshop、计划与需求转译、Git 与代码改动、changelog-manager），并声明产物只落在该项目内、不管理 Agent 自身记忆。
+- `SKILL.md` 新增「定位」节与 Core Task 声明。
+- 删除 frontmatter `compatibility`。
+- 术语分层：指技能产物的「协作记忆 / 长期记忆 / 记忆区」改为「协作状态 / 过程档案」；指模型回忆的「记忆」保留原样。
+- 去掉 `vibe-audit` 的「优先斜杠调用」标注，与 README「不提供斜杠命令」一致。
+- 触发测试集：正面集 +2、负面集 +1、回归方法 +1，追加本轮回归记录；补「与 changelog-manager 的分界」判据。
+- banner 文案与技能 README 同步；技能 README 版本行由滞后的 v1.5.0 对齐到当前版本。
+- `metadata.version` → 1.6.0。
+
+**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/sync-progress.md`、`references/handoff-context.md`、`references/trigger-test-set.md`、`assets/banner.json`、`assets/banner.svg`；根 `README.md` / `README.en.md` 索引。
+
+---
+
 ## v1.5.1 (2026-09-26)
 
 ### description 按 Trigger+Job+Boundary 重写

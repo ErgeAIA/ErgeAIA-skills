@@ -16,12 +16,12 @@
   <rect x="0" y="0" width="1200" height="6" fill="#F26A1B"/>
   <rect x="60" y="294" width="3" height="56" fill="#F26A1B"/>
   <rect x="60" y="347" width="56" height="3" fill="#F26A1B"/>
-  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · PROJECT MEMORY</text>
+  <text x="80" y="88" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · PROJECT COLLAB</text>
   <text x="80" y="178" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="88" font-weight="900" fill="#ffe9dc" letter-spacing="-2">vibe-buddy</text>
-  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">VIBE-BUDDY · AI COLLAB MEMORY</text>
-  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">给项目装上可审计的 AI 协作记忆</text>
+  <text x="80" y="212" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" letter-spacing="4" fill="#c08a6e">VIBE-BUDDY · AI CODING BUDDY</text>
+  <text x="80" y="252" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="24" font-weight="700" fill="#e6b49a" letter-spacing="1">给项目装上可审计的 AI 协作档案</text>
   <text x="80" y="284" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="14" font-weight="500" fill="#e6b49a" letter-spacing="0.3">vibe-init<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-sync<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-handoff<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-distill<tspan font-weight="700" fill="#F26A1B"> · </tspan>vibe-audit</text>
-  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan font-weight="700" fill="#F26A1B">5</tspan> 触发词 · AGENTS.md 契约 · docs/.ai/ 过程 · <tspan font-weight="700" fill="#F26A1B">v1.1.0</tspan></text>
+  <text x="80" y="312" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan font-weight="700" fill="#F26A1B">5</tspan> 触发词 · AGENTS.md 契约 · docs/.ai/ 过程 · <tspan font-weight="700" fill="#F26A1B">v1.6.0</tspan></text>
   <text x="80" y="370" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="12" font-weight="400" fill="#c08a6e" letter-spacing="0.3">契约载规则 · 过程载事实 · 只追加不改写</text>
   <text x="890" y="108" font-family="'Inter', system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="2" fill="#F26A1B">DISTILL</text>
   <g transform="rotate(-6 900 150)">
@@ -64,5 +64,5 @@
   <rect x="1095" y="258" width="46" height="1.2" fill="#5a4038" opacity="0.7"/>
   <rect x="1095" y="264" width="30" height="1.2" fill="#5a4038" opacity="0.7"/>
   <rect x="1095" y="270" width="42" height="1.2" fill="#5a4038" opacity="0.7"/>
-  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">散会话<tspan fill="#F26A1B"> → </tspan>可审计记忆<tspan fill="#F26A1B"> → </tspan>下会话自动接管</text>
+  <text x="890" y="326" font-family="'Noto Serif SC', 'Source Han Serif', serif" font-size="10" font-weight="500" letter-spacing="1" fill="#ffe9dc">散会话<tspan fill="#F26A1B"> → </tspan>可审计档案<tspan fill="#F26A1B"> → </tspan>下会话自动接管</text>
 </svg>
