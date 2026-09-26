@@ -13,6 +13,7 @@
 | [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | `嘴替：帮我回这句「你这水平还敢开源？」` | v0.3.10 |
 | [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：AGENTS.md 唯一契约（含 CLAUDE.md 迁移并入）、docs/.ai/ 进度与决策、交接与经验蒸馏、只读审查（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | `vibe-init` | v1.5.1 |
 | [moxian](moxian/) | 默现：照出对话里「以为懂、其实没内化」的三层认知缺口，落认知卡到 docs/moxian/（默现 / moxian / 我哪没懂） | `默现：照一下我没懂的` | v0.2.1 |
+| [git-manager](git-manager/) | Git 工作流安全护栏：分支命名、Conventional Commits 提交信息、合并策略，危险操作强制二次确认 | `帮我把这些修改提交成一个规范的 commit` | v1.3.3 |
 
 ## 快速开始
 
@@ -28,6 +29,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill git-manager
 
 # 列出仓库中可安装的技能
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
