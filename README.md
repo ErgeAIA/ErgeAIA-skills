@@ -8,7 +8,7 @@
 
 | 技能 | 说明 | 使用示例 | 版本 |
 |------|------|----------|------|
-| [skill-workshop](skill-workshop/) | Agent Skill 全生命周期工作台：创建、评审、优化、重构、校验、打包（四模式职责分离；Fast/Deep/Eval≡L0/L1/L2；Optimize 全量读取后真正重构并回归；CLI 只判结构且判据按来源分级，无来源的 blocker 已降 advisory） | `优化这个 skill：改完给我 Before/After` | v2.4.0 |
+| [skill-workshop](skill-workshop/) | Agent Skill 全生命周期工作台：创建、评审、优化、重构、校验、打包（四模式职责分离；Fast/Deep/Eval≡L0/L1/L2；Optimize 全量读取后真正重构并回归；CLI 只判结构且判据按来源分级，无来源的 blocker 已降 advisory） | `优化这个 skill：改完给我 Before/After` | v2.5.0 |
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | `+add 新增了用户登录功能` | v2.1.3 |
 | [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | `嘴替：帮我回这句「你这水平还敢开源？」` | v0.3.10 |
 | [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：AGENTS.md 唯一契约（含 CLAUDE.md 迁移并入）、docs/.ai/ 进度与决策、交接与经验蒸馏、只读审查（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | `vibe-init` | v1.5.1 |

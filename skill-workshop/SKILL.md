@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Agent Skill 全生命周期工作台：用于创建、评审、优化、重构、校验和打包 Skill，从明确任务与边界，到调整结构、规则与实现，再到验证结果，形成完整闭环。用户要新建、完善、重构或校验 Skill 时使用。Not for: 通用代码或应用项目开发与审查。"
 metadata:
   author: ErgeAIA
-  version: "2.4.0"
+  version: "2.5.0"
 ---
 
 # skill-workshop
@@ -33,7 +33,7 @@ Core Task 锚点 → 风险驱动分级 → 证据化 findings → 用更小的�
 
 | 用户意图 | 模式 | 进入 | 产出 |
 | --- | --- | --- | --- |
-| 创建 / 做一个 / 封装 skill | CREATE | 读 `references/creation.md`；CLI `init` | SKILL.md + 目录 |
+| 创建 / 做一个 / 封装 skill | CREATE | 意图不清 → 先过「创建前 Grill 闸」（`creation.md`）；清晰或边说边给内容 → 读 `references/creation.md` + CLI `init` | SKILL.md + 目录（+ 创建决策） |
 | 帮我看看 / 评审 / 审计 / 好不好 | AUDIT | **Fast Review（L0）**默认；疑点或显式深度 → **Deep Review（L1）** | 报告（`references/review.md`），**不改文件** |
 | 优化 / 重构 / 改好 / 审查后帮我改 / 它为什么不好用 | **OPTIMIZE** | 读 `references/optimization.md`：**全量读运行时资产** → 八步流程 → 实际改文件 | 改进后的技能 + Target Architecture + Before/After + 回归结论 |
 | 校验 / 合规 / validate | VALIDATE | CLI `spec` + `validate` | PASS/FAIL（只判结构，不判语义质量） |
@@ -85,7 +85,7 @@ python scripts/skill_cli.py package <skill-dir> [out-dir] [--write]
 ## 构建路径（创建 / 优化）
 
 1. 路由确认意图（创建 vs 优化 vs 只评审）。  
-2. 创建读 `references/creation.md`；**优化读 `references/optimization.md` 并按其八步走**；格式闸门见 `validation.md`，判断框架见 `core-method.md`。  
+2. 创建读 `references/creation.md`——**意图不清先走其「创建前 Grill 闸」对齐需求**（AI 快交付会把未澄清的需求固化进技能，维护成本远高于当场问清），再套模板；**优化读 `references/optimization.md` 并按其八步走**；格式闸门见 `validation.md`，判断框架见 `core-method.md`。  
 3. 落盘前：创建用 `init` dry-run；优化必须先出 Target Architecture 与逐项处置表，只动权威源，不碰运行态目录。  
 4. 落盘后：`spec` + `validate`；**再做能力回归**（原 Core Task、触发、输出契约、安全边界仍在，至少一条真实正例与一条负例）；需要时再 `package --write`。  
 5. 升版：`metadata.version`、`CHANGELOG.md`、根 README，跑 Skills-Depot 索引同步。  
@@ -100,7 +100,7 @@ Fast 检查清单（9 项）与其升级信号只在 `references/review.md` 定�
 | 文件 | 何时读 |
 | --- | --- |
 | `references/core-method.md` | 判断框架：Core Task、五问、六类、生命周期、删除优先、证据预算 |
-| `references/creation.md` | 创建/脚手架、纯净模板、description 的 Trigger+Job+Boundary 写法 |
+| `references/creation.md` | 创建/脚手架、**创建前 Grill 闸（条件）**、纯净模板、description 的 Trigger+Job+Boundary 写法 |
 | `references/review.md` | Fast/Deep/Eval、T/E/C、证据格式、P0/P1/P2、报告结构 |
 | `references/optimization.md` | **优化模式**：全量读取、运行机制建模、目标架构、资产处置、重写、回归、Before/After |
 | `references/validation.md` | 格式 HARD、版本 SSOT、CLI/plan-gate、N/A 与安全 |
