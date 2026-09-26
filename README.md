@@ -12,7 +12,7 @@
 | [changelog-manager](changelog-manager/) | 基于 Keep a Changelog 规范的更新日志维护助手 | `+add 新增了用户登录功能` | v2.1.2 |
 | [zuiti](zuiti/) | 嘴替：替你生成骂人不带脏字的文明怼人回复（默认六风格每风格 3 条全到齐；引经据典 / 名人名言多来源、三层禁区、人工闸） | `嘴替：帮我回这句「你这水平还敢开源？」` | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | 项目 AI 协作记忆管理：AGENTS.md 唯一契约（含 CLAUDE.md 迁移并入）、docs/.ai/ 进度与决策、交接与经验蒸馏、只读审查（vibe-init / vibe-sync / vibe-handoff / vibe-distill / vibe-audit） | `vibe-init` | v1.5.0 |
-| [moxian](moxian/) | 默现：照出对话里「以为懂、其实没内化」的三层认知缺口，落认知卡到 docs/moxian/（默现 / moxian / 我哪没懂） | `默现：照一下我没懂的` | v0.1.0 |
+| [moxian](moxian/) | 默现：照出对话里「以为懂、其实没内化」的三层认知缺口，落认知卡到 docs/moxian/（默现 / moxian / 我哪没懂） | `默现：照一下我没懂的` | v0.2.1 |
 
 ## 快速开始
 
