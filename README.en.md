@@ -8,12 +8,12 @@ A curated collection of production-grade Agent Skills following the official [Ag
 
 | Skill | Description | Usage example | Version |
 |-------|-------------|---------------|---------|
-| [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package (four modes with separated duties; Fast/Deep/Eval ≡ L0/L1/L2; Optimize reads all runtime assets, actually rewrites and regression-checks; the CLI only checks structure and grades each rule by its source — unsourced blockers were demoted to advisory) | `Optimize this skill and give me Before/After` | v2.4.0 |
-| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | `+add Added user login` | v2.1.3 |
-| [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts in 6 styles, verified quotes, human-send gate | `zuiti: reply to this comment for me` | v0.3.10 |
+| [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package (four modes with separated duties; Fast/Deep/Eval ≡ L0/L1/L2; Optimize reads all runtime assets, actually rewrites and regression-checks; the CLI only checks structure and grades each rule by its source — unsourced blockers were demoted to advisory) | `Optimize this skill and give me Before/After` | v2.5.0 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md as the single contract (incl. CLAUDE.md migration), docs/.ai/, handoff, distill, read-only audit | `vibe-init` | v1.5.1 |
-| [moxian](moxian/) | Surface tacit cognitive gaps from AI-coding chats; save cards to docs/moxian/ | `moxian: show what I did not really get` | v0.2.1 |
 | [git-manager](git-manager/) | Git workflow safety rail: branch naming, Conventional Commits, merge strategy; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
+| [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | `+add Added user login` | v2.1.3 |
+| [moxian](moxian/) | Surface tacit cognitive gaps from AI-coding chats; save cards to docs/moxian/ | `moxian: show what I did not really get` | v0.2.1 |
+| [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts in 6 styles, verified quotes, human-send gate | `zuiti: reply to this comment for me` | v0.3.10 |
 
 ## Getting Started
 
@@ -24,13 +24,12 @@ A curated collection of production-grade Agent Skills following the official [Ag
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills
 
 # Install specific skill (using --skill flag)
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill git-manager
-
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 # List available skills in the repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
 ```
