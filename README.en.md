@@ -13,6 +13,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts in 6 styles, verified quotes, human-send gate | `zuiti: reply to this comment for me` | v0.3.10 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md as the single contract (incl. CLAUDE.md migration), docs/.ai/, handoff, distill, read-only audit | `vibe-init` | v1.5.1 |
 | [moxian](moxian/) | Surface tacit cognitive gaps from AI-coding chats; save cards to docs/moxian/ | `moxian: show what I did not really get` | v0.2.1 |
+| [git-manager](git-manager/) | Git workflow safety rail: branch naming, Conventional Commits, merge strategy; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
 
 ## Getting Started
 
@@ -28,6 +29,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill git-manager
 
 # List available skills in the repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list
