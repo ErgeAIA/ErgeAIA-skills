@@ -57,19 +57,9 @@ description: skill-workshop 底层审计判断框架：Core Task 锚点、五问
 | 多重权威/引用漂移 | 同一事实多文件维护、死链 |
 | 无证据规则 | 无真实失败依据的硬约束 |
 
-## 任务路由（外部命名）
+## 任务路由
 
-| 用户意图 | 路径 | 产出 |
-| --- | --- | --- |
-| 创建 / 做一个 skill | 创建流 → `references/creation.md` | SKILL.md + 目录骨架 |
-| 校验 / 合规 / validate | CLI `validate` + `spec` | PASS/FAIL + 错误清单（只判结构） |
-| 帮我看看 / 评审 / 审计 | 默认 **Fast Review（L0）**；疑点或显式深度 → **Deep Review（L1）** | 报告（见 review.md），不改文件 |
-| **优化 / 重构 / 改好 / 审查后帮我改** | **OPTIMIZE** → `references/optimization.md`（Deep 判断纪律 + 全量读取 + 实际重写 + 回归） | 改进后的技能 + Before/After |
-| 评测 / 触发率 / benchmark | **Eval Review（L2）** 条件触发 | 见下方 Eval |
-
-命中清晰信号即进入对应路径；仅当意图无法归类时才向用户澄清一句。
-
-**别名**：Fast≡L0，Deep≡L1，Eval≡L2。对外优先用 Fast/Deep/Eval/Optimize。
+唯一路由表在 `SKILL.md`（agent 首先读的入口），本文件不复制。判断框架按本文件下文；Fast/Deep/Optimize 分工见 `SKILL.md` 摘要。
 
 ## 审查深度（风险驱动 + 证据预算）
 

@@ -39,7 +39,7 @@ Core Task 锚点 → 风险驱动分级 → 证据化 findings → 用更小的�
 | 校验 / 合规 / validate | VALIDATE | CLI `spec` + `validate` | PASS/FAIL（只判结构，不判语义质量） |
 | 评测 / benchmark / 触发率 | Eval（条件，属 Audit 侧） | **Eval Review（L2）**条件；工具在 `docs/archive/` | 评测结论 |
 | 他技转交 Skill 审查 | AUDIT | 同评审入口（默认 Fast） | 报告 |
-| 意图模糊 | — | 只澄清必要信息 | 路由决策 |
+| 意图模糊 | — | 只澄清「进哪个模式」；进 CREATE 后设计不清才走 Grill 闸 | 路由决策 |
 
 命中清晰信号即进入；不要先问「您要哪一种工作流编号」。**OPTIMIZE 不再沿用 AUDIT 的默认深度**：说「优化/重构」却只跑 Fast，是本技能最常见的失效方式。
 

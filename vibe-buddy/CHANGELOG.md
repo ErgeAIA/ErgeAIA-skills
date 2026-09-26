@@ -8,8 +8,7 @@
 
 ### description 按 Trigger+Job+Boundary 重写
 
-- 原 description Job 前置且带 `docs/.ai/` 等路径，Trigger 挤在第二段并罗列五个 vibe-* 命令名。
-- 改为 Trigger（初始化协作记忆 / 迁移 CLAUDE.md→AGENTS.md / 同步进度决策 / 交接 / 经验库 / 只读审查 + 真实命令锚点）→ Job（维护协作记忆并只读审查）→ 单段 Not for（与原边界一致）。
+- 去内部路径与命令清单；Trigger 先行，Not for 保持原分工。
 
 ## v1.5.0 (2026-09-25)
 
