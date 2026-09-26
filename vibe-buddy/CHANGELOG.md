@@ -4,6 +4,18 @@
 
 ---
 
+## v1.6.1 (2026-09-27)
+
+### README 头图替换为 tupu 横版技能图谱
+
+- `assets/banner.svg` 换为 tupu 真实产物横版图谱（`Inbox/tupu/vibe-buddy/vibe-buddy.svg`，coding 主题、字体已内嵌自包含），README 引用路径不变。
+- 删除冗余产物 `assets/banner.json`（纯展示只需 `banner.svg`）。
+- `metadata.version` → 1.6.1。
+
+**修改文件**：`assets/banner.svg`、`assets/banner.json`（删除）、`SKILL.md`、`README.md`、`CHANGELOG.md`；根 `README.md` / `README.en.md` 索引版本。
+
+---
+
 ## v1.6.0 (2026-09-27)
 
 ### 定位纠正为「AI 编程全过程的项目侧协作管理」

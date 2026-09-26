@@ -142,4 +142,4 @@ vibe-buddy/
 
 ## 版本
 
-当前版本：**v1.6.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.6.1**，详见 [CHANGELOG.md](CHANGELOG.md)。
