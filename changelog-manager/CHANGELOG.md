@@ -8,8 +8,7 @@
 
 ### description 按 Trigger+Job+Boundary 重写
 
-- 原 description Job 前置，触发侧堆了六个同义词（更新日志/changelog/变更记录/版本历史/发版记录/release notes）。
-- 改为 Trigger（维护更新日志或 CHANGELOG、从 git 生成变更记录、归档版本历史、提到 release notes/发版记录）→ Job（Keep a Changelog 规范 + 中英双语）→ 单段 Not for（不变）。
+- Trigger 先行；同义词堆改任务句；Not for 不变。
 
 ## 2.1.2 (2026-09-24)
 

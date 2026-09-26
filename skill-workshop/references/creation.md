@@ -1,10 +1,10 @@
 ---
 trigger-when: 创建新 Skill、用 init 生成骨架后填写内容、或需要极简创建规范时
 name: creation
-description: 极简创建规范：职责/输入输出契约/基础结构；纯净 Markdown 模板（无步骤级 @ 标记）。
+description: 极简创建规范（含条件 Grill 闸）：职责/输入输出契约/基础结构；纯净 Markdown 模板（无步骤级 @ 标记）。
 ---
 
-# 极简创建规范（creation）
+# 极简创建规范（creation，含条件 Grill 闸）
 
 ## 创建时只定义三件事
 
@@ -129,7 +129,7 @@ metadata:
 | --- | --- |
 | `name` | 必填；1–64；小写字母/数字/连字符；与目录名一致；无首尾/连续连字符 |
 | `description` | 必填；1–1024；说明做什么 + 何时用；禁尖括号 |
-| `metadata.version` | 推荐必填语义化版本；变更写入根目录 `CHANGELOG.md` |
+| `metadata.version` | 推荐必填语义化版本；变更写入根目录 `CHANGELOG.md`——**只记改了什么**，具体改动归 `git log` |
 | 其他顶层字段 | 仅官方白名单：`license` / `compatibility` / `allowed-tools`；其余进 `metadata` |
 
 禁止顶层自定义键（如 `triggers`、`tags`）——写入 `metadata` 或正文。
