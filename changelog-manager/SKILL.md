@@ -1,9 +1,9 @@
 ---
 name: changelog-manager
-description: "维护项目的更新日志（Changelog）：按 Keep a Changelog 规范创建、追加、归档版本，并能从 git 提交记录自动生成，同时维护中英双语版本。当用户提到更新日志、changelog、变更记录、版本历史、发版记录或 release notes，或需要创建、更新或初始化 CHANGELOG 时调用。Not for: 非 Keep a Changelog 格式的自定义日志、git commit message 规范制定、自动创建 git tag 或 GitHub Release。"
+description: "当用户要维护更新日志或 CHANGELOG、从 git 提交生成变更记录、归档版本历史，或提到 release notes、发版记录时，按 Keep a Changelog 规范创建、更新与归档，并可维护中英双语版本。Not for: 非 Keep a Changelog 的自定义日志、git commit message 规范制定、自动创建 tag 或 GitHub Release。"
 metadata:
   author: ErgeAIA
-  version: "2.1.2"
+  version: "2.1.3"
 ---
 
 # changelog-manager
