@@ -1,5 +1,8 @@
 # moxian 版本历史
 
+## v0.2.1 (2026-09-26)
+- README 头图替换为 tupu 真实产物横版图谱（`Inbox/tupu/moxian/moxian.svg` → `assets/banner.svg`），README 引用路径不变。
+
 ## v0.2.0 (2026-09-25)
 - 清理 frontmatter：移除非规范字段 `compatibility`，仅保留 `metadata{author, version}`（与仓库其它技能一致）。
 - Non-Goals 补充 `@会话` 依赖宿主能力的说明：假定宿主能注入 `@指定的会话` 上下文，否则只照当前会话、不报错也不扩展范围。

@@ -12,7 +12,7 @@ A curated collection of production-grade Agent Skills following the official [Ag
 | [changelog-manager](changelog-manager/) | Keep a Changelog-based changelog maintenance assistant | `+add Added user login` | v2.1.2 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts in 6 styles, verified quotes, human-send gate | `zuiti: reply to this comment for me` | v0.3.9 |
 | [vibe-buddy](vibe-buddy/) | Project AI collaboration memory: AGENTS.md as the single contract (incl. CLAUDE.md migration), docs/.ai/, handoff, distill, read-only audit | `vibe-init` | v1.5.0 |
-| [moxian](moxian/) | Surface tacit cognitive gaps from AI-coding chats; save cards to docs/moxian/ | `moxian: show what I did not really get` | v0.1.0 |
+| [moxian](moxian/) | Surface tacit cognitive gaps from AI-coding chats; save cards to docs/moxian/ | `moxian: show what I did not really get` | v0.2.1 |
 
 ## Getting Started
 
