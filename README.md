@@ -9,7 +9,7 @@
 | 技能 | 一句话 | 使用示例 | 版本 |
 |------|------|----------|------|
 | [skill-workshop](skill-workshop/) | Agent Skill 全生命周期工作台：创建、评审、优化、重构、校验、打包 | `优化这个 skill：改完给我 Before/After` | v2.5.0 |
-| [vibe-buddy](vibe-buddy/) | AI 编程全过程的项目侧协作管理：AGENTS.md 契约、进度 / 交接 / 经验、开发类项目只读审查 | `vibe-init` | v1.6.0 |
+| [vibe-buddy](vibe-buddy/) | AI 编程全过程的项目侧协作管理：AGENTS.md 契约、进度 / 交接 / 经验、开发类项目只读审查 | `vibe-init` | v1.6.1 |
 | [git-manager](git-manager/) | Git 工作流安全护栏：分支、提交、合并按规范走，危险操作强制二次确认 | `帮我把这些修改提交成一个规范的 commit` | v1.3.3 |
 | [changelog-manager](changelog-manager/) | 按 Keep a Changelog 规范维护更新日志，可从 git 提交生成、支持双语 | `+add 新增了用户登录功能` | v2.1.3 |
 | [moxian](moxian/) | 照出「以为懂、其实没内化」的认知缺口，落一份可沉淀的认知卡 | `默现：照一下我没懂的` | v0.2.1 |

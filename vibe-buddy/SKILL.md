@@ -3,7 +3,7 @@ name: vibe-buddy
 description: "AI 编程（vibe coding）全过程的项目侧协作管理。当用户用 AI 开发项目、要让下一个会话或下一个 agent 接得上时启用：初始化项目协作契约（AGENTS.md，含 CLAUDE.md 迁移）、同步进度与决策、写跨会话交接、蒸馏可复用经验，或对开发类项目做只读审查（代码质量、架构、技术栈）。产物只落在该项目内，不管理 Agent 自身记忆；也可直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill、vibe-audit。Not for: Skill 项目评审（交 skill-workshop）、任务计划与需求转译、Git 提交与代码改动、CHANGELOG 规范化（交 changelog-manager）。"
 metadata:
   author: ErgeAIA
-  version: "1.6.0"
+  version: "1.6.1"
 ---
 
 # vibe-buddy
