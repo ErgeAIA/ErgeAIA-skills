@@ -1,5 +1,10 @@
 # zuiti 版本历史
 
+## v0.3.10 (2026-09-26)
+- description 按 skill-workshop Trigger+Job+Boundary 重写（189→124 字）：原结构 Job 前置、Trigger 拆成中文场景 + 英文 `Invoke on` 两截，并把「六风格 18 条 / 纯中文 / 无代码无 API」当规格写入 description。
+- 改为：Trigger（回击评论/私信/弹幕/群聊、被怼懒得措辞、要嘴替/回怼）→ Job（骂人不带脏字、有杀气的体面回击稿，默认六风格各 3 条）→ 单段 Not for（代发机器人、辱骂攻击、礼貌客服）。
+- 实现约束（纯中文、无代码、无外部 API）交 `compatibility` 与正文，不再占 description。
+
 ## v0.3.9 (2026-09-12)
 - validate_skill.py 补 `--offset` / `--output` 输出截断参数（对齐仓库脚本纪律「多数子命令支持 --offset/--output 截断」，checklist P7 清零），错误尾部新增汇总行 `[VALIDATE] 显示 X/Y 条`；输出契约不变（错误走 stderr、成功走 stdout，退出码 0=PASS / 1=FAIL）。
 - 功能测试：破损副本 60 条错误下 `--output 2` 显示 2/60、`--offset 2 --output 2` 正确跳过前 2 条；真实技能回归 OK exit 0。SKILL.md / 根 README（中英）同步 v0.3.9。
