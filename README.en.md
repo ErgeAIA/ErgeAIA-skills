@@ -12,6 +12,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | [vibe-buddy](vibe-buddy/) | Project-side collaboration management for AI-assisted coding: AGENTS.md contract, progress / handoff / experience, read-only project audit | `vibe-init` | v1.6.1 |
 | [git-manager](git-manager/) | Git workflow safety rail: branches, commits, merges by convention; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog maintenance, generate from git commits, bilingual support | `+add Added user login` | v2.1.3 |
+| [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.1.1 |
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.3.10 |
 
@@ -28,6 +29,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill git-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill shuxu
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 
