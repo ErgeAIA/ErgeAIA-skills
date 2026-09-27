@@ -12,6 +12,7 @@
 | [vibe-buddy](vibe-buddy/) | AI 编程全过程的项目侧协作管理：AGENTS.md 契约、进度 / 交接 / 经验、开发类项目只读审查 | `vibe-init` | v1.6.1 |
 | [git-manager](git-manager/) | Git 工作流安全护栏：分支、提交、合并按规范走，危险操作强制二次确认 | `帮我把这些修改提交成一个规范的 commit` | v1.3.3 |
 | [changelog-manager](changelog-manager/) | 按 Keep a Changelog 规范维护更新日志，可从 git 提交生成、支持双语 | `+add 新增了用户登录功能` | v2.1.3 |
+| [shuxu](shuxu/) | 书序：为代码项目写 / 优化 README（默认中文、开源可配英文版），只写能溯源到清单文件与源码的事实，命令逐个标注是否已运行验证 | `帮我给这个项目写个 README / 优化我的项目 README` | v1.1.1 |
 | [moxian](moxian/) | 照出「以为懂、其实没内化」的认知缺口，落一份可沉淀的认知卡 | `默现：照一下我没懂的` | v0.2.1 |
 | [zuiti](zuiti/) | 嘴替：生成不带脏字、句句有杀气的体面回击，六种风格各 3 条 | `嘴替：帮我回这句「你这水平还敢开源？」` | v0.3.10 |
 
@@ -28,6 +29,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill skill-workshop
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill git-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill shuxu
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
 
