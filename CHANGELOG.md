@@ -6,15 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-09-25_
+_最后更新：2026-09-29_
 
 ### Added
+
+- **shuxu（书序）开源迁入**：README 写作/优化技能（分析仓库 → 生成或增量优化 README，真实性优先）；含 tupu banner。
+- **git-manager 开源迁入**：Git 工作流安全护栏（分支/提交/合并/推送规范与高风险操作确认）；含 tupu banner。
 
 - **moxian（默现）技能加入仓库**：默会知识缺口外化技能 v0.1.0——照出 AI 写码对话里「以为懂、其实没内化」的三层认知缺口（名词层→词卡 / 表达层→更锋利的问题 / 概念层→微课），默认过闸门只给 1-2 条，落一份可累积的认知卡到 `docs/moxian/`（默现 / moxian / 我哪没懂）
 - **skill-workshop 技能加入仓库**：Skill 全生命周期工作站（创建/评审/重构/评测 Agent Skill），v1.17.0，含 16 个 CLI 子命令与 9 维 48 项评审体系
 - **vibe-buddy 技能加入仓库**（2026-09-10）：项目 AI 协作记忆技能 v1.0.0——协作契约写进 AGENTS.md，进度/决策/踩坑沉淀到 docs/.ai/，跨会话自包含交接，开发经验蒸馏（vibe-init / vibe-sync / vibe-handoff / vibe-distill）
 
 ### Changed
+
+- **skill-workshop v2.4.0 → v2.5.0**（2026-09-26）：创建路径补 Grill 闸——意图不清先对齐需求；闸门内化为自持决策树（去外部依赖/去配额/产物转可选）。
+- **vibe-buddy → v1.6.1**：1.6.0 定位纠正为「AI 编程全过程项目侧协作管理」（非 Agent 记忆）；1.6.1 README 头图换 tupu 横版图谱。
+- **description 按 Trigger+Job+Boundary 重写**：changelog-manager 2.1.3、vibe-buddy 1.5.1、zuiti 0.3.10。
+- **README 双语索引**：技能表收成一行可扫读、安装命令统一排序、英文版本号修正。
 
 - **vibe-buddy v1.0.0 → v1.5.0**（2026-09-13 ~ 09-25）：
   - v1.1.0：并入 `vibe-audit` 第五触发词——只读审查开发类项目（代码质量 / 架构 / 技术栈），报告落 `docs/.ai/audit/`，Skill 项目转交 skill-workshop 不自审
