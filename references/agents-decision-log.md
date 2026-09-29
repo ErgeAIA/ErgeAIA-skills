@@ -113,3 +113,11 @@
 | 5 | L70 推送前对齐「`metadata.version` = `VERSION.md` 首条」 | 改 | 「`metadata.version` = `CHANGELOG.md` 顶部最新版本」 |
 
 **保留**：skill-workshop 校验器（`quick_validate.py` / `review_ops.py` / `reconcile.py` 等）仍兼容 `VERSION.md` 作为 legacy 技能过渡期 fallback，确保未迁移技能不被误伤；新技能统一以 CHANGELOG.md 为准。
+
+## 2026-09-29 新增「技能 README 须含怎么用与示例提示词」约定
+
+用户要求：为 dudong README 补「怎么用」节与使用示例（参照闭源库 dongjian-writing 范式）后，将该需求提炼为对两个技能仓库都生效的规则。
+
+| # | 既有决策（旧值） | 处置 | 新值 / 原因 |
+|---|------------------|------|------------|
+| 1 | （无对应约定；「内容三层分层」仅规定 README=人类可读，未规定人类可读的最小内容） | 增 | 反直觉约定新增一条：技能 `README.md` 必须含「怎么用」节 + 覆盖主要场景的可复制示例提示词（路由型=「能力 \| 一句话方法 \| 示例提示词」表，单任务型=「场景 \| 一句话要点 \| 示例提示词」表；先例 `dongjian-writing/README.md`，闭源库）；新增技能必带，存量技能 README 修订时补齐 |
