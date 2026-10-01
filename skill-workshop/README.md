@@ -31,14 +31,17 @@ python scripts/skill_cli.py init my-skill --path ./output
 python scripts/skill_cli.py package /path/to/skill
 ```
 
-## 用法示例
+## 怎么用
 
-```text
-帮我创建一个处理 PDF 的 Skill
-评审一下这个 skill：/path/to/my-skill/
-优化这个 skill：结构太散，改完给我 Before/After
-校验 skill 规范：/path/to/my-skill/
-```
+skill-workshop 覆盖 Agent Skill 的创建、评审、优化、校验四条路径。下表每行都是你会对它说的话：
+
+| 能力 / 场景 | 一句话方法 | 示例用法提示词 |
+| --- | --- | --- |
+| 创建 skill | 意图不清先走 Grill 闸，再套模板 + CLI `init` | `帮我创建一个处理 PDF 的 Skill` |
+| 评审 skill（只出报告） | 默认 Fast（L0），疑点升 Deep | `评审一下这个 skill：/path/to/my-skill/` |
+| 优化 / 重构 skill | 全量读懂后真正改文件 + 回归 | `优化这个 skill：结构太散，改完给我 Before/After` |
+| 校验规范（只判结构） | CLI `spec` + `validate`，不判语义质量 | `校验 skill 规范：/path/to/my-skill/` |
+| 边界：通用代码 / 应用项目 | 不归本技能 | `审查一下我的 Web 项目。`（不归本技能） |
 
 ## 自身测试
 
