@@ -3,7 +3,7 @@ name: skill-workshop
 description: "Agent Skill 全生命周期工作台：用于创建、评审、优化、重构、校验和打包 Skill，从明确任务与边界，到调整结构、规则与实现，再到验证结果，形成完整闭环。用户要新建、完善、重构或校验 Skill 时使用。Not for: 通用代码或应用项目开发与审查。"
 metadata:
   author: ErgeAIA
-  version: "2.5.0"
+  version: "2.5.1"
 ---
 
 # skill-workshop
@@ -67,7 +67,8 @@ Core Task 锚点 → 风险驱动分级 → 证据化 findings → 用更小的�
 11. **证据纪律**：结论能指到文件；无产物=未执行；不确定时标 CONFIRMED / INFERRED / UNKNOWN，猜测不得写成硬缺陷。  
 12. **裁判边界**：评审不直接改用户文件；构建路径才写盘且非破坏。  
 13. **反治理膨胀**：workshop 自身不得因整合方法论而长出第二流程或巨型 checklist。  
-14. **优化不以新增量衡量**：评价一次优化只看 Core Task、Trigger、Execution、Output、Safety、Context 是否改善；行数增减本身不是指标。
+14. **优化不以新增量衡量**：评价一次优化只看 Core Task、Trigger、Execution、Output、Safety、Context 是否改善；行数增减本身不是指标。发现错误的第一反应是更好的正例/反例，不是新规则（修复响应阶梯见 `references/optimization.md` §1）。
+15. **依赖面先于删除**：优化的 Inventory 必做依赖面扫描——下游技能可能按阶段编号/指标名/meta 槽位调用本技能，禁止静默砍断（`references/optimization.md` §2b）。
 
 ## CLI（运行时仅此四项）
 
@@ -125,6 +126,7 @@ Deep：在短报告上附证据化 findings；复杂重构再附 Rule/File Dispo
 - 升版同步：`metadata.version` = CHANGELOG 顶部 = 根 README，并跑 `sync_skills_browser.py`。  
 - **评审 ≠ 重构指令**；执行重构须用户授权；已有完整指令则按指令 + 闸门执行。  
 - **优化 ≠ 加规则**：一次优化没有删掉或合并掉任何东西时，先怀疑是没读懂问题，而不是问题已经很干净。
+- **结构性重构回归加两项**：对抗性用例（故意让新设计失效）+ 裸奔验收（去 references 核心能力仍成立），见 `references/optimization.md` §9。
 
 ## 非目标
 
