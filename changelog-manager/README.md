@@ -15,6 +15,19 @@
 - **双语言支持**：同时维护中文 CHANGELOG.md 和英文 CHANGELOG.en.md
 - 规范化检查
 
+## 怎么用
+
+changelog-manager 按 Keep a Changelog 维护中英双语更新日志。下表每行都是你会对它说的话：
+
+| 能力 / 场景 | 一句话方法 | 示例用法提示词 |
+| --- | --- | --- |
+| 初始化双语言 CHANGELOG | `+init` 建 `CHANGELOG.md` + `CHANGELOG.en.md` | `+init 我的项目` |
+| 追加变更到 Unreleased | `+add` 自动分类并同步中英文 | `+add 新增了用户登录功能` |
+| 发布版本、归档 Unreleased | `+release` 填日期与版本链接 | `+release 1.2.0` |
+| 从 git 提交生成变更 | `+generate` 过滤噪音、双语、幂等 | `+generate v1.0.0..v1.1.0` |
+| 检查规范性 | `+check` 查格式 / 日期 / 分类 / 双语一致性 | `+check` |
+| 边界：非 Keep a Changelog 的自定义日志 | 不归本技能 | `帮我把 VERSION.md 改改格式。`（不归本技能） |
+
 ## 快速开始
 
 ### 初始化（创建双语言文档）
