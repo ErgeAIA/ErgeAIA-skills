@@ -15,7 +15,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.1.1 |
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.3.10 |
-| [banxin](banxin/) | Banxin (under construction): typeset WeChat articles into paste-ready, readable, beautiful HTML with genuine theme design languages — "Quiet Minimal", "Editorial" and "Fresh Tech" themes landed | `typeset this article for my WeChat account` | v0.1.0 |
+| [banxin](banxin/) | Banxin (under construction): typeset WeChat articles into paste-ready, readable, beautiful HTML with genuine theme design languages — four themes landed (Quiet Minimal / Editorial / Fresh Tech / Warm Paper) with same-article Gallery | `typeset this article for my WeChat account` | v0.1.0 |
 
 ## Getting Started
 
