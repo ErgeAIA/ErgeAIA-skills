@@ -3,7 +3,7 @@ name: vibe-buddy
 description: "AI 编程（vibe coding）全过程的项目侧协作管理。当用户用 AI 开发项目、要让下一个会话或下一个 agent 接得上时启用：初始化项目协作契约（AGENTS.md，含 CLAUDE.md 迁移）、同步进度与决策、写跨会话交接、蒸馏可复用经验，或对开发类项目做只读审查（代码质量、架构、技术栈）。产物只落在该项目内，不管理 Agent 自身记忆；也可直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill、vibe-audit。Not for: Skill 项目评审（交 skill-workshop）、任务计划与需求转译、Git 提交与代码改动、CHANGELOG 规范化（交 changelog-manager）。"
 metadata:
   author: ErgeAIA
-  version: "1.6.1"
+  version: "1.7.0"
 ---
 
 # vibe-buddy
@@ -58,13 +58,14 @@ Core Task：
 - **契约区与事实区**：`AGENTS.md` 的契约区（Permissions / Conventions / References / 章节结构）只由 `vibe-init` 写，任何改动都必须在 `docs/.ai/agents-changelog.md` 留一行；事实区（Toolchain / Commands 表数据）可由 `vibe-sync` 回填，属填事实不必留痕。
 - 🔴 **CHECKPOINT · AGENTS.md 唯一源**：`AGENTS.md` 是唯一项目级协作契约源。`vibe-init` 按五状态机（A–E，见 `references/init-agents-md.md`）执行，任何路径都**不创建、不维护、不镜像 `CLAUDE.md`**；旧 `CLAUDE.md` 走受控迁移并入 `AGENTS.md`，安全闸全过后才删除源文件，迁移失败则保留源并如实报告。
 - **记录与提炼分开**：`vibe-sync` 记录流水事实（进度 / 决策 / 调试）并可选追加 `CHANGELOG.md` 用户可见变更，`vibe-distill` 提炼可复用规则（`docs/.ai/experience/`），互不代做。
+- **契约只收约束**：`AGENTS.md` 是每会话自动注入的 system prompt，只留「不这样就会做错」的规则。变更日志、人读说明、决策叙事、日期化裁决出处、执行流水一律不写进去，按 `references/agents-md-generator.md` §6b 迁往各自归宿；有效规则写错位置的走 `relocate`（原文进新落点、原处留指针、留痕），不走 `drop`。增量维护时必扫存量杂音，扫完必须让产物自带反杂音义务行，否则下一轮重新积灰。
 - 🔴 **CHECKPOINT · 蒸馏不裁决冲突**：新旧经验冲突时**先比适用条件**；前提不同即两条并存并各自标注，前提相同才停下问用户，不自行取舍。
 
 ## 产物布局
 
 | 产物 | 路径 | 写入者 |
 |---|---|---|
-| AI 协作契约（唯一契约源） | `<project>/AGENTS.md` | `vibe-init` 写契约区；`vibe-sync` 回填 Toolchain 与 Commands 表 |
+| AI 协作契约（唯一契约源） | `<project>/AGENTS.md` | `vibe-init` 写契约区；`vibe-sync` 回填 Toolchain 与 Commands 表；`vibe-init` 迁出杂音（`relocate`） |
 | 项目进度，实时更新 | `<project>/docs/.ai/project-progress.md` | `vibe-init` 建模板，`vibe-sync` 维护 |
 | 决策日志，优先级高于 PRD，随开发持续更新 | `<project>/docs/.ai/decision-log.md` | `vibe-init` 建模板，`vibe-sync` 追加 |
 | bug 修复经验 | `<project>/docs/.ai/debug-log.md` | `vibe-init` 建模板，`vibe-sync` 追加 |
@@ -114,6 +115,8 @@ Core Task：
 | 新旧经验冲突 | 先比适用条件：前提不同则两条并存、各自标注 | 前提相同 → 停下问用户，不自行取舍 |
 | 待写内容含密钥 / 凭据 / 隐私 | 脱敏为占位符后写入 | 无法安全脱敏 → 拒绝写入并说明原因 |
 | 项目无 `CHANGELOG.md` 却要写更新日志 | 不创建文件；终止回复说明可自建或用 changelog-manager | 用户明确要求代建最小骨架 → 仅在用户书面确认后建，并注明非 Keep a Changelog 全规范 |
+| 杂音命中但归宿文件不存在 | 按 `agents-md-generator.md` §6b 兜底：变更日志回落 `docs/.ai/decision-log.md`，人读说明不写并列待确认项 | 仍说不清归属 → 列为待确认交用户裁决，**不得留在 `AGENTS.md` 里等以后再说** |
+| 存量 AGENTS.md 反复积灰 | 增量维护时必扫全文，逐段过 §6b 六类，迁出后由产物自带反杂音义务行防复发 | 一次扫不干净 → 在终止回复列出未过项与保留理由，不宣称已清干净 |
 | 参考文件缺失或读不通 | 报告缺失路径，停止执行 | 用户要求硬做 → 拒绝，缺规则不做 |
 | `vibe-audit` 目标为 Skill 项目 | 只输出转交说明并指向 skill-workshop | 用户坚持本技能内审 → 拒绝，说明标尺不适用 |
 | `vibe-audit` 目标类型无法判定 | 停下问用户，不猜 | 用户未答 → 不执行，列为待确认项 |
@@ -123,6 +126,7 @@ Core Task：
 ## Gotchas
 
 - `AGENTS.md` 是**规则契约**，不承载进度与待办；进度写 `docs/.ai/project-progress.md`。
+- `AGENTS.md` 是**每会话自动注入**的 system prompt，进来的每行都花上下文——「看着有用但删了也不会让 AI 做错」的段落就是杂音，判据是 §6b 的 N1–N6，不是读起来顺不顺。
 - `docs/.ai/` 的**进度 / 决策 / 调试**三份只追加；决策冲突时把旧条目改标 `superseded`，不删除历史条目。
 - `AGENTS.md` 是项目级**唯一协作契约源**；`CLAUDE.md` 迁移完成后不得继续作为项目级协作契约存在，也不得靠新建空 `CLAUDE.md` / 指针文件解决兼容问题。
 - 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。
@@ -159,7 +163,7 @@ Core Task：
 
 | 触发词 | 成功判定 |
 |---|---|
-| `vibe-init` | 状态判定（A–E）有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务与常驻纪律已写入 `Permissions`；`References` 每条为条件式指针（含触发条件）；`AGENTS.md` 存在、实读可读且为唯一项目级协作契约；本次执行未新建 `CLAUDE.md`；若存在旧 `CLAUDE.md`：有效内容已迁移、四态处置已留痕、`AGENTS.md` 已实读验证、源文件已安全删除（未删则明示原因）；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作（含迁移处置计数）；缺失项已补齐，既有文件未被覆盖 |
+| `vibe-init` | 状态判定（A–E）有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务、常驻纪律与**反杂音义务**已写入 `Permissions`，杂音归宿表已写入 `Conventions`；`References` 每条为单行条件式指针（含用途一句话，无宽表）；**存量杂音已按 §6b 逐段扫描，命中项给出归宿或留痕，且规则本体未被删**；`AGENTS.md` 存在、实读可读且为唯一项目级协作契约；本次执行未新建 `CLAUDE.md`；若存在旧 `CLAUDE.md`：有效内容已迁移、五态处置已留痕、`AGENTS.md` 已实读验证、源文件已安全删除（未删则明示原因）；`docs/.ai/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作（含迁移处置计数与杂音扫描命中数）；缺失项已补齐，既有文件未被覆盖 |
 | `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；调试定位到根因时 `debug-log.md` 已追加 `BUG-NNN`；项目根已有 `CHANGELOG.md` 且本轮含用户可见变更时已按其既有格式追加（无文件或无可见变更则明示跳过）；`AGENTS.md` 仅事实区被回填，契约区未动 |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，正文只展开「别处读不到」的四类、其余写指针，未覆盖既有文件 |
 | `vibe-distill` | 条目五要素齐全且各有事实源；编号在主题内递增；`experience/changelog.md` 已追加本轮（原料区间 + 覆盖主题 + 产出）；冲突已标出而非自行取舍 |

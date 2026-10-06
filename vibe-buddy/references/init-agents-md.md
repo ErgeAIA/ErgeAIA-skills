@@ -19,6 +19,8 @@ writes-to:
   - <project>/docs/.ai/project-overview.md（可选）
   - <project>/docs/.ai/experience/.gitkeep
   - <project>/docs/handoff/.gitkeep
+  - <project>/CHANGELOG.md（仅 relocate 迁出，且文件已存在时追加）
+  - <project>/README.md（仅 relocate 迁出，且文件已存在时追加）
   - <project>/.git/（仅 git init）
   - <project>/.codegraph/（仅 codegraph init）
 ---
@@ -57,7 +59,7 @@ writes-to:
 | 1 | 前置检查 | 可写性、monorepo 判定 |
 | 2 | Git 检查 | 仓库检测，必要时 `git init` |
 | 3 | 状态识别与路由 | 按初始化状态机 A–E 判定 |
-| 4 | 决策保全 | 状态 B / C / D / E 必做（判定依据见下） |
+| 4 | 决策保全与杂音清扫 | 状态 B / C / D / E 必做（判定依据见下）；含存量杂音扫描与 `relocate` 迁出 |
 | 5 | 状态迁移 / 生成 AGENTS.md | 全新 / 增量走生成规范；迁移先写目标、验证目标、后删源 |
 | 6 | 建立过程文档 | 复制模板，补齐缺口 |
 | 7 | AGENTS 唯一源校验 | 实读复核 + 迁移留痕核对（见「AGENTS 唯一源校验」节） |
@@ -107,14 +109,26 @@ writes-to:
 ## 决策保全（状态 B / C / D / E 必做）
 
 1. 摘录既有契约文件全部条目；**无契约文件时**，摘录代码、提交、配置中可识别的现存约定，形成既有约定清单。
-2. 逐条四态处置：`keep` 原样继承 / `update` 以代码现状为准改写 / `drop` 删除 / `merge` 合并去重。
-3. 每一条 `update` 与 `drop` 写入 `docs/.ai/agents-changelog.md`，一行一条 `<旧值> → 处置 → <新值/去处/原因>`，**禁止静默丢失**。
+2. 逐条四态处置：`keep` 原样继承 / `update` 以代码现状为准改写 / `drop` 删除 / `merge` 合并去重；**有效规则写错位置**的按第 5 条的 `relocate` 迁出。
+3. 每一条 `update`、`drop` 与 `relocate` 写入 `docs/.ai/agents-changelog.md`，一行一条 `<旧值> → 处置 → <新值/去处/原因>`，**禁止静默丢失**。
 4. 旧位置残留（如项目根 `references/` 下的旧决策或变更日志）：内容合并进 `docs/.ai/` 的新落点，旧文件按 `drop` 处理并留痕，**禁止新旧两处并存**。
-5. 处置不下的条目标记为待确认交给用户裁决，不自行删除。
-6. **源文件未被 git 跟踪时必须先留档**：`git status` 显示为未跟踪（`??`）的既有契约，一旦处置就无法从版本历史回溯。此时先把原文完整存一份到 `docs/.ai/` 下（推荐并入 `agents-changelog.md` 的存档小节），再执行 `drop` / `update`；**禁止在无留档的情况下丢弃未跟踪文件的内容**。
-7. **既有档案不是六节结构时，允许按 `merge` 重组**：「已初始化优化」的「禁止整体重写」指的是**不得在没有处置记录的情况下换掉契约**，不是不能调整章节。既有档案若为项目自建的多节结构，逐条四态处置后重组为六节是**允许的**，前提是每条处置都在 `agents-changelog.md` 留痕。
+5. **`relocate`（第五态）：** 段落本身有效、只是不属于 `AGENTS.md`（杂音 N1–N5），按 `references/agents-md-generator.md` §6b 迁往该类归宿：原文进新落点、原处改指针、留痕写 `agents-changelog.md`。**`relocate` 不等于 `drop`**——只有确认无执行价值才 drop；判断不了归属的按第 6 条列为待确认，**不得留在 `AGENTS.md` 里等以后再说**。
+6. 处置不下的条目标记为待确认交给用户裁决，不自行删除。
+7. **源文件未被 git 跟踪时必须先留档**：`git status` 显示为未跟踪（`??`）的既有契约，一旦处置就无法从版本历史回溯。此时先把原文完整存一份到 `docs/.ai/` 下（推荐并入 `agents-changelog.md` 的存档小节），再执行 `drop` / `update` / `relocate`；**禁止在无留档的情况下丢弃未跟踪文件的内容**。
+8. **既有档案不是六节结构时，允许按 `merge` 重组**：「已初始化优化」的「禁止整体重写」指的是**不得在没有处置记录的情况下换掉契约**，不是不能调整章节。既有档案若为项目自建的多节结构，逐条四态处置后重组为六节是**允许的**，前提是每条处置都在 `agents-changelog.md` 留痕。
 
 **全新初始化**跳过四态处置，但仍建 `docs/.ai/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
+
+### 存量杂音扫描（增量维护路径必做）
+
+`AGENTS.md` 每会话自动注入，杂音会持续稀释约束的信噪比，且**不会自己消失**——生成期的自检门只对当次草稿生效，存量段落没有任何机制被复查。状态 B / C / D / E 必须扫一遍：
+
+1. **实读全文**（不 grep 片段），逐段过 `references/agents-md-generator.md` §6b 的 N1–N6 六类判定。
+2. 命中项按 `relocate` / `drop` 处置，原有规则本体**一律保留**，只搬走位置与日期化出处。
+3. 归宿文件不存在时按 §6b 兜底列回落（变更日志 → `decision-log.md`；人读说明 → 不写并列待确认项）；**兜底也不写的不留在本文件**。
+4. 重复项（N6）只留权威那处：权威位置的判定按「谁被写进 `Permissions` 义务、谁只是散落在 `Conventions`」判，义务侧为准。
+5. 全部命中项进 `agents-changelog.md`，终止回复报告「扫描 N 段、迁出 M 段、删除 K 段」。
+6. 产出必须自带 §6b 的反杂音义务行（`Permissions` 一行禁止 + `Conventions` 一行归宿表）——**没有这条义务，扫完的契约会在下一轮重新积灰**。
 
 ## 过程文档
 
@@ -140,8 +154,8 @@ writes-to:
 
 | 位置 | 写什么 |
 |---|---|
-| `Permissions` | **接管义务**：会话开始先读 `docs/.ai/` 三件套与 `docs/handoff/` 最新一份；先复述现状与待确认项再动手。**文档义务**：改码前先读项目文档与 `decision-log`；每次会话更新 `project-progress.md`；改 AGENTS.md 前先读、改后追加 `agents-changelog.md`；改某领域代码前先读 `docs/.ai/experience/<领域>/`。**常驻纪律**：一阶段一停等验证；不得自行宣称已修复，须由用户验证；既有文件只做最小精确补丁。另含 `IMPORTANT` 定位一句与 `禁止` 两类 |
-| `Conventions` | 会话文档体系、bug 追加（`vibe-sync` 写）、交接命名、交接文档同日多份的取新判据、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、经验库按领域分目录且正文可改写 |
+| `Permissions` | **接管义务**：会话开始先读 `docs/.ai/` 三件套与 `docs/handoff/` 最新一份；先复述现状与待确认项再动手。**文档义务**：改码前先读项目文档与 `decision-log`；每次会话更新 `project-progress.md`；改 AGENTS.md 前先读、改后追加 `agents-changelog.md`；改某领域代码前先读 `docs/.ai/experience/<领域>/`。**常驻纪律**：一阶段一停等验证；不得自行宣称已修复，须由用户验证；既有文件只做最小精确补丁。**反杂音义务**：一行禁止（变更日志 / 人读说明 / 决策叙事不得进本文件）。另含 `IMPORTANT` 定位一句与 `禁止` 两类 |
+| `Conventions` | 会话文档体系、bug 追加（`vibe-sync` 写）、交接命名、交接文档同日多份的取新判据、改文档须同步 `updated`、改 AGENTS.md 须留变更记录、经验库按领域分目录且正文可改写、**AGENTS.md 杂音归宿表** |
 | `References` | 项目自带文档 + `docs/.ai/` 各过程文档（含 `docs/.ai/experience/`）+ `docs/handoff/`，逐条**条件式指针** `- <何时读> → 见 <path>`；触发条件按使用场景登记，不按目录罗列 |
 
 **接管为什么写在 `Permissions` 而不是做成触发词**：触发词要求用户先想起它，A 层义务每会话自动生效。写进去之后，「新会话先弄清现状」不再依赖任何人记得敲命令——这是本技能对「AI 未调用技能」这个前提的唯一覆盖手段。
@@ -172,7 +186,7 @@ writes-to:
 
 `AGENTS.md` 是唯一项目级协作契约源；`CLAUDE.md` 在迁移中只是**输入源**，不是长期运行时源。迁移完成后项目根不得再以 `CLAUDE.md` 作为协作契约存在。
 
-迁移不是机械重命名，也不是保留指针。每条旧规则按「keep / update / merge / drop」四态处置（处置与留痕规则同决策保全节），并逐条检查是否存在 Claude 专属语法、Claude 专属工具说明或已过时规则——此类条目按 `drop` 处置并留痕。
+迁移不是机械重命名，也不是保留指针。每条旧规则按「keep / update / merge / drop / relocate」五态处置（处置与留痕规则同决策保全节），并逐条检查是否存在 Claude 专属语法、Claude 专属工具说明或已过时规则——此类条目按 `drop` 处置并留痕；**有效但属于变更日志、人读说明、决策叙事的条目按 `relocate` 迁出**。
 
 ### 执行顺序（状态 C：只有 CLAUDE.md）
 
@@ -201,7 +215,7 @@ writes-to:
 7. `CLAUDE.md` 中与 AGENTS 冲突的规则 → 按项目真实代码 / 配置 / 文档裁决
 8. 可验证的过时规则 → `drop`
 9. 无法裁决的冲突 → 标记待确认，不自行取舍
-10. 将全部 update / drop / merge / migration 留痕到 `agents-changelog.md`
+10. 将全部 update / drop / merge / relocate / migration 留痕到 `agents-changelog.md`
 11. 写入最终 `AGENTS.md`
 12. 实读验证 `AGENTS.md` 完整且可读
 13. 删除 `CLAUDE.md`
@@ -209,7 +223,7 @@ writes-to:
 
 ### 迁移保全规则
 
-- 旧 `CLAUDE.md` 中每条有效规则必须落入三处之一：`keep` / `merge` → 进入 `AGENTS.md`；`drop` → 在 `agents-changelog.md` 记录原因。**不得出现「既不进 AGENTS.md、也无 drop 记录」的规则。**
+- 旧 `CLAUDE.md` 中每条有效规则必须落入四处之一：`keep` / `merge` → 进入 `AGENTS.md`；`relocate` → 迁往 §6b 规定的归宿文件、原处留指针；`drop` → 在 `agents-changelog.md` 记录原因。**不得出现「既不进 AGENTS.md、也无 relocate / drop 记录」的规则。**
 - 待确认条目写入终止回复交用户裁决；未裁决前源文件保留。
 - 源文件未被 git 跟踪时，先按决策保全的留档规则把原文存入 `agents-changelog.md` 存档小节，再执行处置。
 - 迁移记录若早于「建立过程文档」步骤落盘：先按 §4b 模板建立 `docs/.ai/agents-changelog.md`，再写迁移条目——**处置留痕必须先于源文件删除**。
@@ -275,9 +289,9 @@ writes-to:
 | Git 检查 | 缺失仓库则初始化 | `<project>/.git` | 完成 / 跳过 / 失败 | — |
 | 状态识别 | 三信号查表 | — | 完成 | 判定为 <模式> |
 | 决策保全 | 既有约定四态处置 | `docs/.ai/agents-changelog.md` | 完成 / 跳过 | N 条 |
-| 契约生成 | 生成或增量维护 | `AGENTS.md` | 完成 | N 行 |
+| 契约生成 | 生成或增量维护 | `AGENTS.md` | 完成 | N 行；杂音扫描命中 M 段（迁出 / 删除） |
 | 过程文档 | 复制模板、补齐缺口 | `docs/.ai/*` | 完成 | 新建 X / 跳过 Y |
-| 契约迁移 | `CLAUDE.md` → `AGENTS.md`（状态 C / D） | 源 `<project>/CLAUDE.md` → `AGENTS.md` | 完成 / 跳过 / 失败（保留源） | keep N / update N / merge N / drop N；冲突待确认 N |
+| 契约迁移 | `CLAUDE.md` → `AGENTS.md`（状态 C / D） | 源 `<project>/CLAUDE.md` → `AGENTS.md` | 完成 / 跳过 / 失败（保留源） | keep N / update N / merge N / drop N / relocate N；冲突待确认 N |
 | Codegraph | 索引检测与初始化 | `<project>/.codegraph` | 完成 / 跳过 / 未执行 | — |
 | 其他技能 | 依赖安装等 | — | 未执行 | 由用户或其他技能执行 |
 
@@ -298,4 +312,4 @@ writes-to:
 
 ## 终止回复
 
-只回复：判定状态（A–E）与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否五项全过、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数、迁移执行结果（状态 C / D：迁移类型、四态处置计数、冲突与裁决情况、`CLAUDE.md` 是否已删除——未删则写明卡在哪条闸）、AGENTS 唯一源校验结论、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。
+只回复：判定状态（A–E）与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否六项全过、**杂音扫描结论（实读全文、命中 N 段 / 迁出 M 段 / 删除 K 段，逐段给出归宿或留痕路径）**、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数（含 relocate 计数）、迁移执行结果（状态 C / D：迁移类型、五态处置计数、冲突与裁决情况、`CLAUDE.md` 是否已删除——未删则写明卡在哪条闸）、AGENTS 唯一源校验结论、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。
