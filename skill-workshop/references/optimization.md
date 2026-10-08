@@ -45,8 +45,10 @@ description: Optimize 模式权威方法论：全量读取运行时资产、还�
 | Diagnose | 只找影响用户结果的问题（§4） | Evidence-First findings |
 | Decide | 定目标架构与处置表（§6、§7） | Target Architecture + Disposition |
 | Rewrite | 按处置表实际改文件（§8） | 改动后的技能 |
-| Validate | 跑 `validate` + `spec`；新增判据须有测试 | 机器结果原样输出 |
+| Validate | 跑 `validate` + `spec`；**跑 §10 Description 语义评审**；新增判据须有测试 | 机器结果 + description 结论 |
 | Regression | 证明核心能力未丢（§9） | Before/After + 回归结论 |
+
+**默认必检：description。** 优化任何技能时，**无论用户是否提到**，都必须走 §10 Description 语义评审。它不在用户会主动提的清单里，是全流程最容易漏的一项——漏了它，技能路由就是错的，其余优化再漂亮也没人能用上。
 
 **禁止**：Core Task 写不清就开始「优化措辞」——先解决任务模型。
 
@@ -116,24 +118,26 @@ Trigger → Input → Decision/Routing → Core Work → Tools(References/Script
 
 ## 10. Description 语义评审（替代词法统计）
 
-结构合规由 `validate` 保证（存在、非空、单行 string、长度、YAML 转义、无未完成占位符；`spec` 只对官方字段契约负责，见 `validation.md`）。**质量与触发命中属语义判断**，按 `Trigger + Job + Boundary` 模型逐项回答：
+结构合规由 `validate` 保证（存在、非空、单行 string、长度、YAML 转义、无未完成占位符；`spec` 只对官方字段契约负责，见 `validation.md`）。**质量与触发命中属语义判断**，按 `Job + Trigger + Boundary` 模型逐项回答（**顺序：产出在前、触发在后、边界收尾**）：
 
 ```text
 1 第一次读到它，能否知道这个 Skill 是干什么的？
 2 用户什么时候会想到调用它？
-3 说的是真实用户任务，还是内部机制？
+3 说的是真实用户任务，还是内部机制？**是否第三人称**（"Processes…"，而非"I can help you…" / "You can use this…"）？
 4 有没有不必要的实现细节（路径、版本号、内部步骤名）？
 5 有没有为了命中而堆的同义词与裸词表？
 6 有没有容易误触发的泛化描述（「分析 / 处理 / 帮助」这类无边界大词）？
 7 有没有明显漏掉的真实触发场景？
-8 是否需要一个 Not for 边界来和相邻 Skill 分工？
+8 是否**真的**需要 `Not for`？——只有能指出**具体**相邻 Skill 且用户话术会混淆才要；**官方三个示例均无 `Not for`**，凑一条是缺陷不是加分。
 9 是否与 Core Task 一致？
-10 改后是否更短、更清楚，还是只是更长？
+10 改后是否更短、更清楚，还是只是更长？（**description 常驻上下文**，冗余与堆砌有真实成本）
 ```
 
-模型：`[什么时候用] + [解决什么问题] + [必要时一句边界]`。例：
+模型：`[做什么（第三人称）] + Use when [何时用] + [必要时一句边界]`。例：
 
-> 当用户准备提交代码、创建或切换分支、合并、推送或处理 Git 错误时，提供规范的 Git 工作流指导，并在可能改写历史或删除数据的危险操作前要求确认。
+> 提供规范的 Git 工作流指导，并在可能改写历史或删除数据的危险操作前要求确认。Use when 用户准备提交代码、创建或切换分支、合并、推送或处理 Git 错误。
+
+（旧模型是 `[什么时候用] + [解决什么问题]`、示例写作「当用户…时，提供…」——Trigger 在前，已废弃；官方三个示例均为产出在前。）
 
 不要求同义动词全列（`review / audit / check / inspect` 选一即可），不要求把每个命令名都写进去，不要求引号包裹关键词。结论只给 `KEEP` 或 `REWRITE` + 一句理由；**禁止把 description 打成百分数或分数**。
 

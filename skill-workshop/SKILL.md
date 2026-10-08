@@ -1,9 +1,9 @@
 ---
 name: skill-workshop
-description: "Agent Skill 全生命周期工作台：用于创建、评审、优化、重构、校验和打包 Skill，从明确任务与边界，到调整结构、规则与实现，再到验证结果，形成完整闭环。用户要新建、完善、重构或校验 Skill 时使用。Not for: 通用代码或应用项目开发与审查。"
+description: "创建、评审、优化、重构、校验并打包 Agent Skill——用更小的规则系统让一个技能完成它的任务。Use when 用户要新建、完善或审查一个 Skill。"
 metadata:
   author: ErgeAIA
-  version: "2.5.1"
+  version: "2.6.0"
 ---
 
 # skill-workshop
@@ -101,7 +101,7 @@ Fast 检查清单（9 项）与其升级信号只在 `references/review.md` 定�
 | 文件 | 何时读 |
 | --- | --- |
 | `references/core-method.md` | 判断框架：Core Task、五问、六类、生命周期、删除优先、证据预算 |
-| `references/creation.md` | 创建/脚手架、**创建前 Grill 闸（条件·自持决策树）**、纯净模板、description 的 Trigger+Job+Boundary 写法 |
+| `references/creation.md` | 创建/脚手架、**创建前 Grill 闸（条件·自持决策树）**、纯净模板、description 的 Job+Trigger+Boundary 写法（**产出在前 + Use when 在后 + 第三人称**；创建时默认必写） |
 | `references/review.md` | Fast/Deep/Eval、T/E/C、证据格式、P0/P1/P2、报告结构 |
 | `references/optimization.md` | **优化模式**：全量读取、运行机制建模、目标架构、资产处置、重写、回归、Before/After |
 | `references/validation.md` | 格式 HARD、版本 SSOT、CLI/plan-gate、N/A 与安全 |

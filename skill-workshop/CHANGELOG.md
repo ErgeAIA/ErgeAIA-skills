@@ -7,6 +7,22 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 
 > 早期（v1.21.0 之前）的详细变更历史见 `git` 提交记录；本文件仅保留近期若干版本的精简记录。
 
+## [2.6.0] - 2026-10-08 · description 规则更新（Job→Trigger 顺序 + 创建/优化流程默认必检）
+
+> 来源：用户指出"每次创建新技能和优化技能时，description 总是漏掉，要我显式指令"，并明确"三段式（Trigger+Job+Boundary）过时了，应该目标驱动，skill-workshop 的规范可能没更新"。联网核对 Anthropic 官方 best-practices 原文后确认两点：① 官方三个示例（PDF / Excel / Git Commit）一律「**动词产出在前 + `Use when` 触发在后**」（Job→Trigger），本仓 §137 的 `Trigger + Job + Boundary` **顺序相反**，属规范漂移；② 官方硬要求**第三人称**，本仓未写。
+
+### 变更
+
+- `creation.md` §9「创建时只定义三件事」：第 1 条改为「**职责 + description**」，并新增「description 默认必写」——职责定完不写 description 视为任务未完成。此前只写"必填 frontmatter"、未点名 description，是**创建时漏项的直接原因**。
+- `creation.md` §137：模型由 `Trigger + Job + Boundary` 改为 **`Job + Trigger + Boundary`**；附官方 PDF 示例，以及同一例从「当…时，提供…」到「提供… Use when…」的目标驱动改写。要点补「**必须第三人称**」（附官方 Good/Avoid 对照）与「不要用开发者视角的功能罗列」。
+- `optimization.md` §2：八步流程的 **Validate 步挂上 §10 Description 语义评审**，并加"默认必检"硬约束。此前 §10 是**流程外**的独立章节、八步里完全没有，是**优化时漏项的原因**。
+- `review.md` Fast 清单第 2 条：补「第三人称 + Job 在前 + 默认必检，不等用户提」；Description 定级补「非第三人称 / Trigger 在前 / 开发者视角罗列」三种语义问题。
+
+### 修复
+
+- **规范漂移**：`creation.md` 的 description 模型与官方顺序相反（本仓 Trigger 在前、官方 Job 在前），已按官方原文纠正。
+- 漏项机制：创建与优化两条流程均未把 description 设为默认必检（一个没点名、一个不在流程内），已分别在流程内固化。
+
 ## [2.5.1] - 2026-10-02 · 窄幅吸收技能审查方法论 5 缺口（内容判据/依赖面/修复阶梯/对抗用例/裸奔验收）
 
 > 来源：用户从 6 份真实大手术 plan 提炼的技能审查优化方法论（Skills-Depot 本层 `skill-review-optimization-methodology.md`）对 workshop 现有流程做第一性对比，识别 5 个实战缺口（其中依赖面缺口由 weitou v2.0 手术实证：下游 weitoutiao 正按阶段编号调用、原流程砍流水线即 P0 回归）。按「方法论全文留本层、workshop 只吸收最小判据」裁决窄幅整合，不新增流程层。

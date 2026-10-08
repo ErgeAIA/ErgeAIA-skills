@@ -8,9 +8,11 @@ description: 极简创建规范（含条件 Grill 闸）：职责/输入输出�
 
 ## 创建时只定义三件事
 
-1. **职责**：一句话说明这个 skill 解决什么用户任务（连贯任务单元，不是「只能有一步」）。
+1. **职责 + description**：一句话说明这个 skill 解决什么用户任务（连贯任务单元，不是「只能有一步」）——**并当场把这一句写成 frontmatter 的 `description`**。职责定完不写 description = 任务没做完：`description` 是技能被触发的**唯一依据**，漏掉它技能等于隐形。
 2. **输入输出契约**：用户/上游提供什么；skill 必须产出什么；失败时如何表现。
-3. **基础结构**：`SKILL.md` 必填 frontmatter；可选 `references/` / `scripts/` / `assets/` **仅在确有需要时**再建。
+3. **基础结构**：`SKILL.md` 必填 frontmatter（**含 `description`**）；可选 `references/` / `scripts/` / `assets/` **仅在确有需要时**再建。
+
+> **description 默认必写**：创建任何技能时，无论用户是否提到，都要产出并自检 `description`（写法见「description 写法」一节）。不要等用户显式要求。
 
 不做：默认铺开多级 workflow 编号体系、强制语义化 `@` 标记、为「完整性」预埋 scripts。
 
@@ -24,7 +26,7 @@ description: 极简创建规范（含条件 Grill 闸）：职责/输入输出�
 
 - 需求含糊：只有领域词或一句目标，写不出职责与 IO
 - 空白技能：没有可直接落笔的三件事
-- 边界不清：`Not for` 写不出来，或说不清与相邻技能的分工
+- 边界不清：说不清职责止于哪里，或说不清与相邻技能的分工
 - 一次建多个技能 / 要接流水线
 
 **跳过**：职责与输入输出已能直接写出（哪怕是用户给的草稿）；或用户说「照这个写」。
@@ -80,7 +82,7 @@ python scripts/skill_cli.py init <skill-name> --path <parent-dir> --write
 ```markdown
 ---
 name: your-skill-name
-description: "当用户[什么时候用]时，[这个技能替用户完成什么]；必要时补一句边界。Not for: [不负责什么，交给谁]。"
+description: "[这个技能替用户完成什么——第三人称、动词开头]。Use when [用户什么时候会想到它]。"
 metadata:
   author: your-name
   version: "1.0.0"
@@ -134,17 +136,29 @@ metadata:
 
 禁止顶层自定义键（如 `triggers`、`tags`）——写入 `metadata` 或正文。
 
-## description 写法（Trigger + Job + Boundary）
+## description 写法（Job + Trigger + Boundary）
 
-统一模型：`[什么时候用] + [解决什么问题] + [必要时一句边界]`。
+统一模型：`[做什么（第三人称）] + Use when [何时用]`（**边界默认不加**，判据见下）。
+
+**顺序：Job 在前、Trigger 在后。** 依据是 Anthropic 官方 best-practices 的三个示例（PDF / Excel / Git Commit），一律是「动词产出 + `Use when` 触发」：
 
 ```text
-当用户准备提交代码、创建或切换分支、合并、推送或处理 Git 错误时，提供规范的 Git 工作流指导，并在可能改写历史或删除数据的危险操作前要求确认。
+Extract text and tables from PDF files, fill forms, merge documents.
+Use when working with PDF files or when the user mentions PDFs, forms, or document extraction.
 ```
 
-- 说**用户任务**，不说内部机制：不写文件路径、版本号、步骤名、CLI 子命令清单。
+同一例的目标驱动改写（老写法是「当用户准备提交代码…时，提供指导」——Trigger 在前，已废弃）：
+
+```text
+提供规范的 Git 工作流指导，并在可能改写历史或删除数据的危险操作前要求确认。
+Use when 用户准备提交代码、创建或切换分支、合并、推送或处理 Git 错误。
+```
+
+- **必须第三人称**（官方硬要求，人称不一致会导致发现障碍）：Good `"Processes Excel files and generates reports"`；Avoid `"I can help you…"` / `"You can use this to…"`。
+- 说**用户视角的目标**，不说内部机制：不写文件路径、版本号、步骤名、CLI 子命令清单；也不要把「本 Skill 用于执行 X 流程、输出 Y 报告」这种**开发者视角的功能罗列**当成目标。
 - 触发场景用真实用户话术概括（「要提交、要建分支、要处理 Git 错误」），**不要求把同义动词全列**（`review / audit / check / inspect` 选一个即可），**不要求把每个命令名都塞进去**，**不要求用引号包关键词**。
-- 边界按需：只有确实容易被相邻技能抢走路由时，才加一句 `Not for: …`。
+- **边界默认不加**。官方三个示例**都没有 `Not for`**——不要为了「看起来完整」硬凑一条。只有**同时**满足两条才写：① 能指出**具体**的相邻技能名字；② 用户话术确实会在两者间混淆。指不出相邻技能就不写；写不出第 ② 条就删掉。凑出来的 `Not for` 只会占位、不会让路由更准。
+- **每条 description 都常驻上下文**（技能发现阶段全量预加载）。因此**准确 > 完整，精简 > 堆砌**：不要为了「多命中几个场景」堆触发词、堆同义动词——**数量不是判据，路由结果才是**（见 `optimization.md` §11）；也不要把流程叙述写进去（「从…到…形成闭环」这类）。
 - 裸词表（只有词、没有句子承载意图）是反模式——它读起来不像人话，也不会让路由更准。
 - 判断标准是**语义**的：第一次读到它，能否知道这个技能干什么、用户什么时候会想到它（评审判据见 `optimization.md` §10、§11）。
 

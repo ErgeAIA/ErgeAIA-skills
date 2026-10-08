@@ -67,7 +67,7 @@ Input / Output / Non-Goals / Dependencies / Success condition
 ## Fast Review 清单（默认）
 
 1. Frontmatter：`name`/`description`/版本 SSOT、字段是否越权。  
-2. Description：做什么、何时触发、边界。  
+2. Description：做什么（**第三人称**）、`Use when` 何时触发、边界——**顺序为 Job 在前、Trigger 在后**（依据 Anthropic 官方示例）。此项默认必检，不等用户提。  
 3. Core Task 能否一句话说清（说不清 → 结构性风险，升 Deep 候选）。  
 4. 主职责是否一个连贯用户任务单元。  
 5. 主文档体量与是否只做路由/硬边界。  
@@ -110,8 +110,8 @@ Input / Output / Non-Goals / Dependencies / Success condition
 ### Description 与触发质量怎么定级
 
 结构不合规（缺字段、非单行、超 1024、YAML 转义风险、未完成占位符）→ CLI 硬 FAIL。
-语义问题（看不出干什么、只有裸词表、无边界易误触发、写的是内部机制）→ 由评审判断，一般 P1；**完全无法被真实用户话术触发**才算 P0。
-禁止把「触发词数量少」当缺陷——数量不是判据，路由结果才是（见 `optimization.md` §11）。
+语义问题（看不出干什么、只有裸词表、非第三人称、Trigger 在前而非 Job 在前、开发者视角的功能罗列、**堆触发词或流程叙述导致冗余**、**误触发风险真实存在**、写的是内部机制）→ 由评审判断，一般 P1；**完全无法被真实用户话术触发**才算 P0。
+禁止把「触发词数量少」当缺陷——数量不是判据，路由结果才是（见 `optimization.md` §11）。**反过来**：没写 `Not for` 本身**不是缺陷**（官方三个示例均无），硬凑一条、或堆砌冗余才是——description 常驻上下文，冗余有真实成本。
 
 默认 **P2 不阻塞**核心结论。
 
