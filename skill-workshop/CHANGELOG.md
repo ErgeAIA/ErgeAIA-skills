@@ -23,6 +23,7 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 - **规范漂移**：`creation.md` 的 description 模型与官方顺序相反（本仓 Trigger 在前、官方 Job 在前），已按官方原文纠正。
 - 漏项机制：创建与优化两条流程均未把 description 设为默认必检（一个没点名、一个不在流程内），已分别在流程内固化。
 - **版本同步遗漏**：升 2.6.0 时漏改根 `README.md` 与 `README.en.md` 的技能索引版本（仍为 v2.5.1），致 `sync_skills_browser.py` 报 ALIGNMENT WARNING（`SKILL(2.6.0) != README(2.5.1)`）；已同步为 v2.6.0。**根因**：本技能 §5「升版：`metadata.version`、`CHANGELOG.md`、根 README」自己列了这一步，但流程里没有强制检查点——与本次修的两个漏项（创建没点名 description、优化没把 description 放进八步）**同型**：规范写了、流程没强制。
+  - **2026-10-09 复查补充**：全库 README 一致性扫描发现**同一问题的第二处遗漏**——本技能自身 `README.md` 头部版本仍是 **v2.4.0**（根索引改对了、技能 README 没改），已同步为 v2.6.0。**说明「三处对齐」实际是四处**（SKILL / CHANGELOG / 根 README / 技能自身 README），§5 只列了三处。
 
 ## [2.5.1] - 2026-10-02 · 窄幅吸收技能审查方法论 5 缺口（内容判据/依赖面/修复阶梯/对抗用例/裸奔验收）
 
