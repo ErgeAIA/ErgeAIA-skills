@@ -68,4 +68,4 @@ python scripts/tests/test_validator.py
 
 ## 版本对齐
 
-`SKILL.md metadata.version` = `CHANGELOG.md` 顶部 = 仓库根 README 技能索引版本。
+`SKILL.md metadata.version` = `CHANGELOG.md` 顶部 = 仓库根 README 技能索引版本 = 技能自身 README 头部版本声明（四处）。

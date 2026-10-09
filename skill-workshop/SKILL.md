@@ -89,7 +89,7 @@ python scripts/skill_cli.py package <skill-dir> [out-dir] [--write]
 2. 创建读 `references/creation.md`——**意图不清先走其「创建前 Grill 闸」对齐需求**（AI 快交付会把未澄清的需求固化进技能，维护成本远高于当场问清），再套模板；**优化读 `references/optimization.md` 并按其八步走**；格式闸门见 `validation.md`，判断框架见 `core-method.md`。  
 3. 落盘前：创建用 `init` dry-run；优化必须先出 Target Architecture 与逐项处置表，只动权威源，不碰运行态目录。  
 4. 落盘后：`spec` + `validate`；**再做能力回归**（原 Core Task、触发、输出契约、安全边界仍在，至少一条真实正例与一条负例）；需要时再 `package --write`。  
-5. 升版：`metadata.version`、`CHANGELOG.md`、根 README，跑 Skills-Depot 索引同步。  
+5. 升版：`metadata.version`、`CHANGELOG.md`、根 README、**技能自身 README 头部版本声明**（四处，非三处），跑 Skills-Depot 索引同步。  
 6. 输出 Before/After 与 10 节优化报告（见 `optimization.md` §12）。
 
 评审路径不要跳到第 3–6 步，除非用户明确授权写文件。用户已提供**完整重构执行指令**时，按指令执行 + 本技能闸门，不另起平行流程。
