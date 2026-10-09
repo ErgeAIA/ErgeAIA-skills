@@ -67,4 +67,4 @@ zuiti 替你把话怼回去——骂人不带脏字，默认六风格各 3 条�
 
 ## 版本
 
-当前版本 **v0.3.8**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本 **v0.3.10**，详见 [CHANGELOG.md](CHANGELOG.md)。
