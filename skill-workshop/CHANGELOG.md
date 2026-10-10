@@ -7,6 +7,24 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 
 > 早期（v1.21.0 之前）的详细变更历史见 `git` 提交记录；本文件仅保留近期若干版本的精简记录。
 
+## [2.7.0] - 2026-10-10 · 顶层字段白名单豁免 harness 扩展字段 disable-model-invocation
+
+> 来源：用户参照 mattpocock/skills 的 `user-invoked / model-invoked` 两分法，要求技能调用方式「按参考仓库的」写法，即顶层 `disable-model-invocation: true`。实测 WorkBuddy 内置技能（`ardot/design-router`、`tencent-docx/tdoc-orchestrator`）正是在**顶层**使用该字段（且配套 `user-invocable`），而本仓白名单只认 6 个官方字段，会把它报成 Unexpected key。
+
+### 变更
+
+- `_impl/quick_validate.py`：`PROJECT_PROPERTIES` 增加 `disable-model-invocation`（与既有的项目级扩展字段 `version` 同列），顶层不再报 Unexpected key。
+- `_impl/spec_check.py`：`ALLOWED_ROOT_KEYS` 与 `EXPECTED_KEY_ORDER` 同步纳入该字段。
+- `references/validation.md` §5：白名单补入 `disable-model-invocation`，并写明它是 **harness 扩展字段（WorkBuddy）**、非官方 spec，且**不得写进 `metadata`**——`metadata` 是 string→string 映射，且 WorkBuddy 不解析其中特定 key，写在那里不生效；原「本仓 `disable-model-invocation` 须写作 `"true"`」一句随字段迁移删除。
+
+### 测试
+
+- 新增 `TopLevelInvocationFlag` 两个用例：① 顶层该字段须被接受（validate rc=0 且无 Unexpected key）；② 真正未知的顶层字段（`foo`）仍须报 warning——锁住「放宽不得过头」。全量 25 项通过。
+
+### 说明（严重度如实标注）
+
+- 该字段在本仓此前是 **warning 而非 FAIL**（实测负例 `foo: bar` 亦 rc=0），故本次属「消除噪音 + 让文档与实现一致」，**非阻塞性修复**，不得表述为「修复了会导致失败的缺陷」。
+
 ## [2.6.0] - 2026-10-08 · description 规则更新（Job→Trigger 顺序 + 创建/优化流程默认必检）
 
 > 来源：用户指出"每次创建新技能和优化技能时，description 总是漏掉，要我显式指令"，并明确"三段式（Trigger+Job+Boundary）过时了，应该目标驱动，skill-workshop 的规范可能没更新"。联网核对 Anthropic 官方 best-practices 原文后确认两点：① 官方三个示例（PDF / Excel / Git Commit）一律「**动词产出在前 + `Use when` 触发在后**」（Job→Trigger），本仓 §137 的 `Trigger + Job + Boundary` **顺序相反**，属规范漂移；② 官方硬要求**第三人称**，本仓未写。

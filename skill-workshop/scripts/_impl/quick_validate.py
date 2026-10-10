@@ -21,6 +21,10 @@ ALLOWED_SPEC_PROPERTIES = {
 
 PROJECT_PROPERTIES = {
     "version",
+    # harness 扩展字段（WorkBuddy）：顶层声明「禁用模型自动调用，仅用户可发起」。
+    # 非官方 Agent Skills spec 字段，但 WorkBuddy 内置技能（ardot / tencent-docx）在顶层使用，
+    # 故本仓显式豁免，避免被误判为 Unexpected key。
+    "disable-model-invocation",
 }
 
 ALL_ALLOWED_PROPERTIES = ALLOWED_SPEC_PROPERTIES | PROJECT_PROPERTIES

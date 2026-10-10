@@ -372,5 +372,38 @@ class ArchetypesNeverPenalisedForMissingAssets(unittest.TestCase):
                 self.assertEqual(proc.returncode, 0, f"{name} 结构应通过：{blob}")
 
 
+class TopLevelInvocationFlag(unittest.TestCase):
+    """harness 扩展字段：顶层 disable-model-invocation 须被接受，真正未知的顶层字段仍报 warning。"""
+
+    def _mk(self, extra: str) -> Path:
+        root = Path(tempfile.mkdtemp(prefix="sw-inv-"))
+        self.addCleanup(shutil.rmtree, root, True)
+        d = root / "demo-inv"
+        d.mkdir()
+        (d / "SKILL.md").write_text(
+            "---\nname: demo-inv\n"
+            'description: "当用户要把母稿转成视频口播稿时，产出可直接朗读的文案。"\n'
+            f"{extra}"
+            'metadata:\n  author: t\n  version: "1.0.0"\n---\n\n# demo-inv\n',
+            encoding="utf-8",
+        )
+        (d / "CHANGELOG.md").write_text(
+            "# 版本历史\n\n## [1.0.0] - 2026-01-01\n\n- 初始版本。\n", encoding="utf-8")
+        return d
+
+    def test_top_level_flag_is_accepted(self):
+        """WorkBuddy 认顶层 disable-model-invocation；本仓须接受，不得报 Unexpected key。"""
+        proc = run_cli("validate", self._mk("disable-model-invocation: true\n"))
+        blob = proc.stdout + proc.stderr
+        self.assertEqual(proc.returncode, 0, blob)
+        self.assertNotIn("Unexpected top-level", blob, blob)
+
+    def test_unknown_top_level_key_still_warns(self):
+        """放宽不得过头：真正未知的顶层字段仍须报 warning。"""
+        proc = run_cli("validate", self._mk("foo: bar\n"))
+        blob = proc.stdout + proc.stderr
+        self.assertIn("Unexpected top-level", blob, blob)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

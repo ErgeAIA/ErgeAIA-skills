@@ -3,7 +3,7 @@ name: skill-workshop
 description: "创建、评审、优化、重构、校验并打包 Agent Skill——用更小的规则系统让一个技能完成它的任务。Use when 用户要新建、完善或审查一个 Skill。"
 metadata:
   author: ErgeAIA
-  version: "2.6.0"
+  version: "2.7.0"
 ---
 
 # skill-workshop

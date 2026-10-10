@@ -18,6 +18,8 @@ ALLOWED_ROOT_KEYS = {
     "compatibility",
     "metadata",
     "allowed-tools",
+    # harness 扩展字段（WorkBuddy）：非官方 spec，但 WorkBuddy 内置技能在顶层使用，本仓豁免。
+    "disable-model-invocation",
 }
 FORBIDDEN_ROOT_KEYS = {"triggers", "tags"}
 EXPECTED_KEY_ORDER = [
@@ -27,6 +29,7 @@ EXPECTED_KEY_ORDER = [
     "compatibility",
     "metadata",
     "allowed-tools",
+    "disable-model-invocation",
 ]
 REQUIRED_KEYS = ["name", "description"]
 

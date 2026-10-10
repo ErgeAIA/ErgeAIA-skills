@@ -28,8 +28,9 @@ description: 基础格式、版本 SSOT、链接与脚本安全闸门；CLI vali
 3. **name**：与父目录名一致；`[a-z0-9-]`；长度 ≤64；无首尾连字符；无 `--`。
 4. **description 结构**：存在、非空、单行 string（禁 `|` `>` 块标量）、≤1024、双引号包裹、无反斜杠、不含尖括号 `<` `>`（本仓约定）、无未完成占位符（`{{…}}` / `TODO`）。
    **validator 只判结构**：自 v2.3.0 起不再统计触发词、核心意图关键词或引号词数量，也不用正则判「主动触发句式」——实测那些词法判据会把裸词表判成高分、把自然中文描述判成硬错误，反向激励堆词。语义与触发质量由评审/优化模式按 `optimization.md` §10、§11 判断。
-5. **顶层字段白名单**：仅 `name` / `description` / `license` / `compatibility` / `metadata` / `allowed-tools`；`triggers`/`tags` 等禁止顶层。**字段顺序只是本仓建议，官方无顺序要求 → 顺序不一致记 advisory，不阻塞交付**。
-   **`metadata` 是 string→string 映射**（官方 spec：*"A map from string keys to string values"*）：值写成裸 `true` / `1` / `null` 会被严格消费者解析成布尔/数字而加载失败，本仓 `disable-model-invocation` 一类字段须写作 `"true"`。此条为 HARD——它是官方契约，不是本仓品味。
+5. **顶层字段白名单**：仅 `name` / `description` / `license` / `compatibility` / `metadata` / `allowed-tools` / `disable-model-invocation`；`triggers`/`tags` 等禁止顶层。**字段顺序只是本仓建议，官方无顺序要求 → 顺序不一致记 advisory，不阻塞交付**。
+   `disable-model-invocation` 是 **harness 扩展字段（WorkBuddy）**，非官方 spec：顶层布尔，声明「禁用模型自动调用，仅用户可发起」。WorkBuddy 内置技能（`ardot` / `tencent-docx`）在顶层使用该字段，故本仓豁免。**不得写进 `metadata`**：`metadata` 是 string→string 映射，且 WorkBuddy 不解析其中特定 key，写在那里不生效。
+   **`metadata` 是 string→string 映射**（官方 spec：*"A map from string keys to string values"*）：值写成裸 `true` / `1` / `null` 会被严格消费者解析成布尔/数字而加载失败。此条为 HARD——它是官方契约，不是本仓品味。
 6. **版本 SSOT**：`metadata.version`（三段式 `X.Y.Z`）为机器事实；变更史在技能根 `CHANGELOG.md`。**不要求** SKILL 正文头部版本块与文末版本历史（有 CHANGELOG 时可省略）。
 7. **引用**：主文档与保留 references 中的相对路径必须真实存在。
 8. **非破坏**：重构/归档不得覆盖用户未授权的技能产物；写文件走 plan-gate。
