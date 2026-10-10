@@ -6,13 +6,13 @@ role: workflow
 reads-from:
   - references/command-policy.md
   - <project>/AGENTS.md（存在时）
-  - <project>/docs/.ai/project-progress.md（存在时）
-  - <project>/docs/.ai/decision-log.md（存在时）
-  - <project>/docs/.ai/debug-log.md（存在时）
+  - <project>/docs/agents/project-progress.md（存在时）
+  - <project>/docs/agents/decision-log.md（存在时）
+  - <project>/docs/agents/debug-log.md（存在时）
   - <project> 源码、配置、依赖清单与锁定文件（只读）
   - git status / git log / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
-  - <project>/docs/.ai/audit/audit-YYYY-MM-DD[-slug].md
+  - <project>/docs/agents/audit/audit-YYYY-MM-DD[-slug].md
 ---
 
 # audit · 只读审查开发类项目
@@ -31,8 +31,8 @@ writes-to:
 |---|---|
 | 目标类型是否为 Skill 项目 | 命中 → 停止自审，只输出转交说明（见下节），不写报告 |
 | 目标类型是否为开发类项目（前端 / 后端 / Web） | 否或无法判定 → 停下问用户，不猜、不自审 |
-| `docs/.ai/` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
-| `docs/.ai/audit/` 是否存在 | 不存在 → **首次 `vibe-audit` 时创建该目录**（含 `.gitkeep`），并在终止回复中说明 |
+| `docs/agents/` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
+| `docs/agents/audit/` 是否存在 | 不存在 → **首次 `vibe-audit` 时创建该目录**（含 `.gitkeep`），并在终止回复中说明 |
 | 本次是否读到可审查的代码或配置 | 全无 → 明说「无可审查对象」，不生成空报告 |
 
 ## 目标类型前置判定
@@ -44,7 +44,7 @@ writes-to:
 | Skill 项目 | 目标根（或技能目录）存在 `SKILL.md`，且 frontmatter 含 `name` 字段 |
 | 开发类项目 | 存在源码目录、依赖清单或锁定文件（如 `package.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` 等），或有应用/服务入口代码 |
 
-- **Skill 项目** → 停止自审。只输出转交说明：目标路径、已观测的 frontmatter 字段、是否含 `scripts/`、判定依据一句话，并指向 skill-workshop。不写入 `docs/.ai/audit/`。
+- **Skill 项目** → 停止自审。只输出转交说明：目标路径、已观测的 frontmatter 字段、是否含 `scripts/`、判定依据一句话，并指向 skill-workshop。不写入 `docs/agents/audit/`。
 - **开发类项目** → 继续执行本契约。
 - **两者皆不像或信号矛盾** → 停下问用户，不猜、不自审。
 - **用户坚持在本技能内审 Skill 项目** → 拒绝，说明本契约标尺（代码质量 / 架构 / 技术栈）不适用。
@@ -66,7 +66,7 @@ writes-to:
 | -- | ------ | ------ |
 | 1 | 项目源码与配置文件（只读） | 实际结构、写法、耦合点；数字与位置必须实测 |
 | 2 | 依赖清单与锁定文件 | 技术栈构成与精确版本 |
-| 3 | `AGENTS.md` 与 `docs/.ai/`（存在时） | 项目约定、已知坑、已有决策，避免把「已裁决事项」再报成新问题 |
+| 3 | `AGENTS.md` 与 `docs/agents/`（存在时） | 项目约定、已知坑、已有决策，避免把「已裁决事项」再报成新问题 |
 | 4 | `git status --short`、`git log --oneline -n <N>`、`git diff --stat` | 工作区与提交现状；**仅本项目在 Git 仓库内时可用** |
 | 5 | 本次会话上下文 | 仅作补充；与 1–4 冲突时以客观源为准 |
 
@@ -118,11 +118,11 @@ description: >
 
 ## 命名与落盘
 
-- 路径：`docs/.ai/audit/audit-YYYY-MM-DD.md`
+- 路径：`docs/agents/audit/audit-YYYY-MM-DD.md`
 - 当日已有同名文件时追加语义后缀：`audit-YYYY-MM-DD-<slug>.md`
 - 后缀仍撞名时加两位序号：`audit-YYYY-MM-DD-<slug>-02.md`，**不回头打扰用户**
 - **永不覆盖**。目标路径已存在就换名
-- `docs/.ai/audit/` 不存在时创建目录并写入 `.gitkeep`（若目录为空且尚未有报告）
+- `docs/agents/audit/` 不存在时创建目录并写入 `.gitkeep`（若目录为空且尚未有报告）
 
 ## 硬性约束
 
@@ -137,7 +137,7 @@ description: >
 ## 不写什么
 
 - 不写代码、不重构、不改依赖。
-- 不写 `docs/.ai/` 的进度、决策、调试三份与 `experience/`。
+- 不写 `docs/agents/` 的进度、决策、调试三份与 `experience/`。
 - 不写 `AGENTS.md` 契约区或事实区。
 - 不把「建议」写成「已发生」；意图文档里的计划选型不写入技术栈快照，快照只认锁定文件与实跑/实读配置。
 
@@ -147,6 +147,6 @@ description: >
 
 1. 报告落盘路径（或「未写入：Skill 项目已转交 / 无可审查对象 / 证据不足中止」）
 2. 结论统计：问题 N 条 · 证据不足 M 条 · 未覆盖范围一句话
-3. 是否发现应记入 `docs/.ai/` 的事项（有则建议跑 `vibe-sync`；无则写「无」）
+3. 是否发现应记入 `docs/agents/` 的事项（有则建议跑 `vibe-sync`；无则写「无」）
 
 若判为 Skill 项目，终止回复改为转交说明，不写报告路径。

@@ -9,7 +9,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | Skill | One-liner | Usage example | Version |
 |-------|-----------|---------------|---------|
 | [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package | `Optimize this skill and give me Before/After` | v2.6.0 |
-| [vibe-buddy](vibe-buddy/) | Project-side collaboration management for AI-assisted coding: AGENTS.md contract, progress / handoff / experience, read-only project audit | `vibe-init` | v1.7.0 |
+| [vibe-buddy](vibe-buddy/) | Project-side collaboration management for AI-assisted coding: AGENTS.md contract, progress / handoff / experience, read-only project audit | `vibe-init` | v1.8.0 |
 | [git-manager](git-manager/) | Git workflow safety rail: branches, commits, merges by convention; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog maintenance, generate from git commits, bilingual support | `+add Added user login` | v2.1.3 |
 | [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.1.1 |

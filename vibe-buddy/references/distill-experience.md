@@ -1,18 +1,18 @@
 ---
 name: distill-experience
-description: vibe-distill 的执行契约：把项目开发过程中稳定的决策与踩坑蒸馏成按主题组织的可复用经验，落 docs/.ai/experience/。
+description: vibe-distill 的执行契约：把项目开发过程中稳定的决策与踩坑蒸馏成按主题组织的可复用经验，落 docs/agents/experience/。
 trigger-when: 用户说「经验蒸馏」「提炼可复用经验」「vibe-distill」，或一轮开发告一段落、要把其中反复成立的做法固化成规则时
 role: workflow
 reads-from:
   - references/command-policy.md
   - <project>/AGENTS.md
-  - <project>/docs/.ai/project-progress.md（用于确定轮次边界）
-  - <project>/docs/.ai/decision-log.md
-  - <project>/docs/.ai/debug-log.md
-  - <project>/docs/.ai/experience/ 既有条目与 changelog（用于去重与防重复蒸馏）
+  - <project>/docs/agents/project-progress.md（用于确定轮次边界）
+  - <project>/docs/agents/decision-log.md
+  - <project>/docs/agents/debug-log.md
+  - <project>/docs/agents/experience/ 既有条目与 changelog（用于去重与防重复蒸馏）
   - git log / git status / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
-  - <project>/docs/.ai/experience/
+  - <project>/docs/agents/experience/
 ---
 
 # distill · 把开发过程蒸馏成可复用经验
@@ -28,17 +28,17 @@ writes-to:
 | 检查项 | 不通过时 |
 |---|---|
 | `<project>/AGENTS.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
-| `docs/.ai/project-progress.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`；它是轮次边界的唯一来源 |
-| `docs/.ai/decision-log.md` 与 `debug-log.md` 是否存在 | 缺哪个报哪个，引导先跑 `vibe-init`，不自行创建 |
-| `docs/.ai/experience/` 是否存在 | 不存在 → 引导先跑 `vibe-init`；用户坚持现在就要 → 建目录并说明 |
+| `docs/agents/project-progress.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`；它是轮次边界的唯一来源 |
+| `docs/agents/decision-log.md` 与 `debug-log.md` 是否存在 | 缺哪个报哪个，引导先跑 `vibe-init`，不自行创建 |
+| `docs/agents/experience/` 是否存在 | 不存在 → 引导先跑 `vibe-init`；用户坚持现在就要 → 建目录并说明 |
 | 本轮是否有可蒸馏的稳定经验 | 没有 → 明说「本轮无可蒸馏的稳定经验」，不编造 |
 
 ## 与 vibe-sync 的分界
 
 | | 记录什么 | 落点 |
 |---|---|---|
-| `vibe-sync` | **发生了什么**（流水，只对本项目有意义） | `docs/.ai/project-progress.md`、`decision-log.md`、`debug-log.md` |
-| `vibe-distill` | **什么事反复成立**（抽象，能带走） | `docs/.ai/experience/` |
+| `vibe-sync` | **发生了什么**（流水，只对本项目有意义） | `docs/agents/project-progress.md`、`decision-log.md`、`debug-log.md` |
+| `vibe-distill` | **什么事反复成立**（抽象，能带走） | `docs/agents/experience/` |
 
 判据一句话：**这条经验离开这个项目还成立吗？** 成立才值得蒸馏。
 
@@ -46,16 +46,16 @@ writes-to:
 
 一轮 = 一次集中的开发活动（一个重构轮、一次性能优化、一个发布准备、一轮界面整改）。**不是一次会话**——一轮常跨多个会话。
 
-**轮次的边界取自 `docs/.ai/project-progress.md`**：`vibe-sync` 每追加一条「最后更新」就是一轮的落点，本轮从哪开始到哪结束以那些条目为准。git 只回答「改了哪些提交、哪些文件」，**回答不了「这一轮从哪里开始」**——只靠 git 或记忆划轮次，台账里的「原料」就失去可比性，防重复蒸馏随之失效。
+**轮次的边界取自 `docs/agents/project-progress.md`**：`vibe-sync` 每追加一条「最后更新」就是一轮的落点，本轮从哪开始到哪结束以那些条目为准。git 只回答「改了哪些提交、哪些文件」，**回答不了「这一轮从哪里开始」**——只靠 git 或记忆划轮次，台账里的「原料」就失去可比性，防重复蒸馏随之失效。
 
 ## 事实源
 
 | 序 | 事实源 | 取什么 |
 | -- | ------ | ------ |
-| 1 | `docs/.ai/project-progress.md` | **本轮从哪里开始到哪里结束**（进展条目即轮次边界），以及本轮已记录的进展 |
+| 1 | `docs/agents/project-progress.md` | **本轮从哪里开始到哪里结束**（进展条目即轮次边界），以及本轮已记录的进展 |
 | 2 | `git log --oneline -n <N>`、`git status --short`、`git diff --stat` | 本轮改了哪些提交、涉及哪些文件；**仅本项目在 Git 仓库内时可用** |
-| 3 | `docs/.ai/decision-log.md` | 本轮相关决策（`DEC-NNN`） |
-| 4 | `docs/.ai/debug-log.md` | 本轮踩的坑与根因（`BUG-NNN`） |
+| 3 | `docs/agents/decision-log.md` | 本轮相关决策（`DEC-NNN`） |
+| 4 | `docs/agents/debug-log.md` | 本轮踩的坑与根因（`BUG-NNN`） |
 | 5 | **代码实际形态**（`search_content` 统计） | 实测数字，如「15px 出现 255 处」「286 个按钮」 |
 | 6 | 本次会话上下文 | 仅作补充；与 1–5 冲突时以客观源为准 |
 
@@ -98,7 +98,7 @@ writes-to:
 ## 落盘结构
 
 ````text
-<project>/docs/.ai/experience/
+<project>/docs/agents/experience/
 ├── README.md       # 总索引 + 适用范围 + 使用步骤 + 🔴 速查 + 外送前置条件
 ├── changelog.md    # 兼台账：每轮「原料 + 覆盖主题 + 产出 + 有意跳过」
 └── <域>/           # 主题 = 领域名，一域一目录
@@ -112,7 +112,7 @@ writes-to:
 
 ## 写入规则
 
-- **正文可改写，历史靠 changelog**：与 `docs/.ai/` 的「只追加」不同——错的规则留在正文会持续误导。修订时改写条目本身，并在 `changelog.md` 记「旧结论 → 新结论 + 为什么」
+- **正文可改写，历史靠 changelog**：与 `docs/agents/` 的「只追加」不同——错的规则留在正文会持续误导。修订时改写条目本身，并在 `changelog.md` 记「旧结论 → 新结论 + 为什么」
 - 只改本轮事实支持的部分，不顺手重排、不顺手改无关条目
 - `README.md` 的 🔴 速查与主题索引随条目增删同步
 - 改完把各文件 frontmatter 的 `updated` 改为当日
@@ -124,7 +124,7 @@ writes-to:
 - 完全重叠 → 停下告诉用户「这段已在 <日期> 的 <轮次> 蒸馏过」，不重复蒸
 - 部分重叠 → 只蒸新增部分，并在备注里说明
 
-**比对只针对项目自身**——源码、配置、项目文档、提交历史。**必须排除本技能自身的产物**：`docs/.ai/`、`docs/handoff/`、`AGENTS.md`、`.codegraph/`。否则每次蒸馏都会看到上一次自己刚写的文件，`git status` 永远非空，防重复永久失效。
+**比对只针对项目自身**——源码、配置、项目文档、提交历史。**必须排除本技能自身的产物**：`docs/agents/`、`docs/handoff/`、`AGENTS.md`、`.codegraph/`。否则每次蒸馏都会看到上一次自己刚写的文件，`git status` 永远非空，防重复永久失效。
 
 **「有意跳过」必须穷举声明**：凡评估过但决定不蒸的来源都写进去。**没写 = 没看过**，不等于「判定为不值得」——这两者必须能区分。
 
@@ -171,10 +171,10 @@ writes-to:
 
 ## 什么不写
 
-- **不写 `docs/.ai/` 的进度、决策、调试三份**：那是 `vibe-sync` 的记录区。本条若还只是流水事实，先提示跑 `vibe-sync`
-- **不写 `docs/.ai/agents-changelog.md`**：AGENTS.md 契约改动记录，`vibe-init` 独占
+- **不写 `docs/agents/` 的进度、决策、调试三份**：那是 `vibe-sync` 的记录区。本条若还只是流水事实，先提示跑 `vibe-sync`
+- **不写 `docs/agents/agents-changelog.md`**：AGENTS.md 契约改动记录，`vibe-init` 独占
 - **不写入任何外部仓库或目录**：本技能只在项目内产出基料，外送由用户另行触发
-- **不抄 `debug-log.md` 的原始诊断**：条目只留抽象后的规则；原始现象、根因、排查与验证限制留在 `debug-log.md`，用指针引用（如「见 `docs/.ai/debug-log.md` 的 `BUG-NNN`」）
+- **不抄 `debug-log.md` 的原始诊断**：条目只留抽象后的规则；原始现象、根因、排查与验证限制留在 `debug-log.md`，用指针引用（如「见 `docs/agents/debug-log.md` 的 `BUG-NNN`」）
 - **不把项目名、绝对路径、账号写进条目**：条目要能离开本项目
 
 ## 终止回复

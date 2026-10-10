@@ -1,21 +1,21 @@
 ---
 name: sync-progress
-description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/.ai/ 的进度、决策与调试记录，按需回填 AGENTS.md 事实，并在项目根已有 CHANGELOG.md 时追加用户可见变更日志。
+description: vibe-sync 的执行契约：把本次会话的稳定增量写进 docs/agents/ 的进度、决策与调试记录，按需回填 AGENTS.md 事实，并在项目根已有 CHANGELOG.md 时追加用户可见变更日志。
 trigger-when: 用户说「同步进度」「更新项目进度」「把踩的坑记下来」「更新日志」「vibe-sync」，或任务完成、决策变化、调试定位到根因之后
 role: workflow
 reads-from:
   - references/command-policy.md
   - <project>/AGENTS.md
-  - <project>/docs/.ai/project-progress.md
-  - <project>/docs/.ai/decision-log.md
-  - <project>/docs/.ai/debug-log.md
+  - <project>/docs/agents/project-progress.md
+  - <project>/docs/agents/decision-log.md
+  - <project>/docs/agents/debug-log.md
   - <project>/CHANGELOG.md（若存在）
   - <project>/docs/handoff/ 中最新一份（若存在）
   - git status / git log / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
-  - <project>/docs/.ai/project-progress.md
-  - <project>/docs/.ai/decision-log.md
-  - <project>/docs/.ai/debug-log.md
+  - <project>/docs/agents/project-progress.md
+  - <project>/docs/agents/decision-log.md
+  - <project>/docs/agents/debug-log.md
   - <project>/CHANGELOG.md（仅当已存在且本轮有用户可见变更时追加）
   - <project>/AGENTS.md（仅 Toolchain 与 Commands 两个事实表）
 ---
@@ -35,14 +35,14 @@ writes-to:
 | 检查项 | 不通过时 |
 |---|---|
 | `<project>/AGENTS.md` 是否存在 | 不存在 → 回复缺失项，引导先跑 `vibe-init`，不代建 |
-| `docs/.ai/` 下 `project-progress.md`、`decision-log.md` 与 `debug-log.md` 是否存在 | 缺哪个补哪个：回复缺失项并引导 `vibe-init`，不自行创建 |
+| `docs/agents/` 下 `project-progress.md`、`decision-log.md` 与 `debug-log.md` 是否存在 | 缺哪个补哪个：回复缺失项并引导 `vibe-init`，不自行创建 |
 | `AGENTS.md` 的 `Toolchain` / `Commands` 是否仍是占位 | 是 → 本次若已确知工具链或命令，按「事实区回填」写入 |
 
 ## 契约区与事实区（动 `AGENTS.md` 前先判）
 
 | 区域 | 内容 | 谁写 |
 |---|---|---|
-| 契约区 | `Permissions` / `Conventions` / `References` / 章节结构 | 只有 `vibe-init`；改动须在 `docs/.ai/agents-changelog.md` 留一行 |
+| 契约区 | `Permissions` / `Conventions` / `References` / 章节结构 | 只有 `vibe-init`；改动须在 `docs/agents/agents-changelog.md` 留一行 |
 | 事实区 | `Toolchain` 与 `Commands` 两个表的行数据 | `vibe-sync` 可回填；属填事实，不属改约定，不必留痕 |
 
 事实区回填规则：只增改表格行，不动表头与其他章节；内容必须来自实际观测——版本号取自锁定文件或实跑输出，命令取自配置文件原文，读不到就保留占位，禁止编造。
@@ -57,15 +57,15 @@ writes-to:
 | -- | ------ | ------ |
 | 1 | `git status --short`（未提交改动的主力）、`git log --oneline -n <N>`、`git diff --stat`（只覆盖**已跟踪**文件） | 改了什么、已有哪些提交；**仅本项目在 Git 仓库内时可用** |
 | 2 | `docs/handoff/` 中最新一份交接文档 | 上一个会话交接的已完成项、卡点、待办 |
-| 3 | `docs/.ai/project-progress.md` 与 `decision-log.md` | 已记录在案的进度与决策，同时用于去重 |
+| 3 | `docs/agents/project-progress.md` 与 `decision-log.md` | 已记录在案的进度与决策，同时用于去重 |
 | 4 | 本次会话上下文 | 仅作补充 |
 
-**写入范围与取材范围是两件事**：能**写**的只有 `docs/.ai/`、`AGENTS.md` 的事实区，以及已存在的项目根 `CHANGELOG.md`（追加）；能**取材**的是**整个仓库**（含只读命令输出）。
+**写入范围与取材范围是两件事**：能**写**的只有 `docs/agents/`、`AGENTS.md` 的事实区，以及已存在的项目根 `CHANGELOG.md`（追加）；能**取材**的是**整个仓库**（含只读命令输出）。
 
 核对规则：
 
 - 上下文与 1–3 项冲突时，**以客观源为准**，并把冲突写进 `project-progress.md` 的备注，不静默采信记忆
-- **取材覆盖整个仓库**：本会话改动的源码、配置、文档都是进度素材，「只改了 `docs/.ai/` 之外的代码」这类进展必须记进去
+- **取材覆盖整个仓库**：本会话改动的源码、配置、文档都是进度素材，「只改了 `docs/agents/` 之外的代码」这类进展必须记进去
 - **不复述原始输出**：不粘贴整段 `git log` / `git status` / diff，提炼成「做了什么 + 路径或 commit hash」；需要细节时让读者自己去看 git
 - **`git diff --stat` 空 ≠ 没有改动**：它**不显示未跟踪文件**。新项目里常见 `git status --short` 有几十条而 `git diff --stat` 全空，此时以 `git status --short` 为准
 - **零提交是正常状态**：仓库已 `git init` 但尚无任何提交（`vibe-init` 不替用户提交）时，git 只能给出「全部未跟踪」，这只说明尚未提交，**不代表本次会话没有进展**；此时进度以文档与用户提供为准，不因 git 无信息就判定「无可同步」
@@ -88,9 +88,9 @@ writes-to:
 
 | 类别 | 判定标准 | 落点 |
 |---|---|---|
-| 进度 | 任务状态变化、阶段推进、实际执行过的验证结果 | `docs/.ai/project-progress.md` |
-| 决策 | 偏离 PRD 或重要技术选择 | `docs/.ai/decision-log.md` |
-| 调试 | **反复调试才定位到根因**的问题与预防规则 | `docs/.ai/debug-log.md`（`BUG-NNN`） |
+| 进度 | 任务状态变化、阶段推进、实际执行过的验证结果 | `docs/agents/project-progress.md` |
+| 决策 | 偏离 PRD 或重要技术选择 | `docs/agents/decision-log.md` |
+| 调试 | **反复调试才定位到根因**的问题与预防规则 | `docs/agents/debug-log.md`（`BUG-NNN`） |
 | 事实 | 工具链版本、安装/测试/lint/构建命令原文 | `AGENTS.md` 的 `Toolchain` / `Commands` 表 |
 | 更新日志 | **用户/协作者可见**的功能、修复、破坏性变更、对外行为变化 | 项目根 `CHANGELOG.md`（**仅已存在时**追加） |
 
@@ -98,7 +98,7 @@ writes-to:
 
 `debug-log` 只收**已定位根因**的问题：还只有现象、根因仍在猜 → 不写，列入终止回复的待确认项。
 
-**CHANGELOG 与 progress 分工**：同一件事可以既进 progress（过程）又进 CHANGELOG（对外摘要）；但**纯过程**（只改 `docs/.ai/`、纯内部重构且对外无感知）**不进** CHANGELOG。
+**CHANGELOG 与 progress 分工**：同一件事可以既进 progress（过程）又进 CHANGELOG（对外摘要）；但**纯过程**（只改 `docs/agents/`、纯内部重构且对外无感知）**不进** CHANGELOG。
 
 ## 写入规则 · `project-progress.md`
 
@@ -118,7 +118,7 @@ writes-to:
 
 ## 写入规则 · `debug-log.md`
 
-- 格式与 `docs/.ai/debug-log.md` 模板一致：`## BUG-NNN: 标题` + 日期/现象/根因/修复/验证限制/教训。**不另立格式**。
+- 格式与 `docs/agents/debug-log.md` 模板一致：`## BUG-NNN: 标题` + 日期/现象/根因/修复/验证限制/教训。**不另立格式**。
 - 编号 `BUG-NNN` 三位递增：读文件取最大编号加一。
 - **只追加**，不改写既有条目；同一根因已存在则跳过，或补充新的表现。
 - 不贴大段修复代码，需要时写文件路径与行号。
@@ -129,7 +129,7 @@ writes-to:
 ## 写入规则 · `CHANGELOG.md`（项目根，可选）
 
 - **前置**：仅当 `<project>/CHANGELOG.md` **已存在**时追加。不存在 → **不创建**，终止回复写「无 CHANGELOG.md，本轮未写更新日志」，并提示用户自建或使用 changelog-manager；用户书面要求代建最小骨架时才可建，并注明非完整 Keep a Changelog 规范。
-- **只收用户可见变更**：新功能、行为修复、破坏性变更、配置/接口对外变化、对使用者有影响的文档。内部过程文档、`docs/.ai/`、无行为变化的重构 **不写**。
+- **只收用户可见变更**：新功能、行为修复、破坏性变更、配置/接口对外变化、对使用者有影响的文档。内部过程文档、`docs/agents/`、无行为变化的重构 **不写**。
 - **格式跟随文件既有风格**：Keep a Changelog 的 `### Added / Fixed / Changed` 或该文件已用的自定义列表；**禁止**另起一套与文件内历史不一致的结构。
 - **追加位置**：优先 `## [Unreleased]`（若存在）；无 Unreleased 则在最新版本节之后、历史节之前新增当日 `## [YYYY-MM-DD]` 或项目惯用小节；**永不改写**已发布历史版本节。
 - **条目口吻**：面向使用者的一句话（做了什么 / 修了什么），可附路径或 issue 指针；不写内部工单式流水。
@@ -139,10 +139,10 @@ writes-to:
 
 ## 不写什么
 
-- **不写 `docs/.ai/agents-changelog.md`**：那是 `AGENTS.md` 契约改动的记录，由 `vibe-init` 独占。
-- **不回写 `docs/.ai/init-report.md`**：那是初始化执行留痕，不是待办清单；遗留的待确认项由用户或计划类技能跟进。
+- **不写 `docs/agents/agents-changelog.md`**：那是 `AGENTS.md` 契约改动的记录，由 `vibe-init` 独占。
+- **不回写 `docs/agents/init-report.md`**：那是初始化执行留痕，不是待办清单；遗留的待确认项由用户或计划类技能跟进。
 - **不动 `AGENTS.md` 契约区**：契约改动走 `vibe-init`。
-- **不写 `docs/.ai/experience/`**：可复用经验的提炼归 `vibe-distill`；这里只记录流水事实。
+- **不写 `docs/agents/experience/`**：可复用经验的提炼归 `vibe-distill`；这里只记录流水事实。
 - **不在无 `CHANGELOG.md` 时创建**（见上节）；也不把 CHANGELOG 写成进度流水。
 - **不顺手改源码 / 配置 / `.gitignore`**（`CHANGELOG.md` 除外的根文件仍只读）。
 - 同一事实已存在则跳过；只有值变化时更新。

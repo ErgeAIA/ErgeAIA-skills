@@ -58,7 +58,7 @@ vibe-audit                                    # 英文触发词
 | 把这次踩的坑记下来 / 这个 bug 定位到根因了 | `vibe-sync` —— 记流水事实，落 `debug-log.md` |
 | 更新日志 / 写进 CHANGELOG | `vibe-sync` —— 仅当项目根 `CHANGELOG.md` 已存在时追加用户可见变更；无文件不代建 |
 | 把这几轮反复的做法提炼成可复用经验 | `vibe-distill` —— 提炼规则，落 `experience/` |
-| 审查项目 / 审查技术栈 / vibe-audit | `vibe-audit` —— 只读审查开发类项目，落 `docs/.ai/audit/`；Skill 项目转 skill-workshop |
+| 审查项目 / 审查技术栈 / vibe-audit | `vibe-audit` —— 只读审查开发类项目，落 `docs/agents/audit/`；Skill 项目转 skill-workshop |
 
 三者不可互串：`vibe-sync` 只记录不提炼，`vibe-distill` 只提炼不复述流水，`vibe-audit` 只审查不代写过程文档。
 
@@ -88,7 +88,7 @@ vibe-audit                                    # 英文触发词
 |---|---|
 | 拆待办清单 | 任务计划与排期不在本技能范围 |
 | 写成 PRD | 需求转译属于需求侧技能 |
-| 写 README | 面向人类的项目文档，与本技能的 `docs/.ai/` 过程档案区不同 |
+| 写 README | 面向人类的项目文档，与本技能的 `docs/agents/` 过程档案区不同 |
 | 跑 pnpm test | 白名单外命令，本技能不跑 |
 | 提交这些改动 | Git 操作由专门的技能负责 |
 | 提议规格变更 | 规范生命周期管理已明确移出范围 |

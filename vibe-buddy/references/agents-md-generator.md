@@ -89,10 +89,10 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 1. 摘录全部既有来源：标准契约文件（含 `CLAUDE.md`——存在时按 §2b 迁移处置，不长期保留）、**agent 目录内的规则文件**、项目文档中的硬约束、代码与提交中可识别的现存约定 → 既有约定清单
 2. 逐条四态处置：keep 原样继承 / update 以代码现状为准改写 / drop 删除 / merge 合并去重
 3. 已在别处维护的规则可 **keep 原地保留 + 在 `AGENTS.md` 加指针**，不必搬进 `AGENTS.md` 复述（依 §6 写入闸去重条）；但 A 层须有一行义务把它纳入生效链
-4. 铁律：update 与 drop 必须写入层 C 变更日志 `docs/.ai/agents-changelog.md`（旧值 → 处置 → 新值/原因），禁止静默丢失
+4. 铁律：update 与 drop 必须写入层 C 变更日志 `docs/agents/agents-changelog.md`（旧值 → 处置 → 新值/原因），禁止静默丢失
 5. 旧位置残留：旧日志类文件（如项目根 `references/` 下的决策或变更日志）内容合并进新落点，旧文件按 drop 处理并留痕；禁止新旧两处并存
 
-全新初始化跳过四态处置，但仍建 `docs/.ai/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
+全新初始化跳过四态处置，但仍建 `docs/agents/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
 
 ## 4 证据采集（只收非可推断事实）
 
@@ -112,7 +112,7 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 
 ````text
 <project>/docs/
-├── .ai/
+├── agents/
 │   ├── project-progress.md     # 进度，每次会话更新
 │   ├── decision-log.md         # 开发决策，优先级高于 PRD
 │   ├── debug-log.md            # bug 记录
@@ -127,18 +127,18 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 
 | 模板 | 落点 | 建立条件 |
 | ---- | ---- | -------- |
-| `assets/docs/project-progress.md` | `docs/.ai/project-progress.md` | 总是 |
-| `assets/docs/decision-log.md` | `docs/.ai/decision-log.md` | 总是 |
-| `assets/docs/debug-log.md` | `docs/.ai/debug-log.md` | 总是 |
-| `assets/docs/agents-changelog.md` | `docs/.ai/agents-changelog.md` | 总是（全新初始化也建，写兜底行） |
-| `assets/docs/init-report.md` | `docs/.ai/init-report.md` | 总是（每次 init 追加一节） |
+| `assets/docs/project-progress.md` | `docs/agents/project-progress.md` | 总是 |
+| `assets/docs/decision-log.md` | `docs/agents/decision-log.md` | 总是 |
+| `assets/docs/debug-log.md` | `docs/agents/debug-log.md` | 总是 |
+| `assets/docs/agents-changelog.md` | `docs/agents/agents-changelog.md` | 总是（全新初始化也建，写兜底行） |
+| `assets/docs/init-report.md` | `docs/agents/init-report.md` | 总是（每次 init 追加一节） |
 
 - `<工程标识>` 取法见 §4；取不到就问用户，不猜
 - 模板已含 YAML frontmatter 与"改完必须把 `updated` 改为当日"的约定，不增删字段
-- `docs/handoff/` 与 `docs/.ai/experience/` 各用空文件 `.gitkeep` 占位，让 Git 追踪空目录
+- `docs/handoff/` 与 `docs/agents/experience/` 各用空文件 `.gitkeep` 占位，让 Git 追踪空目录
 - 同名文件已存在 → 跳过，禁止覆盖，禁止改写历史条目
 - 模板中的 `<...>` 占位：初始化时已确知的当场填，未知的原样保留，由首次 `vibe-sync` 补齐
-- 层 B `docs/.ai/project-overview.md` **无模板、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建，内容为目录索引、依赖方向、开源附加分析；不需要就不建
+- 层 B `docs/agents/project-overview.md` **无模板、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建，内容为目录索引、依赖方向、开源附加分析；不需要就不建
 
 ## 5 产物模板（严格填空，禁止增删章节）
 
@@ -159,12 +159,12 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 ## Permissions
 
 IMPORTANT: <一句话项目定位与最硬边界>
-YOU MUST 会话开始先读 docs/.ai/ 三件套与 docs/handoff/ 最新一份
+YOU MUST 会话开始先读 docs/agents/ 三件套与 docs/handoff/ 最新一份
 YOU MUST 先复述现状与待确认项，再动手
-YOU MUST 改码前先读 <项目文档，如 PRD.md> 与 docs/.ai/decision-log.md
-YOU MUST 每次会话更新 docs/.ai/project-progress.md
-YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md
-YOU MUST 改某领域代码前先读 docs/.ai/experience/<领域>/（存在时）
+YOU MUST 改码前先读 <项目文档，如 PRD.md> 与 docs/agents/decision-log.md
+YOU MUST 每次会话更新 docs/agents/project-progress.md
+YOU MUST 改 AGENTS.md 前先读、改后追加 docs/agents/agents-changelog.md
+YOU MUST 改某领域代码前先读 docs/agents/experience/<领域>/（存在时）
 YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 禁止自行宣称已修复，修复结果须由用户验证
 禁止整文件重写既有文件，只做最小精确补丁
@@ -186,24 +186,24 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 
 | 观察到的现象 | 要求 Agent 的行为 |
 | ------------ | ----------------- |
-| 会话文档体系固定 | 进度写 docs/.ai/project-progress.md；决策写 docs/.ai/decision-log.md；两者只追加不删历史 |
-| bug 追加 docs/.ai/debug-log.md | 格式 BUG-NNN；只追加不删历史 |
+| 会话文档体系固定 | 进度写 docs/agents/project-progress.md；决策写 docs/agents/decision-log.md；两者只追加不删历史 |
+| bug 追加 docs/agents/debug-log.md | 格式 BUG-NNN；只追加不删历史 |
 | 交接写 docs/handoff | 命名 handoff-YYYY-MM-DD-*.md |
 | 交接文档同日多份 | 按文件名里的日期取最新（兼容 `YYYY-MM-DD` 与 `YYYYMMDD` 两种写法）；同日多份再取 frontmatter `updated` 最新者，仍不可判则列出问用户 |
-| 改 docs/.ai 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |
-| 改 AGENTS.md 须留一行变更记录 | 在 docs/.ai/agents-changelog.md 追加「旧值 → 处置 → 去处」，无记录视为静默丢失 |
-| 经验库按领域分目录 | 可复用经验落 docs/.ai/experience/<领域>/；正文可改写、历史靠 changelog.md，与 docs/.ai 其余三份的「只追加」不同 |
+| 改 docs/agents 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |
+| 改 AGENTS.md 须留一行变更记录 | 在 docs/agents/agents-changelog.md 追加「旧值 → 处置 → 去处」，无记录视为静默丢失 |
+| 经验库按领域分目录 | 可复用经验落 docs/agents/experience/<领域>/；正文可改写、历史靠 changelog.md，与 docs/agents 其余三份的「只追加」不同 |
 | AGENTS.md 杂音归宿 | 变更日志 → CHANGELOG.md（无则 decision-log.md）；人读说明 → README.md（无则不写）；决策叙事与踩坑 → decision-log.md 与 debug-log.md；执行流水 → init-report.md 与 project-progress.md |
 
 ## References
 
 - <项目场景> → 见 <项目自带文档：PRD.md / CONTEXT.md / docs/INDEX.json 等，按使用场景逐条登记；无则删本行>：<它管什么>
-- 会话开始复述现状 → 见 docs/.ai/project-progress.md：当前分支、阶段与最近进展
+- 会话开始复述现状 → 见 docs/agents/project-progress.md：当前分支、阶段与最近进展
 - 核对最近交接 → 见 docs/handoff/：上一轮做到哪、卡在哪
-- 规则冲突、回溯口径 → 见 docs/.ai/decision-log.md：技术与流程决策记录，只追加
-- 反复踩坑排查 → 见 docs/.ai/debug-log.md：BUG-NNN 格式的根因与预防规则
-- 查 AGENTS 自身变更 → 见 docs/.ai/agents-changelog.md：契约改动的「旧值 → 处置 → 新值」
-- 同领域可复用做法 → 见 docs/.ai/experience/：按领域分的可复用经验沉淀
+- 规则冲突、回溯口径 → 见 docs/agents/decision-log.md：技术与流程决策记录，只追加
+- 反复踩坑排查 → 见 docs/agents/debug-log.md：BUG-NNN 格式的根因与预防规则
+- 查 AGENTS 自身变更 → 见 docs/agents/agents-changelog.md：契约改动的「旧值 → 处置 → 新值」
+- 同领域可复用做法 → 见 docs/agents/experience/：按领域分的可复用经验沉淀
 
 ## Self-Maintenance
 
@@ -225,14 +225,14 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 
 | 类 | 判定特征 | 归宿 | 归宿文件不存在时 |
 | ---- | --------- | ---- | --------------- |
-| N1 变更日志 / 发布说明 | 面向使用者叙述「哪次改了什么」 | 项目根 `CHANGELOG.md` | 回落 `docs/.ai/decision-log.md`，终止回复提示可自建或交 changelog-manager |
+| N1 变更日志 / 发布说明 | 面向使用者叙述「哪次改了什么」 | 项目根 `CHANGELOG.md` | 回落 `docs/agents/decision-log.md`，终止回复提示可自建或交 changelog-manager |
 | N2 人读说明 / 教程 / FAQ | 面向「人第一次读这个项目」的介绍、上手指引、界面说明 | 项目根 `README.md` | **不写**——缺的是文档，不是本文件的噪音；列入终止回复待确认项 |
-| N3 决策叙事 / 取舍理由 / 踩坑经过 | 只对「当时为什么这么定」有意义，不约束今天的行为 | `docs/.ai/decision-log.md` / `docs/.ai/debug-log.md` | 无（两份初始化必建） |
+| N3 决策叙事 / 取舍理由 / 踩坑经过 | 只对「当时为什么这么定」有意义，不约束今天的行为 | `docs/agents/decision-log.md` / `docs/agents/debug-log.md` | 无（两份初始化必建） |
 | N4 日期化裁决记录 / 规则出处 | 行内括号中的日期或出处标注 | **删括号，规则本体留在原行** | — |
-| N5 执行过程自述 | 「本次做了 X/Y/Z」「上次会话我们讨论了…」 | `docs/.ai/init-report.md` / `docs/.ai/project-progress.md` | 无（两份必建） |
+| N5 执行过程自述 | 「本次做了 X/Y/Z」「上次会话我们讨论了…」 | `docs/agents/init-report.md` / `docs/agents/project-progress.md` | 无（两份必建） |
 | N6 重复 / 规则多头 | 同一约束在两处以上出现，或本行只是复述已有文件 | 只留权威那处，其余删或改指针 | — |
 
-**N6 是最贵的一类**：它让 AI 在两处读到强度不同的同一规则，冲突时无从裁决。按 §6 第 2 条去重，删掉的那份在 `docs/.ai/agents-changelog.md` 留一行。
+**N6 是最贵的一类**：它让 AI 在两处读到强度不同的同一规则，冲突时无从裁决。按 §6 第 2 条去重，删掉的那份在 `docs/agents/agents-changelog.md` 留一行。
 
 **迁出不是删除**：有效规则被误放进本文件时走决策保全的 `relocate` 态（见 `references/init-agents-md.md`）——原文进新落点、原处留指针、留痕写 `agents-changelog.md`。**只有确认无执行价值才 drop。**
 
@@ -257,7 +257,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 - §6b 判定的每个杂音命中项都能说出归宿；说不出归宿的判为**不可写入**，不得留在本文件
 - `Permissions` 的**义务类别**必须与 §5 逐类对齐：接管义务 / 文档义务 / 常驻纪律 / **反杂音义务**，加上 `IMPORTANT` 与 `禁止`，**缺类不算通过**。增量维护（半程合成 / 已初始化优化）时**必须逐类比对**——只核句式、黑名单与行数会漏掉整类缺失，这正是一份缺了接管义务的产物仍能通过其余全部检查的原因
 - §4b 各文档已按模板落地且未覆盖既有文件
-- `AGENTS.md` 本次若有改动，`docs/.ai/agents-changelog.md` 必须有对应行
+- `AGENTS.md` 本次若有改动，`docs/agents/agents-changelog.md` 必须有对应行
 - 发生过 §2b 迁移时：每条处置计数与 `agents-changelog.md` 一致、无悬空规则；`AGENTS.md` 已实读验证通过后才删源，未删源则终止回复写明原因
 
 ## 8 坏行 → 好行对照（唯一示例，生成时模仿右列）
@@ -270,7 +270,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 好：References 行 `- 报编号取色 / 查对比度 → 见 docs/INDEX.json：主题编号到 palette 的映射`
 
 坏：`## Conventions` 里写「本轮修了 3 个 bug，根因是缓存未失效（2026-09-27 用户裁决），后续统一加失效钩子」
-好：Conventions 行 `| 缓存读多写少 | 读操作后显式失效缓存，不依赖 TTL |`；根因与裁决过程 → `docs/.ai/debug-log.md`，裁决日期 → `docs/.ai/agents-changelog.md`
+好：Conventions 行 `| 缓存读多写少 | 读操作后显式失效缓存，不依赖 TTL |`；根因与裁决过程 → `docs/agents/debug-log.md`，裁决日期 → `docs/agents/agents-changelog.md`
 
 ## 9 自维护协议（原文写入产物 Self-Maintenance 节）
 

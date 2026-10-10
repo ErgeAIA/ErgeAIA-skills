@@ -50,7 +50,7 @@ writes-to:
 - 安装命令：`npx @colbymchenry/codegraph`
 - 初始化命令：`codegraph init`（在项目目录执行，建 `.codegraph/` 索引；每个项目各跑一次）
 - 风险提示：`npx` 会下载并执行第三方安装器；安装器会改写各 agent 的 MCP 配置与指令文件（含 `AGENTS.md`、`CLAUDE.md` 的标记区块）、可选修改 `PATH`、为 Claude Code 写入 auto-allow 权限列表。执行前自行确认来源可信
-- 留痕提醒：安装器若改动了 `AGENTS.md`，须在 `docs/.ai/agents-changelog.md` 补一行
+- 留痕提醒：安装器若改动了 `AGENTS.md`，须在 `docs/agents/agents-changelog.md` 补一行
 - 忽略建议：若本项目已纳入 Git，考虑把索引目录 `.codegraph/` 加入 `.gitignore`（本技能不代改）
 
 ## 失败处理

@@ -4,6 +4,24 @@
 
 ---
 
+## v1.8.0 (2026-10-10)
+
+### 初始化产物目录 `docs/.ai/` 更名为 `docs/agents/`
+
+**背景**：原过程档案区取名为 `docs/.ai/`（隐藏目录），与协作契约 `AGENTS.md` 的命名不对应，且隐藏目录在多数文件管理器里不易发现。改为 `docs/agents/`，让契约与档案区命名对齐、目录可见。
+
+**改动**
+
+- 全量替换技能内对生成目录的引用：`docs/.ai/` 与目录树里的 `.ai/` 统一改为 `docs/agents/`（`SKILL.md` 产物布局 / 路由 / Gotchas / 验证表、`README.md` 叙述与产物树、`references/*.md` 九份契约、`assets/docs/*.md` 五份模板与 `assets/experience/*.md` 两份模板）。
+- 生成契约里写入目标项目 `AGENTS.md` 的义务行（`YOU MUST … 先读 docs/agents/ 三件套`、`改 AGENTS.md 前先追加 docs/agents/agents-changelog.md` 等）同步更新。
+- `metadata.version` → 1.8.0；技能 `README.md` 头部版本、子库 `README.md` / `README.en.md` 索引版本同步。
+
+**注意（breaking-ish）**：已初始化的旧项目仍使用 `docs/.ai/`，本版技能会按「前置缺失即停」引导重跑 `vibe-init`；如需兼容旧目录，应在 `vibe-sync` / `vibe-handoff` 的前置检查里加「`docs/.ai/` 与 `docs/agents/` 二选一」回退——本次未实现，待用户裁决。
+
+**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/agents-md-generator.md`、`references/audit-project.md`、`references/distill-experience.md`、`references/handoff-context.md`、`references/init-agents-md.md`、`references/init-env-checks.md`、`references/sync-progress.md`、`references/trigger-test-set.md`、`assets/docs/init-report.md`；子库 `README.md` / `README.en.md` 索引版本。
+
+---
+
 ## v1.7.0 (2026-10-06)
 
 ### AGENTS.md 杂音识别与归属闸——新增 §6b「杂音分类与归宿」，四态处置补第五态 `relocate`
