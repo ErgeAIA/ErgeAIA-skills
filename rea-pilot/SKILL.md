@@ -106,7 +106,7 @@ Not for：
 **CONDITIONAL**
 
 - 缺分析引擎（`missing_analysis_engine`）时：JavaScript/Electron、归档与包、Android 清单、已保留证据类工作仍可做；固件与抓包类需要 Linux 与外部工具。
-- 宿主不在 `rea setup` 的客户端列表里 → 走 W-HOST；在列表里（本机实测含 DeepSeek Harness）→ 直接走 W-INSTALL，别绕远。
+- 宿主在 `rea setup` 内建客户端列表里 → 直接走 W-INSTALL；**不在列表里（6.7.0 实测 15 个 id 内不含 DSH、Claude Code）→ 走 W-HOST**，别硬套 `setup`。判断只能来自本机 `rea doctor --format json` 实测，不凭记忆。
 - 引擎由用户自备（Ghidra / IDA / JADX / Kuna / tshark 等）时，给环境变量名与官方要求，别替用户下载。
 
 **禁止**

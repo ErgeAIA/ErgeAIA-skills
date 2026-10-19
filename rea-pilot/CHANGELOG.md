@@ -24,4 +24,9 @@
 - **门面**：README 顶部挂 tupu 横版技能图谱 `assets/banner.svg`（1920×1200，theme=coding）；源产物留 `Doc-Depot/Inbox/tupu/rea-pilot/`，不写回技能目录。
 - **README 扩写**：93 → 215 行——补快速开始（前置要求 / 安装技能 / 装完三问自检）、六条工作流表、目标类型 × 引擎前置表、加固建议摘要与常见卡点，并补「不适用」边界；原「触发词」与「怎么用」两张重复表合并为一张；命令逐条标注验证状态。细项归子库 git log。
 
-**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/workflows/*.md`（6）、`references/specs/*.md`（2）、`references/config/engines-and-providers.md`、`references/toolset/rea-6.7.0.md`、`assets/banner.svg`。
+### 事实纠错与评测集（2026-10-20，未升版）
+
+- **纠错**：`SKILL.md` 的 CONDITIONAL 原写「在列表里（本机实测含 DeepSeek Harness）→ 直接走 W-INSTALL」，与 6.7.0 `rea doctor` 实测（15 个 client id 内无 DSH）及 `README.md` 的「不在其中 → 走手动接入」自相矛盾；改为「**不在列表里 → 走 W-HOST**」，并要求判断只来自本机 `rea doctor --format json` 实测。
+- **新增 `test-prompts.json`**：3 条只读评测 prompt（版本与引擎体检 / Electron asar 选路 / 加固建议），供 darwin-skill dim8 实测与后续回归复用。
+
+**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/workflows/*.md`（6）、`references/specs/*.md`（2）、`references/config/engines-and-providers.md`、`references/toolset/rea-6.7.0.md`、`assets/banner.svg`、`test-prompts.json`。

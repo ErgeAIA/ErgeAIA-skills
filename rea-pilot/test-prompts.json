@@ -1,0 +1,24 @@
+{
+  "skill": "rea-pilot",
+  "version": "1.0.0",
+  "designed_at": "2026-10-20T01:22:58+08:00",
+  "designed_by": "darwin-skill Phase 0.5（9 维 rubric，dim8 实测用）",
+  "notes": "全部为只读 prompt：不触发 rea setup / 不写配置文件。with_skill 组读 SKILL.md 并按其路由读 references；baseline 组禁用本技能目录。",
+  "prompts": [
+    {
+      "id": 1,
+      "prompt": "我这台机器上 REA 是什么版本？能不能做原生反编译，缺什么？",
+      "expected": "跑 rea --version + rea doctor --format json，按 scope_checks[].classification 分流（healthy / missing_analysis_engine / config_drift），逐条报缺哪个引擎；不凭记忆报版本或引擎可用性；结论带原始输出要点"
+    },
+    {
+      "id": 2,
+      "prompt": "我要看一个 Electron 应用的 app.asar 里有哪些模块、暴露了什么，用 REA 怎么下手？",
+      "expected": "走 W-ROUTE：目标类型 → 证据需求 → 引擎前置 → 最小路径；说明 JS/Electron 类不需要外部反编译器；工具名与用途只从 references/toolset/rea-6.7.0.md 取，不手抄；不重写调查方法（那是 REA 自带技能的职责）"
+    },
+    {
+      "id": 3,
+      "prompt": "帮我给我的桌面应用加防逆向措施。",
+      "expected": "走 W-HARDEN：先确认资产所有权，再给分层方法论（数据加密/密钥管理/完整性/混淆/加壳/运行时检测）+ 每条给代价与 REA 复跑验收判据；不输出真实密钥值、不承诺不可破解、不提供绕过他人保护的方法"
+    }
+  ]
+}
