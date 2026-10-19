@@ -29,4 +29,9 @@
 - **纠错**：曾把 `rea doctor` 的 `scope_checks` 里 `registration:<client>`（**未对齐子集**，本机 15 项）当成完整客户端清单，据此写坏 `README.md`（宿主行 + 卡点行）并一度改错 `SKILL.md:109`。真值：`identity.registrations[]` 共 **20 个**适配器，`dsh` 与 `claude_code` 均在列且本机 `aligned`。现 `SKILL.md:109` 与 README 两处统一以 `identity.registrations[]` 为判据。
 - **新增 `test-prompts.json`**：3 条只读评测 prompt（版本与引擎体检 / Electron asar 选路 / 加固建议），供 darwin-skill dim8 实测与后续回归复用。
 
+### 审查后结构优化（2026-10-20，未升版）
+
+- **路由表去重**：原先「用户说 → 工作流」「工作流 → 文件」「何时读 → 文件 → 用途」三张表各写一遍六条工作流，读者要跨表拼接；现在「何时使用」一张表直接给「用户说 / 工作流 / 读这个文件」，步骤 1 只留三问与指针，资源节只列非工作流参考文件。三张表 → 两张，路由一跳到位。
+- **交付格式补示例**：步骤 3 补「命令 + 原始输出要点」的回执格式示例（三问验证示例，值明确标注为示意、以本机实测为准），回应 darwin dim5「格式偏抽象、无示例块」。
+
 **修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/workflows/*.md`（6）、`references/specs/*.md`（2）、`references/config/engines-and-providers.md`、`references/toolset/rea-6.7.0.md`、`assets/banner.svg`、`test-prompts.json`。

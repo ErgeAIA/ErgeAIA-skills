@@ -29,14 +29,16 @@ Core Task：
 
 ## 何时使用
 
-| 用户说 | 进哪条工作流 |
-| --- | --- |
-| 装 REA / 接到我的助手 / 配 MCP / 看看装好没 | W-INSTALL 接入与验证 |
-| 我的助手不在官方列表 / setup 没识别到我的宿主 | W-HOST 宿主自接入 |
-| 我要逆这个文件（App / 网站 / 固件），该怎么下手 | W-ROUTE 目标选路 |
-| 我该怎么给自己的应用加密、加壳、防逆向 | W-HARDEN 逆向反推防护 |
-| REA 升级了 / 工具对不上 / 要刷新工具清单 | W-SYNC 版本同步 |
-| 卸载 REA / 装坏了要还原 | W-ROLLBACK 回滚 |
+这就是**唯一的路由表**（一次只进一条，不并列）：
+
+| 用户说 | 工作流 | 读这个文件 |
+| --- | --- | --- |
+| 装 REA / 接到我的助手 / 配 MCP / 看看装好没 | W-INSTALL 接入与验证 | `references/workflows/install-and-verify.md` |
+| 我的助手不在官方列表 / setup 没识别到我的宿主 | W-HOST 宿主自接入 | `references/workflows/host-registration.md` |
+| 我要逆这个文件（App / 网站 / 固件），该怎么下手 | W-ROUTE 目标选路 | `references/workflows/route-target.md` |
+| 我该怎么给自己的应用加密、加壳、防逆向 | W-HARDEN 逆向反推防护 | `references/workflows/hardening-advice.md` |
+| REA 升级了 / 工具对不上 / 要刷新工具清单 | W-SYNC 版本同步 | `references/workflows/version-sync.md` |
+| 卸载 REA / 装坏了要还原 | W-ROLLBACK 回滚 | `references/workflows/rollback.md` |
 
 Not for：
 - 目标已接上后的具体调查步骤与证据解释 —— 读 REA 自带技能，本技能不重写调查方法。
@@ -47,20 +49,11 @@ Not for：
 
 ### 步骤 1：路由
 
-先答三问，再进文件（一次只进一条，不并列）：
+先答三问，再按上节「何时使用」的路由表进**唯一一条**工作流文件（一次只进一条，不并列）：
 
 1. 用户要的是「装/接/验/更/卸」还是「用 REA 做事」？
 2. 会改本机已有配置吗？（会 → 必须先出计划 + 等确认）
 3. 目标是用户自己拥有或已获授权的资产吗？
-
-| 命中 | 读这个文件 |
-| --- | --- |
-| W-INSTALL | `references/workflows/install-and-verify.md` |
-| W-HOST | `references/workflows/host-registration.md` |
-| W-ROUTE | `references/workflows/route-target.md` |
-| W-HARDEN | `references/workflows/hardening-advice.md` |
-| W-SYNC | `references/workflows/version-sync.md` |
-| W-ROLLBACK | `references/workflows/rollback.md` |
 
 ### 步骤 2：守硬规则（不读文件也要守）
 
@@ -79,6 +72,19 @@ Not for：
 ### 步骤 3：交付可核对回执
 
 每条工作流结束都要给「命令 + 原始输出要点」，格式见各文件的 `@验证点`。禁止只给结论。
+
+回执长这样（值是**示意**，实际一律以本机实测输出为准）：
+
+```text
+① 命令：rea mcp doctor --json
+   输出要点：healthy=true；tools expected=207 observed=207；missing/unexpected/duplicates 全空
+② 命令：rea doctor --format json
+   输出要点：registrations[] 里 <宿主 id> → state="aligned"，package_reference="rea-agents@<版本>"
+③ 重启宿主后：工具列表里出现 mcp__rea__<tool>
+
+结论：三问全绿 / 卡在第几问（附原始错误）
+未做与未验证：<明确列出，不省略>
+```
 
 ## 输出契约
 
@@ -118,14 +124,10 @@ Not for：
 
 ## 资源
 
+六条工作流文件的入口在「何时使用」路由表（不在此重复）；下面只列非工作流的参考文件：
+
 | 何时读 | 文件 | 用途 |
 | --- | --- | --- |
-| 装 / 接 / 验 | `references/workflows/install-and-verify.md` | 体检 → 计划 → 确认 → 执行 → 三问验证 |
-| 宿主不在官方列表 | `references/workflows/host-registration.md` | 探索提示词 + 通用字段 + 宿主自己插入 |
-| 问「怎么逆」 | `references/workflows/route-target.md` | 目标类型 → 证据需求 → 引擎前置 → 最小路径 |
-| 问「怎么加固」 | `references/workflows/hardening-advice.md` | 逆向反推防护方法论与算法清单 |
-| 升级 / 工具对不上 | `references/workflows/version-sync.md` | 重新生成工具表 + 四处版本对齐 |
-| 卸载 / 还原 | `references/workflows/rollback.md` | 取证 → 卸载 → 还原 |
 | 要工具名 / 用途 / 副作用 | `references/toolset/rea-6.7.0.md` | 207 个 MCP 工具 + 153 条 CLI 命令 + 6 个官方 prompt |
 | 要写宿主 MCP 配置 | `references/specs/mcp-registration-fields.md` | 通用字段 + 探索提示词 + 校验动作 |
 | 要重新生成工具表 | `references/specs/toolset-generation.md` | 生成命令、列口径、版本锚 |
