@@ -15,6 +15,7 @@
 | [shuxu](shuxu/) | 书序：为代码项目写 / 优化 README（默认中文、开源可配英文版），只写能溯源到清单文件与源码的事实，命令逐个标注是否已运行验证 | `帮我给这个项目写个 README / 优化我的项目 README` | v1.1.1 |
 | [moxian](moxian/) | 照出「以为懂、其实没内化」的认知缺口，落一份可沉淀的认知卡 | `默现：照一下我没懂的` | v0.2.1 |
 | [zuiti](zuiti/) | 嘴替：生成不带脏字、句句有杀气的体面回击，六种风格各 3 条 | `嘴替：帮我回这句「你这水平还敢开源？」` | v0.3.10 |
+| [rea-pilot](rea-pilot/) | REA 接入领航：装好并连到自己的 Agent、装前体检、装前出计划等确认、三问验证真的连上、逆向选路、逆向反推防护 | `帮我装好 REA 并证明真的连上了` | v1.0.0 |
 
 ## 快速开始
 
@@ -32,6 +33,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manag
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill shuxu
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
 
 # 列出仓库中可安装的技能
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list

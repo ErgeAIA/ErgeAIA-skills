@@ -6,10 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-09-29_
+_最后更新：2026-10-19_
 
 ### Added
 
+- **rea-pilot 技能加入仓库**（2026-10-19）：REA 接入领航技能 v1.0.0——只负责「接入与验证」这一层（环境体检 → 装前出计划并等确认 → 执行 → 三问验证），另有宿主自接入通用字段、目标选路、逆向反推防护（把 REA 的攻击面清单反过来当开发者加固方法论，并用 REA 复跑验收）、版本同步与回滚；`references/toolset/` 存按版本生成的工具面快照（REA 6.7.0：207 个 MCP 工具 / 153 条 CLI 命令 / 6 个官方 prompt）。会话内的逆向调查仍交 REA 自带技能 reverse-engineer-anything。
 - **shuxu（书序）开源迁入**：README 写作/优化技能（分析仓库 → 生成或增量优化 README，真实性优先）；含 tupu banner。
 - **git-manager 开源迁入**：Git 工作流安全护栏（分支/提交/合并/推送规范与高风险操作确认）；含 tupu banner。
 
