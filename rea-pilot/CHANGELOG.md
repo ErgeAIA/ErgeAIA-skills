@@ -26,7 +26,7 @@
 
 ### 事实纠错与评测集（2026-10-20，未升版）
 
-- **纠错**：`SKILL.md` 的 CONDITIONAL 原写「在列表里（本机实测含 DeepSeek Harness）→ 直接走 W-INSTALL」，与 6.7.0 `rea doctor` 实测（15 个 client id 内无 DSH）及 `README.md` 的「不在其中 → 走手动接入」自相矛盾；改为「**不在列表里 → 走 W-HOST**」，并要求判断只来自本机 `rea doctor --format json` 实测。
+- **纠错**：曾把 `rea doctor` 的 `scope_checks` 里 `registration:<client>`（**未对齐子集**，本机 15 项）当成完整客户端清单，据此写坏 `README.md`（宿主行 + 卡点行）并一度改错 `SKILL.md:109`。真值：`identity.registrations[]` 共 **20 个**适配器，`dsh` 与 `claude_code` 均在列且本机 `aligned`。现 `SKILL.md:109` 与 README 两处统一以 `identity.registrations[]` 为判据。
 - **新增 `test-prompts.json`**：3 条只读评测 prompt（版本与引擎体检 / Electron asar 选路 / 加固建议），供 darwin-skill dim8 实测与后续回归复用。
 
 **修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/workflows/*.md`（6）、`references/specs/*.md`（2）、`references/config/engines-and-providers.md`、`references/toolset/rea-6.7.0.md`、`assets/banner.svg`、`test-prompts.json`。

@@ -23,7 +23,7 @@ rea-pilot 把这三件事变成流程：**先体检、再出计划、人确认�
 | 项 | 要求 | 怎么确认 |
 | --- | --- | --- |
 | 运行环境 | Node.js `^22.19.0 \|\| ^24.11.0 \|\| >=26.0.0`（REA 6.7.0 的 `engines.node`） | `node -v`；`rea doctor` 的 `node` 检查为 healthy（本机 24.13.0 通过） |
-| 宿主 | 任何支持本地 **MCP stdio** 的编程助手 | REA 内建客户端清单（本机 6.7.0 的 `rea doctor` 检出 15 个）：antigravity、claude_desktop、codex、copilot_cli、cursor、droid、gemini_cli、grok_build、hermes、kimi、omp、qwen_code、vscode、workbuddy、zcode。**不在其中**（例如 DSH、Claude Code）走下面的「宿主手动接入」 |
+| 宿主 | 任何支持本地 **MCP stdio** 的编程助手 | 判据是 `rea doctor --format json` 的 `identity.registrations[]`——本机 6.7.0 收录 **20 个**适配器：`dsh`（`~/.dsh/cordis.patch.yml`）、`claude_code`（`~/.claude.json`）、`opencode`、`qoder`、`trae` 已 `aligned`；其余 15 个（antigravity、claude_desktop、codex、copilot_cli、cursor、droid、gemini_cli、grok_build、hermes、kimi、omp、qwen_code、vscode、workbuddy、zcode）需跑 `rea setup` 对齐。注意 `scope_checks` 里的 `registration:<client>` 是**未对齐子集**，不是完整清单。REA 没有适配器的宿主走下面的「宿主手动接入」 |
 | 分析引擎 | 可选，用户自备（Ghidra / IDA / JADX / Kuna / tshark 等）；REA 不下载、不安装 | `rea doctor --format json` 里 `missing_analysis_engine` 的条目；缺引擎时归档与载荷、Android 清单、JavaScript/Electron、托管程序、已保留证据类工作仍可做 |
 | 权限 | 会修改你**已有**的 MCP 配置文件（改前留备份） | 先跑 `rea setup --dry-run`，看 `plannedActions[].backupPath` |
 
@@ -172,7 +172,7 @@ npx -y rea-agents@latest function <目标> <符号> --provider ghidra --json    
 | --- | --- | --- |
 | PowerShell 拦脚本，`npx` 不执行 | 执行策略拦掉了 `.ps1` 垫片 | 改用 `npx.cmd rea-agents@latest setup --dry-run` |
 | `rea doctor` 退出码非 0 | 那是状态报告（缺引擎 / 有漂移），不是命令失败 | 看 `scope_checks[].classification`，别当报错 |
-| doctor 里没有我的宿主 | 不在内建 15 个客户端清单里 | 走「宿主手动接入」；或用 `rea setup --all-detected`（需明确同意） |
+| doctor 里没有我的宿主 | REA 的 `identity.registrations[]` 里没有它（那 15 个只是未对齐子集，不是完整清单） | 走「宿主手动接入」；或用 `rea setup --all-detected`（需明确同意） |
 | 注册写了，会话里还是没工具 | 宿主没重启，或配置里钉的包版本不对 | 先重启宿主，再看 `registration.state` 与 `package_reference` |
 | 配置被写坏 | `rea setup` 改了你已有的文件 | 用 `plannedActions[].backupPath` 还原 |
 | 缺分析引擎，算装失败吗 | 不算：接入与引擎是两件事 | 换目标类型，或按需自备引擎 |
