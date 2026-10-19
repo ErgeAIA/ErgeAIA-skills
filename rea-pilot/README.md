@@ -1,5 +1,9 @@
 # rea-pilot
 
+<p align="center">
+  <img src="assets/banner.svg" alt="rea-pilot" width="100%">
+</p>
+
 > REA 的引航员：把 REA 装进你当前的编程助手、验证真的连上，再按目标给你选路、排障、回滚与加固建议——不替你开船。
 
 ## 它解决什么问题
