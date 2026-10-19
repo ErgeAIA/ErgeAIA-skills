@@ -18,6 +18,7 @@
 - 生成 `references/toolset/rea-6.7.0.md`：207 个 MCP 工具（按 12 个域分组，每条含用途与副作用/可用性）+ 6 个官方 prompt + 153 条 CLI 命令，并写明 CLI 名与 MCP 名不是一一对应。
 - 所有 `references/**/*.md` 带 YAML 头（`name` / `description` / `version` / `trigger-when` / `reads-from` / `writes-to`），由 AI 判断「何时读这个文件、读完写去哪」。
 - **门面**：README 顶部挂 tupu 横版技能图谱（`assets/banner.svg`，1920×1200，theme=coding）；分析与导出产物留在 `Doc-Depot/Inbox/tupu/rea-pilot/`，不写回技能目录。
+- **门面优化**（2026-10-20，未升版）：README 由 93 行扩到 215 行——新增快速开始（前置要求 / 安装技能 / 装完三问自检）、六条工作流表、目标类型 × 引擎前置表、证据需求入口表、加固建议摘要表、常见卡点表与「不适用」边界；原「触发词」与「怎么用」两张 7 行重复表合并为一张能力表；工具计数补 REA 6.7.0 版本锚，宿主举例只留 setup 内建清单内宿主（DSH / Claude Code 改判为走 W-HOST），命令逐条标 [已运行验证] / [未经运行验证]。
 - W-HARDEN 定位为「把 REA 的攻击面清单反过来当开发者加固方法论」，并用 REA 复跑验收；三条禁令（不输出真实密钥值 / 不承诺不可破解 / 不提供绕过他人保护的方法）。
 
 **修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/workflows/*.md`（6）、`references/specs/*.md`（2）、`references/config/engines-and-providers.md`、`references/toolset/rea-6.7.0.md`、`assets/banner.svg`。
