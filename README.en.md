@@ -16,7 +16,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.3.10 |
 | [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.0.3 |
-| [shese](shese/) | Shese: audit and optimize an existing palette, or generate a new one from a single style intent — readability verdicts, minimal-change fixes, and a scene preview page you can actually look at | `is this dark theme tiring to read at night? / build a quiet low-chroma dark editor palette` | v1.0.0 |
+| [shese](shese/) | Shese: audit and optimize an existing palette, or generate a new one from a single style intent — readability verdicts, minimal-change fixes, and a scene preview page you can actually look at | `is this dark theme tiring to read at night? / build a quiet low-chroma dark editor palette` | v1.1.0 |
 
 ## Getting Started
 

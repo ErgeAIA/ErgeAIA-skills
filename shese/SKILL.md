@@ -3,7 +3,7 @@ name: shese
 description: "审查并优化既有配色，也能只凭一句风格意图生成新配色：给出可读性判定、最小改动方案与新色值，并产出可直接看效果的场景预览页。Use when 用户要做配色、色板、主题或设计 token，或问某套颜色是否好读、对比够不够、看着舒不舒服。"
 metadata:
   author: ErgeAIA
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # 设色 · Shese
@@ -90,7 +90,7 @@ Core Task：
 | `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 |
 | `matrix` | 文字 token × 承载面矩阵，直接标出最差面；要求逐 token 推：`--tokens` 的 text 条目写 `{"hex": "#...", "role": "body", "size": 16, "weight": 400}` 可让每个 token 用自己的角色或字号字重，写字符串则沿用全局 `--role` / `--size` / `--weight` |
 | `cvd <colors...>` | 三类色觉模拟 + ΔE-OK 可辨性（默认阈值 0.10） |
-| `preview --tokens name=HEX --out <file> [--mode dark\|light]` | 把 token 注入 `assets/scene-preview.html` 生成填色副本 |
+| `preview --tokens name=HEX --out <file> [--mode dark\|light]` | 把 token 注入 `assets/scene-preview.html` 生成填色副本；模板外壳用品牌主题色（来源见 `references/theme-source.md`），被审的只有注入的 14 个 token；注入的 bg 与 `--mode` 极性不符时在 stderr 提醒，不改退出码 |
 | `selftest` | 官方测试向量锚定自检（改脚本后必跑） |
 
 退出码：0 = 成功（对比与色觉类子命令即全部达标）／1 = 判定不达标／2 = 输入或环境错误。token 名支持 `bg-surface`、`text-muted`、`ok`、`warn`、`danger` 等常见别名，输出一律归一到 14 个标准名。
@@ -108,6 +108,8 @@ Core Task：
 5. 透明度信息：哪些 token 使用 alpha、透明度值、预期落点与最差背景面
 
 生成轨另加：风格意图或症状词、禁忌（一票否决）、可选参考锚点（用户给的一两套「类似这个感觉」的色值）。
+
+用户报的是主题仓库编号（如「#002 的配色」）或主题名时，按 `references/theme-source.md` 先取该主题 `palette.md` 的全表作为输入，编号每次都现读 `INDEX.json` 复核。
 
 仅当缺失会直接导致结论错误时，才提出不超过 3 个问题。所有颜色按最终合成后的实色计算，不按 token 原值；透明度信息缺失时按不透明处理并标注【假设】。
 
@@ -129,6 +131,7 @@ Core Task：
 - 要声明阅读目标、或把已声明的目标换算成尺度时 → 见 `references/scenes.md`：四条场景画像与「目标 → 尺度」的推导
 - 用户没给现成色值、只给风格意图或症状词，或要求再出几个方向时 → 见 `references/generate.md`：症状词到意图卡的翻译、候选生成规则与意图保真判据
 - 用户要完整报告、要交代判定依据或要归档时 → 见 `references/audit-report.md`：深档十二节的固定结构与取数来源
+- 用户报主题仓库路径、编号或主题名，或要求预览页套上品牌外观时 → 见 `references/theme-source.md`：取色三步、只读纪律、token 名对齐与外壳色 pin 规则
 
 ## Non-Goals
 

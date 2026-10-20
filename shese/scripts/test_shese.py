@@ -354,6 +354,54 @@ class TestPreviewInjection(unittest.TestCase):
             self.assertIn("没有 --border", err)
             self.assertFalse(out.exists())
 
+    def test_real_template_pins_brand_shell(self):
+        text = shese.DEFAULT_TEMPLATE.read_text(encoding="utf-8")
+        # 选择器不带引号，才不会与脚本对 data-mode="…" 的单次替换撞车
+        self.assertIn(":root[data-mode=dark] {", text)
+        self.assertIn(":root[data-mode=light] {", text)
+        self.assertIn("--shell-bg: #1A1714;", text)       # ThemeVault #001 themes/erge/dark
+        self.assertIn("--shell-accent: #F2570F;", text)
+        self.assertIn("--shell-bg: #FAF1E9;", text)       # ThemeVault #002 themes/erge/light
+        self.assertIn("--shell-accent: #FF6A2B;", text)
+        for name in shese.TOKEN_NAMES:
+            with self.subTest(token=name):
+                self.assertEqual(text.count("--" + name + ":"), 1)
+
+    def test_shell_pins_survive_injection(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out.html"
+            code, _stdout, _err = run_cli("preview", "--tokens", "bg=#101014",
+                                          "--tokens", "accent=#7a5cff",
+                                          "--out", str(out), "--mode", "dark")
+            self.assertEqual(code, 0)
+            text = out.read_text(encoding="utf-8")
+            self.assertEqual(text.count("--bg:"), 1)
+            self.assertIn("--bg: #101014;", text)
+            self.assertIn("--shell-bg: #1A1714;", text)
+            self.assertIn("--shell-accent: #F2570F;", text)
+            self.assertIn("--shell-accent: #FF6A2B;", text)
+
+    def test_polarity_mismatch_warns_but_exit_stays_zero(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out.html"
+            code, stdout, err = run_cli("preview", "--tokens", "bg=#FAF1E9",
+                                        "--out", str(out), "--mode", "dark", "--json")
+            self.assertEqual(code, 0)
+            self.assertIn("极性提醒", err)
+            payload = json.loads(stdout)
+            self.assertEqual(payload["polarity"]["detected"], "light")
+            self.assertEqual(payload["polarity"]["declared"], "dark")
+            self.assertFalse(payload["polarity"]["match"])
+
+    def test_polarity_match_is_silent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out.html"
+            code, stdout, err = run_cli("preview", "--tokens", "bg=#1A1714",
+                                        "--out", str(out), "--mode", "dark", "--json")
+            self.assertEqual(code, 0)
+            self.assertNotIn("极性提醒", err)
+            self.assertTrue(json.loads(stdout)["polarity"]["match"])
+
     def test_missing_template_is_input_error(self):
         with tempfile.TemporaryDirectory() as tmp:
             code, _stdout, err = run_cli("preview", "--tokens", "bg=#101014",

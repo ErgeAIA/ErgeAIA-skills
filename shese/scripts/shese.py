@@ -19,6 +19,7 @@
   matrix     --text name=HEX ... [--surface name=HEX ...] [--size N] [--weight W] [--role R]
   cvd        HEX... [--min-delta 0.10]
   preview    --tokens name=HEX ... [--template PATH] --out PATH [--mode dark|light]
+             （注入的 bg 与 data-mode 极性不符时 stderr 提醒，不影响退出码）
   selftest
 
 alpha 一律按浏览器口径在 sRGB 空间沿叠加链合成后判定；未给不透明基准面即报错。
@@ -278,6 +279,11 @@ def oklch_to_hex(L, C, h):
 def delta_e_ok(rgb_a, rgb_b) -> float:
     a, b = hex_to_oklab(rgb_a), hex_to_oklab(rgb_b)
     return math.sqrt(sum((a[i] - b[i]) ** 2 for i in range(3)))
+
+
+def polarity_of(rgb) -> str:
+    """按 OKLab 明度 0.5（感知中灰）把底色分成 dark / light，用于预览页极性自检。"""
+    return "light" if hex_to_oklab(rgb)[0] >= 0.5 else "dark"
 
 
 # ---------------------------------------------------------------- WCAG 相对亮度比
@@ -696,10 +702,27 @@ def cmd_preview(args):
             raise InputError("--mode 只接受 dark 或 light")
         if 'data-mode="' in text:
             text = re.sub(r'data-mode="[^"]*"', 'data-mode="%s"' % args.mode, text, count=1)
+    declared = None
+    mode_hit = re.search(r'data-mode="([^"]*)"', text)
+    if mode_hit:
+        declared = mode_hit.group(1)
+    bg_token = next((t for t in tokens if t[0] == "bg"), None)
+    polarity = None
+    if bg_token is not None and bg_token[2] >= 1.0 and declared in ("dark", "light"):
+        detected = polarity_of(bg_token[1])
+        polarity = {"bg": fmt_hex(bg_token[1]), "detected": detected,
+                    "declared": declared, "match": detected == declared}
+        if detected != declared:
+            print("极性提醒：注入的 bg %s 在 OKLab 明度上属于%s底，而页面 data-mode 是 %s；"
+                  "外壳与场景会不同极，确认这是你要的对照。"
+                  % (polarity["bg"], "浅" if detected == "light" else "深", declared),
+                  file=sys.stderr)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(text, encoding="utf-8")
     payload = {"template": str(tpl), "out": str(out), "mode": args.mode, "applied": applied}
+    if polarity is not None:
+        payload["polarity"] = polarity
     emit(args, payload, ["已注入 %d 个 token -> %s" % (len(applied), out),
                          "模板：%s" % tpl] + ["  --%-10s %s" % (a["token"], a["value"]) for a in applied])
     return 0
