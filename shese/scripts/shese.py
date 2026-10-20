@@ -875,6 +875,11 @@ def main(argv=None) -> int:
     except InputError as exc:
         print("输入错误：" + str(exc), file=sys.stderr)
         return 2
+    except OSError as exc:
+        detail = getattr(exc, "filename", None) or getattr(exc, "filename2", None) or ""
+        print("输入错误：文件读写失败%s（%s）" % ("：" + str(detail) if detail else "", exc.strerror or exc),
+              file=sys.stderr)
+        return 2
     except (ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
         print("输入错误：" + str(exc), file=sys.stderr)
         return 2
