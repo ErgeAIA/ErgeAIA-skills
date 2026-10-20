@@ -96,6 +96,7 @@ python scripts/shese.py preview \
 | `contrast` | 单对配色的 APCA Lc 与相对亮度比 | `--size` + `--weight` 走官方矩阵；不给则按 `--role body\|aux\|hint` 档（60 / 45 / 30） |
 | `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 | `--on` 指定最底不透明基准面 |
 | `matrix` | 文字 token × 承载面矩阵，标出最差面 | `--tokens` 里 text 条目可写 `{"hex","role","size","weight"}` 逐 token 定要求 |
+| `delta` | 相邻层级的 ΔE-OK，专判层级明度差 | `--min-delta`（默认 0.10） |
 | `cvd` | 三类色觉模拟 + ΔE-OK 可辨性 | `--min-delta`（默认 0.10） |
 | `preview` | 把 token 注入模板生成填色副本 | `--tokens name=HEX`、`--out`、`--mode dark\|light` |
 | `selftest` | 官方测试向量锚定自检 | 改脚本后必跑 |
@@ -140,7 +141,7 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 24 项官方数值锚定（APCA 官方向量 + 矩阵锚点）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 50 tests ... OK`；selftest 24 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 54 tests ... OK`；selftest 24 项全 PASS、退出码 0。
 
 ## 边界
 
