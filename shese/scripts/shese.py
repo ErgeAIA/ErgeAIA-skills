@@ -584,6 +584,13 @@ def cmd_matrix(args):
     for name, rgb, alpha in surfaces:
         if alpha < 1.0:
             raise InputError("承载面 %s 带 alpha：请先展开为合成后的实色" % name)
+    # 同名承载面出现多次时加序号，避免矩阵里出现两列同名、最差面无法指认
+    seen, labelled = {}, []
+    for item in surfaces:
+        name = item[0]
+        seen[name] = seen.get(name, 0) + 1
+        labelled.append((name if seen[name] == 1 else "%s#%d" % (name, seen[name]),) + item[1:])
+    surfaces = labelled
 
     payload = {"role": role, "size": size, "weight": weight,
                "texts": [], "cells": [], "failed": []}

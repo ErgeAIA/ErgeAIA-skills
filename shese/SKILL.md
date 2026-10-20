@@ -132,7 +132,7 @@ Core Task：
 | --- | --- | --- |
 | 色值非十六进制或位数非 3/4/6/8（exit 2） | 把 rgb()/hsl()/命名色按浏览器口径换成十六进制重跑 | 仍解析不了就记【不可计算】单列，该行写「无法判定 + 缺什么」，不猜不跳 |
 | token 名不在 14 个标准名内（exit 2） | 按别名归一（`background`→`bg`、`ok`→`success`、`muted`→`textMuted` 等），重跑 | 仍无法归一，按 L / C 分布映射到最近标准角色，结论里写明这是人工映射 |
-| 承载面是 hover / selection / 半透明层（脚本只认 14 个标准名） | 先 `composite` 合成实色，再挑最近的标准面名承载（`python scripts/shese.py matrix --surface card=#1c2128`），矩阵里该列标真实面名（hover @ card） | 合成链超两层或依赖未定交互态，就在矩阵单列并标【未定面】，不算通过 |
+| 承载面是 hover / selection / 半透明层（脚本只认 14 个标准名） | 先 `composite` 合成实色，再挑最近的标准面名承载（`matrix --text text=#c9d1d9 --surface card=#1c2128`），矩阵里该列标真实面名（hover @ card） | 合成链超两层或依赖未定交互态，就在矩阵单列并标【未定面】，不算通过 |
 | 文字 token 带 alpha 但没给最差承载面 | 问一次：这个文字色会落在哪些面上 | 不回就取最可能落的最暗面，标【假设】并写清假设错会改哪行 |
 | 色值缺关键角色（只有 bg 与 text） | 只对已给角色下结论，缺的写【缺】 | 不补齐、不虚构 token；token JSON 只含实给到的键 |
 | 场景信息不全（没说时长或字号） | 只问影响结论最多的那一项（通常字号或字重），一次不超过 3 问 | 仍缺就取该场景的默认档并标【假设】，在结论里点明「结论随字号变化」 |
@@ -155,7 +155,7 @@ Core Task：
 | `preview --tokens name=HEX --out <file> [--mode dark\|light]` | 注入 `assets/scene-preview.html` 出填色副本；外壳用品牌主题色（见 `references/theme-source.md`），被审的只有注入的 14 个 token；bg 与 `--mode` 极性不符时 stderr 提醒、不改退出码 |
 | `selftest` | 官方测试向量锚定自检（改脚本后必跑） |
 
-退出码：0 = 成功（判定类即全部达标）／1 = 判定不达标／2 = 输入或环境错误。token 名支持 `bg-surface`、`text-muted`、`ok`、`warn`、`danger` 等别名，输出归一到 14 个标准名。
+退出码：0 = 成功（判定类即全部达标）／1 = 判定不达标／2 = 输入或环境错误。token 名支持 `bg-surface`、`text-muted`、`ok`、`warn` 等别名，输出归一到 14 个标准名。
 
 起步档由脚本按官方字号—字重矩阵查表得出，禁止自行插值或凭记忆给数；脚本给单点判据，交付仍要连区间与取舍代价一起给。
 
