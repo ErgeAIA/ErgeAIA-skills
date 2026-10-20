@@ -4,6 +4,21 @@
 
 ---
 
+## v1.0.2 (2026-10-20)
+
+### Fast Review 三条 P2 落地：SKILL.md 去易过期快照 + 补非工作流意图出口 + README 目录树补文件
+
+**背景**：skill-workshop Fast Review（只读）判无 P0/P1、共 4 条 P2。本次只处置影响运行时判断的三条；README 里的本机实测快照（207/153/6、20 个适配器、验证状态标注）按本仓「命令逐个标注是否已运行验证」的惯例保留，不算重复权威。
+
+**变更**
+
+- **去易过期快照**（`SKILL.md` CONDITIONAL）：客户端适配器规则删掉「本机 6.7.0 共 20 个、`dsh` 与 `claude_code` 已 `aligned`」，只留判据（`identity.registrations[]` 里存在该宿主 id 且 `state=aligned`）并注明条数与具体客户端以本机实测为准——同一条规则不再随 REA 升级过期。
+- **资源节去计数、路径版本化**（`SKILL.md`）：工具面快照由写死 `references/toolset/rea-6.7.0.md` + 「207 个 MCP 工具 + 153 条 CLI 命令 + 6 个官方 prompt」改为 `references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`，现有 6.7.0），消除与同文件 HARD「禁止凭记忆报版本、工具数」的表述张力。
+- **补非工作流意图出口**（`SKILL.md`「何时使用」表下）：「REA 有哪些工具 / 某个能力能干什么」不是工作流，不进路由表——按资源节工具面快照回答，先比对本机 `rea --version`。此前该意图在路由表里无行，而工具面快照的 `trigger-when` 恰好声明了它。
+- **README 目录树补 `test-prompts.json`**：目录结构与实际文件一致。
+
+**修改文件**：`SKILL.md`、`CHANGELOG.md`、`README.md`、`test-prompts.json`、`../README.md`、`../README.en.md`
+
 ## v1.0.1 (2026-10-20)
 
 ### 路由补丁与工具表字符数口径修正

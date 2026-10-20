@@ -1,6 +1,6 @@
 {
   "skill": "rea-pilot",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "designed_at": "2026-10-20T01:22:58+08:00",
   "designed_by": "darwin-skill Phase 0.5（9 维 rubric，dim8 实测用）",
   "notes": "全部为只读 prompt：不触发 rea setup / 不写配置文件。with_skill 组读 SKILL.md 并按其路由读 references；baseline 组禁用本技能目录。",

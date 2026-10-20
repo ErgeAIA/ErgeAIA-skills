@@ -3,7 +3,7 @@ name: rea-pilot
 description: "把 REA（逆向工程与证据分析工具）装进用户当前的编程助手并让它真正连接可用，再按目标给出逆向选路、卸载回滚与加固建议。Use when 用户要安装或配置 REA、把它接到自己的 Agent 或 MCP 宿主、检查环境与连接是否正常、更新或卸载它、想知道某个逆向目标该走哪条最小路径，或要给自己拥有的应用补加密、混淆、加壳与完整性防护。Not for: 目标已连上后会话内怎么用 REA 调查（交 REA 自带技能 reverse-engineer-anything）、纯源码仓库的架构分析。"
 metadata:
   author: ErgeAIA
-  version: "1.0.1"
+  version: "1.0.2"
 ---
 
 # rea-pilot
@@ -39,6 +39,8 @@ Core Task：
 | 我该怎么给自己的应用加密、加壳、防逆向 | W-HARDEN 逆向反推防护 | `references/workflows/hardening-advice.md` |
 | REA 升级了 / 工具对不上 / 要刷新工具清单 | W-SYNC 版本同步 | `references/workflows/version-sync.md` |
 | 卸载 REA / 装坏了要还原 | W-ROLLBACK 回滚 | `references/workflows/rollback.md` |
+
+表里六条都是工作流。「REA 有哪些工具 / 某个能力能干什么」不是工作流，不进本表——按下面「资源」节的工具面快照回答，先比对本机 `rea --version`。
 
 Not for：
 - 目标已接上后的具体调查步骤与证据解释 —— 读 REA 自带技能，本技能不重写调查方法。
@@ -114,7 +116,7 @@ Not for：
 **CONDITIONAL**
 
 - 缺分析引擎（`missing_analysis_engine`）时：JavaScript/Electron、归档与包、Android 清单、已保留证据类工作仍可做；固件与抓包类需要 Linux 与外部工具。
-- 宿主在 REA 的客户端适配器里（判据 = `rea doctor --format json` 的 `identity.registrations[]`；本机 6.7.0 共 20 个，`dsh` 与 `claude_code` 都在其中且已 `aligned`）→ 直接走 W-INSTALL；只有 REA 没有适配器、或注册不上时 → 走 W-HOST。`scope_checks` 里的 `registration:<client>` 只是**未对齐子集**，别当完整清单。
+- 宿主在 REA 的客户端适配器里（判据 = `rea doctor --format json` 的 `identity.registrations[]` 里存在该宿主 id 且 `state=aligned`）→ 直接走 W-INSTALL；只有 REA 没有适配器、或注册不上时 → 走 W-HOST。`scope_checks` 里的 `registration:<client>` 只是**未对齐子集**，别当完整清单。适配器条数与具体客户端以本机实测为准，别引用别处的快照。
 - 引擎由用户自备（Ghidra / IDA / JADX / Kuna / tshark 等）时，给环境变量名与官方要求，别替用户下载。
 
 **禁止**
@@ -130,7 +132,7 @@ Not for：
 
 | 何时读 | 文件 | 用途 |
 | --- | --- | --- |
-| 要工具名 / 用途 / 副作用 | `references/toolset/rea-6.7.0.md` | 207 个 MCP 工具 + 153 条 CLI 命令 + 6 个官方 prompt |
+| 要工具名 / 用途 / 副作用，或问「REA 有哪些工具 / 某个能力能干什么」 | `references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`；现有 6.7.0） | 完整工具面（MCP 工具 / 官方 prompt / CLI 命令，逐条含用途与副作用）；条数不在此照抄，以本机实测为准 |
 | 要写宿主 MCP 配置 | `references/specs/mcp-registration-fields.md` | 通用字段 + 探索提示词 + 校验动作 |
 | 要重新生成工具表 | `references/specs/toolset-generation.md` | 生成命令、列口径、版本锚 |
 | 要引擎与 Provider 前置 | `references/config/engines-and-providers.md` | 引擎矩阵、环境变量、平台限制 |
