@@ -13,7 +13,7 @@
 **变更**
 
 - **复合意图路由**（`SKILL.md` 步骤 1，新增一段）：一条请求同时含两个意图时（例：「装好没 + 能不能做原生反编译」），原文只写「一次只进一条，不并列」，模型只能自行即兴（回归中 p1 取 W-INSTALL 为主 + 引用 W-ROUTE 的引擎前置小节）。现明确：主路由完整跑完，其它意图只在需要前置判定时引用对应工作流的对应小节并写明引用了哪条、为什么——仍不并列展开两条工作流。
-- **工具表字符数口径**（`references/specs/toolset-generation.md`、`references/toolset/rea-6.7.0.md`）：`rea --llms` 的字符数随计法变（LF 计 17,217 / CRLF 计 17,378，差 161 = 行数 162 的换行），三条回归子 agent 都在这处对账上花了工夫、各自判了一次「是否漂移」。口径改为：**判漂移看命令条数（153）、工具数（207/6）与目录摘要，字符数只作参考并并列两个计法**。
+- **工具表字符数口径**（`references/specs/toolset-generation.md`、`references/toolset/rea-6.7.0.md`）：`rea --llms` 的行数与字符数随计法摆动（本机一手实测：`@(rea --llms).Count`=161 行、LF 拼接 17,216 字符、CRLF 拼接 17,376 字符、`Out-String` 17,378 字符），三条回归子 agent 都在这处对账上花了工夫、各自判了一次「是否漂移」。口径改为：**判漂移看命令条数（153）、工具数（207/6）与目录摘要，字符数只作参考并给出实测区间**。
 
 **修改文件**：`SKILL.md`、`CHANGELOG.md`、`README.md`、`test-prompts.json`、`references/specs/toolset-generation.md`、`references/toolset/rea-6.7.0.md`、`../README.md`、`../README.en.md`
 
