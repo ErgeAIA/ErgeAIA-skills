@@ -18,6 +18,7 @@
   composite  [--on BASE] LAYER...        每个 LAYER 为 #rrggbb[aa]，自顶向下
   matrix     --text name=HEX ... [--surface name=HEX ...] [--size N] [--weight W] [--role R]
   cvd        HEX... [--min-delta 0.10]
+  delta      HEX...              相邻颜色 / 层级的 ΔE-OK，按传入顺序两两相邻
   preview    --tokens name=HEX ... [--template PATH] --out PATH [--mode dark|light]
              （注入的 bg 与 data-mode 极性不符时 stderr 提醒，不影响退出码）
   selftest
@@ -688,6 +689,30 @@ def cmd_cvd(args):
     return 1 if bad else 0
 
 
+def cmd_delta(args):
+    colors = []
+    for value in args.colors:
+        rgb, alpha = parse_color(value)
+        if alpha < 1.0:
+            raise InputError("带 alpha 的颜色请先 composite 成实色再比：" + value)
+        colors.append((fmt_hex(rgb), rgb))
+    if len(colors) < 2:
+        raise InputError("至少给两个 HEX")
+    lines = ["相邻层级 ΔE-OK（阈值 %.3f；下表相邻即传入顺序）" % args.min_delta]
+    payload = {"min_delta": args.min_delta, "pairs": []}
+    bad = 0
+    for (na, ra), (nb, rb) in zip(colors, colors[1:]):
+        de = delta_e_ok(ra, rb)
+        ok = de >= args.min_delta
+        if not ok:
+            bad += 1
+        payload["pairs"].append({"a": na, "b": nb, "delta": round(de, 4), "pass": ok})
+        lines.append("  %s -> %s  ΔE-OK %.4f  %s" % (na, nb, de, "可辨" if ok else "塌陷"))
+    lines.append("结论：%s" % ("相邻层级均可辨" if not bad else
+                            "%d 对相邻层级低于阈值，需拉开明度差或改用形态 / 文字冗余" % bad))
+    emit(args, payload, lines)
+    return 1 if bad else 0
+
 def cmd_preview(args):
     tokens = parse_token_args(args.tokens)
     if not tokens:
@@ -856,6 +881,12 @@ def build_parser():
     p.add_argument("--min-delta", type=float, default=0.10)
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_cvd)
+
+    p = sub.add_parser("delta", help="相邻颜色 / 层级的 ΔE-OK 可辨性")
+    p.add_argument("colors", nargs="+")
+    p.add_argument("--min-delta", type=float, default=0.10)
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_delta)
 
     p = sub.add_parser("preview", help="把 token 注入自包含预览页模板")
     p.add_argument("--tokens", action="append", default=[], metavar="name=HEX")

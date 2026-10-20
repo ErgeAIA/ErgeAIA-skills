@@ -411,5 +411,30 @@ class TestPreviewInjection(unittest.TestCase):
             self.assertIn("找不到模板", err)
 
 
+class DeltaTests(unittest.TestCase):
+    def test_delta_flags_collapsed_layers(self):
+        code, out, _err = run_cli("delta", "#1c2128", "#161b22", "#0d1117", "--json")
+        data = json.loads(out)
+        self.assertEqual(code, 1)
+        self.assertEqual(len(data["pairs"]), 2)
+        self.assertTrue(all(not p["pass"] for p in data["pairs"]))
+
+    def test_delta_passes_on_visible_steps(self):
+        code, out, _err = run_cli("delta", "#0d1117", "#2b323c", "--json")
+        data = json.loads(out)
+        self.assertEqual(code, 0)
+        self.assertTrue(data["pairs"][0]["pass"])
+
+    def test_delta_needs_two_colors(self):
+        code, _out, err = run_cli("delta", "#c9d1d9")
+        self.assertEqual(code, 2)
+        self.assertIn("至少给两个", err)
+
+    def test_delta_rejects_alpha(self):
+        code, _out, err = run_cli("delta", "#ffffff80", "#101014")
+        self.assertEqual(code, 2)
+        self.assertIn("composite", err)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
