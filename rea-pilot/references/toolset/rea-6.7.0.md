@@ -21,7 +21,7 @@ reads-from: SKILL.md
 | 目录摘要 | `96d8f6e6ea1b1ba13557216624a3461c738729d53c79b4b0100d1f3a3a32441c` | 同上 |
 | 工具目录摘要 | `af39310c9591bb981893ec0d2188b1bcf6e9cc8ba3ac513d5bbefc8ddcb85639` | `rea capabilities --format json` → `server_identity.catalog.digests.tools_sha256` |
 | prompt 目录摘要 | `7152916ab48bd2a9677a5ad9cdbde0a51dc53c113934952ad096e93f5f18aa7e` | 同上 → `prompts_sha256` |
-| CLI 命令 | 153 条（`rea --llms` 17,378 字符；`rea --llms-full` 82,487 字符） | `rea --llms` |
+| CLI 命令 | 153 条（`rea --llms` 162 行；字符数随计法变——按 LF 计 17,217、按 CRLF 计 17,378，**判漂移看命令条数与版本锚，别看字符数**；`rea --llms-full` 82,487 字符） | `rea --llms` |
 
 **有效期**：官方近 30 天发布 13 个版本、近 90 天 18 个（`npm view rea-agents time --json`）。本文件平均约 2 天过期一次 —— **升级后按 `references/workflows/version-sync.md` 重新生成，不要手改本文件**。
 

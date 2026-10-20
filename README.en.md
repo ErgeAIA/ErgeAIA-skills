@@ -15,7 +15,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.1.1 |
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.3.10 |
-| [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.0.0 |
+| [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.0.1 |
 
 ## Getting Started
 

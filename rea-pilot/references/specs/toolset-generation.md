@@ -1,7 +1,7 @@
 ---
 name: "工具表生成规范"
 description: "按版本生成 references/toolset/rea-<版本>.md 的采集命令、列口径、分组规则、版本锚与自检判据。"
-version: 1.0.0
+version: 1.0.1
 trigger-when: REA 升级后重新生成工具面快照时
 reads-from: SKILL.md, references/workflows/version-sync.md
 writes-to: references/toolset/rea-<版本>.md
@@ -13,7 +13,7 @@ writes-to: references/toolset/rea-<版本>.md
 | 输入 | 提供什么 |
 | --- | --- |
 | MCP stdio 的 `tools/list` + `prompts/list` | 工具名与 description（207 / 6） |
-| `rea --llms` | CLI 命令清单（153 行，17,378 字符） |
+| `rea --llms` | CLI 命令清单（**153 条命令**；字符数只作参考且随计法变：162 行，按 LF 计 17,217 / 按 CRLF 计 17,378。**判漂移看命令条数、工具数与目录摘要，不看字符数**） |
 | `rea capabilities --format json` | 副作用（effects）、可用性、`server_identity.catalog`（计数与摘要） |
 | `rea --version` + `rea doctor --format json` | 版本锚与自检计数 |
 
