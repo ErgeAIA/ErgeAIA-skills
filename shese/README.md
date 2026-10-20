@@ -130,7 +130,7 @@ shese/
 ├── scripts/shese.py      计算层（零依赖）
 ├── scripts/test_shese.py 单元测试
 ├── assets/scene-preview.html  场景预览页模板
-└── test-prompts.json     验收用例
+└── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
 
 ## 测试与自检
