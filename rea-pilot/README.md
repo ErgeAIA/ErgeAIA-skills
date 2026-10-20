@@ -209,7 +209,7 @@ rea-pilot/
 
 ## 版本与许可
 
-当前版本：**v1.0.2**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.0.3**，详见 [CHANGELOG.md](CHANGELOG.md)。
 
 工具面快照对应 REA **6.7.0**（207 个 MCP 工具 / 6 个官方 prompt / 153 条 CLI 命令）：[references/toolset/rea-6.7.0.md](references/toolset/rea-6.7.0.md)。
 

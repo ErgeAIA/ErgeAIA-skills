@@ -2,6 +2,20 @@
 
 > 只记录版本号、核心变更与修改文件。设计取舍见 README，生成规范见 references。
 
+## v1.0.3 (2026-10-20)
+
+### 加固建议的验收命令前置可判：不再交付本机跑不了的验收
+
+**背景**：v1.0.2 回归（DEC-046）实测出 `W-HARDEN` 的一个真实缺口 —— 「每条给 REA 复跑验收命令」在 @步骤3 表格里存在本机跑不了的组合：`inspect_signature` / `inspect_macho` 属 `native-macos` 族（Windows `unsupported_host`）、`inspect_pcap_capture` 需 tshark/capinfos、`inspect_sqlite_database` 需 Node ≥24.15、固件族需 Linux、`procedure_pseudo_code` / `analyze_function` 需原生引擎已装。这些前置只写在 `engines-and-providers.md`，而 `hardening-advice.md` 既不引用它、也没要求交付前先判可用性 —— 事实与用它的地方分离。
+
+**变更**
+
+- **补指针不补事实**（`references/workflows/hardening-advice.md`）：@步骤5 第 3 条加「给验收命令前先用 `rea capabilities --format json` 的 `availability` 确认本机跑得起来；跑不起来就换等价手段或明写前置」；@验证点 ④ 加「（本机可跑）」；frontmatter `reads-from` 追加 `references/config/engines-and-providers.md`。不写具体平台与版本阈值，避免二次过期。
+- **消歧 `installations.state`**（`references/specs/mcp-registration-fields.md`）：`state: multiple` 只表示同一个包在本机存在多份 shim 或安装记录，不等于多版本并存。
+- **版本**：`SKILL.md` 1.0.2 → 1.0.3；两份被改的 reference 各自 1.0.0 → 1.0.1。
+
+**修改文件**：`SKILL.md`、`CHANGELOG.md`、`README.md`、`test-prompts.json`、`references/workflows/hardening-advice.md`、`references/specs/mcp-registration-fields.md`、`../README.md`、`../README.en.md`
+
 ---
 
 ## v1.0.2 (2026-10-20)

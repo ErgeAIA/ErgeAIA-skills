@@ -1,9 +1,9 @@
 ---
 name: "W-HARDEN 逆向反推防护"
 description: "把 REA 的攻击面清单反过来当开发者的加固方法论，并给出代价与 REA 复跑验收判据。"
-version: 1.0.0
+version: 1.0.1
 trigger-when: 用户问自己的应用该怎么加密、加壳、防逆向时
-reads-from: SKILL.md, references/toolset/rea-<版本>.md
+reads-from: SKILL.md, references/toolset/rea-<版本>.md, references/config/engines-and-providers.md
 writes-to: 无（只读建议；不修改用户代码）
 ---
 # @工作流: W-HARDEN 逆向反推防护
@@ -54,10 +54,10 @@ writes-to: 无（只读建议；不修改用户代码）
 
 1. 先用 REA 取**加固前**的证据（同一命令、同一目标），把「现在能拿到什么」写成一条条事实。
 2. 按 @步骤3 挑出这个项目真正该补的 2–4 层（不要一次列十条）。
-3. 每条给「改完怎么验」：复跑哪条 REA 命令、期望看到什么变化。
+3. 每条给「改完怎么验」：复跑哪条 REA 命令、期望看到什么变化。**给之前先确认这条命令在本机跑得起来**（`rea capabilities --format json` → `analysis_provider_candidates[].availability{status, code, reason}`；平台与外部前置见 `references/config/engines-and-providers.md`）；跑不起来就换 @步骤3 表格同行的等价手段，或明写「本机做不了，需先满足 <前置>」——不要交付一条执行不了的验收。
 4. 交付时给代价（体积 / 启动 / 可诊断性 / 商店政策），别只给结论。
 
-@验证点：交付必须包含① 资产归属与保护目标② 通用方法论③ 针对该项目的 2–4 条具体做法④ 每条的 REA 复跑验收命令与判据⑤ 代价。
+@验证点：交付必须包含① 资产归属与保护目标② 通用方法论③ 针对该项目的 2–4 条具体做法④ 每条的 REA 复跑验收命令与判据（本机可跑）⑤ 代价。
 
 ## 三条禁令与边界
 

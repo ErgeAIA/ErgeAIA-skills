@@ -1,7 +1,7 @@
 ---
 name: "宿主 MCP 注册字段"
 description: "宿主 MCP 配置的通用字段、宿主自探索提示词、各家配置路径与格式差异、写入前检查项与校验动作。"
-version: 1.0.0
+version: 1.0.1
 trigger-when: 要给宿主写 REA 的 MCP 注册、或宿主不在 rea setup 支持列表时
 reads-from: SKILL.md, references/workflows/host-registration.md
 writes-to: 用户宿主自己的 MCP 配置文件（由宿主 Agent 插入，本技能不代写）
@@ -31,7 +31,7 @@ rea setup --dry-run --format json   # 看 plannedActions[] 里有没有 configur
 | command | `npx`；Windows PowerShell 环境下用 `npx.cmd`；或 Node 可执行文件绝对路径 | 绝对路径最稳（不受 PATH 影响） |
 | args | `["-y","rea-agents@<版本>","mcp"]`，或 `["<rea-agents 根>/scripts/rea.mjs","mcp"]` | 钉版本比 `@latest` 可复现 |
 
-- 包根与版本以实测为准：`rea doctor --format json` → `identity.installations.paths`、`identity.cli_package_version`；本机观测包根形如 `%APPDATA%\npm\node_modules\rea-agents`（Windows）。
+- 包根与版本以实测为准：`rea doctor --format json` → `identity.installations.paths`、`identity.cli_package_version`；本机观测包根形如 `%APPDATA%\npm\node_modules\rea-agents`（Windows）。同一字段里若出现 `state: multiple`，只表示这**一个包**在本机存在多份 shim 或安装记录，**不等于**多个版本并存——判断版本只看 `identity.cli_package_version` 与包根。
 - 官方口径：**支持本地 MCP 服务器的助手都可以用**；官方不给逐宿主的路径表，所以路径与格式必须由宿主自己探索。
 
 ## 为什么必须让宿主自己找（本机实测差异）
