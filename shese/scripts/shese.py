@@ -19,6 +19,8 @@
   matrix     --text name=HEX ... [--surface name=HEX ...] [--size N] [--weight W] [--role R]
   cvd        HEX... [--min-delta 0.10]
   delta      HEX...              相邻颜色 / 层级的 ΔE-OK，按传入顺序两两相邻
+  mix        A PCT B [--space oklab|srgb]
+             A 占 PCT%（0<PCT<100），B 占其余；一端可写 transparent（= 该色带 alpha）
   preview    --tokens name=HEX ... [--template PATH] --out PATH [--mode dark|light]
              （注入的 bg 与 data-mode 极性不符时 stderr 提醒，不影响退出码）
   selftest
@@ -280,6 +282,34 @@ def oklch_to_hex(L, C, h):
 def delta_e_ok(rgb_a, rgb_b) -> float:
     a, b = hex_to_oklab(rgb_a), hex_to_oklab(rgb_b)
     return math.sqrt(sum((a[i] - b[i]) ** 2 for i in range(3)))
+
+
+def mix_colors(a, b, weight, space="oklab"):
+    """a 占 weight（0..1），b 占其余。transparent 一端退化为「该色带 alpha」；
+    两端都带 alpha（非 0）时拒绝，必须先 composite 成实色。oklab 为默认空间。"""
+    ra, aa = a
+    rb, ab = b
+    if aa <= 0.0 and ab <= 0.0:
+        raise InputError("两个 transparent 没有可判定的实色")
+    if aa <= 0.0:
+        return [int(round(v)) for v in rb], ab * (1.0 - weight)
+    if ab <= 0.0:
+        return [int(round(v)) for v in ra], aa * weight
+    if aa < 1.0 or ab < 1.0:
+        raise InputError("两端都带 alpha 的混色请先 composite 成实色，或把其中一端写成 transparent")
+    if space == "srgb":
+        rgb = [ra[i] * weight + rb[i] * (1.0 - weight) for i in range(3)]
+    else:
+        la, lb = hex_to_oklab(ra), hex_to_oklab(rb)
+        lab = [la[i] * weight + lb[i] * (1.0 - weight) for i in range(3)]
+        rgb = [_linear_to_srgb(max(0.0, min(1.0, v))) for v in oklab_to_linear(lab)]
+    return [int(round(v)) for v in rgb], 1.0
+
+
+def mix_operand(value):
+    if value.strip().lower() == "transparent":
+        return ([0, 0, 0], 0.0)
+    return parse_color(value)
 
 
 def polarity_of(rgb) -> str:
@@ -713,6 +743,19 @@ def cmd_delta(args):
     emit(args, payload, lines)
     return 1 if bad else 0
 
+def cmd_mix(args):
+    weight = args.weight / 100.0
+    if not 0.0 < weight < 1.0:
+        raise InputError("权重须在 (0,100) 开区间内，如 14 表示 A 占 14%")
+    rgb, alpha = mix_colors(mix_operand(args.first), mix_operand(args.second), weight, args.space)
+    value = fmt_hex(rgb) + ("%02x" % int(round(alpha * 255)) if alpha < 1.0 else "")
+    payload = {"space": args.space, "weight": args.weight, "a": args.first, "b": args.second,
+               "result": value, "rgb": rgb, "alpha": round(alpha, 4)}
+    emit(args, payload, ["%s @ %s%% + %s  (%s) -> %s" % (args.first, args.weight, args.second,
+                                                          args.space, value)])
+    return 0
+
+
 def cmd_preview(args):
     tokens = parse_token_args(args.tokens)
     if not tokens:
@@ -826,6 +869,15 @@ def cmd_selftest(args):
     check("官方表 Lc 90/400 最小字号", apca_min_size(90, 400), 16.0, 1e-9)
     check("官方表 Lc 60/700 最小字号", apca_min_size(60, 700), 16.0, 1e-9)
 
+    # 8) 混色：端点幂等、权重对称、空间确实生效（oklab 黑白中点不是 srgb 中灰）
+    a, b = parse_color("#7a5cff"), parse_color("#1c2128")
+    check("混色 A@100-ε 逼近 A", delta_e_ok(mix_colors(a, b, 0.999, "oklab")[0], a[0]), 0.0, 0.02)
+    m1 = mix_colors(a, b, 0.3, "oklab")[0]
+    m2 = mix_colors(b, a, 0.7, "oklab")[0]
+    check("OKLab 混色权重对称", delta_e_ok(m1, m2), 0.0, 1e-9)
+    bw = mix_colors((([0, 0, 0], 1.0)), (([255, 255, 255], 1.0)), 0.5, "oklab")[0]
+    check("OKLab 黑白中点 != srgb 中灰", 1.0 if fmt_hex(bw) != "#808080" else 0.0, 1.0, 0.0)
+
     failed = [c for c in checks if not c["pass"]]
     lines = ["shese selftest：%d 项" % len(checks)]
     for c in checks:
@@ -887,6 +939,14 @@ def build_parser():
     p.add_argument("--min-delta", type=float, default=0.10)
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_delta)
+
+    p = sub.add_parser("mix", help="两色按百分比混色（oklab 默认 / srgb），可含 transparent")
+    p.add_argument("first", help="A：HEX 或 transparent")
+    p.add_argument("weight", type=float, help="A 的百分比权重，0 < PCT < 100")
+    p.add_argument("second", help="B：HEX 或 transparent")
+    p.add_argument("--space", choices=("oklab", "srgb"), default="oklab")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_mix)
 
     p = sub.add_parser("preview", help="把 token 注入自包含预览页模板")
     p.add_argument("--tokens", action="append", default=[], metavar="name=HEX")

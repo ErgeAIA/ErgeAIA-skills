@@ -367,6 +367,12 @@ class TestPreviewInjection(unittest.TestCase):
             with self.subTest(token=name):
                 self.assertEqual(text.count("--" + name + ":"), 1)
 
+    def test_real_template_derives_states_in_oklab(self):
+        text = shese.DEFAULT_TEMPLATE.read_text(encoding="utf-8")
+        # 派生状态底（按钮、徽章、选中行）统一在 oklab 混色：同一比例跨色相的明度 / 彩度变化才一致
+        self.assertNotIn("color-mix(in srgb", text)
+        self.assertGreaterEqual(text.count("color-mix(in oklab"), 8)
+
     def test_shell_pins_survive_injection(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "out.html"
@@ -434,6 +440,41 @@ class DeltaTests(unittest.TestCase):
         code, _out, err = run_cli("delta", "#ffffff80", "#101014")
         self.assertEqual(code, 2)
         self.assertIn("composite", err)
+
+
+class MixTests(unittest.TestCase):
+    def test_mix_space_changes_midpoint(self):
+        code, out, _err = run_cli("mix", "#000000", "50", "#ffffff", "--json")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["result"], "#636363")
+        code, out, _err = run_cli("mix", "#000000", "50", "#ffffff", "--space", "srgb", "--json")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["result"], "#808080")
+
+    def test_mix_with_transparent_returns_alpha_hex(self):
+        code, out, _err = run_cli("mix", "#7a5cff", "22", "transparent", "--json")
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["result"], "#7a5cff38")
+        self.assertAlmostEqual(payload["alpha"], 0.22, places=6)
+
+    def test_mix_weight_symmetry(self):
+        a = shese.parse_color("#7a5cff")
+        b = shese.parse_color("#1c2128")
+        m1 = shese.mix_colors(a, b, 0.3)[0]
+        m2 = shese.mix_colors(b, a, 0.7)[0]
+        self.assertLess(shese.delta_e_ok(m1, m2), 1e-9)
+
+    def test_mix_rejects_two_alpha_colors(self):
+        code, _out, err = run_cli("mix", "#ffffff80", "50", "#000000")
+        self.assertEqual(code, 2)
+        self.assertIn("composite", err)
+
+    def test_mix_rejects_endpoint_weight(self):
+        for weight in ("0", "100"):
+            code, _out, err = run_cli("mix", "#000000", weight, "#ffffff")
+            self.assertEqual(code, 2)
+            self.assertIn("0,100", err)
 
 
 if __name__ == "__main__":
