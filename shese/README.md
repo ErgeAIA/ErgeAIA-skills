@@ -2,7 +2,7 @@
 
 > 设色者，布色于位，明其阶次。先定其所用，再正其所失。
 
-**v1.1.0** · Agent Skill ｜ 配色审查、优化与生成
+**v1.1.1** · Agent Skill ｜ 配色审查、优化与生成
 
 在用户声明的阅读场景下，让一套配色读得舒服，同时不丢失它原本要表达的情绪——并且让不懂色彩学与设计的人也能拿到结论、看见这套色在真实界面里的样子。
 
@@ -154,4 +154,4 @@ python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量
 
 ## 版本
 
-v1.1.0。详见 [CHANGELOG.md](CHANGELOG.md)。
+v1.1.1。详见 [CHANGELOG.md](CHANGELOG.md)。

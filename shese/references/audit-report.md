@@ -1,7 +1,7 @@
 ---
 name: "audit-report 深档完整报告规范"
 description: "shese 深档完整报告的十三节固定结构：逐节给出目的、必含字段、取数用的脚本子命令、哪些必须按感知机制人工判断、何时可省；第 13 节为机检自检清单与人眼验收产物；附对照页写法（优化交付必产）与实战正反例；末尾规定报告口径（WCAG 相对亮度比）与判定口径（APCA 加感知机制）的分离。"
-version: 1.1.0
+version: 1.1.1
 trigger-when: 用户明确要完整报告、要交代判定依据、要做评审或归档时
 reads-from: SKILL.md, scripts/shese.py
 writes-to: 无（只规定报告结构，不落盘）

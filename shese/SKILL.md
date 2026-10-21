@@ -3,7 +3,7 @@ name: shese
 description: "审查并优化既有配色，也能只凭一句风格意图生成新配色：给出可读性判定、最小改动方案与新色值，并产出可直接看效果的场景预览页。Use when 用户要做配色、色板、主题或设计 token，或问某套颜色是否好读、对比够不够、看着舒不舒服。"
 metadata:
   author: ErgeAIA
-  version: "1.1.0"
+  version: "1.1.1"
 ---
 
 # 设色 · Shese
