@@ -296,6 +296,13 @@ class TestCliExitCodes(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertTrue(data["collapsed_pairs"])
 
+    def test_cvd_normal_collapse_is_flagged(self):
+        code, out, _err = run_cli("cvd", "#112233", "#122334", "--json")
+        data = json.loads(out)
+        self.assertEqual(code, 1, "常态 ΔE 已低于阈值却判通过")
+        self.assertTrue(data["collapsed_pairs"])
+        self.assertIn("normal", data["pairs"][0]["fail_in"])
+
     def test_cvd_distinct_colors_pass(self):
         code, _out, _err = run_cli("cvd", "#1b3a6b", "#f2c14e", "#8a5cf6")
         self.assertEqual(code, 0)
@@ -526,6 +533,71 @@ class TestProgressiveDisclosure(unittest.TestCase):
         self.assertIn("本文件全量加载", text)
         self.assertIn("references/troubleshooting.md", text)
         self.assertIn("references/tool-usage.md", text)
+
+
+class TestFailureHandling(unittest.TestCase):
+    """失败模式：分诊四类、每类症状标能否交付、交付闸与静默失败复核必须可查。"""
+
+    ROOT = SCRIPT.parent.parent
+    SKILL = ROOT / "SKILL.md"
+    TROUBLE = ROOT / "references" / "troubleshooting.md"
+
+    def trouble_text(self):
+        return self.TROUBLE.read_text(encoding="utf-8")
+
+    def test_skill_triages_failure_classes(self):
+        text = self.SKILL.read_text(encoding="utf-8")
+        self.assertIn("先分诊", text)
+        for kind in ("输入缺 / 歧义", "工具 / 环境错", "判定不达标", "不可算 / 超边界"):
+            with self.subTest(kind=kind):
+                self.assertIn(kind, text, "SKILL.md 缺失败分诊类别：" + kind)
+        self.assertIn("交付闸", text, "SKILL.md 分诊后未指向交付闸")
+        self.assertIn("静默失败", text, "SKILL.md 未指向静默失败复核")
+
+    def test_each_troubleshooting_row_states_delivery(self):
+        text = self.trouble_text()
+        self.assertIn("仍失败时能否交付", text, "故障表缺「能否交付」列")
+        for trigger in ("色值缺角色", "没给时长或字号字重", "色觉模拟塌陷",
+                        "要求档高于该承载面物理上限", "需求超边界", "计算层跑不起来", "--to-hex"):
+            rows = [ln for ln in text.splitlines() if ln.startswith("|") and trigger in ln.split("|")[1]]
+            with self.subTest(trigger=trigger):
+                self.assertEqual(len(rows), 1, trigger + " 在故障表中不是唯一一行")
+                self.assertTrue(any("可降级" in ln or "阻断" in ln for ln in rows),
+                                trigger + " 行未写明仍失败时能否交付")
+
+    def test_troubleshooting_gate_and_six_checks(self):
+        text = self.trouble_text()
+        for heading in ("## 交付闸", "## 静默失败复核"):
+            with self.subTest(heading=heading):
+                self.assertIn(heading, text)
+        for verdict in ("阻断", "可降级", "不是失败"):
+            with self.subTest(verdict=verdict):
+                self.assertIn(verdict, text, "交付闸缺闸位：" + verdict)
+        for n in range(1, 7):
+            with self.subTest(check=n):
+                self.assertRegex(text, r"(?m)^" + str(n) + r"\. ", "静默失败复核缺第 " + str(n) + " 查")
+
+    def test_delivery_verdicts_are_classified_correctly(self):
+        text = self.trouble_text()
+        to_hex = [ln for ln in text.splitlines() if ln.startswith("|") and "--to-hex" in ln.split("|")[1]]
+        self.assertEqual(len(to_hex), 1)
+        self.assertIn("阻断：修好重跑前不交付", to_hex[0], "--to-hex 行未写阻断")
+        self.assertIn("位置写错（不报错）", to_hex[0], "--to-hex 行未区分给少了与位置写错")
+        self.assertIn("色度收缩是成功路径", to_hex[0])
+        self.assertIn("阻断：数字类结论不能交", text, "计算层跑不起来未标阻断")
+        self.assertIn("带条件通过", text, "交付闸「不是失败」与分诊的交付词不一致")
+        skill = self.SKILL.read_text(encoding="utf-8")
+        self.assertIn("exit 1 命中硬底线（CHECKPOINT 3）算阻断", skill,
+                      "SKILL.md 未区分 exit 1 命中硬底线与锚点差距")
+        self.assertIn("命中硬底线归阻断", text, "交付闸未把命中硬底线的 exit 1 归阻断")
+
+    def test_preview_fallback_matches_between_files(self):
+        skill = self.SKILL.read_text(encoding="utf-8")
+        trouble = self.trouble_text()
+        for label, text in (("SKILL.md", skill), ("troubleshooting.md", trouble)):
+            with self.subTest(file=label):
+                self.assertIn("改交「色值 + 判定表 + JSON」", text,
+                              label + " 未写预览页失败的替代交付物")
 
 
 if __name__ == "__main__":

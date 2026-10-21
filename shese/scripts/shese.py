@@ -703,16 +703,18 @@ def cmd_cvd(args):
                 entry["simulated"][kind] = round(de, 4)
             collapsed = [k for k, v in entry["simulated"].items() if v < args.min_delta]
             entry["collapsed_in"] = collapsed
-            entry["fail"] = bool(collapsed) and entry["normal"] >= args.min_delta
+            failed_in = ([] if entry["normal"] >= args.min_delta else ["normal"]) + collapsed
+            entry["fail"] = bool(failed_in)
+            entry["fail_in"] = failed_in
             pairs.append(entry)
     for entry in pairs:
         lines.append("  %s vs %s  ΔE-OK 常态 %.3f | protan %.3f deutan %.3f tritan %.3f%s" % (
             entry["pair"][0], entry["pair"][1], entry["normal"],
             entry["simulated"]["protan"], entry["simulated"]["deutan"], entry["simulated"]["tritan"],
-            "  <- 模拟下塌陷：" + ",".join(entry["collapsed_in"]) if entry["fail"] else ""))
+            "  <- 塌陷：" + ",".join(entry["fail_in"]) if entry["fail"] else ""))
     bad = [p for p in pairs if p["fail"]]
-    lines.append("结论：%s" % ("语义色在三类模拟下仍两两可辨" if not bad else
-                            "%d 对配色在模拟下塌陷，需补明度差或形态 / 文字冗余编码" % len(bad)))
+    lines.append("结论：%s" % ("语义色在常态与三类模拟下均两两可辨" if not bad else
+                            "%d 对配色在常态或模拟下塌陷，需补明度差或形态 / 文字冗余编码" % len(bad)))
     payload = {"min_delta": args.min_delta, "colors": sims, "pairs": pairs,
                "collapsed_pairs": [p["pair"] for p in bad]}
     emit(args, payload, lines)

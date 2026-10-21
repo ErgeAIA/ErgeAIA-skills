@@ -92,7 +92,7 @@ python scripts/shese.py preview \
 
 | 子命令 | 用途 | 关键参数 |
 | --- | --- | --- |
-| `oklch` | 十六进制 ↔ OKLCH | `--to-hex "L C h"`、`--json`；超色域自动按 ×0.98 逐步收缩色度并标注，h 偏移超过 10° 时回原值交付并注明超出 sRGB |
+| `oklch` | 十六进制 ↔ OKLCH | `--to-hex "L C h"`、`--json`；超色域自动按 ×0.98 逐步收缩色度并标注；收缩 200 步仍进不去色域时报 exit 2 |
 | `contrast` | 单对配色的 APCA Lc 与相对亮度比 | `--size` + `--weight` 走官方矩阵；不给则按 `--role body\|aux\|hint` 档（60 / 45 / 30） |
 | `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 | `--on` 指定最底不透明基准面（只收一个，重复给取最后一个） |
 | `matrix` | 文字 token × 承载面矩阵，标出最差面 | `--tokens` 里 text 条目可写 `{"hex","role","size","weight"}` 逐 token 定要求 |
@@ -134,7 +134,7 @@ shese/
 └── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
 
-**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。
+**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。另有 `TestFailureHandling` 5 个用例机检失败模式：四类分诊齐全、故障表每行都写了能否交付、交付闸三闸位与静默失败六查编号齐全。
 
 ## 测试与自检
 
@@ -143,7 +143,7 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 65 tests ... OK`；selftest 27 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 71 tests ... OK`；selftest 27 项全 PASS、退出码 0。
 
 ## 边界
 
