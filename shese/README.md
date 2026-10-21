@@ -127,21 +127,23 @@ shese/
 ├── SKILL.md              执行规则、判定表、输出契约（AI 读）
 ├── README.md             本文件（人读）
 ├── CHANGELOG.md          版本历史
-├── references/           mechanisms / scenes / thresholds / generate / audit-report / theme-source
+├── references/           mechanisms / scenes / thresholds / generate / audit-report / theme-source / troubleshooting / tool-usage
 ├── scripts/shese.py      计算层（零依赖）
 ├── scripts/test_shese.py 单元测试
 ├── assets/scene-preview.html  场景预览页模板
 └── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
 
+**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。
+
 ## 测试与自检
 
 ```bash
 python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度、未知 token 名等边界）
-python scripts/shese.py selftest  # 24 项官方数值锚定（APCA 官方向量 + 矩阵锚点）
+python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 54 tests ... OK`；selftest 24 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 65 tests ... OK`；selftest 27 项全 PASS、退出码 0。
 
 ## 边界
 

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -475,6 +476,56 @@ class MixTests(unittest.TestCase):
             code, _out, err = run_cli("mix", "#000000", weight, "#ffffff")
             self.assertEqual(code, 2)
             self.assertIn("0,100", err)
+
+
+class TestProgressiveDisclosure(unittest.TestCase):
+    """SKILL.md 全量加载、references 按需加载：引用可达、无孤儿文件、无悬空引用。"""
+
+    ROOT = SCRIPT.parent.parent
+    SKILL = ROOT / "SKILL.md"
+    REFERENCES = ROOT / "references"
+    LINK = re.compile(r"references/([A-Za-z0-9._-]+\.md)")
+
+    def skill_text(self):
+        return self.SKILL.read_text(encoding="utf-8")
+
+    def reference_files(self):
+        return sorted(self.REFERENCES.glob("*.md"))
+
+    def test_skill_reference_paths_exist(self):
+        names = set(self.LINK.findall(self.skill_text()))
+        self.assertTrue(names, "SKILL.md 未登记任何 references 文件")
+        for name in sorted(names):
+            with self.subTest(path=name):
+                self.assertTrue((self.REFERENCES / name).is_file(),
+                                "SKILL.md 引用了不存在的文件：references/" + name)
+
+    def test_no_orphan_reference_file(self):
+        text = self.skill_text()
+        for path in self.reference_files():
+            with self.subTest(path=path.name):
+                self.assertIn("references/" + path.name, text,
+                              "references/" + path.name + " 未被 SKILL.md 登记（死文件）")
+
+    def test_reference_cross_links_resolve(self):
+        available = {p.name for p in self.reference_files()}
+        for path in self.reference_files():
+            text = path.read_text(encoding="utf-8")
+            for name in sorted(set(self.LINK.findall(text))):
+                with self.subTest(src=path.name, target=name):
+                    self.assertIn(name, available, path.name + " 指向不存在的 references/" + name)
+
+    def test_every_reference_declares_trigger_when(self):
+        for path in self.reference_files():
+            head = "\n".join(path.read_text(encoding="utf-8").splitlines()[:8])
+            with self.subTest(path=path.name):
+                self.assertIn("trigger-when:", head, "references/" + path.name + " 缺 trigger-when 头")
+
+    def test_skill_states_loading_discipline(self):
+        text = self.skill_text()
+        self.assertIn("本文件全量加载", text)
+        self.assertIn("references/troubleshooting.md", text)
+        self.assertIn("references/tool-usage.md", text)
 
 
 if __name__ == "__main__":

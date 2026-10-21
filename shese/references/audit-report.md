@@ -11,7 +11,7 @@ writes-to: 无（只规定报告结构，不落盘）
 
 本文件只规定深档报告的节次、字段与取数来源。执行顺序、判定链与三级标注的定义以 SKILL.md 为准，此处不复述，避免两份文件各说一套。
 
-十三节顺序固定，不得增删或调换节次。脚本侧可用的子命令固定八个：oklch、contrast、composite、matrix、cvd、delta、mix、preview；下文「数据从哪来」只从这八个里点名。
+十三节顺序固定，不得增删或调换节次。脚本侧判定用的子命令固定八个：oklch、contrast、composite、matrix、cvd、delta、mix、preview（另有 selftest 自检，不入判定链）；下文「数据从哪来」只从这八个里点名。
 
 ## 1 结论
 

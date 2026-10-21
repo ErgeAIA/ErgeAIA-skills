@@ -22,6 +22,8 @@ Core Task：
 
 三条轨道（审查 / 生成 / 取源）共用一条判定链，见「执行步骤」分轨。
 
+本文件全量加载，因此只放每次都要用的判断与执行规则；场景推导、机制库、数字表、生成轨、报告模板、故障处置与主题取源都在 `references/`，按文末 References 各自的条件按需读，读到的口径不回抄进本文件。
+
 **唯一标准**：指定场景下阅读舒适性最高且不丢失原意；审美偏好不得凌驾于可读性，结论先行，不做赞美式点评。
 
 ## 不可违背
@@ -100,15 +102,7 @@ Core Task：
 | 7 优化 | 步骤 6 不达标的项 | 用 `oklch` 取原 L / C / h、只动一个分量、`--to-hex` 出新值；产出改后色值表（角色｜原值｜新值｜理由｜目标）。改完重跑 4、5、6 确认无回归 |
 | 8 交付 | 定稿色值 + 判定结论 | 快档四件（结论 / 预览页 / 决策摘要 / token JSON）；完整报告走深档，见 `references/audit-report.md` |
 
-命令样例：单点复核 `contrast "#8b949e" "#0d1117" --size 13 --weight 400`；矩阵写 spec 喂脚本，各 token 用自己的角色与字号（全局旗标一视同仁，别用）：
-
-```json
-{"text": {"text": {"hex": "#c9d1d9", "role": "body", "size": 16, "weight": 400},
-          "textMuted": {"hex": "#8b949e", "role": "aux", "size": 13, "weight": 400}},
- "surface": {"bg": "#0d1117", "card": "#1c2128"}}
-```
-
-`matrix --tokens spec.json`；`delta "#1c2128" "#161b22" "#0d1117"` 按传入顺序两两相邻，低于 0.10 即塌陷、exit 1；`cvd` 只管色觉塌陷。`preview --tokens bg=#0d1117 --tokens text=#e6edf3 --out preview.html`（`--tokens` 可重复；`--mode light` 只改标签，浅色预览须喂浅色值）。
+命令样例：单点复核 `contrast "#8b949e" "#0d1117" --size 13 --weight 400`；矩阵写 spec 喂脚本——`{"role": "body", "size": 16, "weight": 400, "text": {"text": "#c9d1d9"}, "surface": {"bg": "#0d1117", "card": "#1c2128"}}` 存 spec.json 后 `matrix --tokens spec.json`（逐 token 覆盖 role/size/weight 与多面写法见 `references/tool-usage.md` 三；全局旗标一视同仁，别用）；`delta "#1c2128" "#161b22" "#0d1117"` 按传入顺序两两相邻，低于 0.10 即塌陷、exit 1；`cvd` 只管色觉塌陷。`preview --tokens bg=#0d1117 --tokens text=#e6edf3 --out preview.html`（`--tokens` 可重复；`--mode light` 只改标签，浅色预览须喂浅色值）。
 
 > 🔴 **CHECKPOINT 1 · 目标未定不动手**：用途、时长、字号字重缺两项先问（≤3 问）；不回就取最近默认档并标【假设】——目标错，后面全白算。
 > 🔴 **CHECKPOINT 2 · 判定链未清完不改色**：合成实色与矩阵都在手上，每个不达标项能说出「差多少、卡在哪条机制」；最差面未定先回步骤 4。
@@ -117,41 +111,35 @@ Core Task：
 
 ## 工具（精确数字必须来自这里）
 
-下表命令均以 `python scripts/shese.py <子命令>` 调用（零依赖，Python ≥3.10；`--help` 查参数）。
+下表命令均以 `python scripts/shese.py <子命令>` 调用（零依赖，Python ≥3.10）。完整旗标、spec 字段、预览页 14 个变量名与常用配方见 `references/tool-usage.md`；本表只给用途。
 
 | 子命令 | 用途 |
 | --- | --- |
 | `oklch` | hex ↔ OKLCH，`--to-hex` 反向；超色域收缩并标注 |
-| `contrast <text> <bg>` | 单配对的 APCA Lc 与相对亮度比；给 `--size` + `--weight` 按官方矩阵定档，不给则按 `--role body\|aux\|hint`（60 / 45 / 30） |
+| `contrast <text> <bg>` | 单配对的 APCA Lc 与相对亮度比；档位来自 `--size` + `--weight`，缺省按 `--role`（body / aux / hint = 60 / 45 / 30） |
 | `composite` | 带 alpha 的颜色沿链在 sRGB 合成 |
-| `matrix` | 文字 × 承载面矩阵，标最差面；`--tokens` 的 text 条目写 `{"hex","role","size","weight"}` 让每 token 用自己的档，写字符串则沿用全局参数；也可 `--text` / `--surface` 逐个给 |
+| `matrix` | 文字 × 承载面矩阵，标最差面；spec 形状与逐 token 覆盖见 `references/tool-usage.md` 三；也可 `--text` / `--surface` 逐个给 |
 | `delta <colors...>` | 相邻层级 ΔE-OK（默认 0.10） |
 | `cvd <colors...>` | 三类色觉模拟 + ΔE-OK（默认 0.10） |
 | `mix <A> <PCT> <B> [--space oklab\|srgb]` | A 占 PCT% 与 B 混色；一端可写 `transparent`（= 该色带 alpha）；派生色阶用 oklab，srgb 仅复算 |
-| `preview --tokens name=HEX --out <file> [--mode dark\|light]` | 注入 `assets/scene-preview.html` 出填色副本；外壳用品牌主题色，只审注入 token；bg 与 `--mode` 极性不符时 stderr 提醒，退出码不变 |
+| `preview --tokens name=HEX --out <file> [--mode dark\|light]` | 注入 `assets/scene-preview.html` 出填色副本；外壳用品牌主题色，只审注入 token；14 个变量名见 `references/tool-usage.md` 四 |
 | `selftest` | 官方测试向量自检（改脚本必跑） |
 
 退出码：0 = 成功（判定类即全部达标）／1 = 判定不达标／2 = 输入或环境错误。token 别名归一到 14 个标准名。
 
 hex 参数一律加引号（PowerShell 下裸 `#` 会被当注释截断、静默失败）；起步档由脚本按官方矩阵查表，禁止插值或凭记忆给数；脚本给单点判据，交付仍要连区间与代价。
 
-## 卡住时怎么办（触发条件 / 一线修复 / 仍失败兜底）
+## 卡住时怎么办（症状 / 一线修复 / 仍失败兜底）
 
-读到症状先查表，别硬推。第三列是前两步都没解决时的动作，不是可选项。
+读到症状先查表，别硬推。第三列是前两步都没解决时的动作，不是可选项。下表只留最高频五类；缺角色、缺字号字重、色觉塌陷、物理上限无解、需求超边界、`--to-hex` 写法与退出码速查见 `references/troubleshooting.md`。
 
-| 触发条件 | 一线修复 | 仍失败兜底 |
+| 症状 | 一线修复 | 仍失败兜底 |
 | --- | --- | --- |
 | 色值非十六进制或位数非 3/4/6/8（exit 2） | 把 rgb()/hsl()/命名色按浏览器口径换成十六进制重跑 | 仍解析不了就记【不可计算】单列，该行写「无法判定 + 缺什么」，不猜不跳 |
 | token 名不在 14 个标准名内（exit 2） | 按别名归一（`background`→`bg`、`ok`→`success`、`muted`→`textMuted`），重跑 | 仍无法归一按 L / C 映射最近角色，结论写明人工映射 |
 | 承载面是 hover / selection / 半透明层（含模板混色底；脚本只认 14 个标准名） | 先 `composite` 合成实色，再挑最近标准面名承载（`matrix --text … --surface …`），列名标真实面名（hover @ card） | 合成链超两层或依赖未定交互态，单列标【未定面】，不算通过 |
-| 色值缺角色（只有 bg 与 text） | 只对已给角色下结论，缺的写【缺】 | 不补齐、不虚构 token；token JSON 只含实给到的键；预览页必须渲满 14 变量时用同族占位值并标【占位·未判定】 |
-| 没给时长或字号字重 | 只问影响结论最大的一项（通常字号或字重），一次 ≤3 问 | 仍缺就取该场景默认档并标【假设】，结论点明「随字号变化」 |
-| 色觉模拟塌陷（`cvd` 报某对低于 0.10） | 先加明度差（改 L 不动色相）重跑 `cvd` | 明度差已挤压到影响层级就改用形态或文字冗余（图标、下划线、标签），写明「仅靠颜色不可区分」 |
-| 要求档高于该承载面物理上限（纯白/纯黑也达不到） | 先量上限：`contrast "#FFFFFF" "<面>" --size N --weight W`（正极性用 `#000000`）；能提字号或加字重就提，把要求档降到上限内 | 不能改字号就判「该面不可承载此档」，给出该面可达最高档与差额，交用户裁：换面 / 改字号 / 带条件通过（见 thresholds 1.4） |
 | `contrast` / `matrix` 不达标（exit 1） | 按缺口提字号、加字重、拉明度差或改承载面，一次只动一个变量 | 用户要求保留原值，就给「保留 + 补偿」方案（具体字号字重或承载面）并标明是带条件通过 |
 | `preview` 注入失败（缺变量 / 路径不可写） | 查 token 名与模板 14 个变量是否一一对应；输出换可写目录 | 仍失败就不交预览页，改交「色值 + 判定表 + JSON」并说明原因 |
-| 需求超边界（色阶 / 插画印刷 / 整套设计系统） | 说明边界并给一条替代路径（如顺序色阶改感知等步长取色），不代做 | 用户坚持就要：可算部分照算（层级、对比、色觉），不可算部分标【超出范围】，不硬套界面 token 判据 |
-| `--to-hex` 三数写错位置或给少了（exit 2） | 按 `--to-hex "0.7 0.2 40"` 引号三数形式重写 | C 再大也不报错，脚本按 ×0.98 缩到入色域并标 `[超出 sRGB，色度收缩至 …]` |
 
 ## 输出契约
 
@@ -201,7 +189,7 @@ hex 参数一律加引号（PowerShell 下裸 `#` 会被当注释截断、静默
 
 ## Non-Goals
 
-- **数据可视化色阶**（顺序 / 发散 / 分类）：判据与界面 token 不同，见卡住表超边界行。
+- **数据可视化色阶**（顺序 / 发散 / 分类）：判据与界面 token 不同，见 `references/troubleshooting.md` 超边界行。
 - **插画、摄影、印刷配色**：色域、纸白与油墨叠印不在判定链内。
 - **品牌色相**：用户资产，只指出冲突与替代用途。
 - **色彩心理学叙事**：不解释「蓝色代表信任」，只判可读性与意图保真。
@@ -215,3 +203,5 @@ hex 参数一律加引号（PowerShell 下裸 `#` 会被当注释截断、静默
 - 只给风格意图或要再出方向 → 见 `references/generate.md`：意图卡、候选生成、保真判据
 - 要完整报告或归档 → 见 `references/audit-report.md`：深档十三节（含人眼验收）与取数来源
 - 报主题编号 / 主题名，或预览页套品牌外观 → 见 `references/theme-source.md`：取色三步、只读纪律、token 对齐与外壳 pin
+- 脚本报错、输入缺项、无解上限或需求超边界 → 见 `references/troubleshooting.md`：其余六类症状的逐行处置、退出码速查与处置底线
+- 填参数、拼 matrix spec、对 token 与 `--role` 或预览页变量 → 见 `references/tool-usage.md`：九个子命令（含 selftest）完整旗标、14 token ↔ role 对照、spec 字段与配方
