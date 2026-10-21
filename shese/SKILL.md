@@ -92,7 +92,7 @@ Core Task：
 | 步 | 输入 | 产出与命令 |
 | --- | --- | --- |
 | 1 阅读目标声明 | 用途、单次时长、环境亮度、字号与字重、信息密度；缺项标【假设】 | 3–5 句目标句，六字段齐备，后续尺度只能从这里推。先取 `references/scenes.md` 最近画像的默认档，再按实际改并写明理由 |
-| 2 角色还原 | hex 列表或语义 token 名（别名自动归一） | 十个语义角色（底层背景 / 抬升面 / 浮层 / 边框 / 正文 / 次级文字 / 弱化文字 / 点睛 / 品牌色 / 语义色）各绑一个 hex；`oklch "#c9d1d9" "#8b949e" --json` 读 L / C / h，按 L 排层级、按 h 分家族，映射不了的 单列并说明原因 |
+| 2 角色还原 | hex 列表或语义 token 名（别名自动归一） | 按 14 个标准 token 名绑 hex（token 名即下游键，与 `--role` 三档是两个轴）：bg 底层 / surface 抬升 / card 卡片 / elevated 浮层 / border 边框 / text 正文 / textMuted 次级 / textDim 弱化 / accent 点睛 / brand 品牌 / success·warning·danger·info 语义色（四色共一职责）；`oklch "#c9d1d9" "#8b949e" --json` 读 L / C / h，按 L 排层级、按 h 分家族，映射不了的 单列并说明原因 |
 | 3 意图解读 | 步骤 2 的 L / C / h 分布，尤其 C 最高的两三个色 | 一句话调性 + 哪几个 hex 承担该表达；判据是彩度与色相位置，不是形容词堆叠 |
 | 4 合成层清理 | 哪些 token 带 alpha、透明度、可能落点 | `composite "#ffffffb3" --on "#22222B"`，多层按自顶向下作位置参数、`--on` 只给最底层；产出「透明度 → 沿链合成实色 → 最差面」。带 alpha 的文字 token 没给最差面则结论无效 |
 | 5 文字—背景矩阵 | 每个文字 token 的 (hex, role, size, weight) 与全部承载面 | 每 token 的 WCAG 比值（记账）+ APCA Lc（判定）+ 要求值 + 最差面 + 缺口；exit 1 = 最差面不达标。层级差跑 `delta`、色觉跑 `cvd` |
@@ -124,7 +124,7 @@ Core Task：
 | `oklch` | hex ↔ OKLCH，`--to-hex` 反向；超色域收缩并标注 |
 | `contrast <text> <bg>` | 单配对的 APCA Lc 与相对亮度比；给 `--size` + `--weight` 按官方矩阵定档，不给则按 `--role body\|aux\|hint`（60 / 45 / 30） |
 | `composite` | 带 alpha 的颜色沿链在 sRGB 合成 |
-| `matrix` | 文字 × 承载面矩阵，标最差面；`--tokens` 的 text 条目写 `{"hex","role","size","weight"}` 让每 token 用自己的档，写字符串则沿用全局参数 |
+| `matrix` | 文字 × 承载面矩阵，标最差面；`--tokens` 的 text 条目写 `{"hex","role","size","weight"}` 让每 token 用自己的档，写字符串则沿用全局参数；也可 `--text` / `--surface` 逐个给 |
 | `delta <colors...>` | 相邻层级 ΔE-OK（默认 0.10） |
 | `cvd <colors...>` | 三类色觉模拟 + ΔE-OK（默认 0.10） |
 | `mix <A> <PCT> <B> [--space oklab\|srgb]` | A 占 PCT% 与 B 混色；一端可写 `transparent`（= 该色带 alpha）；派生色阶用 oklab，srgb 仅复算 |
