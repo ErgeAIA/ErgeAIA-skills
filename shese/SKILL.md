@@ -88,19 +88,19 @@ Core Task：
 每步按「输入 → 产出 → 命令」走，命令在技能目录下原样可跑。**先判轨道再走链**：
 
 - **审查轨**（给了色值）→ 步骤 1。
-- **生成轨**（只给意图 / 症状词 / 参考锚点）→ 按 `references/generate.md` 出意图卡与 2–3 套骨架不同的候选，每套跑满 1–7 单独给判定，第 8 步一次汇总出对照（骨架差异 / 强弱 / 推荐 / 代价）；不许只验一套就用它。
-- **取源轨**（报主题编号 / 主题名）→ 按 `references/theme-source.md` 取 palette 全表，再按审查轨走。
+- **生成轨**（只给意图 / 症状词 / 参考锚点）→ 按 `references/generate.md` 出意图卡（回给用户确认后再出候选）与 2–3 套骨架不同的候选，每套跑满 1–7 单独给判定，第 8 步一次汇总出对照（骨架/强弱/推荐/代价）；不许只验一套就用它。
+- **取源轨**（报主题编号 / 主题名）→ 按 `references/theme-source.md` 取 palette 全表，token 对齐表回给用户确认后再按审查轨走。
 
 | 步 | 输入 | 产出与命令 |
 | --- | --- | --- |
-| 1 阅读目标声明 | 用途、单次时长、环境亮度、字号与字重、信息密度；缺项标【假设】 | 3–5 句目标句，六字段齐备，后续尺度只能从这里推。出口过 CP1。先取 `references/scenes.md` 最近画像的默认档，再按实际改并写明理由 |
-| 2 角色还原 | hex 列表或语义 token 名（别名自动归一） | 按 14 个标准 token 名绑 hex（token 即下游键，与 `--role` 三档两轴）：bg 底层 / surface 抬升 / card 卡片 / elevated 浮层 / border 边框 / text 正文 / textMuted 次级 / textDim 弱化 / accent 点睛 / brand 品牌 / success·warning·danger·info 语义色（四色共一职责）；`oklch "#c9d1d9" "#8b949e" --json` 读 L / C / h，按 L 排层级、按 h 分家族，映射不了的单列并说明原因 |
+| 1 阅读目标声明 | 用途、单次时长、环境亮度、字号与字重、信息密度；缺项标【假设】 | 3–5 句目标句，六字段齐，后续尺度只能从这推。出口过 CP1。先取 `scenes.md` 最近画像默认档，再按实际改并写理由 |
+| 2 角色还原 | hex 列表或语义 token 名（别名自动归一） | 按 14 个标准 token 名绑 hex（token 即下游键，与 `--role` 三档两轴）：bg 底层 / surface 抬升 / card 卡片 / elevated 浮层 / border 边框 / text 正文 / textMuted 次级 / textDim 弱化 / accent 点睛 / brand 品牌 / success·warning·danger·info 语义色（四色共一职责）；`oklch "#c9d1d9" "#8b949e" --json` 读 L / C / h，按 L 排层级、按 h 分家族，映射不了单列说明原因 |
 | 3 意图解读 | 步骤 2 的 L / C / h 分布，尤其 C 最高的两三个色 | 一句话调性 + 哪几个 hex 承担该表达；判据是彩度与色相位置，不是形容词堆叠 |
-| 4 合成层清理 | 哪些 token 带 alpha、透明度、可能落点 | `composite "#ffffffb3" --on "#22222B"`，多层按自顶向下作位置参数、`--on` 只给最底层；产出「透明度 → 沿链合成实色 → 最差面」。带 alpha 的文字 token 没给最差面则结论无效；无 alpha 的跳过并记「无」 |
-| 5 文字—背景矩阵 | 每个文字 token 的 (hex, role, size, weight) 与全部承载面 | 每 token 的 WCAG 比值（记账）+ APCA Lc（判定）+ 要求值 + 最差面 + 缺口；exit 1 = 最差面不达标。层级差跑 `delta`、色觉跑 `cvd` |
-| 6 逐项判定 | 合成实色、矩阵与 ΔE | 先定角色与最差面，再走判定表十二项，每行读出「等级 + 实测 + 机制 + 建议」；能算的给实测数，其余给区间 + 推荐点 + 代价并注明人工判断；出口过 CP2 再改色 |
+| 4 合成层清理 | 哪些 token 带 alpha、透明度、可能落点 | `composite "#ffffffb3" --on "#22222B"`，多层自顶向下作位置参数，`--on` 给最底层；产出「透明度 → 沿链合成实色 → 最差面」。带 alpha 的文字 token 没给最差面则结论无效；无 alpha 的跳过并记「无」 |
+| 5 文字—背景矩阵 | 每个文字 token 的 (hex, role, size, weight) 与全部承载面 | 每 token 的 WCAG 比值（记账）+ APCA Lc（判定）+ 要求值+最差面+缺口；exit 1 = 最差面不达标。层级差跑 `delta`、色觉跑 `cvd` |
+| 6 逐项判定 | 合成实色、矩阵与 ΔE | 先定角色与最差面，再走判定表十二项，每行读出「等级 + 实测 + 机制 + 建议」；能算的给实测数，其余给区间+推荐点+代价并注明人工判断；出口过 CP2 再改色 |
 | 7 优化 | 步骤 6 不达标的项 | 用 `oklch` 取原 L / C / h、只动一个分量、`--to-hex` 出新值；产出改后色值表（角色｜原值｜新值｜理由｜目标）。改完重跑 4–6 确认无回归，仍不过按 CHECKPOINT 3 处置 |
-| 8 交付 | 定稿色值 + 判定结论 | 快档四件（结论 / 预览页 / 决策摘要 / token JSON），生成轨另加候选对照表；出口过 CP3、CP4 再交；完整报告走深档，见 `references/audit-report.md` |
+| 8 交付 | 定稿色值 + 判定结论 | 快档四件（结论/预览页/决策摘要/token JSON），生成轨另加候选对照表；出口过 CP3、CP4 再交；完整报告走深档，见 `references/audit-report.md` |
 
 命令样例：单点复核 `contrast "#8b949e" "#0d1117" --size 13 --weight 400`；矩阵写 spec 喂脚本——`{"role": "body", "size": 16, "weight": 400, "text": {"text": "#c9d1d9"}, "surface": {"bg": "#0d1117", "card": "#1c2128"}}` 存 spec.json 后 `matrix --tokens spec.json`（逐 token 覆盖与多面写法见 `references/tool-usage.md` 三）；`delta "#1c2128" "#161b22" "#0d1117"` 按传入顺序两两相邻，低于 0.10 即塌陷、exit 1；`cvd` 只管色觉塌陷。`preview --tokens bg=#0d1117 --tokens text=#e6edf3 --out preview.html`（`--tokens` 可重复；`--mode light` 只改标签，浅色预览须喂浅色值）。
 

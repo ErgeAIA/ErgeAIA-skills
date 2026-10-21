@@ -17,6 +17,8 @@ writes-to: 无（只规定读法与纪律，不改主题仓库）
 2. 查 `INDEX.json`：按 `families[].themes[].number` 或 `displayName` 定位主题条目，取出 `palettePath` 与 `tokensPath`。
 3. 读 `palettePath`（通常是 `themes/<family>/<id>/palette.md`）的**全表**。色值以该文件的原文为准。
 
+取回后把 palette 与 14 个标准 token 的对齐表回给用户确认，再进判定链（SKILL.md 取源轨）；主题名或用途有歧义时同 CP1 追问；用户不回就按名字最接近的对齐进判定链并标【假设】。
+
 **编号会变。** 仓库主人重排编号后，旧编号会指向别的主题（曾发生：#046 由 wave 变为 dragon）。任何一次作业都必须现读 `INDEX.json`，禁止把编号与主题的对应关系写进结论或凭记忆复用。本文件里出现的编号只作示例，使用前复核。
 
 ## 2 只读纪律
