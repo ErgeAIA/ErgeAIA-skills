@@ -2,7 +2,7 @@
 
 > 设色者，布色于位，明其阶次。先定其所用，再正其所失。
 
-**v1.1.0** · Agent Skill ｜ 配色审查、优化与生成
+**v1.1.1** · Agent Skill ｜ 配色审查、优化与生成
 
 在用户声明的阅读场景下，让一套配色读得舒服，同时不丢失它原本要表达的情绪——并且让不懂色彩学与设计的人也能拿到结论、看见这套色在真实界面里的样子。
 
@@ -92,10 +92,11 @@ python scripts/shese.py preview \
 
 | 子命令 | 用途 | 关键参数 |
 | --- | --- | --- |
-| `oklch` | 十六进制 ↔ OKLCH | `--to-hex "L C h"`、`--json` |
+| `oklch` | 十六进制 ↔ OKLCH | `--to-hex "L C h"`、`--json`；超色域自动按 ×0.98 逐步收缩色度并标注；收缩 200 步仍进不去色域时报 exit 2 |
 | `contrast` | 单对配色的 APCA Lc 与相对亮度比 | `--size` + `--weight` 走官方矩阵；不给则按 `--role body\|aux\|hint` 档（60 / 45 / 30） |
-| `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 | `--on` 指定最底不透明基准面 |
+| `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 | `--on` 指定最底不透明基准面（只收一个，重复给取最后一个） |
 | `matrix` | 文字 token × 承载面矩阵，标出最差面 | `--tokens` 里 text 条目可写 `{"hex","role","size","weight"}` 逐 token 定要求 |
+| `delta` | 相邻层级的 ΔE-OK，专判层级明度差 | `--min-delta`（默认 0.10） |
 | `cvd` | 三类色觉模拟 + ΔE-OK 可辨性 | `--min-delta`（默认 0.10） |
 | `preview` | 把 token 注入模板生成填色副本 | `--tokens name=HEX`、`--out`、`--mode dark\|light` |
 | `selftest` | 官方测试向量锚定自检 | 改脚本后必跑 |
@@ -107,7 +108,7 @@ python scripts/shese.py preview \
 | 档位 | 产物 | 用途 |
 | --- | --- | --- |
 | 快档（默认） | 结论 + 决策摘要 + 场景预览页 + token JSON | 直接看效果、直接改主题文件 |
-| 深档 | 完整报告（补全十项判定实测、色觉模拟校验、不确定项） | 需要交代依据、评审或归档时 |
+| 深档 | 完整报告（补全十二项判定实测、色觉模拟校验、人眼验收、不确定项） | 需要交代依据、评审或归档时 |
 
 场景预览页是色值的填色副本：色板 + 三级文字层级 + 深浅双模式 + 三档字号 + 三色觉模拟（protan / deutan / tritan）+ 对比矩阵并标出最差格。页面外壳用 ThemeVault 的 #001（暗）/ #002（亮）品牌主题，**被审的只有你注入的那套 token**。
 
@@ -126,21 +127,23 @@ shese/
 ├── SKILL.md              执行规则、判定表、输出契约（AI 读）
 ├── README.md             本文件（人读）
 ├── CHANGELOG.md          版本历史
-├── references/           mechanisms / scenes / thresholds / generate / audit-report / theme-source
+├── references/           mechanisms / scenes / thresholds / generate / audit-report / theme-source / troubleshooting / tool-usage
 ├── scripts/shese.py      计算层（零依赖）
 ├── scripts/test_shese.py 单元测试
 ├── assets/scene-preview.html  场景预览页模板
-└── test-prompts.json     验收用例
+└── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
+
+**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。另有 `TestFailureHandling` 5 个用例机检失败模式：四类分诊齐全、故障表每行都写了能否交付、交付闸三闸位与静默失败六查编号齐全。
 
 ## 测试与自检
 
 ```bash
 python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度、未知 token 名等边界）
-python scripts/shese.py selftest  # 24 项官方数值锚定（APCA 官方向量 + 矩阵锚点）
+python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 50 tests ... OK`；selftest 24 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 71 tests ... OK`；selftest 27 项全 PASS、退出码 0。
 
 ## 边界
 
@@ -151,4 +154,4 @@ python scripts/shese.py selftest  # 24 项官方数值锚定（APCA 官方向量
 
 ## 版本
 
-v1.1.0。详见 [CHANGELOG.md](CHANGELOG.md)。
+v1.1.1。详见 [CHANGELOG.md](CHANGELOG.md)。

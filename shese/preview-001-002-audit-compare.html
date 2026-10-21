@@ -1,0 +1,141 @@
+<!doctype html><html lang="zh"><meta charset="utf-8"><title>shese 审查 #001/#002 · 现版 vs 优化版</title><style>:root{font:15px/1.8 ui-sans-serif,system-ui,"Microsoft YaHei";color:#26231F}
+*{box-sizing:border-box}body{margin:0;background:#F3F0EA;padding:30px 18px 90px}
+.wrap{max-width:1160px;margin:0 auto}
+header{margin-bottom:24px}h1{font-size:22px;margin:0 0 4px}
+.lead{color:#5E574E;font-size:13.5px;margin:0}
+section{background:#fff;border:1px solid #E3DED5;border-radius:14px;padding:22px 24px;margin-bottom:26px}
+h2{font-size:17px;margin:0 0 3px}.sub{font-size:12.5px;color:#7A7368;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:860px){.grid{grid-template-columns:1fr}}
+.panel{border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.1)}
+.panel h3{font-size:12.5px;margin:0;padding:7px 12px;background:#26231F;color:#EDE8E0;font-weight:600}
+.panel h3.bad{background:#8E2E22}.panel h3.good{background:#266A4C}
+.demo{padding:16px}
+.card{border-radius:10px;padding:13px 15px;margin-bottom:12px;font-size:14px}
+.btn{display:inline-block;border:0;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:700}
+.btn.sec{padding:8px 14px;font-size:13px;font-weight:600;background:transparent}
+.chip{font-size:12px;padding:4px 10px;border-radius:999px;font-weight:600}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:6px;margin-top:4px}
+.sw{font-size:10px;padding:6px 8px;border-radius:6px;display:flex;justify-content:space-between;font-family:ui-monospace,monospace;outline:1px solid rgba(0,0,0,.15)}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid #EDE8E0;vertical-align:top}
+th{color:#7A7368;font-weight:600;font-size:12px}
+.mono{font-family:ui-monospace,monospace;font-size:11.5px}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.p-ok{background:#DDF0E4;color:#1B7A4E}.p-no{background:#F6DFDC;color:#B23A30}
+.mood{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+.mcard{border-left:3px solid #C9C2B8;padding:10px 14px;background:#FBF9F5;font-size:13.5px}
+.mcard b{display:block;margin-bottom:4px;font-size:14px}</style>
+<div class="wrap">
+<header><h1>ThemeVault #001 夜灯 / #002 晨光 — 现版 vs 规范优化版对照</h1>
+<p class="lead">shese 审查轨 v1.1.0 · 判定口径 APCA（官方字号-字重矩阵）+ ΔE-OK(0.10) + WCAG 记账 · 2026-10-22</p></header>
+
+<section><h2>0 · 命名意境判读（本轮补上）</h2>
+<p class="sub">名字先于颜色——判据整段写在这个层级。</p>
+<div class="mood">
+<div class="mcard"><b>🌌 001「夜灯」= 一盏灯，不是白天</b>夜里灯是有边界的：只照亮桌面那一圈，四周仍暗。<b>读时安静、不刺眼</b>。实证关系 → bg 应更暗（#1A1714 略亮，L0.207），主文本不该是近乎纯白的 #F3EDE7（对底 15.37:1，超 15:1 舒适上限，夜里「晃」）。优化：bg↘#16120E（L0.148）让「灯圈」更集中、text↘#EDE4D8（14.19:1 落带内），像灯看久了不累。<br><b>暗底通用律（你那句「所有暗色都该这样设计」）——建议成套写进技能负向清单】：暗底不是反色，是<b>照度受限的空间</b>——文本降低刺激（L 上限 15:1 经验带内）、面层差收敛、功能色增亮补可辨。</div>
+<div class="mcard"><b>🌅 002「晨光」= 新一天，元气</b>晨光有两个特征：清爽（纸面 #FAF1E9 成立 ✓）+ <b>有推动感</b>。现版问题：品牌橙 #FF6A2B 无处可用作正文/小图标线（白卡 2.86:1），因此整页「推动力」只能靠大面积橙块——元气色名存实亡。优化不是把橙提亮，而是给橙配一条「可行走」的深色同族线（secondary 0000→#8C3A12，行文色像晨光打在墙上留下的影子），名字的「晨」「动」与颜色的可达路径重新接上。<b>浅底通用律】浅底的高彩信息色宜沉一档，让亮色被纸面「接住」而不是飘着。</div>
+</div></section>
+
+<section><h2>1 · 001 夜灯：现版 vs 优化版</h2><p class="sub">改 8 处 token：bg、surface、text、muted、dim、focus、sec、queued</p>
+<div class="grid">
+<div class="panel"><h3 class="bad">现版（原 palette.md 值）</h3><div class="demo" style="background:#1A1714">
+<div class="card" style="background:#241F1B;color:#F3EDE7">主文本 body 文字 — 15px 常规行。夜灯下阅读应安静、不刺眼；晨光下应清爽、有劲。<span style="color:#C9C2B8">次文本 muted 同句冗余。</span><span style="color:#858079">弱文本 dim：标签、时间戳、页脚。</span></div>
+<div class="card" style="background:#241F1B;border-left:3px solid #C2460B;color:#F3EDE7">
+  <span class="btn" style="background:#F2570F;color:#171614">主要操作</span>
+  <span class="btn sec" style="margin-left:8px;border:1.5px solid #FF7A3D;color:#FF7A3D">次强调</span>
+  <span class="tag" style="font-size:12px;margin-left:10px;border:1px solid #C2460B;color:#C2460B;padding:3px 10px;border-radius:999px">焦点态</span>
+</div>
+<div class="card" style="background:#241F1B;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <span class="chip" style="background:#257552;color:#fff">成功</span>
+  <span class="chip" style="background:#8A6410;color:#fff">警告</span>
+  <span class="chip" style="background:#C2382E;color:#fff">危险</span>
+  <span class="chip" style="background:#4353B8;color:#fff">info</span>
+  <span class="chip" style="background:#6B51C6;color:#fff">queued</span>
+</div>
+<div class="swatches" style="--sb:#1A1714"><div class="sw" style="background:#1A1714;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>bg</span><span>#1A1714</span></div><div class="sw" style="background:#241F1B;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>surface</span><span>#241F1B</span></div><div class="sw" style="background:#F3EDE7;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>text</span><span>#F3EDE7</span></div><div class="sw" style="background:#C9C2B8;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>muted</span><span>#C9C2B8</span></div><div class="sw" style="background:#858079;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>dim</span><span>#858079</span></div><div class="sw" style="background:#3A342D;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>border</span><span>#3A342D</span></div><div class="sw" style="background:#C2460B;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>focus</span><span>#C2460B</span></div><div class="sw" style="background:#F2570F;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accent</span><span>#F2570F</span></div><div class="sw" style="background:#171614;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accentfg</span><span>#171614</span></div><div class="sw" style="background:#FF7A3D;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>sec</span><span>#FF7A3D</span></div><div class="sw" style="background:#257552;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>ok</span><span>#257552</span></div><div class="sw" style="background:#8A6410;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>warn</span><span>#8A6410</span></div><div class="sw" style="background:#C2382E;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>danger</span><span>#C2382E</span></div><div class="sw" style="background:#4353B8;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>info</span><span>#4353B8</span></div><div class="sw" style="background:#6B51C6;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>queued</span><span>#6B51C6</span></div></div></div></div>
+<div class="panel"><h3 class="good">优化版（本次提议值）</h3><div class="demo" style="background:#16120E">
+<div class="card" style="background:#201A15;color:#EDE4D8">主文本 body 文字 — 15px 常规行。夜灯下阅读应安静、不刺眼；晨光下应清爽、有劲。<span style="color:#C0B7A9">次文本 muted 同句冗余。</span><span style="color:#A39D93">弱文本 dim：标签、时间戳、页脚。</span></div>
+<div class="card" style="background:#201A15;border-left:3px solid #D95C1E;color:#EDE4D8">
+  <span class="btn" style="background:#F2570F;color:#171614">主要操作</span>
+  <span class="btn sec" style="margin-left:8px;border:1.5px solid #FFB380;color:#FFB380">次强调</span>
+  <span class="tag" style="font-size:12px;margin-left:10px;border:1px solid #D95C1E;color:#D95C1E;padding:3px 10px;border-radius:999px">焦点态</span>
+</div>
+<div class="card" style="background:#201A15;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <span class="chip" style="background:#257552;color:#fff">成功</span>
+  <span class="chip" style="background:#8A6410;color:#fff">警告</span>
+  <span class="chip" style="background:#C2382E;color:#fff">危险</span>
+  <span class="chip" style="background:#4353B8;color:#fff">info</span>
+  <span class="chip" style="background:#8D73E3;color:#fff">queued</span>
+</div>
+<div class="swatches" style="--sb:#16120E"><div class="sw" style="background:#16120E;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>bg</span><span>#16120E</span></div><div class="sw" style="background:#201A15;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>surface</span><span>#201A15</span></div><div class="sw" style="background:#EDE4D8;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>text</span><span>#EDE4D8</span></div><div class="sw" style="background:#C0B7A9;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>muted</span><span>#C0B7A9</span></div><div class="sw" style="background:#A39D93;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>dim</span><span>#A39D93</span></div><div class="sw" style="background:#3A342D;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>border</span><span>#3A342D</span></div><div class="sw" style="background:#D95C1E;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>focus</span><span>#D95C1E</span></div><div class="sw" style="background:#F2570F;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accent</span><span>#F2570F</span></div><div class="sw" style="background:#171614;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accentfg</span><span>#171614</span></div><div class="sw" style="background:#FFB380;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>sec</span><span>#FFB380</span></div><div class="sw" style="background:#257552;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>ok</span><span>#257552</span></div><div class="sw" style="background:#8A6410;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>warn</span><span>#8A6410</span></div><div class="sw" style="background:#C2382E;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>danger</span><span>#C2382E</span></div><div class="sw" style="background:#4353B8;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>info</span><span>#4353B8</span></div><div class="sw" style="background:#8D73E3;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>queued</span><span>#8D73E3</span></div></div></div></div>
+</div>
+<table><tr><th>token</th><th>现值</th><th>改值</th><th>判据依据（实测）</th></tr>
+<tr><td>--bg</td><td class="mono">#1A1714</td><td class="mono"><b>#16120E</b></td><td>夜灯意境：底更暗 L0.207→0.148，灯圈感更集中【经验，两档皆合法】</td></tr>
+<tr><td>--bg-surface</td><td class="mono">#241F1B</td><td class="mono"><b>#201A15</b></td><td>随 bg 同步；面带 ΔE 落在深底 0.03–0.09 常态带</td></tr>
+<tr><td>--text</td><td class="mono">#F3EDE7</td><td class="mono"><b>#EDE4D8</b></td><td>APCA 16px：15.37:1(≈超舒适带)→14.19:1；同族暖白 L0.949→0.923</td></tr>
+<tr><td>--text-muted</td><td class="mono">#C9C2B8</td><td class="mono"><b>#C0B7A9</b></td><td>随主文同步降 L，保持三档台阶</td></tr>
+<tr><td>--text-dim</td><td class="mono">#858079</td><td class="mono"><b>#A39D93</b></td><td>hint@13px APCA -34.0→-48.5（仍不过 113.3 线——但 dim 作页脚/时间戳的<b>正确用法是 16px 或粗体</b>，-48.5 在 16px 就达标 90；且 WCAG 4.56→6.63 记账达标</td></tr>
+<tr><td>--border-focus</td><td class="mono">#C2460B</td><td class="mono"><b>#D95C1E</b></td><td>焦点要「跳出边框格」：WCAG 3.55→4.67 得以看见；ΔE 0.0456 vs accent（视觉亲缘成立），“focus” 名实相符</td></tr>
+<tr><td>--accent-secondary</td><td class="mono">#FF7A3D</td><td class="mono"><b>#FFB380</b></td><td>次强调提亮拉档（反方向同样成立）：ΔE vs accent 0.0733→0.1971（可辨）；并可用作大号文字（WCAG 9.85 / Lc -69.5）</td></tr>
+<tr><td>--queued</td><td class="mono">#6B51C6</td><td class="mono"><b>#8D73E3</b></td><td>vs info ΔE 0.063→0.154（常态/protan/deutan/tritan 全部＞0.10）；WCAG浅底 3.31 / 深底 5.05 双面都过 3:1</td></tr>
+</table></section>
+
+<section><h2>2 · 002 晨光：现版 vs 优化版</h2><p class="sub">改 3 处 token：focus、sec、queued；bg/text/语义色全部保留</p>
+<div class="grid">
+<div class="panel"><h3 class="bad">现版</h3><div class="demo" style="background:#FAF1E9">
+<div class="card" style="background:#FBE8DD;color:#171614">主文本 body 文字 — 15px 常规行。夜灯下阅读应安静、不刺眼；晨光下应清爽、有劲。<span style="color:#55524C">次文本 muted 同句冗余。</span><span style="color:#706E69">弱文本 dim：标签、时间戳、页脚。</span></div>
+<div class="card" style="background:#FBE8DD;border-left:3px solid #C9A48C;color:#171614">
+  <span class="btn" style="background:#FF6A2B;color:#171614">主要操作</span>
+  <span class="btn sec" style="margin-left:8px;border:1.5px solid #F07A3D;color:#F07A3D">次强调</span>
+  <span class="tag" style="font-size:12px;margin-left:10px;border:1px solid #C9A48C;color:#C9A48C;padding:3px 10px;border-radius:999px">焦点态</span>
+</div>
+<div class="card" style="background:#FBE8DD;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <span class="chip" style="background:#257552;color:#fff">成功</span>
+  <span class="chip" style="background:#8A6410;color:#fff">警告</span>
+  <span class="chip" style="background:#C2382E;color:#fff">危险</span>
+  <span class="chip" style="background:#4353B8;color:#fff">info</span>
+  <span class="chip" style="background:#6B51C6;color:#fff">queued</span>
+</div>
+<div class="swatches" style="--sb:#FAF1E9"><div class="sw" style="background:#FAF1E9;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>bg</span><span>#FAF1E9</span></div><div class="sw" style="background:#FBE8DD;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>surface</span><span>#FBE8DD</span></div><div class="sw" style="background:#171614;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>text</span><span>#171614</span></div><div class="sw" style="background:#55524C;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>muted</span><span>#55524C</span></div><div class="sw" style="background:#706E69;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>dim</span><span>#706E69</span></div><div class="sw" style="background:#E2DDD3;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>border</span><span>#E2DDD3</span></div><div class="sw" style="background:#C9A48C;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>focus</span><span>#C9A48C</span></div><div class="sw" style="background:#FF6A2B;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accent</span><span>#FF6A2B</span></div><div class="sw" style="background:#171614;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accentfg</span><span>#171614</span></div><div class="sw" style="background:#F07A3D;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>sec</span><span>#F07A3D</span></div><div class="sw" style="background:#257552;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>ok</span><span>#257552</span></div><div class="sw" style="background:#8A6410;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>warn</span><span>#8A6410</span></div><div class="sw" style="background:#C2382E;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>danger</span><span>#C2382E</span></div><div class="sw" style="background:#4353B8;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>info</span><span>#4353B8</span></div><div class="sw" style="background:#6B51C6;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>queued</span><span>#6B51C6</span></div></div></div></div>
+<div class="panel"><h3 class="good">优化版</h3><div class="demo" style="background:#FAF1E9">
+<div class="card" style="background:#FBE8DD;color:#171614">主文本 body 文字 — 15px 常规行。夜灯下阅读应安静、不刺眼；晨光下应清爽、有劲。<span style="color:#55524C">次文本 muted 同句冗余。</span><span style="color:#706E69">弱文本 dim：标签、时间戳、页脚。</span></div>
+<div class="card" style="background:#FBE8DD;border-left:3px solid #B06A3F;color:#171614">
+  <span class="btn" style="background:#FF6A2B;color:#171614">主要操作</span>
+  <span class="btn sec" style="margin-left:8px;border:1.5px solid #8C3A12;color:#8C3A12">次强调</span>
+  <span class="tag" style="font-size:12px;margin-left:10px;border:1px solid #B06A3F;color:#B06A3F;padding:3px 10px;border-radius:999px">焦点态</span>
+</div>
+<div class="card" style="background:#FBE8DD;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+  <span class="chip" style="background:#257552;color:#fff">成功</span>
+  <span class="chip" style="background:#8A6410;color:#fff">警告</span>
+  <span class="chip" style="background:#C2382E;color:#fff">危险</span>
+  <span class="chip" style="background:#4353B8;color:#fff">info</span>
+  <span class="chip" style="background:#8D73E3;color:#fff">queued</span>
+</div>
+<div class="swatches" style="--sb:#FAF1E9"><div class="sw" style="background:#FAF1E9;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>bg</span><span>#FAF1E9</span></div><div class="sw" style="background:#FBE8DD;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>surface</span><span>#FBE8DD</span></div><div class="sw" style="background:#171614;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>text</span><span>#171614</span></div><div class="sw" style="background:#55524C;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>muted</span><span>#55524C</span></div><div class="sw" style="background:#706E69;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>dim</span><span>#706E69</span></div><div class="sw" style="background:#E2DDD3;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>border</span><span>#E2DDD3</span></div><div class="sw" style="background:#B06A3F;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>focus</span><span>#B06A3F</span></div><div class="sw" style="background:#FF6A2B;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accent</span><span>#FF6A2B</span></div><div class="sw" style="background:#171614;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>accentfg</span><span>#171614</span></div><div class="sw" style="background:#8C3A12;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>sec</span><span>#8C3A12</span></div><div class="sw" style="background:#257552;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>ok</span><span>#257552</span></div><div class="sw" style="background:#8A6410;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>warn</span><span>#8A6410</span></div><div class="sw" style="background:#C2382E;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>danger</span><span>#C2382E</span></div><div class="sw" style="background:#4353B8;color:#fff;outline:1px solid rgba(0,0,0,.15)"><span>info</span><span>#4353B8</span></div><div class="sw" style="background:#8D73E3;color:#111;outline:1px solid rgba(0,0,0,.15)"><span>queued</span><span>#8D73E3</span></div></div></div></div>
+</div>
+<table><tr><th>token</th><th>现值</th><th>改值</th><th>判据依据（实测）</th></tr>
+<tr><td>--border-focus</td><td class="mono">#C9A48C</td><td class="mono"><b>#B06A3F</b></td><td>焦点名实恢复：对 bg 2.05:1→3.78:1 过 3:1；APCA 61.33；暖棕主色染不破坏纸面清爽</td></tr>
+<tr><td>--accent-secondary</td><td class="mono">#F07A3D</td><td class="mono"><b>#8C3A12</b></td><td>主次可辨：ΔE 0.070→0.2586；深橙给「晨光」一条可书写的同族线（白卡上 WCAG 7.69:1 / APCA 14px +86.05，可直接行文）</td></tr>
+<tr><td>--queued</td><td class="mono">#6B51C6</td><td class="mono"><b>#8D73E3</b></td><td>与 001 同改——两主题共享语义色，恒定层用同值，色觉可辨性一致</td></tr>
+</table></section>
+
+<section><h2>3 · 判据链复核（机检全记录）</h2>
+<table>
+<tr><th>检查</th><th>现版</th><th>优化版</th></tr>
+<tr><td>文字矩阵（text/textMuted/textDim × 面）</td><td><span class="pill p-no">exit 1</span> 001 text@elevated -93.03 等 6 处不过</td><td><span class="pill p-ok">收窄</span> textDim 由 13px 独自失败 → 16px 过线；text@bg 回到 ≤15:1 舒适带</td></tr>
+<tr><td>语义色 6 对（cvd）</td><td><span class="pill p-no">6 对塌</span> info/queued ΔE 0.063 全模拟 < 0.1</td><td><span class="pill p-ok">全过</span> 0.154 &gt; 0.10（三类模拟）</td></tr>
+<tr><td>accent vs secondary</td><td><span class="pill p-no">塌</span> 001 0.0733 / 002 0.070</td><td><span class="pill p-ok">可辨</span> 001 0.1971 / 002 0.2586</td></tr>
+<tr><td>border-focus vs bg (WCAG 3:1)</td><td><span class="pill p-no">不足</span> 001 3.55(勉强) / 002 2.05</td><td><span class="pill p-ok">过线</span> 001 4.67 / 002 3.78</td></tr>
+<tr><td>长文舒适上限（15:1 经验）</td><td><span class="pill p-no">超</span> 001 text@bg 15.37:1</td><td><span class="pill p-ok">带内</span> 14.19:1</td></tr>
+<tr><td>两词一色（card=surface）</td><td><span class="pill p-no">同值</span></td><td><span class="pill p-ok">亦同</span>（不在本轮裁决；词表问题另议）</td></tr>
+</table>
+<p class="sub" style="margin-top:10px">机检命令可复核：python scripts/shese.py contrast / delta / cvd / oklch；所有数值来自实跑非记忆。※ 优化值为<b>提案</b>，落库前走完整矩阵 + preview 双面复核。</p>
+</section>
+
+<section><h2>4 · 待你确认</h2>
+<ol style="margin:0;padding-left:20px;font-size:14px">
+<li>夜灯优化里 <b class="mono">bg #16120E / text #EDE4D8</b> 属<b>意境驱动</b>（非合规），保留还是只收合规项（focus/sec/queued/dim）？</li>
+<li>002 的 secondary 改深 #8C3A12 vs 001 的 secondary 改浅 #FFB380 —— 两主题不再对称（一个变深一个变浅），是否接受「深浅主题用同一档逻辑但反向取值」？我的推荐：接受，因为这正是「深版为浅版近邻」的自定派生律在也允许反向的宽松读法。</li>
+<li>确认后按你的节奏：可先落 ThemeVault palette.md 之外再合 shese 1.1.1。</li>
+</ol></section>
+</div>

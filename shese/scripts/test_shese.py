@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -295,6 +296,13 @@ class TestCliExitCodes(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertTrue(data["collapsed_pairs"])
 
+    def test_cvd_normal_collapse_is_flagged(self):
+        code, out, _err = run_cli("cvd", "#112233", "#122334", "--json")
+        data = json.loads(out)
+        self.assertEqual(code, 1, "常态 ΔE 已低于阈值却判通过")
+        self.assertTrue(data["collapsed_pairs"])
+        self.assertIn("normal", data["pairs"][0]["fail_in"])
+
     def test_cvd_distinct_colors_pass(self):
         code, _out, _err = run_cli("cvd", "#1b3a6b", "#f2c14e", "#8a5cf6")
         self.assertEqual(code, 0)
@@ -367,6 +375,12 @@ class TestPreviewInjection(unittest.TestCase):
             with self.subTest(token=name):
                 self.assertEqual(text.count("--" + name + ":"), 1)
 
+    def test_real_template_derives_states_in_oklab(self):
+        text = shese.DEFAULT_TEMPLATE.read_text(encoding="utf-8")
+        # 派生状态底（按钮、徽章、选中行）统一在 oklab 混色：同一比例跨色相的明度 / 彩度变化才一致
+        self.assertNotIn("color-mix(in srgb", text)
+        self.assertGreaterEqual(text.count("color-mix(in oklab"), 8)
+
     def test_shell_pins_survive_injection(self):
         with tempfile.TemporaryDirectory() as tmp:
             out = Path(tmp) / "out.html"
@@ -409,6 +423,181 @@ class TestPreviewInjection(unittest.TestCase):
                                          "--out", str(Path(tmp) / "out.html"))
             self.assertEqual(code, 2)
             self.assertIn("找不到模板", err)
+
+
+class DeltaTests(unittest.TestCase):
+    def test_delta_flags_collapsed_layers(self):
+        code, out, _err = run_cli("delta", "#1c2128", "#161b22", "#0d1117", "--json")
+        data = json.loads(out)
+        self.assertEqual(code, 1)
+        self.assertEqual(len(data["pairs"]), 2)
+        self.assertTrue(all(not p["pass"] for p in data["pairs"]))
+
+    def test_delta_passes_on_visible_steps(self):
+        code, out, _err = run_cli("delta", "#0d1117", "#2b323c", "--json")
+        data = json.loads(out)
+        self.assertEqual(code, 0)
+        self.assertTrue(data["pairs"][0]["pass"])
+
+    def test_delta_needs_two_colors(self):
+        code, _out, err = run_cli("delta", "#c9d1d9")
+        self.assertEqual(code, 2)
+        self.assertIn("至少给两个", err)
+
+    def test_delta_rejects_alpha(self):
+        code, _out, err = run_cli("delta", "#ffffff80", "#101014")
+        self.assertEqual(code, 2)
+        self.assertIn("composite", err)
+
+
+class MixTests(unittest.TestCase):
+    def test_mix_space_changes_midpoint(self):
+        code, out, _err = run_cli("mix", "#000000", "50", "#ffffff", "--json")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["result"], "#636363")
+        code, out, _err = run_cli("mix", "#000000", "50", "#ffffff", "--space", "srgb", "--json")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["result"], "#808080")
+
+    def test_mix_with_transparent_returns_alpha_hex(self):
+        code, out, _err = run_cli("mix", "#7a5cff", "22", "transparent", "--json")
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["result"], "#7a5cff38")
+        self.assertAlmostEqual(payload["alpha"], 0.22, places=6)
+
+    def test_mix_weight_symmetry(self):
+        a = shese.parse_color("#7a5cff")
+        b = shese.parse_color("#1c2128")
+        m1 = shese.mix_colors(a, b, 0.3)[0]
+        m2 = shese.mix_colors(b, a, 0.7)[0]
+        self.assertLess(shese.delta_e_ok(m1, m2), 1e-9)
+
+    def test_mix_rejects_two_alpha_colors(self):
+        code, _out, err = run_cli("mix", "#ffffff80", "50", "#000000")
+        self.assertEqual(code, 2)
+        self.assertIn("composite", err)
+
+    def test_mix_rejects_endpoint_weight(self):
+        for weight in ("0", "100"):
+            code, _out, err = run_cli("mix", "#000000", weight, "#ffffff")
+            self.assertEqual(code, 2)
+            self.assertIn("0,100", err)
+
+
+class TestProgressiveDisclosure(unittest.TestCase):
+    """SKILL.md 全量加载、references 按需加载：引用可达、无孤儿文件、无悬空引用。"""
+
+    ROOT = SCRIPT.parent.parent
+    SKILL = ROOT / "SKILL.md"
+    REFERENCES = ROOT / "references"
+    LINK = re.compile(r"references/([A-Za-z0-9._-]+\.md)")
+
+    def skill_text(self):
+        return self.SKILL.read_text(encoding="utf-8")
+
+    def reference_files(self):
+        return sorted(self.REFERENCES.glob("*.md"))
+
+    def test_skill_reference_paths_exist(self):
+        names = set(self.LINK.findall(self.skill_text()))
+        self.assertTrue(names, "SKILL.md 未登记任何 references 文件")
+        for name in sorted(names):
+            with self.subTest(path=name):
+                self.assertTrue((self.REFERENCES / name).is_file(),
+                                "SKILL.md 引用了不存在的文件：references/" + name)
+
+    def test_no_orphan_reference_file(self):
+        text = self.skill_text()
+        for path in self.reference_files():
+            with self.subTest(path=path.name):
+                self.assertIn("references/" + path.name, text,
+                              "references/" + path.name + " 未被 SKILL.md 登记（死文件）")
+
+    def test_reference_cross_links_resolve(self):
+        available = {p.name for p in self.reference_files()}
+        for path in self.reference_files():
+            text = path.read_text(encoding="utf-8")
+            for name in sorted(set(self.LINK.findall(text))):
+                with self.subTest(src=path.name, target=name):
+                    self.assertIn(name, available, path.name + " 指向不存在的 references/" + name)
+
+    def test_every_reference_declares_trigger_when(self):
+        for path in self.reference_files():
+            head = "\n".join(path.read_text(encoding="utf-8").splitlines()[:8])
+            with self.subTest(path=path.name):
+                self.assertIn("trigger-when:", head, "references/" + path.name + " 缺 trigger-when 头")
+
+    def test_skill_states_loading_discipline(self):
+        text = self.skill_text()
+        self.assertIn("本文件全量加载", text)
+        self.assertIn("references/troubleshooting.md", text)
+        self.assertIn("references/tool-usage.md", text)
+
+
+class TestFailureHandling(unittest.TestCase):
+    """失败模式：分诊四类、每类症状标能否交付、交付闸与静默失败复核必须可查。"""
+
+    ROOT = SCRIPT.parent.parent
+    SKILL = ROOT / "SKILL.md"
+    TROUBLE = ROOT / "references" / "troubleshooting.md"
+
+    def trouble_text(self):
+        return self.TROUBLE.read_text(encoding="utf-8")
+
+    def test_skill_triages_failure_classes(self):
+        text = self.SKILL.read_text(encoding="utf-8")
+        self.assertIn("先分诊", text)
+        for kind in ("输入缺 / 歧义", "工具 / 环境错", "判定不达标", "不可算 / 超边界"):
+            with self.subTest(kind=kind):
+                self.assertIn(kind, text, "SKILL.md 缺失败分诊类别：" + kind)
+        self.assertIn("交付闸", text, "SKILL.md 分诊后未指向交付闸")
+        self.assertIn("静默失败", text, "SKILL.md 未指向静默失败复核")
+
+    def test_each_troubleshooting_row_states_delivery(self):
+        text = self.trouble_text()
+        self.assertIn("仍失败时能否交付", text, "故障表缺「能否交付」列")
+        for trigger in ("色值缺角色", "没给时长或字号字重", "色觉模拟塌陷",
+                        "要求档高于该承载面物理上限", "需求超边界", "计算层跑不起来", "--to-hex"):
+            rows = [ln for ln in text.splitlines() if ln.startswith("|") and trigger in ln.split("|")[1]]
+            with self.subTest(trigger=trigger):
+                self.assertEqual(len(rows), 1, trigger + " 在故障表中不是唯一一行")
+                self.assertTrue(any("可降级" in ln or "阻断" in ln for ln in rows),
+                                trigger + " 行未写明仍失败时能否交付")
+
+    def test_troubleshooting_gate_and_six_checks(self):
+        text = self.trouble_text()
+        for heading in ("## 交付闸", "## 静默失败复核"):
+            with self.subTest(heading=heading):
+                self.assertIn(heading, text)
+        for verdict in ("阻断", "可降级", "不是失败"):
+            with self.subTest(verdict=verdict):
+                self.assertIn(verdict, text, "交付闸缺闸位：" + verdict)
+        for n in range(1, 7):
+            with self.subTest(check=n):
+                self.assertRegex(text, r"(?m)^" + str(n) + r"\. ", "静默失败复核缺第 " + str(n) + " 查")
+
+    def test_delivery_verdicts_are_classified_correctly(self):
+        text = self.trouble_text()
+        to_hex = [ln for ln in text.splitlines() if ln.startswith("|") and "--to-hex" in ln.split("|")[1]]
+        self.assertEqual(len(to_hex), 1)
+        self.assertIn("阻断：修好重跑前不交付", to_hex[0], "--to-hex 行未写阻断")
+        self.assertIn("位置写错（不报错）", to_hex[0], "--to-hex 行未区分给少了与位置写错")
+        self.assertIn("色度收缩是成功路径", to_hex[0])
+        self.assertIn("阻断：数字类结论不能交", text, "计算层跑不起来未标阻断")
+        self.assertIn("带条件通过", text, "交付闸「不是失败」与分诊的交付词不一致")
+        skill = self.SKILL.read_text(encoding="utf-8")
+        self.assertIn("exit 1 命中硬底线（CHECKPOINT 3）算阻断", skill,
+                      "SKILL.md 未区分 exit 1 命中硬底线与锚点差距")
+        self.assertIn("命中硬底线归阻断", text, "交付闸未把命中硬底线的 exit 1 归阻断")
+
+    def test_preview_fallback_matches_between_files(self):
+        skill = self.SKILL.read_text(encoding="utf-8")
+        trouble = self.trouble_text()
+        for label, text in (("SKILL.md", skill), ("troubleshooting.md", trouble)):
+            with self.subTest(file=label):
+                self.assertIn("改交「色值 + 判定表 + JSON」", text,
+                              label + " 未写预览页失败的替代交付物")
 
 
 if __name__ == "__main__":

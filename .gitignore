@@ -24,3 +24,7 @@ evals/results/
 
 # CodeBuddy 工作区数据（工作记忆等本地产物）
 .codebuddy/
+
+# 本地临时产物（darwin 盲评、脚本实跑输出）
+.local/
+shese/local-tests/

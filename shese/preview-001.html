@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-mode="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>设色场景预览 scene-preview</title>
+<style>
+/* 注入区。以下 14 个自定义属性由 scripts/shese.py 的 preview 子命令按正则改写，
+   每个 token 在整份文件中只出现一次，写法固定为「名字: 值;」，且只写在这里。
+   本文件是生成物，改色请带注入参数重新生成，不要手改。 */
+:root {
+  --bg: #1a1714;
+  --surface: #241f1b;
+  --elevated: #2e2823;
+  --card: #241f1b;
+  --border: #3a342d;
+  --text: #f3ede7;
+  --textMuted: #c9c2b8;
+  --textDim: #858079;
+  --accent: #f2570f;
+  --brand: #f2570f;
+  --success: #257552;
+  --warning: #8a6410;
+  --danger: #c2382e;
+  --info: #4353b8;
+
+  /* 非注入变量：圆角、字号、间距、字体，名字与 token 命名空间不冲突 */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --fs-sm: 12px;
+  --fs-body: 16px;
+  --fs-lg: 20px;
+  --sp-1: 6px;
+  --sp-2: 10px;
+  --sp-3: 16px;
+  --sp-4: 24px;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Microsoft YaHei", "PingFang SC", sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+/* ---------- 品牌外壳（非注入变量）----------
+   外壳色 pin 自主题仓库 ThemeVault：#001 themes/erge/dark「夜灯」（暗色）与
+   #002 themes/erge/light「晨光」（亮色）。改品牌色请回 ThemeVault 取数后改这里；
+   场景面板里被审查的 14 个 token 由 scripts/shese.py 的 preview 子命令写入，不要手改填色副本。
+   选择器刻意写成不带引号的 [data-mode=dark]，避免被脚本对 data-mode="…" 的单次替换（count=1）误伤。 */
+:root[data-mode=dark] {
+  --shell-bg: #1A1714;
+  --shell-surface: #241F1B;
+  --shell-elevated: #2E2823;
+  --shell-border: #3A342D;
+  --shell-text: #F3EDE7;
+  --shell-muted: #C9C2B8;
+  --shell-dim: #858079;
+  --shell-accent: #F2570F;
+  --shell-accent-fg: #171614;
+}
+
+:root[data-mode=light] {
+  --shell-bg: #FAF1E9;
+  --shell-surface: #FBE8DD;
+  --shell-elevated: #FFFFFF;
+  --shell-border: #E2DDD3;
+  --shell-text: #171614;
+  --shell-muted: #55524C;
+  --shell-dim: #706E69;
+  --shell-accent: #FF6A2B;
+  --shell-accent-fg: #171614;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--shell-bg);
+  color: var(--shell-text);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* 滤镜定义放在被过滤容器之外，避免自引用 */
+.cvd-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* 包裹全页的容器，色觉模拟滤镜作用在它上面 */
+#page {
+  min-height: 100vh;
+  background: var(--shell-bg);
+}
+
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--sp-4) var(--sp-3) calc(var(--sp-4) * 2);
+}
+
+h1 {
+  font-size: 26px;
+  line-height: 1.3;
+  margin: 0 0 var(--sp-1);
+  color: var(--shell-text);
+  font-weight: 650;
+}
+
+h2 {
+  font-size: var(--fs-lg);
+  line-height: 1.35;
+  margin: 0;
+  color: var(--shell-text);
+  font-weight: 650;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.94em;
+}
+
+.lede,
+.hint,
+.foot p {
+  color: var(--shell-muted);
+  font-size: var(--fs-sm);
+  margin: var(--sp-1) 0 0;
+}
+
+.hint {
+  color: var(--shell-dim);
+}
+
+.panel {
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-lg);
+  padding: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.scene-head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--shell-border);
+  margin-bottom: var(--sp-3);
+}
+
+.idx {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--shell-dim);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-sm);
+  padding: 1px var(--sp-1);
+}
+
+/* ---------- 色板条 ---------- */
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+}
+
+.swatch {
+  background: var(--shell-surface);
+  border: 1px solid var(--shell-border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.chip {
+  height: 46px;
+  border-bottom: 1px solid var(--shell-border);
+}
+
+.sw-name {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--shell-text);
+  padding: var(--sp-1) var(--sp-2) 0;
+  word-break: break-all;
+}
+
+.sw-hex {
+  display: block;
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--shell-muted);
+  padding: 0 var(--sp-2) var(--sp-1);
+}
+
+/* ---------- 色觉模拟开关 ---------- */
+.cvd-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
+}
+
+.cvd-btn {
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--shell-border);
+  border-radius: 999px;
+  background: var(--shell-elevated);
+  color: var(--shell-muted);
+  cursor: pointer;
+}
+
+.cvd-btn:hover {
+  color: var(--shell-text);
+  border-color: var(--shell-muted);
+}
+
+.cvd-btn.is-on {
+  color: var(--shell-accent-fg);
+  border-color: var(--shell-accent);
+  background: var(--shell-accent);
+}
+
+.cvd-note {
+  font-size: var(--fs-sm);
+  color: var(--shell-dim);
+  margin: var(--sp-2) 0 0;
+}
+
+/* ---------- 场景一：代码编辑器 ---------- */
+.editor {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.editor-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  background: color-mix(in oklab, var(--brand) 14%, var(--elevated));
+  border-bottom: 3px solid var(--brand);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.dot-danger { background: var(--danger); }
+.dot-warning { background: var(--warning); }
+.dot-success { background: var(--success); }
+
+.editor-title {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+.editor-bar-spacer { flex: 1; }
+
+.editor-badge {
+  font-size: var(--fs-sm);
+  color: var(--text);
+  background: color-mix(in oklab, var(--brand) 22%, transparent);
+  border: 1px solid color-mix(in oklab, var(--brand) 55%, transparent);
+  border-radius: var(--r-sm);
+  padding: 0 var(--sp-1);
+}
+
+.code {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  line-height: 1.8;
+  padding: var(--sp-2) 0;
+  background: var(--surface);
+  overflow-x: auto;
+}
+
+.row {
+  display: flex;
+  white-space: pre;
+}
+
+.row.current {
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.ln {
+  flex: none;
+  width: 46px;
+  padding-right: var(--sp-2);
+  text-align: right;
+  color: var(--textDim);
+  border-right: 1px solid var(--border);
+  user-select: none;
+}
+
+.lc {
+  padding-left: var(--sp-2);
+  color: var(--text);
+}
+
+.k  { color: var(--brand); }
+.s  { color: var(--success); }
+.c  { color: var(--textDim); font-style: italic; }
+.fn { color: var(--info); }
+.n  { color: var(--warning); }
+.p  { color: var(--textMuted); }
+.t  { color: var(--text); }
+.v  { color: var(--textMuted); }
+
+.editor-status {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--elevated);
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+}
+
+.editor-status .st-ok { color: var(--success); }
+.editor-status .st-warn { color: var(--warning); }
+
+/* ---------- 字号与文字级别的矩阵 ---------- */
+.type-matrix {
+  margin-top: var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card);
+  padding: var(--sp-2);
+}
+
+.tm-cap {
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+  margin: 0 0 var(--sp-1);
+}
+
+.tm-grid {
+  display: grid;
+  grid-template-columns: 56px repeat(3, minmax(0, 1fr));
+  gap: var(--sp-1) var(--sp-2);
+  align-items: baseline;
+}
+
+.tm-grid + .tm-grid {
+  margin-top: var(--sp-1);
+  padding-top: var(--sp-1);
+  border-top: 1px solid var(--border);
+}
+
+.tm-h {
+  font-size: var(--fs-sm);
+  color: var(--textMuted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 2px;
+}
+
+.tm-size {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+}
+
+.tm-cell { line-height: 1.35; }
+
+.s12 { font-size: var(--fs-sm); }
+.s16 { font-size: var(--fs-body); }
+.s20 { font-size: var(--fs-lg); }
+
+.lv-text  { color: var(--text); }
+.lv-muted { color: var(--textMuted); }
+.lv-dim   { color: var(--textDim); }
+
+/* ---------- 场景二：网页长文 ---------- */
+.art-title {
+  font-size: 26px;
+  line-height: 1.35;
+  color: var(--text);
+  margin: 0 0 var(--sp-1);
+  font-weight: 650;
+}
+
+.byline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-3);
+}
+
+.tag {
+  font-size: var(--fs-sm);
+  color: var(--textMuted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0 var(--sp-1);
+}
+
+.ts {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+}
+
+.para {
+  margin: 0 0 var(--sp-2);
+  color: var(--text);
+}
+
+.quote {
+  margin: var(--sp-3) 0;
+  padding: var(--sp-1) var(--sp-3);
+  border-left: 3px solid var(--accent);
+  background: var(--elevated);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+}
+
+.quote p {
+  margin: 0;
+  color: var(--textMuted);
+}
+
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--sp-3) 0;
+  font-size: var(--fs-body);
+}
+
+.tbl th,
+.tbl td {
+  text-align: left;
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.tbl th {
+  background: var(--surface);
+  color: var(--textMuted);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.tbl td {
+  color: var(--text);
+}
+
+.tbl td .sub {
+  display: block;
+  color: var(--textDim);
+  font-size: var(--fs-sm);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.btn-primary {
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid var(--accent);
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+}
+
+.caption {
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+  flex: 1 1 260px;
+}
+
+/* ---------- 场景三：移动端卡片流 ---------- */
+.phone {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.phone-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--elevated);
+  border-bottom: 1px solid var(--border);
+}
+
+.phone-time {
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  color: var(--textMuted);
+}
+
+.phone-title {
+  flex: 1;
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+
+.phone-count {
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+}
+
+.phone-body {
+  padding: var(--sp-2);
+  display: grid;
+  gap: var(--sp-2);
+}
+
+.mcard {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+}
+
+.mcard-surface  { background: var(--surface); }
+.mcard-card     { background: var(--card); }
+.mcard-elevated { background: var(--elevated); }
+
+.mcard-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-1);
+}
+
+.mcard-title {
+  flex: 1;
+  font-size: var(--fs-body);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.mcard-text {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--textMuted);
+}
+
+.mcard-meta {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--textDim);
+}
+
+.mcard-inner {
+  margin-top: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  color: var(--textMuted);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: none;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 1px var(--sp-2);
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.pill-success {
+  background: color-mix(in oklab, var(--success) 20%, var(--bg));
+  border: 1px solid color-mix(in oklab, var(--success) 60%, var(--border));
+}
+.pill-success .pill-dot { background: var(--success); }
+
+.pill-warning {
+  background: color-mix(in oklab, var(--warning) 20%, var(--bg));
+  border: 1px solid color-mix(in oklab, var(--warning) 60%, var(--border));
+}
+.pill-warning .pill-dot { background: var(--warning); }
+
+.pill-danger {
+  background: color-mix(in oklab, var(--danger) 20%, var(--bg));
+  border: 1px solid color-mix(in oklab, var(--danger) 60%, var(--border));
+}
+.pill-danger .pill-dot { background: var(--danger); }
+
+.pill-info {
+  background: color-mix(in oklab, var(--info) 20%, var(--bg));
+  border: 1px solid color-mix(in oklab, var(--info) 60%, var(--border));
+}
+.pill-info .pill-dot { background: var(--info); }
+
+/* ---------- 页脚 ---------- */
+.foot {
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--shell-border);
+}
+
+@media (max-width: 560px) {
+  .tm-grid { grid-template-columns: 44px repeat(3, minmax(0, 1fr)); }
+  .ln { width: 34px; }
+  h1, .art-title { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+
+<svg class="cvd-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- protan 与 deutan 用 Viénot 1999 投影矩阵，tritan 用 Brettel 1997 的 plane 1。
+         9 个数字逐个照抄 scripts/shese.py 的 CVD_VIENOT 与 CVD_BRETTEL_TRITAN，
+         矩阵按行主序填入 feColorMatrix，末行补 alpha 单位行。
+         矩阵定义在线性 RGB 上，故滤镜保持 color-interpolation-filters 的默认值线性空间，
+         不做任何 sRGB 与线性空间的额外转换。 -->
+    <filter id="cvd-protan" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="linearRGB">
+      <feColorMatrix type="matrix" values="0.11238 0.88762 0.00000 0 0  0.11238 0.88762 -0.00000 0 0  0.00401 -0.00401 1.00000 0 0  0 0 0 1 0"></feColorMatrix>
+    </filter>
+    <filter id="cvd-deutan" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="linearRGB">
+      <feColorMatrix type="matrix" values="0.29275 0.70725 0.00000 0 0  0.29275 0.70725 -0.00000 0 0  -0.02234 0.02234 1.00000 0 0  0 0 0 1 0"></feColorMatrix>
+    </filter>
+    <filter id="cvd-tritan" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="linearRGB">
+      <feColorMatrix type="matrix" values="1.01277 0.13548 -0.14826 0 0  -0.01243 0.86812 0.14431 0 0  0.07589 0.80500 0.11911 0 0  0 0 0 1 0"></feColorMatrix>
+    </filter>
+  </defs>
+</svg>
+
+<div id="page">
+<div class="wrap">
+
+  <header>
+    <h1>设色场景预览</h1>
+    <p class="lede">本页是填色副本：改色请带 <code>--tokens</code> 参数重新生成，不要手改本文件。</p>
+    <p class="hint" id="mode-note">注入模式：读取中</p>
+  </header>
+
+  <section class="panel">
+    <h2>色板条</h2>
+    <p class="lede">14 个 token 的实际取值，由脚本写入后用内联脚本读回，不是手写死值。</p>
+    <div class="swatches" id="swatches"></div>
+  </section>
+
+  <section class="panel">
+    <h2>色觉模拟</h2>
+    <p class="lede">四个按钮切换套在整页容器上的 SVG 滤镜；tritan 为近似（Brettel 双半平面只用 plane 1 单矩阵表达）。</p>
+    <div class="cvd-bar" role="group" aria-label="色觉模拟切换">
+      <button type="button" class="cvd-btn is-on" data-cvd="normal" aria-pressed="true">常态</button>
+      <button type="button" class="cvd-btn" data-cvd="protan" aria-pressed="false">protan</button>
+      <button type="button" class="cvd-btn" data-cvd="deutan" aria-pressed="false">deutan</button>
+      <button type="button" class="cvd-btn" data-cvd="tritan" aria-pressed="false">tritan</button>
+    </div>
+    <p class="cvd-note">本页模拟仅作视觉辅助，量化判定以 <code>scripts/shese.py cvd</code> 为准。</p>
+  </section>
+
+  <section class="panel scene">
+    <div class="scene-head"><span class="idx">01</span><h2>代码编辑器</h2></div>
+
+    <div class="editor">
+      <div class="editor-bar">
+        <span class="dot dot-danger"></span>
+        <span class="dot dot-warning"></span>
+        <span class="dot dot-success"></span>
+        <span class="editor-title">scene-preview.ts</span>
+        <span class="editor-bar-spacer"></span>
+        <span class="editor-badge">TypeScript</span>
+      </div>
+      <div class="code">
+        <div class="row"><span class="ln" aria-hidden="true">1</span><span class="lc"><span class="c">// 场景示例：只用于观察配色，不是可运行代码</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">2</span><span class="lc"><span class="k">type</span> <span class="t">Role</span> <span class="p">=</span> <span class="s">"body"</span> <span class="p">|</span> <span class="s">"aux"</span> <span class="p">|</span> <span class="s">"hint"</span><span class="p">;</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">3</span><span class="lc"></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">4</span><span class="lc"><span class="k">const</span> <span class="t">LADDER</span><span class="p">:</span> <span class="t">Role</span><span class="p">[]</span> <span class="p">=</span> <span class="p">[</span><span class="s">"body"</span><span class="p">,</span> <span class="s">"aux"</span><span class="p">,</span> <span class="s">"hint"</span><span class="p">];</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">5</span><span class="lc"><span class="k">const</span> <span class="t">MAX_DEPTH</span> <span class="p">=</span> <span class="n">3</span><span class="p">;</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">6</span><span class="lc"></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">7</span><span class="lc"><span class="k">export function</span> <span class="fn">resolve</span><span class="p">(</span><span class="v">surface</span><span class="p">:</span> <span class="t">string</span><span class="p">,</span> <span class="v">role</span><span class="p">:</span> <span class="t">Role</span><span class="p">):</span> <span class="t">string</span> <span class="p">{</span></span></div>
+        <div class="row current"><span class="ln" aria-hidden="true">8</span><span class="lc">  <span class="k">const</span> <span class="v">table</span> <span class="p">=</span> <span class="k">new</span> <span class="fn">Map</span><span class="p">&lt;</span><span class="t">string</span><span class="p">,</span> <span class="t">string</span><span class="p">&gt;();</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">9</span><span class="lc">  <span class="v">table</span><span class="p">.</span><span class="fn">set</span><span class="p">(</span><span class="s">"body"</span><span class="p">,</span> <span class="s">"text"</span><span class="p">);</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">10</span><span class="lc">  <span class="k">const</span> <span class="v">hit</span> <span class="p">=</span> <span class="v">table</span><span class="p">.</span><span class="fn">get</span><span class="p">(</span><span class="v">role</span><span class="p">);</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">11</span><span class="lc">  <span class="k">return</span> <span class="v">hit</span> <span class="p">??</span> <span class="s">"text"</span><span class="p">;</span> <span class="c">// 未命中时回落到正文色</span></span></div>
+        <div class="row"><span class="ln" aria-hidden="true">12</span><span class="lc"><span class="p">}</span></span></div>
+      </div>
+      <div class="editor-status">
+        <span>Ln 8, Col 7</span>
+        <span>UTF-8</span>
+        <span class="st-ok">0 errors</span>
+        <span class="st-warn">1 hint</span>
+      </div>
+    </div>
+
+    <div class="type-matrix">
+      <p class="tm-cap">三列依次为正文、次级、弱化三级文字，三行为 12px / 16px / 20px，行首标注字号。</p>
+      <div class="tm-grid">
+        <span class="tm-h">字号</span>
+        <span class="tm-h">正文</span>
+        <span class="tm-h">次级</span>
+        <span class="tm-h">弱化</span>
+      </div>
+      <div class="tm-grid">
+        <span class="tm-size">12px</span>
+        <span class="tm-cell s12 lv-text">正文 Aa</span>
+        <span class="tm-cell s12 lv-muted">次级 Aa</span>
+        <span class="tm-cell s12 lv-dim">弱化 Aa</span>
+      </div>
+      <div class="tm-grid">
+        <span class="tm-size">16px</span>
+        <span class="tm-cell s16 lv-text">正文 Aa</span>
+        <span class="tm-cell s16 lv-muted">次级 Aa</span>
+        <span class="tm-cell s16 lv-dim">弱化 Aa</span>
+      </div>
+      <div class="tm-grid">
+        <span class="tm-size">20px</span>
+        <span class="tm-cell s20 lv-text">正文 Aa</span>
+        <span class="tm-cell s20 lv-muted">次级 Aa</span>
+        <span class="tm-cell s20 lv-dim">弱化 Aa</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel scene">
+    <div class="scene-head"><span class="idx">02</span><h2>网页长文</h2></div>
+
+    <article>
+      <h3 class="art-title">深浅两层底色之间，层级靠什么被看见</h3>
+      <p class="byline">
+        <span class="tag">配色评审</span>
+        <span class="ts">2026-10-20 18:57</span>
+      </p>
+      <p class="para">深色底上的文字不会因为更亮就更好读。明度差被拉得过大时，笔画边缘出现光晕，读久了反而更累。可读性来自对比与面积的配合，而不是把前景一路推到最亮的那一端。</p>
+      <p class="para">同一份配色在两种极性下的表现并不对称：负极性更容易光晕，正极性更容易发灰。所以深浅两套结论必须分别给出，不能互相挪用。</p>
+      <blockquote class="quote">
+        <p>对比是双向约束：下限决定能不能读，上限决定读多久会累。</p>
+      </blockquote>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>角色</th>
+            <th>常见承载面</th>
+            <th>说明</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>正文</td>
+            <td>底色 / 卡片 / 浮层</td>
+            <td>长句与段落，结论取最差的那个承载面<span class="sub">不为单个面的通过买单</span></td>
+          </tr>
+          <tr>
+            <td>次级</td>
+            <td>卡片 / 抬升面</td>
+            <td>标签、时间戳、表头，只承载短信息<span class="sub">不用于长句阅读</span></td>
+          </tr>
+          <tr>
+            <td>弱化</td>
+            <td>卡片</td>
+            <td>占位符与装饰，允许进一步降低对比<span class="sub">不得复用到需要阅读的位置</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="actions">
+        <button type="button" class="btn-primary">复制配色结论</button>
+        <span class="caption">按钮反色文字取页面底色；若注入的 accent 与底色明度接近，请用 <code>scripts/shese.py contrast</code> 复核该填充上的前景。</span>
+      </div>
+    </article>
+
+    <div class="type-matrix">
+      <p class="tm-cap">三列依次为正文、次级、弱化三级文字，三行为 12px / 16px / 20px，行首标注字号。</p>
+      <div class="tm-grid">
+        <span class="tm-h">字号</span>
+        <span class="tm-h">正文</span>
+        <span class="tm-h">次级</span>
+        <span class="tm-h">弱化</span>
+      </div>
+      <div class="tm-grid">
+        <span class="tm-size">12px</span>
+        <span class="tm-cell s12 lv-text">正文 Aa</span>
+        <span class="tm-cell s12 lv-muted">次级 Aa</span>
+        <span class="tm-cell s12 lv-dim">弱化 Aa</span>
+      </div>
+      <div class="tm-grid">
+        <span class="tm-size">16px</span>
+        <span class="tm-cell s16 lv-text">正文 Aa</span>
+        <span class="tm-cell s16 lv-muted">次级 Aa</span>
+        <span class="tm-cell s16 lv-dim">弱化 Aa</span>
+      </div>
+      <div class="tm-grid">
+        <span class="tm-size">20px</span>
+        <span class="tm-cell s20 lv-text">正文 Aa</span>
+        <span class="tm-cell s20 lv-muted">次级 Aa</span>
+        <span class="tm-cell s20 lv-dim">弱化 Aa</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel scene">
+    <div class="scene-head"><span class="idx">03</span><h2>移动端卡片流</h2></div>
+
+    <div class="phone">
+      <div class="phone-bar">
+        <span class="phone-time">9:41</span>
+        <span class="phone-title">今日配色</span>
+        <span class="phone-count">3 条</span>
+      </div>
+      <div class="phone-body">
+        <div class="mcard mcard-surface">
+          <div class="mcard-head">
+            <span class="mcard-title">层级明度差</span>
+            <span class="pill pill-success"><span class="pill-dot"></span>通过</span>
+          </div>
+          <p class="mcard-text">相邻两层只要拉开可辨的明度间隔，边界就不必靠更亮的描边去补。</p>
+          <div class="mcard-inner">抬升面用于浮层与内嵌说明块</div>
+          <div class="mcard-meta">12 分钟前</div>
+        </div>
+        <div class="mcard mcard-card">
+          <div class="mcard-head">
+            <span class="mcard-title">大面积填充彩度</span>
+            <span class="pill pill-warning"><span class="pill-dot"></span>待定</span>
+          </div>
+          <p class="mcard-text">背景与卡片的彩度需要压到中等以下，避免与正文争夺注意力。</p>
+          <div class="mcard-meta">40 分钟前</div>
+        </div>
+        <div class="mcard mcard-elevated">
+          <div class="mcard-head">
+            <span class="mcard-title">语义色可区分性</span>
+            <span class="pill pill-danger"><span class="pill-dot"></span>不通过</span>
+          </div>
+          <p class="mcard-text">状态色之间需要同时具备明度或形态差异，不能只靠色相区分。</p>
+          <div class="mcard-inner">胶囊同时给出圆点与文字，作为颜色之外的冗余编码</div>
+          <div class="mcard-meta">2 小时前</div>
+        </div>
+
+        <div class="type-matrix">
+          <p class="tm-cap">三列依次为正文、次级、弱化三级文字，三行为 12px / 16px / 20px，行首标注字号。</p>
+          <div class="tm-grid">
+            <span class="tm-h">字号</span>
+            <span class="tm-h">正文</span>
+            <span class="tm-h">次级</span>
+            <span class="tm-h">弱化</span>
+          </div>
+          <div class="tm-grid">
+            <span class="tm-size">12px</span>
+            <span class="tm-cell s12 lv-text">正文 Aa</span>
+            <span class="tm-cell s12 lv-muted">次级 Aa</span>
+            <span class="tm-cell s12 lv-dim">弱化 Aa</span>
+          </div>
+          <div class="tm-grid">
+            <span class="tm-size">16px</span>
+            <span class="tm-cell s16 lv-text">正文 Aa</span>
+            <span class="tm-cell s16 lv-muted">次级 Aa</span>
+            <span class="tm-cell s16 lv-dim">弱化 Aa</span>
+          </div>
+          <div class="tm-grid">
+            <span class="tm-size">20px</span>
+            <span class="tm-cell s20 lv-text">正文 Aa</span>
+            <span class="tm-cell s20 lv-muted">次级 Aa</span>
+            <span class="tm-cell s20 lv-dim">弱化 Aa</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>本页只呈现色值在界面里的样子，不给判定结论。字号与字重对应的对比要求请用 <code>scripts/shese.py apca_required_lc</code> 查官方字号-字重矩阵，色觉模拟的量化判定请用 <code>scripts/shese.py cvd</code>。</p>
+    <p>本文件是填色副本：改色请带 <code>--tokens</code> 参数重新生成，不要手改。</p>
+  </footer>
+
+</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var NAMES = ["bg", "surface", "elevated", "card", "border",
+               "text", "textMuted", "textDim", "accent", "brand",
+               "success", "warning", "danger", "info"];
+
+  var root = document.documentElement;
+  var cs = getComputedStyle(root);
+  var host = document.getElementById("swatches");
+
+  NAMES.forEach(function (n) {
+    var value = (cs.getPropertyValue("--" + n) || "").trim();
+    var item = document.createElement("div");
+    item.className = "swatch";
+
+    var chip = document.createElement("div");
+    chip.className = "chip";
+    if (value) { chip.style.background = value; }
+
+    var label = document.createElement("span");
+    label.className = "sw-name";
+    label.textContent = "--" + n;
+
+    var hex = document.createElement("span");
+    hex.className = "sw-hex";
+    hex.textContent = value || "未定义";
+
+    item.appendChild(chip);
+    item.appendChild(label);
+    item.appendChild(hex);
+    host.appendChild(item);
+  });
+
+  var page = document.getElementById("page");
+  var buttons = document.querySelectorAll(".cvd-btn");
+
+  function apply(kind) {
+    page.style.filter = kind === "normal" ? "none" : "url(#cvd-" + kind + ")";
+    for (var i = 0; i < buttons.length; i++) {
+      var on = buttons[i].getAttribute("data-cvd") === kind;
+      buttons[i].className = "cvd-btn" + (on ? " is-on" : "");
+      buttons[i].setAttribute("aria-pressed", on ? "true" : "false");
+    }
+  }
+
+  for (var j = 0; j < buttons.length; j++) {
+    buttons[j].addEventListener("click", function () {
+      apply(this.getAttribute("data-cvd"));
+    });
+  }
+  apply("normal");
+
+  var note = document.getElementById("mode-note");
+  if (note) {
+    note.textContent = "注入模式：" + (root.getAttribute("data-mode") || "未指定") + "（由脚本写入）";
+  }
+})();
+</script>
+
+</body>
+</html>

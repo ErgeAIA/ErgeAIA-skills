@@ -18,6 +18,9 @@
   composite  [--on BASE] LAYER...        每个 LAYER 为 #rrggbb[aa]，自顶向下
   matrix     --text name=HEX ... [--surface name=HEX ...] [--size N] [--weight W] [--role R]
   cvd        HEX... [--min-delta 0.10]
+  delta      HEX...              相邻颜色 / 层级的 ΔE-OK，按传入顺序两两相邻
+  mix        A PCT B [--space oklab|srgb]
+             A 占 PCT%（0<PCT<100），B 占其余；一端可写 transparent（= 该色带 alpha）
   preview    --tokens name=HEX ... [--template PATH] --out PATH [--mode dark|light]
              （注入的 bg 与 data-mode 极性不符时 stderr 提醒，不影响退出码）
   selftest
@@ -279,6 +282,34 @@ def oklch_to_hex(L, C, h):
 def delta_e_ok(rgb_a, rgb_b) -> float:
     a, b = hex_to_oklab(rgb_a), hex_to_oklab(rgb_b)
     return math.sqrt(sum((a[i] - b[i]) ** 2 for i in range(3)))
+
+
+def mix_colors(a, b, weight, space="oklab"):
+    """a 占 weight（0..1），b 占其余。transparent 一端退化为「该色带 alpha」；
+    两端都带 alpha（非 0）时拒绝，必须先 composite 成实色。oklab 为默认空间。"""
+    ra, aa = a
+    rb, ab = b
+    if aa <= 0.0 and ab <= 0.0:
+        raise InputError("两个 transparent 没有可判定的实色")
+    if aa <= 0.0:
+        return [int(round(v)) for v in rb], ab * (1.0 - weight)
+    if ab <= 0.0:
+        return [int(round(v)) for v in ra], aa * weight
+    if aa < 1.0 or ab < 1.0:
+        raise InputError("两端都带 alpha 的混色请先 composite 成实色，或把其中一端写成 transparent")
+    if space == "srgb":
+        rgb = [ra[i] * weight + rb[i] * (1.0 - weight) for i in range(3)]
+    else:
+        la, lb = hex_to_oklab(ra), hex_to_oklab(rb)
+        lab = [la[i] * weight + lb[i] * (1.0 - weight) for i in range(3)]
+        rgb = [_linear_to_srgb(max(0.0, min(1.0, v))) for v in oklab_to_linear(lab)]
+    return [int(round(v)) for v in rgb], 1.0
+
+
+def mix_operand(value):
+    if value.strip().lower() == "transparent":
+        return ([0, 0, 0], 0.0)
+    return parse_color(value)
 
 
 def polarity_of(rgb) -> str:
@@ -584,6 +615,13 @@ def cmd_matrix(args):
     for name, rgb, alpha in surfaces:
         if alpha < 1.0:
             raise InputError("承载面 %s 带 alpha：请先展开为合成后的实色" % name)
+    # 同名承载面出现多次时加序号，避免矩阵里出现两列同名、最差面无法指认
+    seen, labelled = {}, []
+    for item in surfaces:
+        name = item[0]
+        seen[name] = seen.get(name, 0) + 1
+        labelled.append((name if seen[name] == 1 else "%s#%d" % (name, seen[name]),) + item[1:])
+    surfaces = labelled
 
     payload = {"role": role, "size": size, "weight": weight,
                "texts": [], "cells": [], "failed": []}
@@ -665,20 +703,59 @@ def cmd_cvd(args):
                 entry["simulated"][kind] = round(de, 4)
             collapsed = [k for k, v in entry["simulated"].items() if v < args.min_delta]
             entry["collapsed_in"] = collapsed
-            entry["fail"] = bool(collapsed) and entry["normal"] >= args.min_delta
+            failed_in = ([] if entry["normal"] >= args.min_delta else ["normal"]) + collapsed
+            entry["fail"] = bool(failed_in)
+            entry["fail_in"] = failed_in
             pairs.append(entry)
     for entry in pairs:
         lines.append("  %s vs %s  ΔE-OK 常态 %.3f | protan %.3f deutan %.3f tritan %.3f%s" % (
             entry["pair"][0], entry["pair"][1], entry["normal"],
             entry["simulated"]["protan"], entry["simulated"]["deutan"], entry["simulated"]["tritan"],
-            "  <- 模拟下塌陷：" + ",".join(entry["collapsed_in"]) if entry["fail"] else ""))
+            "  <- 塌陷：" + ",".join(entry["fail_in"]) if entry["fail"] else ""))
     bad = [p for p in pairs if p["fail"]]
-    lines.append("结论：%s" % ("语义色在三类模拟下仍两两可辨" if not bad else
-                            "%d 对配色在模拟下塌陷，需补明度差或形态 / 文字冗余编码" % len(bad)))
+    lines.append("结论：%s" % ("语义色在常态与三类模拟下均两两可辨" if not bad else
+                            "%d 对配色在常态或模拟下塌陷，需补明度差或形态 / 文字冗余编码" % len(bad)))
     payload = {"min_delta": args.min_delta, "colors": sims, "pairs": pairs,
                "collapsed_pairs": [p["pair"] for p in bad]}
     emit(args, payload, lines)
     return 1 if bad else 0
+
+
+def cmd_delta(args):
+    colors = []
+    for value in args.colors:
+        rgb, alpha = parse_color(value)
+        if alpha < 1.0:
+            raise InputError("带 alpha 的颜色请先 composite 成实色再比：" + value)
+        colors.append((fmt_hex(rgb), rgb))
+    if len(colors) < 2:
+        raise InputError("至少给两个 HEX")
+    lines = ["相邻层级 ΔE-OK（阈值 %.3f；下表相邻即传入顺序）" % args.min_delta]
+    payload = {"min_delta": args.min_delta, "pairs": []}
+    bad = 0
+    for (na, ra), (nb, rb) in zip(colors, colors[1:]):
+        de = delta_e_ok(ra, rb)
+        ok = de >= args.min_delta
+        if not ok:
+            bad += 1
+        payload["pairs"].append({"a": na, "b": nb, "delta": round(de, 4), "pass": ok})
+        lines.append("  %s -> %s  ΔE-OK %.4f  %s" % (na, nb, de, "可辨" if ok else "塌陷"))
+    lines.append("结论：%s" % ("相邻层级均可辨" if not bad else
+                            "%d 对相邻层级低于阈值，需拉开明度差或改用形态 / 文字冗余" % bad))
+    emit(args, payload, lines)
+    return 1 if bad else 0
+
+def cmd_mix(args):
+    weight = args.weight / 100.0
+    if not 0.0 < weight < 1.0:
+        raise InputError("权重须在 (0,100) 开区间内，如 14 表示 A 占 14%")
+    rgb, alpha = mix_colors(mix_operand(args.first), mix_operand(args.second), weight, args.space)
+    value = fmt_hex(rgb) + ("%02x" % int(round(alpha * 255)) if alpha < 1.0 else "")
+    payload = {"space": args.space, "weight": args.weight, "a": args.first, "b": args.second,
+               "result": value, "rgb": rgb, "alpha": round(alpha, 4)}
+    emit(args, payload, ["%s @ %s%% + %s  (%s) -> %s" % (args.first, args.weight, args.second,
+                                                          args.space, value)])
+    return 0
 
 
 def cmd_preview(args):
@@ -794,6 +871,15 @@ def cmd_selftest(args):
     check("官方表 Lc 90/400 最小字号", apca_min_size(90, 400), 16.0, 1e-9)
     check("官方表 Lc 60/700 最小字号", apca_min_size(60, 700), 16.0, 1e-9)
 
+    # 8) 混色：端点幂等、权重对称、空间确实生效（oklab 黑白中点不是 srgb 中灰）
+    a, b = parse_color("#7a5cff"), parse_color("#1c2128")
+    check("混色 A@100-ε 逼近 A", delta_e_ok(mix_colors(a, b, 0.999, "oklab")[0], a[0]), 0.0, 0.02)
+    m1 = mix_colors(a, b, 0.3, "oklab")[0]
+    m2 = mix_colors(b, a, 0.7, "oklab")[0]
+    check("OKLab 混色权重对称", delta_e_ok(m1, m2), 0.0, 1e-9)
+    bw = mix_colors((([0, 0, 0], 1.0)), (([255, 255, 255], 1.0)), 0.5, "oklab")[0]
+    check("OKLab 黑白中点 != srgb 中灰", 1.0 if fmt_hex(bw) != "#808080" else 0.0, 1.0, 0.0)
+
     failed = [c for c in checks if not c["pass"]]
     lines = ["shese selftest：%d 项" % len(checks)]
     for c in checks:
@@ -850,6 +936,20 @@ def build_parser():
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_cvd)
 
+    p = sub.add_parser("delta", help="相邻颜色 / 层级的 ΔE-OK 可辨性")
+    p.add_argument("colors", nargs="+")
+    p.add_argument("--min-delta", type=float, default=0.10)
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_delta)
+
+    p = sub.add_parser("mix", help="两色按百分比混色（oklab 默认 / srgb），可含 transparent")
+    p.add_argument("first", help="A：HEX 或 transparent")
+    p.add_argument("weight", type=float, help="A 的百分比权重，0 < PCT < 100")
+    p.add_argument("second", help="B：HEX 或 transparent")
+    p.add_argument("--space", choices=("oklab", "srgb"), default="oklab")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_mix)
+
     p = sub.add_parser("preview", help="把 token 注入自包含预览页模板")
     p.add_argument("--tokens", action="append", default=[], metavar="name=HEX")
     p.add_argument("--template")
@@ -874,6 +974,11 @@ def main(argv=None) -> int:
         return args.func(args)
     except InputError as exc:
         print("输入错误：" + str(exc), file=sys.stderr)
+        return 2
+    except OSError as exc:
+        detail = getattr(exc, "filename", None) or getattr(exc, "filename2", None) or ""
+        print("输入错误：文件读写失败%s（%s）" % ("：" + str(detail) if detail else "", exc.strerror or exc),
+              file=sys.stderr)
         return 2
     except (ValueError, KeyError, TypeError, json.JSONDecodeError) as exc:
         print("输入错误：" + str(exc), file=sys.stderr)

@@ -1,0 +1,16 @@
+{
+ "bg": "#FAF1E9",
+ "surface": "#FBE8DD",
+ "card": "#FFFFFF",
+ "elevated": "#FFFFFF",
+ "border": "#E2DDD3",
+ "text": "#171614",
+ "textMuted": "#55524C",
+ "textDim": "#706E69",
+ "accent": "#FF6A2B",
+ "brand": "#FF6A2B",
+ "success": "#257552",
+ "warning": "#8A6410",
+ "danger": "#C2382E",
+ "info": "#4353B8"
+}

@@ -1,7 +1,7 @@
 ---
 name: "theme-source 主题仓库取色规则"
 description: "收到外部主题仓库（当前为 ThemeVault）或其编号 / 主题名时的取色路径与只读纪律，以及预览页模板外壳色的来源与改法。"
-version: 1.1.0
+version: 1.1.1
 trigger-when: 用户报主题仓库路径、主题编号（如 #002）或主题名，或要求预览页用上品牌色时
 reads-from: 主题仓库根目录的 README.md、INDEX.json 与各主题的 palette.md；assets/scene-preview.html
 writes-to: 无（只规定读法与纪律，不改主题仓库）
@@ -16,6 +16,8 @@ writes-to: 无（只规定读法与纪律，不改主题仓库）
 1. 读主题仓库根目录的 `README.md`（当前：`D:\Workspace\Code\ThemeVault`）。它规定了索引结构、目录约定与「给 AI 读者的快速路径」，是该仓库唯一的读法权威；本文件不复述它的内部细节。
 2. 查 `INDEX.json`：按 `families[].themes[].number` 或 `displayName` 定位主题条目，取出 `palettePath` 与 `tokensPath`。
 3. 读 `palettePath`（通常是 `themes/<family>/<id>/palette.md`）的**全表**。色值以该文件的原文为准。
+
+取回后把 palette 与 14 个标准 token 的对齐表回给用户确认（SKILL.md CHECKPOINT 5），过闸再进判定链；主题名或用途有歧义时同 CP1 追问；用户不回就按名字最接近的对齐进判定链并标【假设】。
 
 **编号会变。** 仓库主人重排编号后，旧编号会指向别的主题（曾发生：#046 由 wave 变为 dragon）。任何一次作业都必须现读 `INDEX.json`，禁止把编号与主题的对应关系写进结论或凭记忆复用。本文件里出现的编号只作示例，使用前复核。
 
