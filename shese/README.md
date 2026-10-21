@@ -92,9 +92,9 @@ python scripts/shese.py preview \
 
 | 子命令 | 用途 | 关键参数 |
 | --- | --- | --- |
-| `oklch` | 十六进制 ↔ OKLCH | `--to-hex "L C h"`、`--json` |
+| `oklch` | 十六进制 ↔ OKLCH | `--to-hex "L C h"`、`--json`；超色域自动按 ×0.98 逐步收缩色度并标注，h 偏移超过 10° 时回原值交付并注明超出 sRGB |
 | `contrast` | 单对配色的 APCA Lc 与相对亮度比 | `--size` + `--weight` 走官方矩阵；不给则按 `--role body\|aux\|hint` 档（60 / 45 / 30） |
-| `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 | `--on` 指定最底不透明基准面 |
+| `composite` | 带 alpha 的颜色沿叠加链在 sRGB 空间合成 | `--on` 指定最底不透明基准面（只收一个，重复给取最后一个） |
 | `matrix` | 文字 token × 承载面矩阵，标出最差面 | `--tokens` 里 text 条目可写 `{"hex","role","size","weight"}` 逐 token 定要求 |
 | `delta` | 相邻层级的 ΔE-OK，专判层级明度差 | `--min-delta`（默认 0.10） |
 | `cvd` | 三类色觉模拟 + ΔE-OK 可辨性 | `--min-delta`（默认 0.10） |
