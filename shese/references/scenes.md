@@ -6,7 +6,7 @@ description: "shese 场景画像：代码编辑器 / 网页长文 / 移动端卡
 
 # 场景画像与尺度推导（scenes）
 
-本文件只在把阅读目标落成尺度时读。判定表的十二项、三级标注与专项口径见 SKILL.md；机制为什么这样起作用见 references/mechanisms.md。本文件不重复判定表全文，只给出「目标 → 尺度」的推导路径；出现的具体数字刻度以 references/thresholds.md 为唯一真相源。
+本文件只在把阅读目标落成尺度时读。判定表的十二项、三级标注与「角色与判定面」的口径见 SKILL.md；机制为什么这样起作用见 references/mechanisms.md。本文件不重复判定表全文，只给出「目标 → 尺度」的推导路径；出现的具体数字刻度以 references/thresholds.md 为唯一真相源。
 
 ## 为什么不能拿通用数字套场景
 
