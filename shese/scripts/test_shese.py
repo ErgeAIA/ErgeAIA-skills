@@ -535,6 +535,38 @@ class TestProgressiveDisclosure(unittest.TestCase):
         self.assertIn("references/tool-usage.md", text)
 
 
+class TestSkillFacade(unittest.TestCase):
+    """门面 description：触发句要覆盖故障式表述与英文提问，并声明不适用范围。"""
+
+    ROOT = SCRIPT.parent.parent
+    SKILL = ROOT / "SKILL.md"
+
+    def description(self):
+        for line in self.SKILL.read_text(encoding="utf-8").splitlines():
+            if line.startswith("description:"):
+                return line
+        self.fail("SKILL.md frontmatter 缺 description 行")
+
+    def test_description_covers_fault_wording(self):
+        desc = self.description()
+        for phrase in ("主题改暗", "主题改亮", "色阶塌了", "对比不够", "看着刺眼"):
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, desc, "description 未覆盖故障式触发词：" + phrase)
+
+    def test_description_covers_english_triggers(self):
+        desc = self.description()
+        for word in ("palette", "contrast"):
+            with self.subTest(word=word):
+                self.assertIn(word, desc, "description 未覆盖英文触发词：" + word)
+
+    def test_description_declares_boundary(self):
+        desc = self.description()
+        self.assertIn("不适用于", desc, "description 未声明不适用范围（Non-Goals 门面化）")
+        for scope in ("数据可视化", "插画摄影印刷", "整套设计系统"):
+            with self.subTest(scope=scope):
+                self.assertIn(scope, desc, "description 边界漏项：" + scope)
+
+
 class TestFailureHandling(unittest.TestCase):
     """失败模式：分诊四类、每类症状标能否交付、交付闸与静默失败复核必须可查。"""
 

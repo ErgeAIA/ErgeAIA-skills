@@ -2,7 +2,7 @@
 
 > 设色者，布色于位，明其阶次。先定其所用，再正其所失。
 
-**v1.1.1** · Agent Skill ｜ 配色审查、优化与生成
+**v1.1.2** · Agent Skill ｜ 配色审查、优化与生成
 
 在用户声明的阅读场景下，让一套配色读得舒服，同时不丢失它原本要表达的情绪——并且让不懂色彩学与设计的人也能拿到结论、看见这套色在真实界面里的样子。
 
@@ -62,11 +62,13 @@ python scripts/shese.py preview \
 
 ## 怎么用（场景 × 示例提示词）
 
-两条轨道共用同一条判定链。下表每行都是你会对设色说的话：
+三条轨道共用同一条判定链。下表每行都是你会对设色说的话：
 
 | 能力 / 场景 | 一句话方法 | 示例用法提示词 |
 | --- | --- | --- |
 | 审查一套现有配色 | 贴色值 + 说清用途与阅读条件 | `帮我看看这套：bg #101014、surface #16161D、text #E8E6E3、accent #ff6a2b。深色，代码编辑器，长时间读。` |
+| 带症状来（改暗 / 改亮 / 色阶塌了） | 说症状即可，场景缺就按假设补齐 | `这套深色主题整体改暗了一档，现在色阶有点塌了，帮我看看。` |
+| 英文提问 | 同一条判定链，结论照样绑字号字重 | `Can you check whether these colors are readable? bg #101014, text #9AA0A6, 13px regular body text.` |
 | 一句话生成配色 | 说风格 / 症状词 + 场景 + 禁忌 | `给我一套深色、安静、偏冷、适合长时间读代码的配色，不要紫色。` |
 | 按参考主题适配 | 给主题编号或主题名 | `按 #048 kanagawa/wave 的色板，做一版网页长文阅读用的。` |
 | 只要看到效果 | 明说做预览页 | `把这几个颜色做成预览页，我要直接看效果。` |
@@ -134,7 +136,7 @@ shese/
 └── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
 
-**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。另有 `TestFailureHandling` 5 个用例机检失败模式：四类分诊齐全、故障表每行都写了能否交付、交付闸三闸位与静默失败六查编号齐全。
+**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。另有 `TestFailureHandling` 5 个用例机检失败模式：四类分诊齐全、故障表每行都写了能否交付、交付闸三闸位与静默失败六查编号齐全；`TestSkillFacade` 3 个用例机检门面 description 覆盖故障式触发词（主题改暗、主题改亮、色阶塌了、对比不够、看着刺眼）、英文触发词（palette、contrast）与不适用范围声明。
 
 ## 测试与自检
 
@@ -143,7 +145,7 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 71 tests ... OK`；selftest 27 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 74 tests ... OK`；selftest 27 项全 PASS、退出码 0。
 
 ## 边界
 
@@ -154,4 +156,4 @@ python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量
 
 ## 版本
 
-v1.1.1。详见 [CHANGELOG.md](CHANGELOG.md)。
+v1.1.2。详见 [CHANGELOG.md](CHANGELOG.md)。

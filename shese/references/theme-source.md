@@ -1,7 +1,7 @@
 ---
 name: "theme-source 主题仓库取色规则"
 description: "收到外部主题仓库（当前为 ThemeVault）或其编号 / 主题名时的取色路径与只读纪律，以及预览页模板外壳色的来源与改法。"
-version: 1.1.1
+version: 1.1.2
 trigger-when: 用户报主题仓库路径、主题编号（如 #002）或主题名，或要求预览页用上品牌色时
 reads-from: 主题仓库根目录的 README.md、INDEX.json 与各主题的 palette.md；assets/scene-preview.html
 writes-to: 无（只规定读法与纪律，不改主题仓库）
