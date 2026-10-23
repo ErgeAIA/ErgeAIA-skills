@@ -118,7 +118,7 @@ Trigger → Input → Decision/Routing → Core Work → Tools(References/Script
 
 ## 10. Description 语义评审（替代词法统计）
 
-结构合规由 `validate` 保证（存在、非空、单行 string、长度、YAML 转义、无未完成占位符；`spec` 只对官方字段契约负责，见 `validation.md`）。**质量与触发命中属语义判断**，按 `Job + Trigger + Boundary` 模型逐项回答（**顺序：产出在前、触发在后、边界收尾**）：
+结构合规由 `validate` 保证（存在、非空、单行 string、长度、YAML 转义、无未完成占位符；`spec` 只对官方字段契约负责，见 `validation.md`）。**质量与触发命中属语义判断**，按 `What + When` 两段式模型逐项回答（**顺序：产出在前、触发在后；边界不进 description**）：
 
 ```text
 1 第一次读到它，能否知道这个 Skill 是干什么的？
@@ -128,12 +128,12 @@ Trigger → Input → Decision/Routing → Core Work → Tools(References/Script
 5 有没有为了命中而堆的同义词与裸词表？
 6 有没有容易误触发的泛化描述（「分析 / 处理 / 帮助」这类无边界大词）？
 7 有没有明显漏掉的真实触发场景？
-8 是否**真的**需要 `Not for`？——只有能指出**具体**相邻 Skill 且用户话术会混淆才要；**官方三个示例均无 `Not for`**，凑一条是缺陷不是加分。
+8 description 里有没有 `Not for`？——**官方三个示例均无**；边界的归宿是正文「何时使用」节。description 中若出现 Not for，须能同时拿出「**具体**相邻技能 + 真实误触发用例 + When 句改写无效」三条证据（见 `creation.md` 边界条款），拿不出就 REWRITE 删除。
 9 是否与 Core Task 一致？
 10 改后是否更短、更清楚，还是只是更长？（**description 常驻上下文**，冗余与堆砌有真实成本）
 ```
 
-模型：`[做什么（第三人称）] + Use when [何时用] + [必要时一句边界]`。例：
+模型：`[做什么（第三人称）] + Use when [何时用]`，只有两段；边界归正文。例：
 
 > 提供规范的 Git 工作流指导，并在可能改写历史或删除数据的危险操作前要求确认。Use when 用户准备提交代码、创建或切换分支、合并、推送或处理 Git 错误。
 
@@ -147,7 +147,7 @@ Trigger → Input → Decision/Routing → Core Work → Tools(References/Script
 | --- | --- |
 | Coverage | 用户真实会用的场景是否覆盖 |
 | Precision | 不相关任务是否误触发（相邻词如 `Git` 出现在「写 GitHub Action」场景不应抢走路由） |
-| Boundary | 与相邻 Skill 是否有清楚分工（Not for / 交棒对象） |
+| Boundary | 与相邻 Skill 分工是否清楚（正文 Not for 节 / 交棒对象；不靠 description 堆排除） |
 | Natural Language Fit | 用户说自然语言时是否容易联想到该 Skill |
 
 判据是**路由结果**，不是关键词数量。需要实证时用三类用例覆盖：真实会用的说法、明显无关的说法、与相邻技能易混的说法——各写几条按该技能复杂度决定，不设配额（写死数字只会让人往用例里凑数）。

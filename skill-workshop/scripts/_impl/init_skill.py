@@ -10,7 +10,7 @@ from ._gate import require_plan
 
 SKILL_TEMPLATE = """---
 name: {skill_name}
-description: "[TODO: 说明解决什么问题、何时触发。例如：帮助用户压缩 PDF，当用户说「帮我压缩 PDF」时触发。Not for: 通用文件管理]"
+description: "[TODO: 两段式——第三人称动词开头写做什么，再用 Use when 写何时触发；边界写在正文「何时使用」节。例如：压缩 PDF 文件并减小体积。Use when 用户要求压缩 PDF、缩小文件体积，或反馈 PDF 太大无法发送。]"
 metadata:
   author: ErgeAIA
   version: "1.0.0"

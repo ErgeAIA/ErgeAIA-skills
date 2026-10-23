@@ -7,6 +7,31 @@ skill-workshop 所有值得注意的变更都记录在此文件中。
 
 > 早期（v1.21.0 之前）的详细变更历史见 `git` 提交记录；本文件仅保留近期若干版本的精简记录。
 
+## [2.8.0] - 2026-10-23 · description 模型定为 What+When 两段式，Boundary 移出 frontmatter
+
+> 来源：用户指出"三段式（含 Not for 的 Job+Trigger+Boundary）已经不是社区推荐的"，且 v2.6.0 已改过一次顺序，新技能（miti v1.0.0）仍写出三段式 description，要求找出机制根因并修正。2026-10-23 重新联网核对：① Anthropic 官方 best-practices（页面 2026-09-26 更新）"Writing effective descriptions" 原文仍为 "include both what the Skill does and when to use it"，三个官方正例（PDF / Excel / Git Commit）全部只有两段、无一条 Not for；② 社区总结（agentconn.com，2026-10-07，基于官方文档与 superpowers / mattpocock 等头部仓库）Rule 5 明确：边界写正文 "When NOT to Use" 节，不进 frontmatter。
+
+### 机制根因（为什么 v2.6.0 改过后新技能仍犯）
+
+v2.6.0 只改了顺序与正文口径（"边界默认不加"），但**模型名、章节标题、init 骨架、§10 评审模型、资源表、Fast 清单仍挂着 Boundary**：新技能 init 后第一眼看到的骨架 TODO 示例本身就是三段（还示范了"Not for: 通用文件管理"这种凑数边界）；创建与评审时看到的模型名也是三段。正文说两段、门面说三段，照门面写必然出错。
+
+### 变更
+
+- `scripts/_impl/init_skill.py`：骨架 TODO 示例改为两段式（第三人称动词开头 + `Use when`），删除示范的 Not for；正文「何时使用」节的 Not for 行保留（边界归宿）。
+- `references/creation.md`：章节标题改为「description 写法（What + When 两段式）」；统一模型明确只有两段；边界条款改为「边界不进 description（官方与社区共识）+ **极窄例外**三条」（具体相邻技能 + 真实误触发用例 + When 句改写无效，且须在评审/优化报告中附证据）；Grill 维度表「边界」改为正文 Not for 节。
+- `references/optimization.md`：§10 模型由 `Job + Trigger + Boundary` 改为 `What + When` 两段式；第 8 问改为检查 Not for 是否违规进入 description（须三条证据，否则 REWRITE）；§11 Trigger Quality 表 Boundary 行改为以正文 Not for 节判分工。
+- `references/review.md`：T 轴与 Fast 清单第 2 条去除"边界"常规项，改为两段式检查 + 正文 Not for 是否到位；定级段明确边界归宿与极窄例外。
+- `SKILL.md`：资源指引表同步为 What+When 两段式。
+- validator **不新增任何语义判据**（v2.3.0 起 CLI 只判结构的契约不变）；`Not for:` 半角冒号豁免保留（极窄例外仍需要）。
+
+### 测试
+
+- `scripts/tests/test_validator.py`：新增 `InitSkeletonTwoPartContract` 三个用例，锁住骨架 frontmatter 无 Not for、含 `Use when`、正文 Not for 行保留；夹具 DESC_A 由旧 Trigger 在前端式改为 What 在前两段式。全量 28 项通过。
+
+### 边界
+
+- 本次只改规范文本与骨架，**不追溯重写存量技能**；存量技能在后续 OPTIMIZE 时按新模型处理（miti v1.0.0 已锁定，待用户另行安排）。
+
 ## [2.7.0] - 2026-10-10 · 顶层字段白名单豁免 disable-model-invocation（Claude Code 字段）
 
 > 来源：用户参照 mattpocock/skills 的 `user-invoked / model-invoked` 两分法，要求技能调用方式「按参考仓库的」写法（顶层 `disable-model-invocation: true`），并明确要求**核实社区规范**、不以本仓现状为准。

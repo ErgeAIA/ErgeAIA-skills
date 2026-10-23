@@ -30,9 +30,9 @@ from _impl.quick_validate import (  # noqa: E402
     validate_description_symbols,
 )
 
-# 推荐句式（什么时候用 + 解决什么 + 边界），无引号关键词
-DESC_A = ("当用户需要提交代码、管理分支或处理 Git 操作时，提供规范的 Git 工作流指导，"
-          "并在可能改写历史或删除数据的危险操作前要求确认。")
+# 推荐句式：What 在前的两段式（做什么 + Use when 何时用；v2.8.0 起为标准模型），无引号关键词
+DESC_A = ("提供规范的 Git 工作流指导，并在可能改写历史或删除数据的危险操作前要求确认。"
+          "Use when 用户需要提交代码、管理分支或处理 Git 操作。")
 # 裸词表：格式合法但语义质量低，validator 不得因词多给出任何「更好」的判定
 DESC_B = "Git commit branch merge push pull rebase PR review audit check validate"
 # 自然中文、且刻意不含旧词表里的意图动词（提取/评审/校验/create/review…）
@@ -128,6 +128,37 @@ class DescriptionStructureContract(unittest.TestCase):
     def test_missing_or_non_string(self):
         self.assertFalse(validate_description_format({})[0])
         self.assertFalse(validate_description_format({"description": ["a"]})[0])
+
+
+class InitSkeletonTwoPartContract(unittest.TestCase):
+    """v2.8.0：init 骨架必须示范两段式 description——frontmatter 不得出现 Not for，
+    正文「何时使用」节的 Not for 行必须保留（边界的归宿）。
+
+    背景：v2.6.0 把正文口径改成两段式，但 init 骨架 TODO 仍示范三段式
+    （「…触发。Not for: 通用文件管理」），新技能照骨架填写继续写三段，
+    miti v1.0.0 的 description 即此残留的受害者。锁死骨架防回退。
+    """
+
+    def setUp(self):
+        from _impl.init_skill import SKILL_TEMPLATE
+        parts = SKILL_TEMPLATE.split("---", 2)
+        self.frontmatter = parts[1]
+        self.body = parts[2]
+        self.desc_lines = [ln for ln in self.frontmatter.splitlines()
+                           if ln.strip().startswith("description:")]
+
+    def test_frontmatter_description_has_no_not_for(self):
+        self.assertEqual(len(self.desc_lines), 1, self.frontmatter)
+        self.assertNotIn("Not for", self.desc_lines[0],
+                         f"frontmatter description 不得示范 Not for：{self.desc_lines[0]}")
+
+    def test_frontmatter_description_demonstrates_use_when(self):
+        self.assertEqual(len(self.desc_lines), 1, self.frontmatter)
+        self.assertIn("Use when", self.desc_lines[0],
+                      f"骨架 description 须示范两段式 Use when：{self.desc_lines[0]}")
+
+    def test_body_keeps_not_for_section(self):
+        self.assertIn("Not for:", self.body, "正文「何时使用」节须保留 Not for 行（边界归宿）")
 
 
 class CliNeverCrashesAndStillReports(unittest.TestCase):

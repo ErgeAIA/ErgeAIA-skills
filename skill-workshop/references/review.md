@@ -47,7 +47,7 @@ Input / Output / Non-Goals / Dependencies / Success condition
 
 | 轴 | 问题 | 主要看什么 |
 | --- | --- | --- |
-| **T — Trigger** | 触发正确吗？ | description 语义、触发词、Not for、误触发风险 |
+| **T — Trigger** | 触发正确吗？ | description 两段式语义、触发词、误触发风险；正文 Not for 节是否到位 |
 | **E — Execution** | 执行正确吗？ | 步骤可执行、输入输出契约、失败路径、HARD 护栏、脚本纪律（若有）；内容创作类另见下方 E 轴内容判据 |
 | **C — Context** | 上下文成本合理吗？ | 主文档体量、是否堆砌、references 按需、无死链 |
 
@@ -67,7 +67,7 @@ Input / Output / Non-Goals / Dependencies / Success condition
 ## Fast Review 清单（默认）
 
 1. Frontmatter：`name`/`description`/版本 SSOT、字段是否越权。  
-2. Description：做什么（**第三人称**）、`Use when` 何时触发、边界——**顺序为 Job 在前、Trigger 在后**（依据 Anthropic 官方示例）。此项默认必检，不等用户提。  
+2. Description：**What + When 两段式**——做什么（**第三人称**、在前）+ `Use when` 何时触发（在后）；边界应在正文而非 description（官方三例均无 Not for，极窄例外见 `creation.md` 边界条款）。此项默认必检，不等用户提。  
 3. Core Task 能否一句话说清（说不清 → 结构性风险，升 Deep 候选）。  
 4. 主职责是否一个连贯用户任务单元。  
 5. 主文档体量与是否只做路由/硬边界。  
@@ -111,7 +111,7 @@ Input / Output / Non-Goals / Dependencies / Success condition
 
 结构不合规（缺字段、非单行、超 1024、YAML 转义风险、未完成占位符）→ CLI 硬 FAIL。
 语义问题（看不出干什么、只有裸词表、非第三人称、Trigger 在前而非 Job 在前、开发者视角的功能罗列、**堆触发词或流程叙述导致冗余**、**误触发风险真实存在**、写的是内部机制）→ 由评审判断，一般 P1；**完全无法被真实用户话术触发**才算 P0。
-禁止把「触发词数量少」当缺陷——数量不是判据，路由结果才是（见 `optimization.md` §11）。**反过来**：没写 `Not for` 本身**不是缺陷**（官方三个示例均无），硬凑一条、或堆砌冗余才是——description 常驻上下文，冗余有真实成本。
+禁止把「触发词数量少」当缺陷——数量不是判据，路由结果才是（见 `optimization.md` §11）。**反过来**：description 里没写 `Not for` **不是缺陷**（官方三个示例均无），边界写在正文「何时使用」节即可；description 里出现 Not for 须有真实误触发证据（见 `creation.md` 边界条款），硬凑一条、或堆砌冗余才是缺陷——description 常驻上下文，冗余有真实成本。
 
 默认 **P2 不阻塞**核心结论。
 
