@@ -5,6 +5,15 @@ All notable changes to this skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`.gitignore` 维护**：新增 `references/gitignore.md`（前置判定、栈证据采集、GitHub 官方模板取规则、只追加、已追踪碰撞检查、密钥例外、monorepo / 嵌套仓库分支、验收与失败处理）；SKILL 新增「忽略规则维护」节；README 增加速查与示例提示词。
+- **碰撞检查**：写入后跑 `git ls-files -ci --exclude-standard`，命中已追踪文件逐条报告，不自动 `git rm --cached`；已被追踪的密钥只报告并建议轮换凭据。
+
+### Changed
+- description 触发面加入 `.gitignore` 忽略规则维护；不适用场景由「文件内容编辑」收窄为「代码文件编辑」。
+
 ## [1.3.3] - 2026-09-26
 
 ### Added

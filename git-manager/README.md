@@ -8,16 +8,17 @@
 
 ## 一句话用法
 
-> 当要提交 / 建分支 / 合并 / 解决 Git 错误 / 执行危险 Git 操作时，调 git-manager。它输出规范建议 + 危险操作闸（不确认不执行）。
+> 当要提交 / 建分支 / 合并 / 解决 Git 错误 / 执行危险 Git 操作 / 维护 `.gitignore` 时，调 git-manager。它输出规范建议 + 危险操作闸（不确认不执行）。
 
 常见调用：
 - `帮我提交这些改动`
 - `这个分支该怎么命名`
+- `这些文件不该入库，帮我补一下 .gitignore`
 - `我要 force push，确认一下`
 
 ## 怎么用
 
-把「要提交 / 建分支 / 合并 / 解决 Git 错误 / 危险 Git 操作」交给 git-manager；它出规范建议 + 危险操作闸（不确认不执行）。下表每行都是你会对 git-manager 说的话：
+把「要提交 / 建分支 / 合并 / 解决 Git 错误 / 危险 Git 操作 / 维护 `.gitignore`」交给 git-manager；它出规范建议 + 危险操作闸（不确认不执行）。下表每行都是你会对 git-manager 说的话：
 
 | 能力 / 场景 | 一句话方法 | 示例用法提示词 |
 | --- | --- | --- |
@@ -26,13 +27,14 @@
 | 危险操作闸（force push） | 必须说明影响 + 你确认，禁强推 main | `我要 force push，确认一下。` |
 | 解决 Git 错误 | 诊断冲突 / 报错给恢复步骤 | `我 rebase 冲突了，帮看看怎么解。` |
 | 改历史（amend / rebase -i） | 二次确认后才动历史 | `帮我把刚那个提交改个信息。` |
+| 维护忽略规则 | 采集栈与未跟踪文件 → 官方模板选规则 → 只追加 → 碰撞检查 | `把 node_modules 和 .env 加进忽略，别动我已有的规则。` |
 | 边界：纯写代码 | 不涉及 Git 操作不触发 | `帮我实现登录页面。`（不触发 git-manager） |
 
 ## 核心原则（备忘）
 
 1. **安全第一**：所有危险操作必须用户明确确认后才执行
 2. **可追溯**：每个提交必须有清晰信息，禁空信息
-3. **最小干预**：不修改用户未请求的代码/文件
+3. **最小干预**：不修改用户未请求的代码/文件；`.gitignore` 只追加不重写
 
 ## 分支管理
 
@@ -46,6 +48,12 @@
 - 祈使语气、首字母小写、结尾无句号、标题 ≤50 字符
 - 破坏性变更两种标注：`<type>!` 或 `BREAKING CHANGE:` footer
 - 类型完整清单与示例 → `references/conventional-commits.md`
+
+## 忽略规则（速查）
+
+- 只追加不重写；按栈取 GitHub 官方模板 → `references/gitignore.md`
+- 写入后必须跑 `git ls-files -ci --exclude-standard`；命中已追踪文件逐条报告，不自动 untrack
+- `.env.example`、lockfile 等必须保持可追踪；已被追踪的密钥只报告并建议轮换凭据
 
 ## 危险操作（必须二次确认）
 
@@ -71,5 +79,6 @@
 - 提交信息生成流程：[references/commit-message-flow.md](./references/commit-message-flow.md)
 - 提交规范详解：[references/conventional-commits.md](./references/conventional-commits.md)
 - 危险操作恢复预案：[references/dangerous-operations.md](./references/dangerous-operations.md)
+- 忽略规则维护：[references/gitignore.md](./references/gitignore.md)
 - 触发词与边界：[references/trigger-when.md](./references/trigger-when.md)
 - 版本：[CHANGELOG.md](./CHANGELOG.md)
