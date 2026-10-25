@@ -4,6 +4,24 @@
 
 ---
 
+## [Unreleased]
+
+### 初始化流程新增「仓库卫生检查与补齐」
+
+**背景**：初始化项目后仍要单独调 `changelog-manager` 建 CHANGELOG；`.gitignore` 与 README 则无人负责。
+
+**改动**
+
+- `vibe-init` 执行顺序新增步骤 3：`.gitignore` / `CHANGELOG.md` / `README.md` 缺失时分别委托 `git-manager` / `changelog-manager` / `shuxu`，附证据包并实读验收；未完成标「待补」，不代写。
+- 生成模板 `Conventions` 新增「仓库文档归属」行，新项目每个会话都能读到该找谁。
+- `vibe-sync` 的 CHANGELOG 规则改为：骨架由 init 建立，日常只追加 `[Unreleased]`，未打发布 tag 前不新增版本号节。
+- 命令白名单新增 4 条只读 Git 核对（`status --ignored` / `ls-files -ci` / `check-ignore` / `tag --list`）。
+- 幂等：三件均已存在且本轮无委托动作时，init 不追加空报告。
+
+**修改文件**：`SKILL.md`、`README.md`、`assets/docs/init-report.md`、`references/init-agents-md.md`、`references/init-env-checks.md`、`references/sync-progress.md`、`references/command-policy.md`、`references/agents-md-generator.md`、`references/trigger-test-set.md`、`CHANGELOG.md`。
+
+---
+
 ## v1.8.0 (2026-10-10)
 
 ### 初始化产物目录 `docs/.ai/` 更名为 `docs/agents/`

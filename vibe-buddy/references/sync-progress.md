@@ -128,10 +128,11 @@ writes-to:
 
 ## 写入规则 · `CHANGELOG.md`（项目根，可选）
 
-- **前置**：仅当 `<project>/CHANGELOG.md` **已存在**时追加。不存在 → **不创建**，终止回复写「无 CHANGELOG.md，本轮未写更新日志」，并提示用户自建或使用 changelog-manager；用户书面要求代建最小骨架时才可建，并注明非完整 Keep a Changelog 规范。
+- **前置**：仅当 `<project>/CHANGELOG.md` **已存在**时追加；骨架由 `vibe-init` 经 `changelog-manager +init` 建立。不存在 → **不创建**，终止回复写「无 CHANGELOG.md，请先跑 `vibe-init` 或调 changelog-manager」。
 - **只收用户可见变更**：新功能、行为修复、破坏性变更、配置/接口对外变化、对使用者有影响的文档。内部过程文档、`docs/agents/`、无行为变化的重构 **不写**。
 - **格式跟随文件既有风格**：Keep a Changelog 的 `### Added / Fixed / Changed` 或该文件已用的自定义列表；**禁止**另起一套与文件内历史不一致的结构。
 - **追加位置**：优先 `## [Unreleased]`（若存在）；无 Unreleased 则在最新版本节之后、历史节之前新增当日 `## [YYYY-MM-DD]` 或项目惯用小节；**永不改写**已发布历史版本节。
+- **不创建版本号节**：未打发布 tag 前只写 `[Unreleased]`；版本号与归档归 `changelog-manager`，本技能不新增 `## [x.y.z]` 节。
 - **条目口吻**：面向使用者的一句话（做了什么 / 修了什么），可附路径或 issue 指针；不写内部工单式流水。
 - **与 Git 对齐**：可引用本次相关 `commit` hash；未提交改动写「工作区（未提交）」，不编造版本号。
 - **只追加**：不删除、不重排既有条目；同一变更已写过则跳过。
@@ -144,7 +145,7 @@ writes-to:
 - **不动 `AGENTS.md` 契约区**：契约改动走 `vibe-init`。
 - **不写 `docs/agents/experience/`**：可复用经验的提炼归 `vibe-distill`；这里只记录流水事实。
 - **不在无 `CHANGELOG.md` 时创建**（见上节）；也不把 CHANGELOG 写成进度流水。
-- **不顺手改源码 / 配置 / `.gitignore`**（`CHANGELOG.md` 除外的根文件仍只读）。
+- **不顺手改源码 / 配置 / `.gitignore`**（`CHANGELOG.md` 除外的根文件仍只读）；`.gitignore` 需要改动时交 `git-manager`。
 - 同一事实已存在则跳过；只有值变化时更新。
 
 ## 与相邻触发词的分界

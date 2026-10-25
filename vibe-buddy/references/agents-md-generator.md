@@ -139,6 +139,7 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 - 同名文件已存在 → 跳过，禁止覆盖，禁止改写历史条目
 - 模板中的 `<...>` 占位：初始化时已确知的当场填，未知的原样保留，由首次 `vibe-sync` 补齐
 - 层 B `docs/agents/project-overview.md` **无模板、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建，内容为目录索引、依赖方向、开源附加分析；不需要就不建
+- 仓库根三件**不在本树内**：`.gitignore` 归 `git-manager`、`CHANGELOG.md` 归 `changelog-manager`、`README.md` 归 `shuxu`；由执行顺序步骤 3 委托，本表不管
 
 ## 5 产物模板（严格填空，禁止增删章节）
 
@@ -194,6 +195,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 | 改 AGENTS.md 须留一行变更记录 | 在 docs/agents/agents-changelog.md 追加「旧值 → 处置 → 去处」，无记录视为静默丢失 |
 | 经验库按领域分目录 | 可复用经验落 docs/agents/experience/<领域>/；正文可改写、历史靠 changelog.md，与 docs/agents 其余三份的「只追加」不同 |
 | AGENTS.md 杂音归宿 | 变更日志 → CHANGELOG.md（无则 decision-log.md）；人读说明 → README.md（无则不写）；决策叙事与踩坑 → decision-log.md 与 debug-log.md；执行流水 → init-report.md 与 project-progress.md |
+| 仓库文档归属 | README 生成或优化 → shuxu；CHANGELOG 建立、改结构、归档版本 → changelog-manager，日常只按既有格式追加 `[Unreleased]`；.gitignore 新增或修正 → git-manager；其他角色只报告缺口，不代写 |
 
 ## References
 
@@ -225,7 +227,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 
 | 类 | 判定特征 | 归宿 | 归宿文件不存在时 |
 | ---- | --------- | ---- | --------------- |
-| N1 变更日志 / 发布说明 | 面向使用者叙述「哪次改了什么」 | 项目根 `CHANGELOG.md` | 回落 `docs/agents/decision-log.md`，终止回复提示可自建或交 changelog-manager |
+| N1 变更日志 / 发布说明 | 面向使用者叙述「哪次改了什么」 | 项目根 `CHANGELOG.md` | 回落 `docs/agents/decision-log.md`，终止回复提示由 `vibe-init` 交 `changelog-manager` 建立 |
 | N2 人读说明 / 教程 / FAQ | 面向「人第一次读这个项目」的介绍、上手指引、界面说明 | 项目根 `README.md` | **不写**——缺的是文档，不是本文件的噪音；列入终止回复待确认项 |
 | N3 决策叙事 / 取舍理由 / 踩坑经过 | 只对「当时为什么这么定」有意义，不约束今天的行为 | `docs/agents/decision-log.md` / `docs/agents/debug-log.md` | 无（两份初始化必建） |
 | N4 日期化裁决记录 / 规则出处 | 行内括号中的日期或出处标注 | **删括号，规则本体留在原行** | — |

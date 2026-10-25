@@ -8,6 +8,9 @@ reads-from:
   - references/init-env-checks.md
   - <project>/AGENTS.md（若已存在，用于决策保全与迁移主源）
   - <project>/CLAUDE.md（若已存在，作为迁移输入源，迁移完成后删除）
+  - <project>/.gitignore（存在性检测，存在即跳过）
+  - <project>/CHANGELOG.md（存在性检测，存在即跳过）
+  - <project>/README.md（存在性检测，存在即跳过）
 writes-to:
   - <project>/AGENTS.md
   - <project>/CLAUDE.md（仅受控迁移：安全闸全过后删除源文件；本技能从不创建）
@@ -19,8 +22,9 @@ writes-to:
   - <project>/docs/agents/project-overview.md（可选）
   - <project>/docs/agents/experience/.gitkeep
   - <project>/docs/handoff/.gitkeep
-  - <project>/CHANGELOG.md（仅 relocate 迁出，且文件已存在时追加）
-  - <project>/README.md（仅 relocate 迁出，且文件已存在时追加）
+  - <project>/CHANGELOG.md（委托 changelog-manager 建立；仅 relocate 迁出时由本技能追加）
+  - <project>/README.md（委托 shuxu 生成或优化；仅 relocate 迁出时由本技能追加）
+  - <project>/.gitignore（委托 git-manager；本技能不直接写）
   - <project>/.git/（仅 git init）
   - <project>/.codegraph/（仅 codegraph init）
 ---
@@ -36,6 +40,9 @@ writes-to:
 ````text
 <project>/
 ├── AGENTS.md                        # 唯一项目级协作契约源
+├── .gitignore                       # 委托 git-manager 建立
+├── CHANGELOG.md                     # 委托 changelog-manager 建立（只含 Unreleased）
+├── README.md                        # 委托 shuxu 生成或优化
 ├── .git/                            # 无仓库时 git init 建立
 ├── .codegraph/                      # 已装 codegraph 且无索引时建立
 └── docs/
@@ -58,14 +65,15 @@ writes-to:
 | -- | ---- | ---- |
 | 1 | 前置检查 | 可写性、monorepo 判定 |
 | 2 | Git 检查 | 仓库检测，必要时 `git init` |
-| 3 | 状态识别与路由 | 按初始化状态机 A–E 判定 |
-| 4 | 决策保全与杂音清扫 | 状态 B / C / D / E 必做（判定依据见下）；含存量杂音扫描与 `relocate` 迁出 |
-| 5 | 状态迁移 / 生成 AGENTS.md | 全新 / 增量走生成规范；迁移先写目标、验证目标、后删源 |
-| 6 | 建立过程文档 | 复制模板，补齐缺口 |
-| 7 | AGENTS 唯一源校验 | 实读复核 + 迁移留痕核对（见「AGENTS 唯一源校验」节） |
-| 8 | Codegraph 集成 | 检测索引，或给出安装建议 |
-| 9 | 初始化报告 | 汇总本次全部操作（含迁移处置计数） |
-| 10 | 终止回复 | 按格式回报（含迁移结果与源文件处置） |
+| 3 | 仓库卫生检查与补齐 | `.gitignore` / `CHANGELOG.md` / `README.md` 缺失时委托对应技能并验收 |
+| 4 | 状态识别与路由 | 按初始化状态机 A–E 判定 |
+| 5 | 决策保全与杂音清扫 | 状态 B / C / D / E 必做（判定依据见下）；含存量杂音扫描与 `relocate` 迁出 |
+| 6 | 状态迁移 / 生成 AGENTS.md | 全新 / 增量走生成规范；迁移先写目标、验证目标、后删源 |
+| 7 | 建立过程文档 | 复制模板，补齐缺口 |
+| 8 | AGENTS 唯一源校验 | 实读复核 + 迁移留痕核对（见「AGENTS 唯一源校验」节） |
+| 9 | Codegraph 集成 | 检测索引，或给出安装建议 |
+| 10 | 初始化报告 | 汇总本次全部操作（含迁移处置计数） |
+| 11 | 终止回复 | 按格式回报（含迁移结果与源文件处置） |
 
 ## 前置检查
 
@@ -74,6 +82,7 @@ writes-to:
 | 项目根是否已有 `AGENTS.md` / `CLAUDE.md`（含点目录逐查，不得只看列目录工具的默认输出） | 按下方「初始化状态机 A–E」路由；判入迁移态时先保全再处置 |
 | agent 目录内是否已有规则文件（`.claude/`、`.codex/`、`.zcode/`、`.cursor/rules/` 等） | 有 → 纳入决策保全，按既有约定处置；**含点目录必须查，不能只看列目录工具的默认输出** |
 | `docs/agents/` 与 `docs/handoff/` 是否已存在 | 存在 → 只补缺失的文件，已存在的一字不动 |
+| 项目根 `.gitignore` / `CHANGELOG.md` / `README.md` 是否存在 | 缺失项按「仓库卫生检查与补齐」委托，已存在的一字不动 |
 | 项目根与 `docs/` 是否可写 | 不可写 → 停下报告，不写任何部分文件 |
 | 目标项目是否为 monorepo | 是 → 各子包独立 `AGENTS.md`，根文件只留全局标准 |
 
@@ -87,6 +96,38 @@ writes-to:
 - 失败不阻塞，记「失败 + 原因」后继续
 
 命令白名单、Codegraph 判定与失败处理细则见 `references/init-env-checks.md`。
+
+## 仓库卫生检查与补齐（执行顺序步骤 3）
+
+三件仓库根产物各有唯一写者，本技能只做「检测 → 委托 → 验收 → 留痕」，不代写：
+
+| 产物 | 缺失时 | 已存在时 | 验收判据 |
+| ---- | ------ | -------- | -------- |
+| `.gitignore` | 交 `git-manager` 按技术栈生成 | 只记录，不改 | `git ls-files -ci --exclude-standard` 为空 |
+| `CHANGELOG.md` | 交 `changelog-manager +init` 建骨架 | 只记录，不改 | 含 `[Unreleased]`，无版本号节 |
+| `README.md` | 产证据包交 `shuxu` | 只记录，不改 | `shuxu` 收尾清单四段完整 |
+
+委托协议：
+
+1. 写前声明：操作类型、目标路径、交给谁、是否可能覆盖。
+2. 委托附证据包，不让下游技能重新调研：
+
+| 产物 | 证据包字段 |
+| ---- | ---------- |
+| `.gitignore` | 技术栈信号（lockfile / manifest 路径）；`git status --porcelain` 的未跟踪文件；`git ls-files -ci --exclude-standard` 的已追踪命中；是否 monorepo / 嵌套仓库 |
+| `CHANGELOG.md` | 项目名；可见性（私有 / 开源）；是否已有 `CHANGELOG.md`；是否已有 tag；`.changelog-manager.json` 是否存在 |
+| `README.md` | 清单文件键值与 scripts；入口与主要命令（带 `文件:行`）；可见性；主语言 |
+
+3. 对方未执行或未完成 → 标「待补」并写明卡在哪一步，**不算初始化完成**。
+4. 完成后本技能实读复验，结论写入 `init-report.md`。
+
+口径：
+
+- `CHANGELOG.md` 骨架只含 `[Unreleased]`，**不写版本号、不归档**——版本只在切发布时变，归档归 `changelog-manager`。
+- `.gitignore` 只追加不重写；新规则命中已追踪文件时逐条报告，**不自动 untrack**（忽略规则不会取消追踪）。
+- `README.md` 的可见性或语言无法判定时，`shuxu` 会停在其动笔前 CHECKPOINT；此时只交证据包并标「待补」。
+- 项目不是 Git 仓库 → 跳过 `.gitignore` 项记「无仓库」，另外两项照常。
+- **幂等**：三件均已存在且本轮未发生任何委托动作时，不追加 `init-report.md` 小节，只在终止回复写「仓库卫生：无变更」。
 
 ## 状态识别与路由（写文件前判定一次）
 
@@ -251,7 +292,7 @@ writes-to:
 
 闸门不过时，终止回复必须写明：**迁移未完成，原 CLAUDE.md 保留**。后续步骤照常继续，但不得宣称迁移完成。
 
-## AGENTS 唯一源校验（执行顺序步骤 7）
+## AGENTS 唯一源校验（执行顺序步骤 8）
 
 校验靠实读与核对，不是纯字符串匹配：
 
@@ -278,6 +319,8 @@ writes-to:
 
 在 `docs/agents/init-report.md` 追加一节，记录本次执行的**全部**操作。模板与条目类型见 `assets/docs/init-report.md`。
 
+本次无任何实际动作（三件仓库产物均已存在、过程文档与契约均无需变更）时，不追加空小节，只在终止回复写「无变更」。
+
 追加格式：
 
 ````markdown
@@ -287,6 +330,9 @@ writes-to:
 | ---- | ---- | ---- | ---- | ---- |
 | 前置检查 | 检查可写性与 monorepo | <项目根> | 完成 | — |
 | Git 检查 | 缺失仓库则初始化 | `<project>/.git` | 完成 / 跳过 / 失败 | — |
+| 仓库卫生 | `.gitignore` 检测与委托 | `<project>/.gitignore` | 完成 / 已存在跳过 / 待补 | `git ls-files -ci --exclude-standard` 为空 |
+| 仓库卫生 | `CHANGELOG.md` 检测与委托 | `<project>/CHANGELOG.md` | 完成 / 已存在跳过 / 待补 | 含 `[Unreleased]`，无版本号节 |
+| 仓库卫生 | `README.md` 检测与委托 | `<project>/README.md` | 完成 / 已存在跳过 / 待补 | — |
 | 状态识别 | 三信号查表 | — | 完成 | 判定为 <模式> |
 | 决策保全 | 既有约定四态处置 | `docs/agents/agents-changelog.md` | 完成 / 跳过 | N 条 |
 | 契约生成 | 生成或增量维护 | `AGENTS.md` | 完成 | N 行；杂音扫描命中 M 段（迁出 / 删除） |
@@ -312,4 +358,4 @@ writes-to:
 
 ## 终止回复
 
-只回复：判定状态（A–E）与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否六项全过、**杂音扫描结论（实读全文、命中 N 段 / 迁出 M 段 / 删除 K 段，逐段给出归宿或留痕路径）**、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数（含 relocate 计数）、迁移执行结果（状态 C / D：迁移类型、五态处置计数、冲突与裁决情况、`CLAUDE.md` 是否已删除——未删则写明卡在哪条闸）、AGENTS 唯一源校验结论、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。
+只回复：判定状态（A–E）与依据信号、`AGENTS.md` 落盘路径与实际行数、自检门是否六项全过、**杂音扫描结论（实读全文、命中 N 段 / 迁出 M 段 / 删除 K 段，逐段给出归宿或留痕路径）**、各过程文档的建立与补齐情况（区分「新建」「已存在跳过」）、AGENTS.md 约定处置条数（含 relocate 计数）、迁移执行结果（状态 C / D：迁移类型、五态处置计数、冲突与裁决情况、`CLAUDE.md` 是否已删除——未删则写明卡在哪条闸）、AGENTS 唯一源校验结论、三件仓库产物的处置（存在跳过 / 委托完成 / 待补及卡点）、Git 与 Codegraph 的执行结果、报告落盘路径、未决的待确认条目（若有）。

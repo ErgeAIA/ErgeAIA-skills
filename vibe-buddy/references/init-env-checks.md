@@ -25,7 +25,7 @@ writes-to:
 
 - 不做 `git add` / `commit`：是否提交由用户或其他技能决定。
 - 不盲跑：先检测再决定，`git init` 只在判定为本项目非仓库时执行。
-- 初始化后若需忽略索引产物，只在报告「建议」小节提示，不擅自改 `.gitignore`。
+- 初始化后若需忽略索引产物，按初始化顺序步骤 3 交 `git-manager` 维护 `.gitignore`；本技能只验收（`git ls-files -ci --exclude-standard` 为空），不直接改。
 
 ## 二、Codegraph 集成
 
@@ -51,7 +51,7 @@ writes-to:
 - 初始化命令：`codegraph init`（在项目目录执行，建 `.codegraph/` 索引；每个项目各跑一次）
 - 风险提示：`npx` 会下载并执行第三方安装器；安装器会改写各 agent 的 MCP 配置与指令文件（含 `AGENTS.md`、`CLAUDE.md` 的标记区块）、可选修改 `PATH`、为 Claude Code 写入 auto-allow 权限列表。执行前自行确认来源可信
 - 留痕提醒：安装器若改动了 `AGENTS.md`，须在 `docs/agents/agents-changelog.md` 补一行
-- 忽略建议：若本项目已纳入 Git，考虑把索引目录 `.codegraph/` 加入 `.gitignore`（本技能不代改）
+- 忽略建议：`.codegraph/` 应进 `.gitignore`，由 `git-manager` 维护（本技能不代改）
 
 ## 失败处理
 

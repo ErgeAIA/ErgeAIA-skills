@@ -21,6 +21,10 @@ consumed-by: references/init-env-checks.md、references/sync-progress.md、refer
 | `git status --short` | 核对工作区改动（未提交改动的主力） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
 | `git log --oneline -n <N>` | 核对已有提交 | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
 | `git diff --stat` | 核对**已跟踪**文件的未提交改动（不含未跟踪文件） | 只读 | `vibe-sync`、`vibe-handoff`、`vibe-distill`、`vibe-audit` |
+| `git status --ignored --porcelain` | 核对忽略状态与未跟踪文件 | 只读 | `vibe-init` |
+| `git ls-files -ci --exclude-standard` | 查已追踪且被忽略规则命中的文件 | 只读 | `vibe-init` |
+| `git check-ignore -v <path>` | 追溯单条忽略规则的来源行 | 只读 | `vibe-init` |
+| `git tag --list` | 判断是否已有发布 tag（决定 CHANGELOG 能否归档） | 只读 | `vibe-init` |
 | `codegraph --version` | 判断是否已安装 | 只读 | `vibe-init` |
 | `codegraph status` | 补充索引信息，不作判定依据 | 只读 | `vibe-init` |
 | `git init` | 本项目非仓库时初始化 | 写 | `vibe-init` |

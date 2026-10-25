@@ -22,8 +22,8 @@ vibe-buddy 把这些答案固化成文件：
 
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
-| `vibe-init` | 初始化项目 / 生成 AGENTS.md / 把 CLAUDE.md 迁移整理成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/agents/` 各过程文档、`docs/handoff/`；项目已有 `CLAUDE.md` 时走受控迁移（并入 `AGENTS.md`、验证后删源）；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告 |
-| `vibe-sync` | 同步进度 / 更新项目进度 / 更新日志 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表；项目根**已有** `CHANGELOG.md` 时，把本轮**用户可见**变更按其既有格式追加（不代建文件） |
+| `vibe-init` | 初始化项目 / 生成 AGENTS.md / 把 CLAUDE.md 迁移整理成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/agents/` 各过程文档、`docs/handoff/`；项目已有 `CLAUDE.md` 时走受控迁移（并入 `AGENTS.md`、验证后删源）；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告；缺 `.gitignore` / `CHANGELOG.md` / `README.md` 时按归属委托（git-manager / changelog-manager / shuxu）并验收 |
+| `vibe-sync` | 同步进度 / 更新项目进度 / 更新日志 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表；项目根**已有** `CHANGELOG.md` 时，把本轮**用户可见**变更按其既有格式追加（骨架由 `vibe-init` 建立） |
 | `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD[-slug].md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针 |
 | `vibe-distill` | 经验蒸馏 / 提炼可复用经验 | 把一轮开发里**反复成立**的做法提炼成按领域组织的经验条目（主张 / 适用 / Why / How / 反例，分 🔴🟡🟢），落 `docs/agents/experience/` |
 | `vibe-audit` | 审查项目 / 审查技术栈 | 对前端 / 后端 / Web 开发类项目做**只读**审查（代码质量、架构、技术栈），报告落 `docs/agents/audit/`；每条结论带 `路径:行`；**Skill 项目转交 skill-workshop**，不自审 |
@@ -35,16 +35,18 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 | 能力 / 场景 | 一句话方法 | 示例用法提示词 |
 | --- | --- | --- |
 | 初始化项目协作档案 | 检查 Git、建 `AGENTS.md` 与 `docs/agents/` 全套 | `初始化这个项目的协作档案` |
+| 补齐仓库卫生 | 检测 `.gitignore` / `CHANGELOG.md` / `README.md`，按归属委托并验收 | `初始化这个项目，缺的 .gitignore 和 CHANGELOG 一起补齐` |
 | 同步进度与决策 | 把本轮进展 / 决策 / 踩坑写进 `docs/agents/` | `同步一下这轮的进度和决策` |
 | 写跨会话交接 | 上下文将满时落一份自包含交接文档 | `上下文快满了，写份交接文档给下一个会话` |
 | 蒸馏可复用经验 | 把反复成立的做法提炼成按领域组织的经验 | `把这轮反复成立的做法提炼成可复用经验` |
 | 只读审查开发类项目 | 审前端 / 后端 / Web 的代码质量、架构、技术栈 | `只读审查一下这个项目的技术栈和架构` |
 | 边界：Skill 项目评审 | 含 `SKILL.md` 的项目转交 skill-workshop | `审查这个 skill 项目。`（交 skill-workshop） |
-| 边界：CHANGELOG 规范化 | 建立 / 归档 `CHANGELOG` 交 changelog-manager | `帮我建一份规范的 CHANGELOG。`（交 changelog-manager） |
+| 边界：CHANGELOG 规范化 | 建立 / 改结构 / 归档 `CHANGELOG` 交 changelog-manager；初始化时由 vibe-init 自动触发 | `把这个 CHANGELOG 按规范整理一下。`（交 changelog-manager） |
+| 边界：README / 忽略规则 | README 生成或优化交 shuxu；`.gitignore` 新增或修正交 git-manager | `帮我写一份 README` / `把这些构建产物加进忽略`（分别交 shuxu / git-manager） |
 
 ## 记录与提炼是两件事
 
-`vibe-sync` 记**发生了什么**——流水事实（进度、决策、调试记录），只对本项目有意义，严格只追加；若项目根已有 `CHANGELOG.md`，再把用户可见变更摘要追加进去（无文件不代建）。
+`vibe-sync` 记**发生了什么**——流水事实（进度、决策、调试记录），只对本项目有意义，严格只追加；若项目根已有 `CHANGELOG.md`，再把用户可见变更摘要追加进去（骨架由 `vibe-init` 交 `changelog-manager` 建立）。
 
 `vibe-distill` 提炼**什么事反复成立**——抽象规则，能离开本项目被复用，因此正文可改写、历史靠 `changelog.md` 保追溯。
 
@@ -68,6 +70,9 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 项目根/
 ├── AGENTS.md                        # 规则契约（六节固定，含文档义务与指针），唯一项目级协作契约源
 ├── .git/                            # 无仓库时由 vibe-init 建立
+├── .gitignore                       # 忽略规则，由 git-manager 维护
+├── CHANGELOG.md                     # 变更日志，由 changelog-manager 建立、vibe-sync 追加
+├── README.md                        # 项目说明，由 shuxu 生成或优化
 ├── .codegraph/                      # 已装 codegraph 且无索引时建立
 └── docs/
     ├── agents/
@@ -107,6 +112,7 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 | 过程文档只追加 | 决策与 bug 记录是审计线索；改写历史会让后来的 agent 读到不自洽的结论 |
 | 文档命名沿用既有实践 | `project-progress` / `decision-log` / `debug-log` 三件套与 `handoff/` 目录的组织方式与成熟项目保持一致，降低迁移成本 |
 | `AGENTS.md` 是唯一协作契约源 | 两份契约并存时运行时读取有歧义、维护必然漂移；`vibe-init` 不创建、不维护、不镜像 `CLAUDE.md`，旧 `CLAUDE.md` 按受控迁移并入 `AGENTS.md`（先写目标、验证、留痕，后删源） |
+| 仓库文档只委托不自写 | `README` / `CHANGELOG` / `.gitignore` 各有唯一写者（shuxu / changelog-manager / git-manager）。本技能直接写就是三份 SSOT 分裂；只写「调用某技能」又把产物交给调用运气。折中：`vibe-init` 当场委托 + 实读验收 + 未完成标「待补」，不宣称完成 |
 | 不做任务计划 | 待办拆解与排期是计划类技能的正业，塞进来只会让边界模糊 |
 | 记录与提炼分开 | 流水事实只对本项目有意义、必须严格只追加；可复用规则要能带走、且错的规则必须改写。合成一个触发词会让「记录」被「提炼」绑架，反之亦然 |
 | 经验条目五要素 | 主张 / **适用** / Why / How / 反例。缺「适用」既会导致换项目盲抄，也会让「两条看起来冲突」无法收口；缺「反例」则外送汇总时派生不出反模式卡 |
@@ -123,7 +129,7 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 - **需求转译**：模糊需求 → 结构化 PRD，交给需求侧技能。
 - **任务计划**：待办拆解、排期、进度追踪，交给计划类技能。
 - **Git 操作**：提交、分支、合并，交给 Git 类技能。
-- **更新日志体系**：建立、规范化、归档 `CHANGELOG.md` 交给 changelog-manager；`vibe-sync` 只把本轮**用户可见**变更追加进项目**已有**的 `CHANGELOG.md`。
+- **更新日志体系**：建立、规范化、归档 `CHANGELOG.md` 交给 changelog-manager（初始化时由 `vibe-init` 触发建立）；`vibe-sync` 只把本轮**用户可见**变更追加进项目**已有**的 `CHANGELOG.md`。
 - **文档写作**：README、设计稿等面向人类的文档，交给写作类技能。
 - **规格管理**：规格与变更的生命周期，交给对应的规范体系。
 - **Skill 项目评审**：Agent Skill 的质量审计 / 重构 / 评测，交给 skill-workshop；`vibe-audit` 只针对开发类项目（前端 / 后端 / Web）。

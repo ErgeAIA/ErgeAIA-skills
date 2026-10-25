@@ -56,7 +56,7 @@ vibe-audit                                    # 英文触发词
 | 输入 | 应路由到 |
 |---|---|
 | 把这次踩的坑记下来 / 这个 bug 定位到根因了 | `vibe-sync` —— 记流水事实，落 `debug-log.md` |
-| 更新日志 / 写进 CHANGELOG | `vibe-sync` —— 仅当项目根 `CHANGELOG.md` 已存在时追加用户可见变更；无文件不代建 |
+| 更新日志 / 写进 CHANGELOG | `vibe-sync` —— 仅当项目根 `CHANGELOG.md` 已存在时追加用户可见变更；无文件时由 `vibe-init` 交 `changelog-manager` 建立 |
 | 把这几轮反复的做法提炼成可复用经验 | `vibe-distill` —— 提炼规则，落 `experience/` |
 | 审查项目 / 审查技术栈 / vibe-audit | `vibe-audit` —— 只读审查开发类项目，落 `docs/agents/audit/`；Skill 项目转 skill-workshop |
 
