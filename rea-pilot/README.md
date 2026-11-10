@@ -209,7 +209,7 @@ rea-pilot/
 
 ## 版本与许可
 
-当前版本：**v1.0.3**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.0.4**，详见 [CHANGELOG.md](CHANGELOG.md)。
 
 工具面快照按 REA 版本生成：`references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`；仓内保留历史版本），完整工具面以该快照为准，不在 README 照抄条数。
 

@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## v1.0.4 (2026-11-11)
+
 ### REA 6.8.0 工具面同步与判据式去硬编码
 
 **背景**：上游 REA 升到 6.8.0（2026-10-25）：MCP 工具 207 → 229、CLI 153 → 175、官方 prompt 仍 6 个；并有三处会改变调用方式的行为变化（analyze_function 默认只回 retained summary、MCP 输入 schema 默认 compact、Node engines 收紧）。本技能此前在 SKILL / README / references 里写死 6.7.0 的条数与客户端名单，会随上游升级逐轮过期。
@@ -21,7 +23,9 @@
 - **Gotchas 补 6.8 行为变化**（`SKILL.md`）：`analyze_function` 默认只回 retained summary，需要完整 dossier 须 `detail:"complete"`；MCP 输入 schema 默认 compact，需要完整嵌套约束须设 `REA_MCP_INPUT_SCHEMA_PROFILE=full`。
 - **banner 文案去计数**（`assets/banner.svg`）：去掉「207 个工具」的易过期数字。
 
-**修改文件**：`references/toolset/rea-6.8.0.md`（新增）、`SKILL.md`、`README.md`、`test-prompts.json`、`assets/banner.svg`、`references/specs/toolset-generation.md`、`references/config/engines-and-providers.md`、`references/workflows/install-and-verify.md`、`references/specs/mcp-registration-fields.md`、`references/workflows/host-registration.md`、`CHANGELOG.md`
+**版本**：`SKILL.md` 1.0.3 → 1.0.4；四处对齐（`SKILL.md` metadata、本文件顶部 v1.0.4、`../README.md` / `../README.en.md` 索引行、本技能 `README.md` 末尾）+ `test-prompts.json` version。
+
+**修改文件**：`references/toolset/rea-6.8.0.md`（新增）、`SKILL.md`、`README.md`、`test-prompts.json`、`assets/banner.svg`、`references/specs/toolset-generation.md`、`references/config/engines-and-providers.md`、`references/workflows/install-and-verify.md`、`references/specs/mcp-registration-fields.md`、`references/workflows/host-registration.md`、`CHANGELOG.md`、`../README.md`、`../README.en.md`
 
 ---
 
