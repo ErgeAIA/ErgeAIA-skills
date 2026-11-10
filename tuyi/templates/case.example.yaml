@@ -1,0 +1,51 @@
+# 选型渲染页的输入。顶层必须是 case: 映射，字段与 scripts/iconlab.py 的 _validate_case 一一对应。
+# 生成：uv run --no-project python scripts/iconlab.py render --case case.yaml --out badge.html
+# 图中所有图标 id 必须存在于 data/lucide-catalog.json，否则 render 以退出码 1 拒绝。
+
+case:
+  request: 标注这个插件是本机手动安装的，不是从远端仓库拉的
+  slot: source                     # status | source | count | filter | action | nav
+  chosen: hard-drive
+  chosen_label: 本地
+
+  slot_facts:
+    form: icon-only                # icon-only | icon+count | icon+label
+    icon_px: 16
+    color: text-muted              # 只写令牌名，不写色值
+    tooltip: 手动安装，未关联仓库   # 字符串=required 且给出文案；也可写 required|optional|forbidden
+
+  sizes:                           # 尺寸阶梯，渲染页逐档并排
+    - 12
+    - 16
+    - 18
+    - 20
+    - 24
+
+  neighbors:                       # 同排真实邻居，用于混淆矩阵
+    - git-fork
+    - external-link
+    - star
+
+  alternatives:
+    - id: package-open
+      verdict: backup              # backup | rejected
+      reason: 同列表存在「仓库/包」概念时可与 package-plus 形成同族对照；代价是 package 三兄弟在 16px 下轮廓相近
+    - id: unlink
+      verdict: rejected
+      reason: 借用「断开连接」的错误语义，正常状态会被读成故障
+    - id: cloud-off
+      verdict: rejected
+      reason: 读成断网/离线，且与真正的离线状态图标冲突
+    - id: folder-input
+      verdict: rejected
+      reason: 动词性图形，放在状态位会被读成「导入」这个动作
+
+  rationale:
+    - title: 槽位判定
+      body: 「本地」说明的是安装来源，不是判定结论。来源槽位不承载状态语义，所以不加边框、不加底色，尺寸比状态图标低一档。
+    - title: 首选 hard-drive
+      body: 本地硬盘直接对应「不是从远端仓库安装的」；轮廓是横向扁平矩形，与同排动作图标差异大，扫描时不会混淆。
+    - title: 为什么不用文字胶囊
+      body: 「本地」是来源而非判定。判定类信息用纯图标加 Tooltip，不用带边框的文字胶囊；胶囊还会和真正表示缺失/异常的判定标记争夺注意力。
+
+  spec_note: 来源标记取 16px / --text-muted，与判定徽章之间留 8px；原文字胶囊已废弃。

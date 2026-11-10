@@ -1,0 +1,24 @@
+/* fixture: 故意违反 .status-icon 无边框无底色 */
+.status-icon {
+  position: absolute;
+  border: 1px solid var(--border);
+  background-color: #FBE8DD;
+  width: 18px;
+  height: 18px;
+  color: var(--state-danger);
+}
+
+.icon-btn-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.source-mark {
+  color: var(--state-warning-text);
+}
+
+.icon-btn {
+  width: 28px;
+  height: 28px;
+}

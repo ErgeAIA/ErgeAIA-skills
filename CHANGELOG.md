@@ -6,10 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0
 and this project adheres to [Semantic Versioning](https://semver.org/lang/zh-CN/spec/v2.0.0.html).
 
 ## [Unreleased]
-_最后更新：2026-10-19_
+_最后更新：2026-11-10_
 
 ### Added
 
+- **tuyi（图意）开源迁入**（2026-11-10）：徽章与状态位图标选型 / 整套徽章审查 / 设计规范转可执行规则 / 动效判定技能 v1.1.0；迁入自私有仓 `erge-private`，此前开发历史留在私有仓，公开仓自本条起。
 - **rea-pilot 技能加入仓库**（2026-10-19）：REA 接入领航技能 v1.0.0——只负责「接入与验证」这一层（环境体检 → 装前出计划并等确认 → 执行 → 三问验证），另有宿主自接入通用字段、目标选路、逆向反推防护（把 REA 的攻击面清单反过来当开发者加固方法论，并用 REA 复跑验收）、版本同步与回滚；`references/toolset/` 存按版本生成的工具面快照（REA 6.7.0：207 个 MCP 工具 / 153 条 CLI 命令 / 6 个官方 prompt）。会话内的逆向调查仍交 REA 自带技能 reverse-engineer-anything。
 - **shuxu（书序）开源迁入**：README 写作/优化技能（分析仓库 → 生成或增量优化 README，真实性优先）；含 tupu banner。
 - **git-manager 开源迁入**：Git 工作流安全护栏（分支/提交/合并/推送规范与高风险操作确认）；含 tupu banner。
@@ -20,6 +21,7 @@ _最后更新：2026-10-19_
 
 ### Changed
 
+- **README 双语技能表与安装命令重排**（2026-11-10）：`shese` / `rea-pilot` / `tuyi` 上移至 `moxian` 之前，表序与安装命令保持一致。
 - **skill-workshop v2.4.0 → v2.5.0**（2026-09-26）：创建路径补 Grill 闸——意图不清先对齐需求；闸门内化为自持决策树（去外部依赖/去配额/产物转可选）。
 - **vibe-buddy → v1.6.1**：1.6.0 定位纠正为「AI 编程全过程项目侧协作管理」（非 Agent 记忆）；1.6.1 README 头图换 tupu 横版图谱。
 - **description 按 Trigger+Job+Boundary 重写**：changelog-manager 2.1.3、vibe-buddy 1.5.1、zuiti 0.3.10。

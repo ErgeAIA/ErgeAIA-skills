@@ -1,0 +1,252 @@
+# 徽章系统 profile（示例·脱敏）——把一套设计规范编译成机器可检查的事实
+# 用途：选型模式据此判槽位与沿用既有映射；审查模式据此逐条 lint；渲染页据此取尺寸与色令牌。
+# 规则：本文件不含产品名与绝对路径；sources 只用相对路径或公开 URL。
+profile:
+  name: example-console
+  version: "1.0.0"
+  updated: "2026-11-03"
+  sources:
+    - design/iconography.md
+    - design/ui-language.md
+    - design/ui-baseline.md
+  icon_library: lucide
+  license_note: "Lucide（ISC）；禁付费图标集；同一组控件只用一套线型"
+
+tokens:
+  color:
+    text-muted: "#8a8f98"
+    text-primary: "#e6e8eb"
+    line: "#2a2d33"
+    state-ok: "#3f9c5a"
+    state-warn: "#c98a1b"
+    state-error: "#d14343"
+    accent: "#5b8def"
+  size:
+    hit-control: 36
+    icon-action: 16
+    icon-primary-nav: 18
+    icon-secondary-nav: 16
+    icon-source: 16
+    icon-status: 18
+    status-box: 20
+    badge-radius: 20
+    text-badge-height: 22
+  stroke_width: 2.25
+
+# ── 槽位本体：任何图标先归属一个槽位，槽位决定形态/尺寸/色/是否可点 ──────────
+slots:
+  - id: status
+    label: 判定状态（结论性）
+    form: icon-only
+    icon_px: 18
+    box_px: 20
+    color: semantic            # 颜色由状态决定，见 mappings.status.*.color
+    border: forbidden
+    background: forbidden
+    tooltip: required
+    clickable: false
+    text: forbidden            # 纯图标，禁止图标旁挂文字
+    notes: 常显无边框无底色；解释交给主题化 Tooltip，不用原生 title
+  - id: source
+    label: 来源标记（非判定）
+    form: icon-only
+    icon_px: 16
+    box_px: 16
+    color: text-muted
+    border: forbidden
+    background: forbidden
+    tooltip: required
+    clickable: false
+    text: forbidden
+    notes: 与判定徽章同排时 gap 8px；语义只说明"从哪来"，不带评价
+  - id: count
+    label: 计数（判定或非判定的数量）
+    form: icon+count
+    icon_px: 16
+    box_px: 20
+    gap_px: 6
+    color: inherit
+    border: forbidden
+    background: forbidden
+    tooltip: required
+    clickable: true             # 与图标同一点击区
+    text: required             # 数字在图标外侧，不进图标内部
+    count_max_digits: 2
+    count_overflow_text: "99+"
+    corner_badge: forbidden     # 全站禁角标形态（含顶栏）
+    notes: 判定类计数一色到底，不混两色
+  - id: filter
+    label: 筛选/切换（有开合状态）
+    form: icon-only
+    icon_px: 16
+    box_px: 36
+    color: inherit
+    active_color: accent
+    border: forbidden
+    background: forbidden
+    tooltip: required
+    clickable: true
+    text: forbidden
+    notes: 选中态只改颜色/不加深色底；热区不低于 36px
+  - id: action
+    label: 行内/工具条动作
+    form: icon-only
+    icon_px: 16
+    box_px: 36
+    color: inherit
+    hover_opacity: 0.6
+    border: forbidden
+    background: forbidden
+    tooltip: required
+    clickable: true
+    text: forbidden
+    notes: hover 淡入但占位不变；破坏性动作两段式确认
+  - id: nav
+    label: 主导航/次级导航
+    form: icon+optional-label
+    icon_px: 18
+    box_px: 40
+    color: inherit
+    active_color: accent
+    border: forbidden
+    background: forbidden
+    tooltip: optional
+    clickable: true
+    notes: 一级 18px、二级 16px，同方向尺寸同源
+
+# ── 既有映射：先沿用，不得重挑（status=locked 时选型模式必须直接返回它）──────
+mappings:
+  - {slot: source, key: local-plugin, icon: hard-drive, meaning: "本地/手动安装，未关联仓库", tooltip: "手动安装，未关联仓库", source_ref: "iconography.md:§2.1", status: locked}
+  - {slot: source, key: registry, icon: package-open, meaning: "来自仓库/市场", tooltip: "从仓库安装", source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: shared-ref, icon: link-2, color: accent, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: wrong-folder, icon: folder-x, color: state-error, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: type-mismatch, icon: file-warning, color: state-warn, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: needs-plugin, icon: puzzle, color: accent, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: unknown-category, icon: file-question, color: text-muted, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: pending, icon: clock, color: text-muted, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: present, icon: circle-check, color: state-ok, source_ref: "iconography.md:§2", status: locked}
+  - {slot: status, key: missing, icon: file-x, color: state-error, source_ref: "iconography.md:§2", status: locked}
+  - {slot: action, key: open-folder, icon: folder-open, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: locate, icon: link-2, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: copy, icon: copy, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: dedupe, icon: file-stack, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: move, icon: arrow-left-right, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: delete, icon: trash-2, confirming: true, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: install, icon: package-plus, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: check-update, icon: cloud-download, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: deps, icon: git-fork, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: reverse-lookup, icon: package-search, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: snapshot, icon: camera, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: restore, icon: history, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: clear, icon: eraser, source_ref: "iconography.md:§3", status: locked}
+  - {slot: action, key: favorite, icon: star, source_ref: "iconography.md:§3", status: locked}
+  - {slot: filter, key: updated-only, icon: circle-arrow-up, source_ref: "ui-language.md:L13", status: locked}
+  - {slot: filter, key: list-filter, icon: list-filter, source_ref: "iconography.md:§3", status: locked}
+
+# ── 可执行规则：审查模式逐条跑；kind 决定检查方式（见 references/profile.md）──
+rules:
+  - id: BADGE-STATUS-01
+    text: 状态图标常显不得带边框或底色
+    source_ref: "ui-language.md:L13"
+    applies_to: [status]
+    severity: blocker
+    check: {kind: css_forbid, selectors: [".status-icon", "[data-slot='status']"], properties: [border, border-width, border-color, border-style, background, background-color]}
+    fix: 去掉 border/background 声明，语义交给图形与状态色
+  - id: BADGE-STATUS-02
+    text: 状态图标必须带主题化 Tooltip，且 aria-label 与可视提示同一句
+    source_ref: "iconography.md:§2"
+    applies_to: [status]
+    severity: blocker
+    check: {kind: dom_attr_required, selectors: [".status-icon", "[data-slot='status']"], attributes: [aria-label]}
+    fix: 补 aria-label 与 Tooltip 文案，二者逐字一致
+  - id: BADGE-STATUS-03
+    text: 状态图标尺寸必须在 14–18px，且与槽位声明一致
+    source_ref: "ui-baseline.md:R3"
+    applies_to: [status]
+    severity: major
+    check: {kind: css_value_in, selectors: [".status-icon", "[data-slot='status']"], properties: [width, height, font-size], allowed: [14, 16, 18], unit: px}
+    fix: 改为槽位声明的 icon_px
+  - id: BADGE-SOURCE-01
+    text: 来源标记不得使用判定色（ok/warn/error），只能用中性文本色
+    source_ref: "iconography.md:§2.1"
+    applies_to: [source]
+    severity: major
+    check: {kind: css_value_not_in, selectors: [".source-mark", "[data-slot='source']"], properties: [color, fill, stroke], forbidden_tokens: [state-ok, state-warn, state-error]}
+    fix: 改用 --text-muted
+  - id: BADGE-COUNT-01
+    text: 计数不得放进图标内部，须并列在图标外侧并与图标同一点击区
+    source_ref: "ui-language.md:L13"
+    applies_to: [count]
+    severity: blocker
+    check: {kind: dom_forbid_descendant, selectors: [".icon-btn.has-count", ".badge-count", "[data-slot='count'] .icon"], forbidden_selectors: [".count-inside", "svg text", ".count-text"]}
+    fix: 数字移到图标容器外、同一 button 内横向排列，gap 6px
+  - id: BADGE-COUNT-02
+    text: 计数超过两位显示 99+，禁止角标形态
+    source_ref: "ui-language.md:L13"
+    applies_to: [count]
+    severity: major
+    check: {kind: css_forbid, selectors: [".icon-btn-count", ".tb-icon-btn .count", ".corner-badge"], properties: [position]}
+    fix: 去掉 position:absolute 角标，改行内计数
+  - id: BADGE-ACTION-01
+    text: 行内动作热区不得低于 36px
+    source_ref: "ui-language.md:L13"
+    applies_to: [action, filter]
+    severity: major
+    check: {kind: css_value_min, selectors: [".icon-btn", ".row-action", "[data-slot='action']"], properties: [width, height, min-height], min: 36, unit: px}
+    fix: 用 --hit-control（36px）；纯视觉图标仍 16px
+  - id: BADGE-ACTION-02
+    text: 图标按钮必须在 aria-label 之外再带一条可见提示；内容区用主题化 Tooltip，外壳区用原生 title 且与 aria-label 同句
+    source_ref: "ui-baseline.md:§7"
+    applies_to: [action, filter, nav]
+    severity: major
+    check: {kind: dom_attr_required, selectors: [".icon-btn", "[role='button']"], attributes: [aria-label], attrs_any_of: [[data-tip], [title]]}
+    fix: 内容区补 data-tip（主题化 Tooltip）；外壳区补 title 且与 aria-label 同一句
+  - id: BADGE-TEXT-01
+    text: 判定/动作槽位禁止在图标旁挂文字（应走 Tooltip）
+    source_ref: "ui-language.md:§4 偏好 8"
+    applies_to: [status, action]
+    severity: major
+    check: {kind: dom_text_forbidden, selectors: [".status-icon", ".icon-btn", "[data-slot='status']"]}
+    fix: 删除内联文字，说明移到 Tooltip
+  - id: BADGE-LIB-01
+    text: 图标只能从统一映射入口导入，禁止组件内直接 import 图标库
+    source_ref: "ui-baseline.md:§7"
+    applies_to: [all]
+    severity: blocker
+    check: {kind: source_forbid_regex, pattern: "from ['\"]lucide-react['\"]", except_files: ["src/components/Icon.tsx", "components/icon.tsx"]}
+    fix: 统一走 Icon.tsx 的语义映射表
+
+# ── 规范内部矛盾：不静默选边，审查报告必须标注 ────────────────────────────
+conflicts:
+  - id: C1
+    topic: 状态图标尺寸
+    claims:
+      - {text: 只许 14/16px, source_ref: "ui-baseline.md:28"}
+      - {text: 18px（20px 盒）, source_ref: "iconography.md:23"}
+    resolution: pending
+    interim: 按更保守的 16px 执行，并在报告标注冲突编号
+  - id: C2
+    topic: 行内动作热区
+    claims:
+      - {text: 24px, source_ref: "iconography.md:19"}
+      - {text: 36px（--hit-control）, source_ref: "ui-language.md:149"}
+    resolution: pending
+    interim: 取 36px，因为 24px 低于可点性下限
+
+# ── 动效规则：只放项目已批准的内容；参考建议写报告，不进这里 ────────────────
+motion:
+  enabled: false              # 项目当前是否批准动效落地；false 时技能只出建议
+  allowed_forms: [rotation, pulse, scan-line, breath, stroke-draw, shake]
+  scenes: []                  # 每项 {scene, slot, form, source_ref, status}
+  forbidden: []               # 明确不动的场景，带 source_ref
+  budget:
+    max_primary: 1            # 同屏主动画并发上限
+    max_continuous: 0         # 持续循环上限
+    entrance_max_ms: null     # 按项目规范填写；无值不可判
+  duration_source:
+    path: null                # 项目动效令牌文件
+    tokens: []                # 只引用令牌名，不写裸毫秒
+  reduced_motion:
+    strategy: instant         # stop | instant | opacity-only
+    path: null                # reduce 规则所在文件
+  human_checks: []            # 生命周期/语义/预算等无法静态检查的条款

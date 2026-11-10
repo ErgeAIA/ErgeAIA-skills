@@ -1,0 +1,16 @@
+/* fixture: 合规版 */
+.status-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--state-info);
+}
+
+.icon-btn.has-count {
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.icon-btn-count {
+  font-size: 14px;
+  color: var(--text-muted);
+}

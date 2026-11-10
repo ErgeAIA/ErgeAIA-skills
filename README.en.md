@@ -13,10 +13,11 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | [git-manager](git-manager/) | Git workflow safety rail: branches, commits, merges by convention; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
 | [changelog-manager](changelog-manager/) | Keep a Changelog maintenance, generate from git commits, bilingual support | `+add Added user login` | v2.1.3 |
 | [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.1.1 |
+| [shese](shese/) | Shese: audit and optimize an existing palette, or generate a new one from a single style intent — readability verdicts, minimal-change fixes, and a scene preview page you can actually look at | `is this dark theme tiring to read at night? / build a quiet low-chroma dark editor palette` | v1.1.2 |
+| [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.0.3 |
+| [tuyi](tuyi/) | Tuyi: pick verifiable icons for badges and status slots (primary, fallback, and rejection reasons), audit an entire badge system, turn a design spec into executable rules, and decide whether motion is warranted | `pick a badge icon for "local plugin" — it marks source, not status` | v1.1.0 |
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.3.10 |
-| [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.0.3 |
-| [shese](shese/) | Shese: audit and optimize an existing palette, or generate a new one from a single style intent — readability verdicts, minimal-change fixes, and a scene preview page you can actually look at | `is this dark theme tiring to read at night? / build a quiet low-chroma dark editor palette` | v1.1.2 |
 
 ## Getting Started
 
@@ -32,10 +33,11 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill vibe-buddy
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill git-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill changelog-manager
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill shuxu
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill shese
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill tuyi
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill moxian
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill zuiti
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
-npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill shese
 
 # List available skills in the repository
 npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --list

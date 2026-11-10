@@ -6,10 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-_Last updated: 2026-09-25_
+_Last updated: 2026-11-10_
 
 ### Added
 
+- **tuyi skill open-sourced into repo** (2026-11-10): badge / status-slot icon selection, full badge-system audit, design-spec-to-executable-rules, and motion judgement, v1.1.0 — migrated from the private repository; development history before the move stays in `erge-private`.
 - **moxian skill added to repo**: tacit-knowledge gap externalization, v0.1.0 — surfaces three layers of "thought you understood but never internalized" cognitive gaps in AI-coding conversations (noun layer → word card / expression layer → sharper question / concept layer → micro-lesson), gate defaults to 1-2 cards, saved as a cumulative knowledge card under `docs/moxian/` (moxian / "what did I miss")
 
 - **skill-workshop skill added to repo**: Skill lifecycle workstation (create/review/refactor/evaluate Agent Skills), v1.17.0, with 16 CLI subcommands and the 9-dimension 48-item review system
@@ -17,6 +18,7 @@ _Last updated: 2026-09-25_
 
 ### Changed
 
+- **Bilingual README skill table and install commands reordered** (2026-11-10): `shese` / `rea-pilot` / `tuyi` moved above `moxian`; table order and install commands now match.
 - **vibe-buddy v1.0.0 → v1.5.0** (2026-09-13 ~ 09-25):
   - v1.1.0: added the fifth trigger `vibe-audit` — read-only review of development projects (code quality / architecture / tech stack), reports under `docs/.ai/audit/`; Skill projects are handed off to skill-workshop instead of self-review
   - v1.2.0: `vibe-sync` gained the "update log" capability — appends user-visible changes to an existing root `CHANGELOG.md` in its own format, never creates the file
