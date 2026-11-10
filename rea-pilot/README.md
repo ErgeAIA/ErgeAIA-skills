@@ -12,7 +12,7 @@ REA（<https://rea.tools/>）是一个跑在本地、把逆向证据喂给助手
 
 1. **装不上或接不上**：Node 版本、PowerShell 拦 `npx`、宿主配置格式、注册写在哪、要不要重启，全靠猜。
 2. **不知道装好没有**：`rea mcp doctor` 绿了不等于你的会话里已经有工具。
-3. **装完不会用**：手上一堆工具（REA 6.7.0 实测 207 个 MCP 工具 / 153 条 CLI 命令 / 6 个官方 prompt，见[工具面快照](references/toolset/rea-6.7.0.md)），不知道面对一个具体目标该走哪条最小路径；也不知道自己写的东西该怎么加固。
+3. **装完不会用**：手上一堆工具（MCP 工具 / CLI 命令 / 官方 prompt 的具体条数以本机 `rea --version` 对应快照为准，见[工具面快照目录](references/toolset/)），不知道面对一个具体目标该走哪条最小路径；也不知道自己写的东西该怎么加固。
 
 rea-pilot 把这三件事变成流程：**先体检、再出计划、人确认、再执行、最后三问验证**；选路与加固都落到具体命令与判据上。
 
@@ -22,8 +22,8 @@ rea-pilot 把这三件事变成流程：**先体检、再出计划、人确认�
 
 | 项 | 要求 | 怎么确认 |
 | --- | --- | --- |
-| 运行环境 | Node.js `^22.19.0 \|\| ^24.11.0 \|\| >=26.0.0`（REA 6.7.0 的 `engines.node`） | `node -v`；`rea doctor` 的 `node` 检查为 healthy（本机 24.13.0 通过） |
-| 宿主 | 任何支持本地 **MCP stdio** 的编程助手 | 判据是 `rea doctor --format json` 的 `identity.registrations[]`——本机 6.7.0 收录 **20 个**适配器：`dsh`（`~/.dsh/cordis.patch.yml`）、`claude_code`（`~/.claude.json`）、`opencode`、`qoder`、`trae` 已 `aligned`；其余 15 个（antigravity、claude_desktop、codex、copilot_cli、cursor、droid、gemini_cli、grok_build、hermes、kimi、omp、qwen_code、vscode、workbuddy、zcode）需跑 `rea setup` 对齐。注意 `scope_checks` 里的 `registration:<client>` 是**未对齐子集**，不是完整清单。REA 没有适配器的宿主走下面的「宿主手动接入」 |
+| 运行环境 | Node.js 版本必须落在当前 `rea-agents` 包 `engines.node` 允许范围内（不在此写死范围，随版本变） | `node -v`；`rea doctor` 的 `node` 检查为 healthy（不通过时它会给出当前允许范围）。官方安装器不会替你升级 Node |
+| 宿主 | 任何支持本地 **MCP**（默认 stdio）的编程助手 | 判据是 `rea doctor --format json` 的 `identity.registrations[]`：有哪些适配器、哪个 `state=aligned`，一律以本机实测为准；`scope_checks` 里的 `registration:<client>` 只是**未对齐子集**，不是完整清单。REA 没有适配器或注册不上时走下面的「宿主手动接入」 |
 | 分析引擎 | 可选，用户自备（Ghidra / IDA / JADX / Kuna / tshark 等）；REA 不下载、不安装 | `rea doctor --format json` 里 `missing_analysis_engine` 的条目；缺引擎时归档与载荷、Android 清单、JavaScript/Electron、托管程序、已保留证据类工作仍可做 |
 | 权限 | 会修改你**已有**的 MCP 配置文件（改前留备份） | 先跑 `rea setup --dry-run`，看 `plannedActions[].backupPath` |
 
@@ -45,8 +45,8 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
 
 | # | 问什么 | 命令 | 通过判据 | 验证状态 |
 | --- | --- | --- | --- | --- |
-| ① | server 起得来吗 | `rea mcp doctor --json` | `healthy: true`，`inventory.tools.expected == observed`，missing / unexpected / duplicates 为空 | [已运行验证] 本机 6.7.0 |
-| ② | 宿主注册对齐了吗 | `rea doctor --format json` | 该宿主的 `registrations[].state == "aligned"` | [已运行验证] 本机 6.7.0 |
+| ① | server 起得来吗 | `rea mcp doctor --json` | `healthy: true`，`inventory.tools.expected == observed`，missing / unexpected / duplicates 为空 | [已运行验证] 本机实测 |
+| ② | 宿主注册对齐了吗 | `rea doctor --format json` | 该宿主的 `registrations[].state == "aligned"` | [已运行验证] 本机实测 |
 | ③ | 会话里真有工具吗 | 重启宿主后看工具列表 | 出现 `mcp__rea__<tool>` | [未经运行验证] 取决于你的宿主 |
 
 判据出处与失败分流 → [references/workflows/install-and-verify.md](references/workflows/install-and-verify.md)。注意 `rea doctor` 退出码非 0 是正常的**状态报告**（缺引擎 / 有漂移），不是命令失败。
@@ -91,7 +91,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
 | 运行中的浏览器 | 本地 CDP 端点 | 页面结构、脚本、事件监听、网络 | 需可达的 CDP 端点 |
 | 运行中的原生应用 | 本机进程 | 调用观测、UI 观测、内存与插桩 | 调用观测在 macOS 由 LLDB 承担；插桩走 Frida（有真实副作用，先声明） |
 | 抓包与信号 | pcap / pcapng / 逻辑采样 | 端点、DNS/TLS SNI、协议、HTTP URI | Linux + 自备 tshark / capinfos / sigrok 与环境变量 |
-| 数据库与本地存储 | sqlite / 偏好文件 | 表结构、行样本 | sqlite 需 Node 24.x ≥ 24.15 或 26+ |
+| 数据库与本地存储 | sqlite / 偏好文件 | 表结构、行样本 | sqlite 有独立 Node 下限，以 `rea capabilities --format json` 的 `shared_limitations` 当前文本为准；本机 24.22.1 实测可用 |
 | WASM / EVM | .wasm / 字节码 | 导入导出接口、函数选择器 | WASM 校验需自备 WABT |
 
 先想清楚要回答**什么问题**，再选证据面：
@@ -145,7 +145,7 @@ npx -y rea-agents@latest function <目标> <符号> --provider ghidra --json    
 | 取舍 | 选择 | 为什么 |
 | --- | --- | --- |
 | 与官方自带技能的关系 | 互补窄定位，不重写调查方法 | 自带技能已经覆盖「怎么用 REA 取证据」，重写只会互相打架；本技能只占它前面和外面 |
-| 工具清单 | 生成带版本号的 `references/toolset/rea-<版本>.md`，不手写进 SKILL.md | 官方近 30 天发 13 个版本，手抄清单约 2 天过期一次 |
+| 工具清单 | 生成带版本号的 `references/toolset/rea-<版本>.md`，不手写进 SKILL.md | 官方发布节奏快，手抄清单很快过期 |
 | 宿主配置 | 只给通用字段 + 探索提示词，由宿主自己插入自己的配置 | 各宿主配置格式不同（JSON / JSONC / TOML），替它猜路径最容易写坏别人的配置 |
 | 「装好了」的判据 | 三问分开答，缺一不算 | `mcp doctor` 绿只证明 server 能启动，不证明你的会话里已经有工具 |
 | 加固建议 | 逆向反推防护（REA 能拿到什么 → 你该补什么），并要求用 REA 复跑验收 | 通用扫描器式建议没有验收闭环；反过来用攻击面清单才可验证 |
@@ -172,7 +172,7 @@ npx -y rea-agents@latest function <目标> <符号> --provider ghidra --json    
 | --- | --- | --- |
 | PowerShell 拦脚本，`npx` 不执行 | 执行策略拦掉了 `.ps1` 垫片 | 改用 `npx.cmd rea-agents@latest setup --dry-run` |
 | `rea doctor` 退出码非 0 | 那是状态报告（缺引擎 / 有漂移），不是命令失败 | 看 `scope_checks[].classification`，别当报错 |
-| doctor 里没有我的宿主 | REA 的 `identity.registrations[]` 里没有它（那 15 个只是未对齐子集，不是完整清单） | 走「宿主手动接入」；或用 `rea setup --all-detected`（需明确同意） |
+| doctor 里没有我的宿主 | REA 的 `identity.registrations[]` 里没有它（`scope_checks` 只是未对齐子集，不是完整清单） | 走「宿主手动接入」；或用 `rea setup --all-detected`（需明确同意） |
 | 注册写了，会话里还是没工具 | 宿主没重启，或配置里钉的包版本不对 | 先重启宿主，再看 `registration.state` 与 `package_reference` |
 | 配置被写坏 | `rea setup` 改了你已有的文件 | 用 `plannedActions[].backupPath` 还原 |
 | 缺分析引擎，算装失败吗 | 不算：接入与引擎是两件事 | 换目标类型，或按需自备引擎 |
@@ -204,13 +204,13 @@ rea-pilot/
     ├── config/
     │   └── engines-and-providers.md     # 引擎矩阵与环境变量
     └── toolset/
-        └── rea-6.7.0.md                # 带版本号的工具面快照（207 + 6 + 153）
+        └── rea-<版本>.md               # 带版本号的工具面快照（条数以该版本实测为准）
 ```
 
 ## 版本与许可
 
 当前版本：**v1.0.3**，详见 [CHANGELOG.md](CHANGELOG.md)。
 
-工具面快照对应 REA **6.7.0**（207 个 MCP 工具 / 6 个官方 prompt / 153 条 CLI 命令）：[references/toolset/rea-6.7.0.md](references/toolset/rea-6.7.0.md)。
+工具面快照按 REA 版本生成：`references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`；仓内保留历史版本），完整工具面以该快照为准，不在 README 照抄条数。
 
 许可：MIT License（[LICENSE](../LICENSE)，Copyright (c) 2026 ErgeAIA）。

@@ -81,7 +81,7 @@ Not for：
 
 ```text
 ① 命令：rea mcp doctor --json
-   输出要点：healthy=true；tools expected=207 observed=207；missing/unexpected/duplicates 全空
+   输出要点：healthy=true；tools expected=observed（本机实测值）；missing/unexpected/duplicates 全空
 ② 命令：rea doctor --format json
    输出要点：registrations[] 里 <宿主 id> → state="aligned"，package_reference="rea-agents@<版本>"
 ③ 重启宿主后：工具列表里出现 mcp__rea__<tool>
@@ -122,9 +122,9 @@ Not for：
 **禁止**
 
 - 禁止未获确认就 `--yes`；禁止把 `--yes` 写成默认参数。
-- 禁止在本技能里手抄工具清单（官方近 30 天发 13 个版本，手抄会立刻过期）。
+- 禁止在本技能里手抄工具清单（官方发布节奏快，手抄会立刻过期）。
 - 禁止替宿主枚举或猜测 MCP 配置路径与格式。
-- 禁止把 200+ 工具全量塞进 SKILL.md。
+- 禁止把全部工具塞进 SKILL.md。
 
 ## 资源
 
@@ -132,7 +132,7 @@ Not for：
 
 | 何时读 | 文件 | 用途 |
 | --- | --- | --- |
-| 要工具名 / 用途 / 副作用，或问「REA 有哪些工具 / 某个能力能干什么」 | `references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`；现有 6.7.0） | 完整工具面（MCP 工具 / 官方 prompt / CLI 命令，逐条含用途与副作用）；条数不在此照抄，以本机实测为准 |
+| 要工具名 / 用途 / 副作用，或问「REA 有哪些工具 / 某个能力能干什么」 | `references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`，文件名按实测版本拼，不写死） | 完整工具面（MCP 工具 / 官方 prompt / CLI 命令，逐条含用途与副作用）；条数不在此照抄，以本机实测为准 |
 | 要写宿主 MCP 配置 | `references/specs/mcp-registration-fields.md` | 通用字段 + 探索提示词 + 校验动作 |
 | 要重新生成工具表 | `references/specs/toolset-generation.md` | 生成命令、列口径、版本锚 |
 | 要引擎与 Provider 前置 | `references/config/engines-and-providers.md` | 引擎矩阵、环境变量、平台限制 |
@@ -145,4 +145,6 @@ Not for：
 - `rea mcp doctor` 不接受 `--token-limit`。
 - 宿主配置里钉的是包版本：升级 REA 后不重跑 setup，宿主仍可能调旧版本。`registration.package_reference` 才是真相。
 - 长驻会话（Ghidra / Hopper / 调试器 / Frida）用完要 close，否则后续调用可能因会话不一致失败。
+- 6.8.0 起 MCP `analyze_function` 默认只返回 retained summary；要完整 dossier 必须显式传 `detail:"complete"`，否则会误判「字段变少了」。
+- 6.8.0 起 MCP 输入 schema 默认 compact；需要完整嵌套约束时设 `REA_MCP_INPUT_SCHEMA_PROFILE=full`。
 - references 与 SKILL.md 的分工：SKILL.md 只做路由与硬边界，细节全在 references；本技能不用步骤级 `@` 标记（该标记只用在 references 的工作流文件里）。

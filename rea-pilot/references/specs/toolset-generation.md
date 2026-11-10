@@ -12,30 +12,23 @@ writes-to: references/toolset/rea-<版本>.md
 
 | 输入 | 提供什么 |
 | --- | --- |
-| MCP stdio 的 `tools/list` + `prompts/list` | 工具名与 description（207 / 6） |
-| `rea --llms` | CLI 命令清单（**153 条命令**；行数与字符数随计法摆动，本机实测：161–162 行、LF 计 17,216–17,217 字符、CRLF 计 17,376–17,378 字符。**判漂移看命令条数、工具数与目录摘要，不看字符数**） |
+| `rea-agents` 包内 `dist/mcp-catalog.json` 的 `tools` / `prompts` | 工具名、title、description、annotations（229 / 6）；官方随包数据，直接读最稳 |
+| `rea --llms` | CLI 命令清单（**175 条命令**；判漂移看命令条数、工具数与目录摘要，不看字符数） |
 | `rea capabilities --format json` | 副作用（effects）、可用性、`server_identity.catalog`（计数与摘要） |
-| `rea --version` + `rea doctor --format json` | 版本锚与自检计数 |
+| `rea --version` + `rea mcp doctor --json` | 版本锚与自检计数 |
 
 ## 采集命令（本机已跑通）
 
-MCP 侧：用 Node 绝对路径起 stdio server，按 **换行分隔 JSON-RPC**（无分页，一次返回全部）：
-
-```text
-{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"probe","version":"1"}}}
-{"jsonrpc":"2.0","method":"notifications/initialized"}
-{"jsonrpc":"2.0","id":2,"method":"tools/list"}
-{"jsonrpc":"2.0","id":3,"method":"prompts/list"}
-```
+MCP 侧：**直接读 `rea-agents` 包内 `dist/mcp-catalog.json`**，不要自起 stdio server——该文件是官方随包发布的工具/prompt 目录（229 / 6），无需运行目标或建立会话。
 
 ```bash
-node "<rea-agents 根>/scripts/rea.mjs" mcp     # stdin 灌上面四行，stdout 逐行解 JSON
+node -e "const c=require('<rea-agents 根>/dist/mcp-catalog.json'); console.log(c.tools.length, c.prompts.length)"
 rea --llms                                      # CLI 清单
 rea capabilities --format json                  # 副作用与可用性
 rea mcp doctor --json                           # 自检计数与目录摘要
 ```
 
-CLI 行解析正则（`rea --llms` 153 行全部命中）：
+CLI 行解析正则（`rea --llms` 175 行全部命中）：
 
 ```text
 ^\|\s*`rea\s+([^`]+)`\s*\|\s*(.*?)\s*\|\s*$
@@ -61,33 +54,35 @@ effects 中文标签：`launches_process`=启动进程 / `may_show_ui`=可能弹
 
 ## 分组规则
 
-按工具名关键字分组，**顺序敏感（先匹配先归）**，共 11 组；分组完成后逐组计数必须与下表一致、总数必须等于 207：
+按工具名关键字分组，**顺序敏感（先匹配先归）**，共 12 组；分组完成后逐组计数必须与下表一致、总数必须等于 229：
 
 | 分组 | 计数 |
 | --- | --- |
-| 会话与目标 | 27 |
-| 原生二进制 | 36 |
+| 会话与目标 | 29 |
+| 原生二进制 | 46 |
 | 托管代码 PE/CLR | 7 |
 | JavaScript 与 Electron | 18 |
 | 浏览器观察与场景录制 | 10 |
-| Android 与移动设备 | 39 |
-| Apple 平台 | 17 |
-| 归档·固件·格式 | 11 |
+| Android 与移动设备 | 40 |
+| Apple 平台 | 18 |
+| 归档·固件·格式 | 13 |
 | 网络与信号采集 | 7 |
 | 调试器与插桩 | 22 |
-| 证据与验证 | 13 |
+| 证据与验证 | 14 |
+| 模型与字节码 | 5 |
 
 **规则维护要求**：
 
 - Android 组的关键字必须覆盖 `apktool`（2026-10-19 修正：`inspect_apktool_client` 曾因缺此词落进「其他」）。
 - **不允许留「其他」组**：出现未归类工具 = 分组规则缺词，去补规则；补不了再考虑新建组，并同步更新计数表与总数判据。
-- 计数与总数判据写进校验：207 = 各组之和；不成立就停止发布。
+- 6.8.0 新增的模型 / GPU 代码 / IL2CPP 元数据 / Python pyc / Erlang BEAM 归「模型与字节码」；新增工具先试既有组，确实无归属再新建组。
+- 计数与总数判据写进校验：229 = 各组之和；不成立就停止发布。
 
 ## 版本锚与自检
 
-- frontmatter `version` = `rea --version` 输出（如 `6.7.0`）；`generated-at` 带时区偏移（本仓统一 `+08:00`）。
+- frontmatter `version` = `rea --version` 输出（如 `6.8.0`）；`generated-at` 带时区偏移（本仓统一 `+08:00`）。
 - 写入三处摘要，便于下次发现漂移：`catalog.digests.tools_sha256` / `prompts_sha256` / `combined_sha256`（来源 `rea capabilities --format json` → `server_identity.catalog.digests`）。
-- 自检等式（三者必须一致，否则不许发布）：`rea mcp doctor --json` 的 `inventory.tools.expected == observed` = `catalog.counts.mcp_tools` = 分组总数；另有 `cli_commands`（153）与 `mcp_prompts`（6）。
+- 自检等式（三者必须一致，否则不许发布）：`rea mcp doctor --json` 的 `inventory.tools.expected == observed` = `catalog.counts.mcp_tools` = 分组总数；另有 `cli_commands`（175）与 `mcp_prompts`（6）。
 
 ## 输出与维护
 

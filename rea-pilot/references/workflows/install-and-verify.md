@@ -22,7 +22,7 @@ rea doctor --format json          # 退出码非 0 是正常状态报告，不�
 | `missing_analysis_engine` | 缺分析引擎或外部工具 | 读 `remediation` 字段，按 `references/config/engines-and-providers.md` 说明这是用户自备还是可装 |
 | `config_drift` | 有注册但配置与当前版本不符 | 属本工作流范围，出计划时一并处理 |
 
-- `node` 不 healthy：先给安装路线（Windows `winget install --exact --id OpenJS.NodeJS.LTS`；macOS `brew install node`；fnm `fnm install 24` / `fnm use 24` / `fnm default 24`），装完再回来。REA 要求 Node 22.19+ / 24.11+ / 26+。
+- `node` 不 healthy：先给安装路线（Windows `winget install --exact --id OpenJS.NodeJS.LTS`；macOS `brew install node`；fnm `fnm install --lts --use` 装最新 LTS 并立即使用，要把该版本设为默认再 `fnm default <版本>`——`fnm use` / `fnm default` 只接受版本号，不接受 `--lts`），装完再回来。具体允许范围以 `rea doctor` 的 `node` 检查或 `rea-agents` 包 `engines.node` 为准（不要照抄旧版本范围；官方安装器不替你升级 Node）。
 - `host` 不 healthy：平台不受支持，停止并说明。
 
 🔴 CHECKPOINT：把体检结论按 classification 分类讲清楚，**不要**把缺引擎说成「安装失败」（两者是不同问题）。
@@ -80,5 +80,5 @@ rea setup --install-hopper                 # 仅当用户要 Hopper 并同意安
 | `node` 版本不达标 | 环境 | 回 @步骤1 给安装路线 |
 | doctor 里没有我的宿主 | 未检测到配置 | 直接给 `--client <id>` 或用 `--all-detected`（需确认）；确认宿主真的支持本地 MCP |
 | 注册写进去了但会话里没工具 | 未重启 / 宿主缓存 / 配置被别的进程覆盖 | 先重启宿主；再看 `registration.state` 与 `package_reference` |
-| 配置被写坏 | 罕见，官方 6.7.0 已修「重复成员」语义 | 走 W-ROLLBACK：用 `backupPath` 还原 |
+| 配置被写坏 | 罕见，官方已在后续版本修「重复成员」语义 | 走 W-ROLLBACK：用 `backupPath` 还原 |
 | 引擎缺失 | 与接入无关 | 读 `remediation`，索引到 `references/config/engines-and-providers.md` |

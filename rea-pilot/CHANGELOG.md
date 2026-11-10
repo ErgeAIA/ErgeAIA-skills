@@ -2,6 +2,29 @@
 
 > 只记录版本号、核心变更与修改文件。设计取舍见 README，生成规范见 references。
 
+## [Unreleased]
+
+### REA 6.8.0 工具面同步与判据式去硬编码
+
+**背景**：上游 REA 升到 6.8.0（2026-10-25）：MCP 工具 207 → 229、CLI 153 → 175、官方 prompt 仍 6 个；并有三处会改变调用方式的行为变化（analyze_function 默认只回 retained summary、MCP 输入 schema 默认 compact、Node engines 收紧）。本技能此前在 SKILL / README / references 里写死 6.7.0 的条数与客户端名单，会随上游升级逐轮过期。
+
+**变更**
+
+- **新增 `references/toolset/rea-6.8.0.md`**：229 个 MCP 工具（按 12 个域分组，新增「模型与字节码」组 5 个：模型、GPU 代码、IL2CPP 元数据、Python pyc、Erlang BEAM）+ 6 个官方 prompt + 175 条 CLI 命令，每条给用途与副作用/可用性。6.7.0 快照保留不删，用于回溯「当时这个工具叫什么」。
+- **去硬编码、改判据**（`SKILL.md`、`README.md`、`references/workflows/install-and-verify.md`）：Node 前置、宿主适配器名单、工具面计数不再写死 6.7.0 / 207 / 153 / 20 个，改为以本机 `rea --version`、`rea doctor --format json` 的 `identity.registrations[]`、`rea capabilities` 实测为准。
+- **`references/specs/toolset-generation.md` 计数同步**：分组 11 → 12、总数 207 → 229、CLI 153 → 175；采集素材改为直接读 `rea-agents` 包内 `dist/mcp-catalog.json`，不再自起 stdio server。
+- **`references/config/engines-and-providers.md` 复核**：快照改 2026-11-11 / REA 6.8.0 / Node 24.22.1 / win32 x64；sqlite 的 Node 下限改判据式（以 `shared_limitations` 当前文本为准，本机实测可用）。
+- **传输字段口径**（`references/specs/mcp-registration-fields.md`、`references/workflows/host-registration.md`）：默认 stdio；6.8 上游另有 opt-in Streamable HTTP，但当前版本 `rea setup` / `rea mcp add` 未见独立开关，实际入口以当前版本 `--help` 与官方文档为准。
+
+**修复**
+
+- **Gotchas 补 6.8 行为变化**（`SKILL.md`）：`analyze_function` 默认只回 retained summary，需要完整 dossier 须 `detail:"complete"`；MCP 输入 schema 默认 compact，需要完整嵌套约束须设 `REA_MCP_INPUT_SCHEMA_PROFILE=full`。
+- **banner 文案去计数**（`assets/banner.svg`）：去掉「207 个工具」的易过期数字。
+
+**修改文件**：`references/toolset/rea-6.8.0.md`（新增）、`SKILL.md`、`README.md`、`test-prompts.json`、`assets/banner.svg`、`references/specs/toolset-generation.md`、`references/config/engines-and-providers.md`、`references/workflows/install-and-verify.md`、`references/specs/mcp-registration-fields.md`、`references/workflows/host-registration.md`、`CHANGELOG.md`
+
+---
+
 ## v1.0.3 (2026-10-20)
 
 ### 加固建议的验收命令前置可判：不再交付本机跑不了的验收

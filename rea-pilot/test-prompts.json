@@ -13,7 +13,7 @@
     {
       "id": 2,
       "prompt": "我要看一个 Electron 应用的 app.asar 里有哪些模块、暴露了什么，用 REA 怎么下手？",
-      "expected": "走 W-ROUTE：目标类型 → 证据需求 → 引擎前置 → 最小路径；说明 JS/Electron 类不需要外部反编译器；工具名与用途只从 references/toolset/rea-6.7.0.md 取，不手抄；不重写调查方法（那是 REA 自带技能的职责）"
+      "expected": "走 W-ROUTE：目标类型 → 证据需求 → 引擎前置 → 最小路径；说明 JS/Electron 类不需要外部反编译器；工具名与用途只从 references/toolset/rea-<版本>.md 取，不手抄；不重写调查方法（那是 REA 自带技能的职责）"
     },
     {
       "id": 3,

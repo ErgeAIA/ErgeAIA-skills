@@ -15,7 +15,7 @@ writes-to: 无（只读说明）
 | `rea doctor --format json` | `scope_checks[]`（`name` / `ok` / `classification` / `detail` / `remediation`）、`providerInspections[]` |
 | `rea capabilities --format json` | `analysis_provider_candidates[].availability{status,code,reason,diagnostics}`、`server_identity` |
 
-本页为 **2026-10-19 在 REA 6.7.0 / Node 24.13.0 / win32 x64 上的一次实测**，不是官方承诺。版本或平台一变就重取，不要照抄。`rea providers --format json` 与 `rea capabilities` 输出同一个 envelope。
+本页为 **2026-11-11 在 REA 6.8.0 / Node 24.22.1 / win32 x64 上的一次实测**，不是官方承诺。版本或平台一变就重取，不要照抄。`rea providers --format json` 与 `rea capabilities` 输出同一个 envelope。
 
 ## 四个分析 Provider
 
@@ -44,7 +44,7 @@ writes-to: 无（只读说明）
 
 - `native-macos` provider 整族不可用（`unsupported_host`）：`inspect_macho`、`inspect_signature`、`inspect_plist`、`list_architectures`、`demangle_swift`、`observe_native_calls`、`observe_native_ui`、`capture_native_ui_scenario`、`inspect_native_dispatch_metadata`。
 - `inspect_asset_catalog` 需 macOS `assetutil`。
-- `sqlite` provider 需 **Node 24.x >= 24.15 或 26+**；本机 24.13.0 → `unsupported_version`，故 `inspect_sqlite_database` 不可用（升级 Node 后再试）。
+- `sqlite` provider 有独立的 Node 下限（以 `rea capabilities` 的 `shared_limitations` 当前文本为准；低于要求报 `unsupported_version`）。本机 Node 24.22.1 实测 `inspect_sqlite_database` 可用；若你的 Node 更低，先按 W-INSTALL 升级 Node。
 - Android 设备类工具需 adb 与真实设备/模拟器；`list_adb_devices` 首次使用可能启动本地 adb server。
 - 固件提取、信号解码、抓包分析依赖 Linux 工具链与上表环境变量。
 - Kuna 的平台支持面窄：官方 6.6.0 变更说明记录「以 Kuna 1.833 在 Linux 上做真实 provider 覆盖；**Windows、PE 与 universal Mach-O 不受支持**」。
@@ -58,7 +58,7 @@ writes-to: 无（只读说明）
 | `rea-artifact-graph`（REA 自带 v1） | `inspect_artifact`、`extract_artifact`、`decode_interface_builder`、`inspect_keyed_archive`、`trace_dylib_resolution` | `launches_process`、`may_write_filesystem` |
 | `rea-dotnet-static`（REA 自带 v1） | `inspect_managed_artifact`、`inspect_managed_members`、`inspect_managed_native_boundaries` | — |
 
-另有不需要上述 provider 的内建能力（如 JavaScript 应用图、归档清单、读已保留证据、证据包对比）。**依据**：`rea doctor` 的引擎检查只有 hopper / ghidra / ida-registration / jadx / kuna-installation 五项，缺引擎时这些能力族不报 `not_configured`。[推测] 其余平台（macOS/Linux）的可为集合更大，以本机实取为准。
+另有不需要上述 provider 的内建能力（如 JavaScript 应用图、归档清单、读已保留证据、证据包对比；6.8.0 新增的模型 / GPU 代码 / IL2CPP / pyc / BEAM / PE 导入导出 / APK 签名等静态格式检查也不需要外部引擎）。**依据**：`rea doctor` 的引擎检查只有 hopper / ghidra / ida-registration / jadx / kuna-installation 五项，缺引擎时这些能力族不报 `not_configured`。[推测] 其余平台（macOS/Linux）的可为集合更大，以本机实取为准。
 
 ## 副作用词表（出现即先向用户声明）
 

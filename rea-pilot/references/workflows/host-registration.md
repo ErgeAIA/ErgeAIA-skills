@@ -27,7 +27,7 @@ rea setup --dry-run --format json   # 看 plannedActions 里有没有 configure_
 | 字段 | 值 |
 | --- | --- |
 | serverName / key | `rea` |
-| transport | `stdio` |
+| transport | `stdio`（默认；6.8 上游有 opt-in Streamable HTTP，但入口以当前版本 `--help` 为准，宿主不支持 HTTP 时仍写 stdio） |
 | command | `npx`（Windows 上宿主若走 PowerShell 则 `npx.cmd`）或 Node 可执行文件绝对路径 |
 | args | `["-y","rea-agents@<版本>","mcp"]` 或 `["<...>/rea-agents/scripts/rea.mjs","mcp"]` |
 

@@ -27,7 +27,7 @@ rea setup --dry-run --format json   # 看 plannedActions[] 里有没有 configur
 | 字段 | 值 | 备注 |
 | --- | --- | --- |
 | 服务器键名 | `rea` | 宿主实际键名以它已有条目为准（可能是 `mcpServers.rea` 之类） |
-| transport | `stdio` | REA 是 stdio MCP server |
+| transport | `stdio` | 默认按 stdio 写；6.8 上游另有 opt-in Streamable HTTP，但本机 `rea setup` / `rea mcp add` 未见独立开关，实际入口以当前版本 `--help` 与官方文档为准。不支持 HTTP 的宿主仍按 stdio 写 |
 | command | `npx`；Windows PowerShell 环境下用 `npx.cmd`；或 Node 可执行文件绝对路径 | 绝对路径最稳（不受 PATH 影响） |
 | args | `["-y","rea-agents@<版本>","mcp"]`，或 `["<rea-agents 根>/scripts/rea.mjs","mcp"]` | 钉版本比 `@latest` 可复现 |
 

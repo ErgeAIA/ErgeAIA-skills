@@ -87,7 +87,7 @@
 <line class="s-line" x1="484.8" y1="529" x2="484.8" y2="638"/>
 <text class="c-muted" x="120" y="516" text-anchor="start" font-size="18"><tspan x="120">REA 装得上，却接不上、说不清</tspan></text>
 <text class="c-bad" x="120" y="556" font-size="16" font-weight="700" letter-spacing="1">原来的成本</text>
-<text class="c-ink" x="120" y="584" text-anchor="start" font-size="19"><tspan x="120">Node 版本与宿主配置格式全靠猜，</tspan><tspan dy="29" x="120">doctor 绿了 ≠ 会话里有工具，207 个</tspan><tspan dy="29" x="120">工具不知先用哪个</tspan></text>
+<text class="c-ink" x="120" y="584" text-anchor="start" font-size="19"><tspan x="120">Node 版本与宿主配置格式全靠猜，</tspan><tspan dy="29" x="120">doctor 绿了 ≠ 会话里有工具，工具多到</tspan><tspan dy="29" x="120">不知先用哪个</tspan></text>
 <text class="c-good" x="508.8" y="516" font-size="16" font-weight="700" letter-spacing="1">Skill 带来的改变</text>
 <text class="c-good" x="508.8" y="546" text-anchor="start" font-size="20" font-weight="700"><tspan x="508.8">接入变成一条可核对流水线</tspan></text>
 <text class="c-muted" x="508.8" y="584" text-anchor="start" font-size="17"><tspan x="508.8">每条结论都带实测输出</tspan></text>
