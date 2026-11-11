@@ -10,6 +10,10 @@ shese 所有值得注意的变更都记录在此文件中。
 
 （暂无）
 
+### 移除
+
+- 仓库内的历史预览产物（`preview-001.html`、`preview-002.html`、`preview-001-002-audit-compare.html`，约 86KB 生成副本）与本地测试草稿目录 `local-tests/` 一并清理；预览页改由 `preview` 子命令按需现生成。`audit-001-002` 内指向这些 html 的三处说明同步改写，不再留悬空指针；`theme-001.json` / `theme-002.json`（14 token 实测产物）保留作证据。
+
 ## [1.2.1] - 2026-11-11 · 门面两段式与入参收口
 
 ### 变更
