@@ -154,7 +154,7 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 87 tests ... OK`（新增 13 项覆盖端点守卫、`solve`、`story`、`export`）；selftest 27 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 88 tests ... OK`（新增 14 项覆盖端点守卫、`solve`、`story`、`export`、预览页页脚）；selftest 27 项全 PASS、退出码 0。
 
 ## 边界
 

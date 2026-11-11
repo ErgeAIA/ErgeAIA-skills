@@ -18,7 +18,7 @@ shese 所有值得注意的变更都记录在此文件中。
 - `export`：命名主题导出 JSON / CSS vars / Tailwind `@theme`，名称与故事一并写入。
 - `matrix` 端点守卫：纯黑大底、深色纯白正文、浅色纯黑正文，命中即 exit 1；此前只在文字规则里、靠人眼。
 - `assets/story-cards/`：夜灯、晨光两张故事卡与对应 token 示例，可原样跑 `story`。
-- `test-prompts.json` 增 3 组命名轨用例（含「只给名字不给故事」的反向用例），合计 20 组；单测 87 项。
+- `test-prompts.json` 增 3 组命名轨用例（含「只给名字不给故事」的反向用例），合计 20 组；单测 88 项。
 
 ### 变更
 
