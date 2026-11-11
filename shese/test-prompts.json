@@ -158,5 +158,21 @@
     "track": "命名轨",
     "scene": "只有名字、没有故事：反向用例",
     "covered": "references/story.md 四节三问与七节改数表；SKILL.md 不可违背第 1 条（目标先行）；CHECKPOINT 1（目标未定不动手）"
+  },
+  {
+    "id": 21,
+    "prompt": "这套色是从设计稿里复制的：文字 rgb(201, 209, 217)，底色 rgb(13, 17, 23)，次要文字 hsl(215 14% 58%)。晚上长时间读，帮我看能不能用。",
+    "expected": "直接吃 rgb()/hsl() 输入，不要求用户先转十六进制；转成 hex 后按审查轨跑 matrix（16px/400 正文 + aux 档），给出最差面与结论。若通道越界（如 rgb(255,0,300)）报输入错误并说明 CSS 会静默夹取而本技能不改值。",
+    "track": "审查轨",
+    "scene": "rgb()/hsl() 直接入参",
+    "covered": "scripts/shese.py parse_color（hex / rgb() / rgba() / hsl() / hsla() 统一解析）；references/tool-usage.md 二节入参写法表"
+  },
+  {
+    "id": 22,
+    "prompt": "给我一套 50 到 950 的完整蓝色色阶，九档，直接用。",
+    "expected": "指出边界：没有角色与承载面的整条 ramp 无判据可回读，不代造；改为先问这九档各自做什么（bg / border / 正文 / 填充）与落在哪个承载面，再按角色用 mix --space oklab 逐档推、逐档过文字矩阵与 ΔE-OK。若用户只要一条品牌资产的整条阶梯，只给骨架与逐档判定，不宣称生成即合格。",
+    "track": "生成轨",
+    "scene": "无角色整条色阶：边界用例",
+    "covered": "README.md 边界节；references/generate.md 边界三条；SKILL.md Non-Goals（数据可视化色阶仍不做）"
   }
 ]

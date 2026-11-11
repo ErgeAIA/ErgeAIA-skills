@@ -149,14 +149,73 @@ class InputError(Exception):
 
 
 # ---------------------------------------------------------------- 颜色解析与表示
+_CSS_FUNC_RE = re.compile(r"(rgba?|hsla?)\s*\((.*)\)", re.S)
+
+
+def _css_channel(token: str, scale_max: float, original: str) -> float:
+    """单通道：接受数字或百分比。越界即报错——CSS 会静默夹取，本技能不改用户给的值。"""
+    t = token.strip()
+    try:
+        if t.endswith("%"):
+            v = float(t[:-1]) * scale_max / 100.0
+        else:
+            v = float(t)
+    except ValueError:
+        raise InputError("通道不是数字：" + original)
+    if v < 0 or v > scale_max:
+        raise InputError("通道须在 0–%g 之间（CSS 会静默夹取，本技能改为报错）：%s" % (scale_max, original))
+    return v
+
+
+def _hsl_to_rgb(h: float, s: float, light: float):
+    """CSS hsl() → sRGB 字节。h 任意角向按 360 取模，s / light 为百分比。"""
+    s /= 100.0
+    light /= 100.0
+    c = (1 - abs(2 * light - 1)) * s
+    hp = (h % 360) / 60.0
+    x = c * (1 - abs(hp % 2 - 1))
+    seg = int(hp)
+    base = [(c, x, 0), (x, c, 0), (0, c, x), (0, x, c), (x, 0, c), (c, 0, x)][seg % 6]
+    m = light - c / 2
+    return [int(round((v + m) * 255)) for v in base]
+
+
+def _parse_css_func(value: str):
+    """解析 rgb()/rgba()/hsl()/hsla()。返回 ([r,g,b], alpha) 或 None（不是函数式写法）。"""
+    m = _CSS_FUNC_RE.fullmatch(value.strip().lower())
+    if not m:
+        return None
+    kind, body = m.group(1), m.group(2)
+    parts = [p for p in re.split(r"[,/]|\s+", body.strip()) if p]
+    if len(parts) not in (3, 4):
+        raise InputError("函数式颜色须给 3 个通道（可再跟 1 个 alpha）：" + value)
+    alpha = _css_channel(parts[3], 1.0, value) if len(parts) == 4 else 1.0
+    if kind.startswith("rgb"):
+        rgb = [int(round(_css_channel(p, 255.0, value))) for p in parts[:3]]
+    else:
+        h = _css_channel(parts[0], 360.0, value)
+        s = _css_channel(parts[1], 100.0, value)
+        light = _css_channel(parts[2], 100.0, value)
+        rgb = _hsl_to_rgb(h, s, light)
+    return rgb, alpha
+
+
 def parse_color(value: str, allow_alpha: bool = True):
-    """解析 #rgb / #rgba / #rrggbb / #rrggbbaa，返回 ([r,g,b] 0-255, alpha 0-1)。
+    """解析 #rgb / #rgba / #rrggbb / #rrggbbaa 与 rgb()/rgba()/hsl()/hsla()，
+    返回 ([r,g,b] 0-255, alpha 0-1)。
 
     4 位简写的 alpha 按 nibble/15（与 colorParsley 一致），8 位按 byte/255。
+    函数式写法两种通道分隔都收（逗号或空格，alpha 用 / 或第 4 个参数）。
     """
     s = value.strip().lower()
     if not s.startswith("#"):
-        raise InputError("只接受十六进制颜色，收到：" + value)
+        parsed = _parse_css_func(s)
+        if parsed is None:
+            raise InputError("只接受 #hex / rgb() / rgba() / hsl() / hsla()，收到：" + value)
+        rgb, alpha = parsed
+        if not allow_alpha and alpha != 1.0:
+            raise InputError("此处需要不透明实色，收到带 alpha 的值：" + value)
+        return rgb, alpha
     body = s[1:]
     if not re.fullmatch(r"[0-9a-f]+", body):
         raise InputError("十六进制颜色含非法字符：" + value)

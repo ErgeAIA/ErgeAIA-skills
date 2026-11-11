@@ -25,9 +25,21 @@ SKILL.md 的「工具」表只给用途；本文件给参数、字段与配方�
 
 ## 二、子命令参数
 
+所有收色值的参数（含 `--tokens name=HEX`、spec 里的 `hex` 字段）走同一个解析器，认这五种写法：
+
+| 写法 | 例 | 说明 |
+| --- | --- | --- |
+| 十六进制 | `#f00` `#ff0000` `#ff000080` | 3 / 4 / 6 / 8 位；4 位 alpha 按 nibble/15，8 位按 byte/255 |
+| `rgb()` | `rgb(255,0,0)` `rgb(255 0 0)` `rgb(100% 0% 0%)` | 逗号或空格分隔；通道 0–255 或百分比 |
+| `rgba()` | `rgba(0,0,0,0.5)` `rgb(0 0 0 / 50%)` | alpha 作第 4 参数或 `/` 后；0–1 或百分比 |
+| `hsl()` | `hsl(0 100% 50%)` `hsl(0, 100%, 50%)` | h 任意角向按 360 取模；s / l 0–100% |
+| `hsla()` | `hsla(0 0% 0% / 0.5)` | 同上，附件 alpha |
+
+三条纪律：① 通道越界**报错不夹取**（CSS 会静默夹到范围内，本技能不改用户给的值），如 `rgb(255,0,300)` → exit 2；② 只认上表与 `transparent`，命名色、`lab()`、`oklch()` 等其它函数式写法一律 exit 2；③ 需要不透明实色的位置（`contrast` 的 BG、`composite --on`）拿到 alpha < 1 直接拒收，不替你合成。
+
 | 子命令 | 完整签名 | 要点 |
 | --- | --- | --- |
-| `oklch` | `oklch HEX... [--to-hex "L C h"] [--json]` | 正向读 L / C / h 与 a / b；反向超色域时收 C 并标 `[超出 sRGB，色度收缩至 …]`，L 须在 0..1 |
+| `oklch` | `oklch COLOR... [--to-hex "L C h"] [--json]` | 正向读 L / C / h 与 a / b；反向超色域时收 C 并标 `[超出 sRGB，色度收缩至 …]`，L 须在 0..1 |
 | `contrast` | `contrast TEXT BG [--size N --weight W] [--role body｜aux｜hint] [--json]` | 两个位置参数都必须是不透明或可合成实色；`BG` 带 alpha 直接 exit 2；文字带 alpha 自动按 BG 合成后计算 |
 | `composite` | `composite LAYER... --on BOTTOM [--json]` | 层**自顶向下**写（第一个最靠上），每层可写 `name=#rrggbbaa`；`--on` 必须不透明；合成后仍半透明即 exit 2，不给结论 |
 | `matrix` | `matrix --tokens spec.json [--json]` 或 `matrix --text name=HEX --surface name=HEX ... [--size N --weight W] [--role …]` | spec 顶层可给 `role`/`size`/`weight`；`text` 条目可写成对象逐 token 覆盖；全局 `--size`/`--weight` 一视同仁，别用 |

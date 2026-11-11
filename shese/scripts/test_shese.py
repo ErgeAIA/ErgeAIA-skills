@@ -51,14 +51,53 @@ class TestHexParsing(unittest.TestCase):
     def test_case_and_whitespace_tolerated(self):
         self.assertEqual(shese.parse_color("  #AABBCC ")[0], [0xaa, 0xbb, 0xcc])
 
-    def test_rejects_non_hex_and_bad_length(self):
-        for bad in ("rgb(1,2,3)", "red", "#12345", "#gggggg", "123456"):
+    def test_rejects_non_color_and_bad_length(self):
+        for bad in ("red", "oklch(0.5 0.1 200)", "#12345", "#gggggg", "123456", "rgb(1,2)"):
             with self.assertRaises(shese.InputError):
                 shese.parse_color(bad)
 
     def test_allow_alpha_false_rejects_translucent(self):
         with self.assertRaises(shese.InputError):
             shese.parse_color("#00000080", allow_alpha=False)
+        with self.assertRaises(shese.InputError):
+            shese.parse_color("rgba(0,0,0,0.5)", allow_alpha=False)
+
+    def test_rgb_and_hsl_forms_parse_to_same_color(self):
+        cases = [
+            ("rgb(255,0,0)", "#ff0000"),
+            ("rgb(255 0 0)", "#ff0000"),
+            ("rgb(100% 0% 0%)", "#ff0000"),
+            ("hsl(0 100% 50%)", "#ff0000"),
+            ("hsl(0, 100%, 50%)", "#ff0000"),
+            ("hsl(360 100% 50%)", "#ff0000"),
+            ("hsl(0 0% 0%)", "#000000"),
+            ("hsl(0 0% 100%)", "#ffffff"),
+        ]
+        for src, hexv in cases:
+            self.assertEqual(
+                shese.fmt_hex(shese.parse_color(src)[0]),
+                shese.fmt_hex(shese.parse_color(hexv)[0]),
+                src,
+            )
+
+    def test_css_alpha_forms_match_hex_alpha(self):
+        for src, hexv in (
+            ("rgba(0,0,0,0.5)", "#00000080"),
+            ("rgb(0 0 0 / 50%)", "#00000080"),
+            ("hsla(0 0% 0% / 0.5)", "#00000080"),
+        ):
+            _rgb_a, a1 = shese.parse_color(src)
+            _rgb_b, a2 = shese.parse_color(hexv)
+            self.assertAlmostEqual(a1, a2, delta=0.01, msg=src)  # 0.5 落 8 位十六进制会量化到 128/255
+
+    def test_out_of_range_channel_is_loud(self):
+        for bad in ("rgb(256,0,0)", "rgb(0,0,-1)", "hsl(0 120% 50%)", "rgb(0 0 0 / 1.5)"):
+            with self.assertRaises(shese.InputError):
+                shese.parse_color(bad)
+
+    def test_unknown_function_is_refused(self):
+        with self.assertRaises(shese.InputError):
+            shese.parse_color("lab(52.2 40 59.9)")
 
 
 class TestApcaOfficialVectors(unittest.TestCase):

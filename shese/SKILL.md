@@ -47,7 +47,7 @@ Core Task：
 标准输入包（缺失项按最合理假设执行，标【假设】）：
 
 1. 家族 / 主题标识
-2. 色值集合：十六进制列表或语义 token 名
+2. 色值集合：hex / rgb() / hsl() 或语义 token 名
 3. 用途与明暗模式
 4. 不可改动项
 5. 透明度信息：哪些 token 使用 alpha、透明度值、预期落点与最差背景面
@@ -96,7 +96,7 @@ Core Task：
 | 步 | 输入 | 产出与命令 |
 | --- | --- | --- |
 | 1 阅读目标声明 | 用途、单次时长、环境亮度、字号与字重、信息密度；缺项标【假设】 | 3–5 句目标句，六字段齐，尺度只能从这推，出口过 CP1。先取 `scenes.md` 最近默认档，按实际改并写理由 |
-| 2 角色还原 | hex 列表或语义 token 名（别名自动归一） | 按 14 标准名绑 hex（token 即下游键，联 `--role` 三档两轴）：bg/surface/card/elevated/border/text/textMuted/textDim/accent/brand/success·warning·danger·info（bg底层 card卡片 elevated浮层 text正文 muted次级 dim弱化 accent点睛 brand品牌）；`oklch "#c9d1d9" "#8b949e" --json` 读 L / C / h，按 L 排层级、按 h 分家族，映射不了单列说明原因 |
+| 2 角色还原 | hex / rgb() / hsl() 或语义 token 名（别名归一） | 按 14 标准名绑 hex（token 即下游键，联 `--role` 三档两轴）：bg/surface/card/elevated/border/text/textMuted/textDim/accent/brand/success·warning·danger·info（bg底层 card卡片 elevated浮层 text正文 muted次级 dim弱化 accent点睛 brand品牌）；`oklch "#c9d1d9" "#8b949e" --json` 读 L / C / h，按 L 排层级、按 h 分家族，映射不了单列说明原因 |
 | 3 意图解读 | 步骤 2 的 L / C / h 分布，尤其 C 最高的两三个色 | 一句话调性 + 哪几个 hex 承担该表达；判据是彩度与色相位置，不是形容词堆叠。意境词译成可测目标（明度上限、彩度档）回读验收：夜间=照度受限（主文≤15:1、面层差收敛），晨光类=亮色须有可书写通路。给名称时按 `references/story.md` 落卡、`story` 回读；贴切度人工判断 |
 | 4 合成层清理 | 哪些 token 带 alpha、透明度、可能落点 | `composite "#ffffffb3" --on "#22222B"`，多层自顶向下作位置参数，`--on` 给最底层；产出「透明度 → 沿链合成实色 → 最差面」。带 alpha 的文字 token 没给最差面则结论无效；无 alpha 的跳过并记「无」 |
 | 5 文字—背景矩阵 | 每个文字 token 的 (hex, role, size, weight) 与全部承载面 | 每 token 的 WCAG 比值（记账）+ APCA Lc（判定）+ 要求值+最差面+缺口；exit 1 = 最差面不达标。层级差跑 `delta`、色觉跑 `cvd` |

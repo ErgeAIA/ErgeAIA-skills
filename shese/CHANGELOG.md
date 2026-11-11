@@ -6,7 +6,11 @@ shese 所有值得注意的变更都记录在此文件中。
 
 ## [Unreleased]
 
-暂无。
+### 变更
+
+- 色值入参不再只收十六进制：`rgb()` / `rgba()` / `hsl()` / `hsla()` 均可直接传入（逗号或空格分隔、alpha 作第 4 参数或 `/` 后、通道可用百分比），所有收色值的子命令与 `--tokens name=…`、spec 的 `hex` 字段共用同一解析器。通道越界报 exit 2 而不按 CSS 静默夹取；命名色与 `lab()`、`oklch()` 等其它函数式写法仍拒收。
+- 边界表述收紧：明确「不生成无角色的 50–950 整条色阶」（有角色与承载面的阶梯用 `mix --space oklab` 逐档推、逐档判），明确「不在 Display P3 下判定」（先转 sRGB 再判并声明偏差），补在 `README.md` 与 `references/generate.md`；`references/tool-usage.md` 增入参写法表。
+- 单测 89 → 93 项：新增 rgb/hsl 与 hex 等价、alpha 三种写法一致、越界报错、未知函数拒收四类用例。
 
 ## [1.2.0] - 2026-11-11 · 命名轨与可复算出口
 
