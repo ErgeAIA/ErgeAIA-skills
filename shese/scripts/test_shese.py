@@ -632,5 +632,135 @@ class TestFailureHandling(unittest.TestCase):
                               label + " 未写预览页失败的替代交付物")
 
 
+class TestEndpointGuard(unittest.TestCase):
+    def test_pure_black_surface_is_rejected(self):
+        code, out, err = run_cli("matrix", "--text", "text=#ffffff", "--surface", "bg=#000000")
+        self.assertEqual(code, 1)
+        self.assertIn("深色模式不用纯黑作大面积底色", out)
+        self.assertIn("深色模式不用纯白作正文", out)
+
+    def test_pure_white_text_on_dark_is_rejected(self):
+        code, out, _err = run_cli("matrix", "--text", "text=#ffffff", "--surface", "bg=#101014")
+        self.assertEqual(code, 1)
+        self.assertIn("深色模式不用纯白作正文", out)
+
+    def test_pure_black_text_on_light_is_rejected(self):
+        code, out, _err = run_cli("matrix", "--text", "text=#000000", "--surface", "bg=#faf1e9")
+        self.assertEqual(code, 1)
+        self.assertIn("浅色模式不用纯黑作正文", out)
+
+    def test_neutral_pair_passes_without_guards(self):
+        code, out, _err = run_cli("matrix", "--text", "text=#ede4d8", "--surface", "bg=#16120e",
+                                  "--json")
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["guards"], [])
+
+
+class TestSolve(unittest.TestCase):
+    def test_already_passing_is_untouched(self):
+        code, out, _err = run_cli("solve", "#F3EDE7", "#1A1714", "--size", "16", "--weight", "400")
+        self.assertEqual(code, 0)
+        self.assertIn("已达标", out)
+
+    def test_solve_keeps_hue_and_reaches_target(self):
+        code, out, _err = run_cli("solve", "#F2570F", "#16120E", "--size", "16", "--weight", "400",
+                                  "--json")
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertLess(abs(payload["hue_drift"]), 2.0, "solve 色相漂移超过 2°")
+        self.assertGreaterEqual(abs(payload["new_lc"]), payload["required_lc"])
+        self.assertNotEqual(payload["new_text"], "#F2570F")
+
+    def test_impossible_pair_reports_unsolvable(self):
+        code, out, _err = run_cli("solve", "#888888", "#777777", "--size", "16", "--weight", "400",
+                                  "--json")
+        self.assertEqual(code, 1)
+        payload = json.loads(out)
+        self.assertEqual(payload["verdict"], "UNSOLVABLE")
+        self.assertLess(payload["max_reachable_lc"], payload["required_lc"])
+
+
+class TestStoryCards(unittest.TestCase):
+    CARDS = SCRIPT.parent.parent / "assets" / "story-cards"
+
+    def run_story(self, name):
+        return run_cli("story", "--card", str(self.CARDS / (name + ".json")),
+                       "--tokens", str(self.CARDS / (name + ".tokens.json")), "--json")
+
+    def test_night_lamp_card_passes(self):
+        code, out, _err = self.run_story("夜灯")
+        self.assertEqual(code, 0)
+        payload = json.loads(out)
+        self.assertEqual(payload["name"], "夜灯")
+        self.assertEqual(payload["failed"], 0)
+        checks = {c["check"] for c in payload["checks"]}
+        self.assertIn("底色明度区间", checks)
+        self.assertIn("正文档 APCA", checks)
+        self.assertIn("语义色色觉最小间隔", checks)
+
+    def test_morning_light_card_passes(self):
+        code, out, _err = self.run_story("晨光")
+        self.assertEqual(code, 0)
+        self.assertEqual(json.loads(out)["failed"], 0)
+
+    def test_story_reports_the_check_that_breaks(self):
+        card = {"name": "错卡", "story": "越界",
+                "targets": {"bg_L": [0.90, 0.99], "chroma_cap": {"bg": 0.02}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "card.json"
+            path.write_text(json.dumps(card, ensure_ascii=False), encoding="utf-8")
+            code, out, _err = run_cli("story", "--card", str(path),
+                                      "--tokens", str(self.CARDS / "夜灯.tokens.json"), "--json")
+        self.assertEqual(code, 1)
+        payload = json.loads(out)
+        failed = {c["check"] for c in payload["checks"] if not c["pass"]}
+        self.assertIn("底色明度区间", failed)
+
+    def test_missing_card_is_input_error(self):
+        code, _out, err = run_cli("story", "--card", "no-such-card.json",
+                                  "--tokens", str(self.CARDS / "夜灯.tokens.json"))
+        self.assertEqual(code, 2)
+        self.assertIn("找不到", err)
+
+
+class TestExport(unittest.TestCase):
+    def test_export_writes_three_formats(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            code, out, _err = run_cli(
+                "export", "--tokens", str(SCRIPT.parent.parent / "assets" / "story-cards" / "夜灯.tokens.json"),
+                "--name", "夜灯", "--story", "夜里的一盏灯", "--mode", "dark",
+                "--slug", "night-lamp", "--out", tmp, "--json")
+            self.assertEqual(code, 0)
+            payload = json.loads(out)
+            files = [Path(p) for p in payload["files"]]
+            self.assertEqual(len(files), 3)
+            data = json.loads((Path(tmp) / "night-lamp.json").read_text(encoding="utf-8"))
+            self.assertEqual(data["name"], "夜灯")
+            self.assertEqual(data["story"], "夜里的一盏灯")
+            self.assertEqual(len(data["tokens"]), 14)
+            css = (Path(tmp) / "night-lamp.css").read_text(encoding="utf-8")
+            self.assertIn(':root[data-theme="夜灯"]', css)
+            self.assertIn("--textMuted:", css)
+            tw = (Path(tmp) / "night-lamp.tailwind.css").read_text(encoding="utf-8")
+            self.assertIn("--color-text-muted:", tw)
+
+    def test_export_requires_bg_and_text(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "tokens.json"
+            path.write_text(json.dumps({"surface": {"bg": "#16120e"}}), encoding="utf-8")
+            code, _out, err = run_cli("export", "--tokens", str(path), "--out", tmp)
+        self.assertEqual(code, 2)
+        self.assertIn("bg 与 text", err)
+
+
+class TestPreviewFooter(unittest.TestCase):
+    def test_footer_points_to_real_subcommand(self):
+        html = (SCRIPT.parent.parent / "assets" / "scene-preview.html").read_text(encoding="utf-8")
+        self.assertNotIn("apca_required_lc", html, "页脚又写回了函数名")
+        self.assertIn("shese.py contrast", html)
+        self.assertIn("不给判定结论", html)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

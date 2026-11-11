@@ -1,0 +1,27 @@
+{
+  "name": "晨光",
+  "story": "早晨的光落在纸上，人刚醒，页面要有推动力，但不能刺眼。",
+  "scene": {
+    "use": "晨间阅读",
+    "ambient": "bright",
+    "duration_min": 30,
+    "size": 16,
+    "weight": 400
+  },
+  "targets": {
+    "bg_L": [0.93, 0.98],
+    "text_contrast_max": 17.0,
+    "chroma_cap": {
+      "bg": 0.03,
+      "surface": 0.03,
+      "text": 0.02,
+      "textMuted": 0.03,
+      "accent": 0.22
+    },
+    "hue_scope": ["bg", "surface", "elevated", "card", "border", "text", "accent", "brand"],
+    "hue_window": [[20, 70]],
+    "max_hues": 2,
+    "cvd_min": 0.10
+  },
+  "nots": ["纯白正文", "纯黑正文", "冷蓝主色", "高彩度大面积"]
+}

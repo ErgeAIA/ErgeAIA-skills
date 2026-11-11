@@ -2,7 +2,7 @@
 
 > 设色者，布色于位，明其阶次。先定其所用，再正其所失。
 
-**v1.1.2** · Agent Skill ｜ 配色审查、优化与生成
+**v1.2.0** · Agent Skill ｜ 配色审查、优化、生成与命名
 
 在用户声明的阅读场景下，让一套配色读得舒服，同时不丢失它原本要表达的情绪——并且让不懂色彩学与设计的人也能拿到结论、看见这套色在真实界面里的样子。
 
@@ -62,7 +62,7 @@ python scripts/shese.py preview \
 
 ## 怎么用（场景 × 示例提示词）
 
-三条轨道共用同一条判定链。下表每行都是你会对设色说的话：
+四条轨道共用同一条判定链。下表每行都是你会对设色说的话：
 
 | 能力 / 场景 | 一句话方法 | 示例用法提示词 |
 | --- | --- | --- |
@@ -73,6 +73,9 @@ python scripts/shese.py preview \
 | 按参考主题适配 | 给主题编号或主题名 | `按 #048 kanagawa/wave 的色板，做一版网页长文阅读用的。` |
 | 只要看到效果 | 明说做预览页 | `把这几个颜色做成预览页，我要直接看效果。` |
 | 深档完整报告 | 明说要完整报告 | `出一份完整报告：这套色在移动端卡片流上有什么问题。` |
+| **命名：一套色一个名字** | 给 2–4 字名称 + 一句话故事，故事要能落到数 | `做一套叫「夜灯」的深色主题：晚上在安静房间读书，不刺眼，没有跳脱的颜色。` |
+| 命名：亮色故事 | 说清身体感受与场景，不堆形容词 | `做一套「晨光」：早晨的光，新的一天，要有醒来的感觉，但别刺眼。` |
+| 判一套色还说不说得回名字 | 先按故事卡对账，再判可读性 | `这套色能叫「夜灯」吗？不行的话告诉我差在哪几个数。` |
 | 深浅都要 | 明说深浅对照 | `深色优先，同时给我浅色对照。` |
 | 换字号 / 换场景再判 | 给新的阅读条件 | `同一套色，按 12px 细体正文重判一次。` |
 | 边界：数据可视化色阶 | 热力图、地图、多类别图表配色不归设色 | `给热力图配色。`（设色不做，需另立判据） |
@@ -85,6 +88,7 @@ python scripts/shese.py preview \
 
 - **审查轨**：用户给既有配色（十六进制列表或语义 token）+ 场景 → 判定 + 最小改动优化。
 - **生成轨**：用户给一句风格意图、症状词或参考锚点 → 2–3 套**结构不同**的候选（不是只换色相）→ 走同一条判定链逐套验一遍。
+- **命名轨**：用户先给名称与故事（如「夜灯」「晨光」）→ 先把故事落成故事卡（底色明度区间、彩度上限、色相窗、色相数、对比上限）→ 再走生成轨 → 每套用 `story` 回读。名称只是入口，判据仍是机制；名字贴不贴切由人判断。
 
 判定分三级标注：**硬底线**（违反即不通过，只覆盖直接破坏阅读或造成误读的部分）／**参考锚点**（通用默认起点，可浮动，浮动须给理由）／**目标推导**（由阅读目标直接算出，不同目标必然得出不同结论）。
 
@@ -100,6 +104,9 @@ python scripts/shese.py preview \
 | `matrix` | 文字 token × 承载面矩阵，标出最差面 | `--tokens` 里 text 条目可写 `{"hex","role","size","weight"}` 逐 token 定要求 |
 | `delta` | 相邻层级的 ΔE-OK，专判层级明度差 | `--min-delta`（默认 0.10） |
 | `cvd` | 三类色觉模拟 + ΔE-OK 可辨性 | `--min-delta`（默认 0.10） |
+| `solve` | 保色相求最小改动：在 L 轴二分到刚达标 | `--size` + `--weight`（必给）或 `--role`；输出原值 / 新值 / ΔL / ΔE / 色相漂移 / 彩度收缩 / 端点风险 |
+| `story` | 按故事卡逐项验收一套 token | `--card` 故事卡 JSON、`--tokens` token JSON；逐项给实测与目标，全过 exit 0 |
+| `export` | 命名主题导出 | `--tokens`、`--name`、`--story`、`--out`、`--slug`、`--formats json,css,tailwind` |
 | `preview` | 把 token 注入模板生成填色副本 | `--tokens name=HEX`、`--out`、`--mode dark\|light` |
 | `selftest` | 官方测试向量锚定自检 | 改脚本后必跑 |
 
@@ -110,9 +117,10 @@ python scripts/shese.py preview \
 | 档位 | 产物 | 用途 |
 | --- | --- | --- |
 | 快档（默认） | 结论 + 决策摘要 + 场景预览页 + token JSON | 直接看效果、直接改主题文件 |
+| 命名轨 | 名称 + 故事 + 故事卡 + 三格式导出（JSON / CSS vars / Tailwind `@theme`） | 一套色有名字、有说法，也能直接接进构建 |
 | 深档 | 完整报告（补全十二项判定实测、色觉模拟校验、人眼验收、不确定项） | 需要交代依据、评审或归档时 |
 
-场景预览页是色值的填色副本：色板 + 三级文字层级 + 深浅双模式 + 三档字号 + 三色觉模拟（protan / deutan / tritan）+ 对比矩阵并标出最差格。页面外壳用 ThemeVault 的 #001（暗）/ #002（亮）品牌主题，**被审的只有你注入的那套 token**。
+场景预览页是色值的填色副本：色板 + 三级文字层级 + 深浅双模式 + 三档字号 + 三色觉模拟（protan / deutan / tritan）+ 角色说明表。页面只呈现色值在界面里的样子，**不给判定结论**（判定在决策摘要与矩阵里），页脚写明这一点。页面外壳用 ThemeVault 的 #001（暗）/ #002（亮）品牌主题，**被审的只有你注入的那套 token**。
 
 ## 设计依据
 
@@ -129,10 +137,11 @@ shese/
 ├── SKILL.md              执行规则、判定表、输出契约（AI 读）
 ├── README.md             本文件（人读）
 ├── CHANGELOG.md          版本历史
-├── references/           mechanisms / scenes / thresholds / generate / audit-report / theme-source / troubleshooting / tool-usage
+├── references/           mechanisms / scenes / thresholds / generate / story / audit-report / theme-source / troubleshooting / tool-usage
 ├── scripts/shese.py      计算层（零依赖）
 ├── scripts/test_shese.py 单元测试
 ├── assets/scene-preview.html  场景预览页模板
+├── assets/story-cards/   夜灯 / 晨光的示例故事卡与 token
 └── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
 
@@ -145,7 +154,7 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 74 tests ... OK`；selftest 27 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.14.7 实测：`Ran 87 tests ... OK`（新增 13 项覆盖端点守卫、`solve`、`story`、`export`）；selftest 27 项全 PASS、退出码 0。
 
 ## 边界
 
@@ -156,4 +165,4 @@ python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量
 
 ## 版本
 
-v1.1.2。详见 [CHANGELOG.md](CHANGELOG.md)。
+v1.2.0。详见 [CHANGELOG.md](CHANGELOG.md)。

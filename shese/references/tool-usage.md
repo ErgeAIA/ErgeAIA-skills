@@ -35,6 +35,9 @@ SKILL.md 的「工具」表只给用途；本文件给参数、字段与配方�
 | `cvd` | `cvd HEX... [--min-delta 0.10] [--json]` | 三类模拟（protan / deutan / tritan）+ ΔE-OK；只管色觉塌陷，不判对比 |
 | `mix` | `mix FIRST PCT SECOND [--space oklab｜srgb] [--json]` | `FIRST` 占 PCT%（0 < PCT < 100，开区间）；一端可写 `transparent` = 该色带 alpha；默认 oklab，srgb 只用于复算既有值 |
 | `preview` | `preview --tokens name=HEX ... --out FILE [--template FILE] [--mode dark｜light] [--json]` | `--tokens` 可重复；`--mode` 只改页面 `data-mode` 标签；bg 与 mode 极性不符时 stderr 提醒、退出码不变 |
+| `solve` | `solve TEXT BG [--size N --weight W] [--role …] [--json]` | 保 h 沿 L 二分到刚达标；只给端点色可达时 `ENDPOINT_ONLY` + exit 1；`max_reachable_lc` 给出该面物理上限 |
+| `story` | `story --card CARD.json --tokens TOKENS.json [--json]` | 卡内 `targets` 认 bg_L / text_contrast_max / chroma_cap / hue_scope / hue_window / max_hues / cvd_min；未知键忽略 |
+| `export` | `export --tokens TOKENS.json --name 名称 [--story 文案] [--mode dark｜light] [--slug 文件名] --out DIR [--formats json,css,tailwind] [--json]` | 至少要有 bg 与 text；`--slug` 默认 `theme`；CSS 用 `:root[data-theme="名称"]`，Tailwind 用 `@theme --color-*` |
 | `selftest` | `selftest [--json]` | 官方锚定向量；改脚本必跑 |
 
 ## 三、matrix spec 完整形状
@@ -68,6 +71,9 @@ SKILL.md 的「工具」表只给用途；本文件给参数、字段与配方�
 | 多层浮层链 | `composite "#ff7a3d33" "#00000026" --on "#161b22"`（自顶向下，最底层给 `--on`） |
 | 整套矩阵 | 写 spec.json 后 `matrix --tokens spec.json --json`，逐 token 读最差面 |
 | 派生 hover / 淡底 | `mix "#7a5cff" 14 "#1c2128" --space oklab`（禁 srgb 派生） |
+| 只动明度到达标 | `solve "#f2570f" "#16120e" --size 16 --weight 400 --json`，读 `new_text` / `delta_l` / `hue_drift` / `chroma_clipped_to` |
+| 命名主题验收 | `story --card "assets/story-cards/夜灯.json" --tokens "assets/story-cards/夜灯.tokens.json"` |
+| 命名主题交付 | `export --tokens spec.json --name 夜灯 --story "夜里的一盏灯" --mode dark --slug night-lamp --out dist` |
 
 ## 六、退出码与禁止
 

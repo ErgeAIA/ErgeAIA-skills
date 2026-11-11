@@ -1,0 +1,29 @@
+{
+  "name": "夜灯",
+  "story": "夜里房间只留一盏灯，光圈落在书页上，读一小时眼睛不发紧。",
+  "scene": {
+    "use": "夜读",
+    "ambient": "dim",
+    "duration_min": 60,
+    "size": 16,
+    "weight": 400
+  },
+  "targets": {
+    "bg_L": [0.14, 0.22],
+    "text_contrast_max": 15.0,
+    "chroma_cap": {
+      "bg": 0.02,
+      "surface": 0.03,
+      "elevated": 0.03,
+      "card": 0.03,
+      "text": 0.03,
+      "textMuted": 0.05,
+      "textDim": 0.05
+    },
+    "hue_scope": ["bg", "surface", "elevated", "card", "border", "text", "textMuted", "textDim", "accent", "brand"],
+    "hue_window": [[30, 90]],
+    "max_hues": 2,
+    "cvd_min": 0.10
+  },
+  "nots": ["纯黑大底", "纯白正文", "蓝紫小字", "高彩度大面积", "多点睛色"]
+}

@@ -1,0 +1,23 @@
+{
+  "role": "body",
+  "size": 16,
+  "weight": 400,
+  "surface": {
+    "bg": "#FAF1E9",
+    "surface": "#FFF8F1",
+    "elevated": "#FFFCF7",
+    "card": "#FFFDF9",
+    "border": "#E4D6C8"
+  },
+  "text": {
+    "text": "#171614",
+    "textMuted": {"hex": "#5A544D", "role": "aux"},
+    "textDim": {"hex": "#857E75", "role": "hint"},
+    "accent": "#FF6A2B",
+    "brand": "#FF6A2B",
+    "success": "#49814C",
+    "warning": "#704E02",
+    "danger": "#652118",
+    "info": "#23588A"
+  }
+}

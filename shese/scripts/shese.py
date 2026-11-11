@@ -23,6 +23,12 @@
              A 占 PCT%（0<PCT<100），B 占其余；一端可写 transparent（= 该色带 alpha）
   preview    --tokens name=HEX ... [--template PATH] --out PATH [--mode dark|light]
              （注入的 bg 与 data-mode 极性不符时 stderr 提醒，不影响退出码）
+  solve      TEXT BG [--size N] [--weight W] [--role R]
+             保色相求最小改动：在 L 轴上二分到刚达标，端点解判失败
+  story      --card CARD.json --tokens TOKENS.json
+             按故事卡逐项验收：明度区间 / 彩度上限 / 色相窗 / 色相数 / 对比上限 / 色觉
+  export     --tokens TOKENS.json --name 名称 [--story 一句话] --out DIR [--slug S]
+             命名主题导出 JSON / CSS vars / Tailwind @theme
   selftest
 
 alpha 一律按浏览器口径在 sRGB 空间沿叠加链合成后判定；未给不透明基准面即报错。
@@ -623,8 +629,27 @@ def cmd_matrix(args):
         labelled.append((name if seen[name] == 1 else "%s#%d" % (name, seen[name]),) + item[1:])
     surfaces = labelled
 
+    guards = []
+    bg_surface = next((s for s in surfaces if s[0] == "bg" and s[2] >= 1.0), None)
+    if bg_surface is not None:
+        bg_hex = fmt_hex(bg_surface[1])
+        dark = polarity_of(bg_surface[1]) == "dark"
+        if bg_hex == "#000000":
+            guards.append({"rule": "深色模式不用纯黑作大面积底色", "token": "bg",
+                           "value": bg_hex, "pass": False})
+        for item in texts:
+            if item["alpha"] < 1.0:
+                continue
+            hexv = fmt_hex(item["rgb"])
+            if dark and hexv == "#ffffff":
+                guards.append({"rule": "深色模式不用纯白作正文", "token": item["name"],
+                               "value": hexv, "pass": False})
+            elif (not dark) and hexv == "#000000":
+                guards.append({"rule": "浅色模式不用纯黑作正文", "token": item["name"],
+                               "value": hexv, "pass": False})
+
     payload = {"role": role, "size": size, "weight": weight,
-               "texts": [], "cells": [], "failed": []}
+               "texts": [], "cells": [], "failed": [], "guards": guards}
     lines = ["文字 × 承载面矩阵（要求按每个文字 token 自己的角色 / 字号 / 字重推出）",
              "%-10s %-10s %-9s %-10s %-8s %-7s %-7s %s" % (
                  "文字token", "承载面", "WCAG", "APCA", "合成实色", "要求", "最差", "判定")]
@@ -671,8 +696,12 @@ def cmd_matrix(args):
                                 ", ".join("%s@%s(Lc %s，要求 %s)" % (
                                     f["text"], f["worst_surface"], lc_text(f["apca_lc"]),
                                     _req_text(f["required_lc"])) for f in failed))))
+    if guards:
+        lines.append("硬底线守卫（命中即失败，与数值是否达标无关）：")
+        for guard in guards:
+            lines.append("  · %s：%s %s" % (guard["rule"], guard["token"], guard["value"]))
     emit(args, payload, lines)
-    return 1 if failed else 0
+    return 1 if (failed or guards) else 0
 
 
 def cmd_cvd(args):
@@ -755,6 +784,276 @@ def cmd_mix(args):
                "result": value, "rgb": rgb, "alpha": round(alpha, 4)}
     emit(args, payload, ["%s @ %s%% + %s  (%s) -> %s" % (args.first, args.weight, args.second,
                                                           args.space, value)])
+    return 0
+
+
+# ---------------------------------------------------------------- 命名主题：solve / story / export
+def _tokens_from_spec(spec):
+    """把 matrix 形状的 spec 摊平成 token -> hex；text 条目可为字符串或 {hex, ...}。"""
+    out = {}
+    for section in ("surface", "text"):
+        for name, value in (spec.get(section) or {}).items():
+            hexv = value.get("hex") if isinstance(value, dict) else value
+            if not hexv:
+                raise InputError("%s 条目 %s 缺少 hex" % (section, name))
+            rgb, _alpha = parse_color(hexv)
+            out[normalize_token(name)] = fmt_hex(rgb) if _alpha >= 1.0 else \
+                fmt_hex(rgb) + "%02x" % int(round(_alpha * 255))
+    return out
+
+
+def _hex_at(L, C, h):
+    """取 OKLCH 的 hex；极端明度（纯黑/纯白附近）任何彩度都出域时退为中性色。"""
+    try:
+        return oklch_to_hex(L, C, h)
+    except InputError:
+        pass
+    try:
+        return oklch_to_hex(L, 0.0, h)
+    except InputError:
+        return ("#ffffff" if L >= 0.5 else "#000000"), 0.0
+
+
+def cmd_solve(args):
+    trgb, ta = parse_color(args.text)
+    brgb, ba = parse_color(args.bg)
+    if ba < 1.0:
+        raise InputError("背景必须是不透明实色")
+    if ta < 1.0:
+        trgb = alpha_blend(trgb, ta, brgb)
+    L, C, h = hex_to_oklch(trgb)
+    bg_l = hex_to_oklch(brgb)[0]
+    if args.size and args.weight:
+        required, how = apca_required_lc(args.size, args.weight)
+        tier = "目标推导（官方字号-字重矩阵）"
+    else:
+        required, how = ROLE_FLOOR[args.role], "参考锚点（角色默认下限）"
+        tier = "参考锚点"
+    if required is None:
+        raise InputError("该字号 / 字重没有官方档位，无法求解")
+    now = apca_calc(trgb, 1.0, brgb)
+    rows = ["求解：文字 %s 承载面 %s" % (fmt_hex(trgb), fmt_hex(brgb)),
+            "当前 APCA Lc %s  要求 |Lc| >= %.2f（%s）" % (lc_text(now), required, tier)]
+
+    if abs(now) >= required:
+        payload = {"text": fmt_hex(trgb), "bg": fmt_hex(brgb), "required_lc": required,
+                   "current_lc": round(now, 2), "verdict": "PASS", "tier": tier}
+        rows.append("结论：已达标，余量 %.2f Lc；无需改色" % (abs(now) - required))
+        emit(args, payload, rows)
+        return 0
+
+    brighten = (L > bg_l) if abs(L - bg_l) > 1e-9 else (bg_l < 0.5)
+    end_l = 1.0 if brighten else 0.0
+    end_hex, end_clip = _hex_at(end_l, C, h)
+    end_lc = apca_calc(parse_color(end_hex)[0], 1.0, brgb)
+    if abs(end_lc) < required:
+        payload = {"text": fmt_hex(trgb), "bg": fmt_hex(brgb), "required_lc": required,
+                   "current_lc": round(now, 2), "max_reachable_lc": round(end_lc, 2),
+                   "verdict": "UNSOLVABLE", "tier": tier}
+        rows += ["该方向上可达上限 %s（端点 %s），仍低于要求 %.2f" % (
+            lc_text(end_lc), end_hex, required),
+            "结论：该承载面上无解 —— 问题在字号、字重或承载面，不在色彩；"
+            "先提字号 / 加字重，或换更深的承载面"]
+        emit(args, payload, rows)
+        return 1
+
+    lo, hi = 0.0, 1.0
+    for _ in range(40):
+        mid = (lo + hi) / 2.0
+        mid_hex, _clip = _hex_at(L + (end_l - L) * mid, C, h)
+        if abs(apca_calc(parse_color(mid_hex)[0], 1.0, brgb)) >= required:
+            hi = mid
+        else:
+            lo = mid
+    new_l = L + (end_l - L) * hi
+    new_hex, clip = _hex_at(new_l, C, h)
+    new_rgb, _a = parse_color(new_hex)
+    new_lc = apca_calc(new_rgb, 1.0, brgb)
+    new_oklch = hex_to_oklch(new_rgb)
+    endpoint = new_hex in ("#ffffff", "#000000")
+    verdict = "ENDPOINT_ONLY" if endpoint else "SOLVED"
+    payload = {"text": fmt_hex(trgb), "bg": fmt_hex(brgb), "required_lc": required,
+               "current_lc": round(now, 2), "new_text": new_hex,
+               "new_lc": round(new_lc, 2), "delta_l": round(new_l - L, 4),
+               "new_oklch": [round(v, 4) for v in new_oklch],
+               "hue_drift": round((new_oklch[2] - h + 180) % 360 - 180, 3),
+               "delta_e": round(delta_e_ok(trgb, new_rgb), 4),
+               "chroma_clipped_to": round(clip, 4), "endpoint": endpoint,
+               "verdict": verdict, "tier": tier}
+    rows += ["新值 %s  L %+.4f  |Lc| %s（要求 %.2f）  ΔE-OK %.4f" % (
+        new_hex, new_l - L, lc_text(new_lc), required, delta_e_ok(trgb, new_rgb)),
+        "色相 h %.2f → %.2f（漂移 %.2f°，8 位量化与色域收缩所致）；彩度 %s" % (
+            h, new_oklch[2], (new_oklch[2] - h + 180) % 360 - 180,
+            "未变" if abs(clip - C) < 1e-9 else "由 %.4f 收缩到 %.4f（超 sRGB）" % (C, clip))]
+    if endpoint:
+        rows.append("结论：只有端点色可解（%s），违反深浅模式基础色硬底线；"
+                    "应改字号 / 字重或承载面，不交付该值" % new_hex)
+        emit(args, payload, rows)
+        return 1
+    rows.append("结论：最小改动可达标；若仍嫌改动大，优先提字号或字重")
+    emit(args, payload, rows)
+    return 0
+
+
+def _hue_in(h, windows):
+    for pair in windows:
+        lo, hi = pair[0], pair[1]
+        if lo <= hi:
+            if lo <= h <= hi:
+                return True
+        elif h >= lo or h <= hi:
+            return True
+    return False
+
+
+def _hue_clusters(hues, step=30.0):
+    """把色相按 30° 分箱，数环形上连续的分箱数（基本色相数）。"""
+    total = int(round(360.0 / step))
+    bins = sorted({int(h // step) % total for h in hues})
+    if not bins:
+        return 0
+    groups = 1
+    for left, right in zip(bins, bins[1:]):
+        if right - left > 1:
+            groups += 1
+    if len(bins) > 1 and bins[0] == 0 and bins[-1] == total - 1:
+        groups -= 1
+    return groups
+
+
+def cmd_story(args):
+    for path in (args.card, args.tokens):
+        if not Path(path).is_file():
+            raise InputError("找不到文件：" + str(path))
+    card = json.loads(Path(args.card).read_text(encoding="utf-8"))
+    spec = json.loads(Path(args.tokens).read_text(encoding="utf-8"))
+    tokens = _tokens_from_spec(spec)
+    targets = card.get("targets") or {}
+    checks = []
+
+    def add(key, target, measured, passed, note=""):
+        checks.append({"check": key, "target": target, "measured": measured,
+                       "pass": bool(passed), "note": note})
+
+    if "bg_L" in targets and "bg" in tokens:
+        lo, hi = targets["bg_L"]
+        bg_l = hex_to_oklch(parse_color(tokens["bg"])[0])[0]
+        add("底色明度区间", [lo, hi], round(bg_l, 4), lo <= bg_l <= hi,
+            "故事卡声明的底色明度骨架")
+    if "text_contrast_max" in targets and "bg" in tokens and "text" in tokens:
+        ratio = contrast_ratio(parse_color(tokens["text"])[0], parse_color(tokens["bg"])[0])
+        add("正文档对比上限", targets["text_contrast_max"], round(ratio, 2),
+            ratio <= targets["text_contrast_max"], "经验软上限，非合规线")
+    scene = card.get("scene") or {}
+    if scene.get("size") and scene.get("weight") and "bg" in tokens and "text" in tokens:
+        required, how = apca_required_lc(scene["size"], scene["weight"])
+        lc = apca_calc(parse_color(tokens["text"])[0], 1.0, parse_color(tokens["bg"])[0])
+        add("正文档 APCA", required, round(abs(lc), 2),
+            required is not None and abs(lc) >= required, how)
+    for role, cap in (targets.get("chroma_cap") or {}).items():
+        if role in tokens:
+            chroma = hex_to_oklch(parse_color(tokens[role])[0])[1]
+            add("彩度上限 · " + role, cap, round(chroma, 4), chroma <= cap,
+                "面积越大可承受彩度越低")
+    windows = targets.get("hue_window")
+    scoped = targets.get("hue_scope") or list(tokens)
+    if windows:
+        floor = float(targets.get("hue_min_chroma", 0.02))
+        outside = []
+        for name in scoped:
+            if name not in tokens:
+                continue
+            value = tokens[name]
+            _L, C, h = hex_to_oklch(parse_color(value)[0])
+            if C >= floor and not _hue_in(h, windows):
+                outside.append("%s(h %.1f)" % (name, h))
+        add("色相窗", windows, outside or "全部在窗内", not outside,
+            "彩度低于 %.2f 的中性色不参与色相判定" % floor)
+    if "max_hues" in targets:
+        floor = float(targets.get("hue_min_chroma", 0.03))
+        hues = [hex_to_oklch(parse_color(tokens[n])[0])[2] for n in scoped if n in tokens
+                and hex_to_oklch(parse_color(tokens[n])[0])[1] >= floor]
+        count = _hue_clusters(hues)
+        add("基本色相数", targets["max_hues"], count, count <= targets["max_hues"],
+            "30° 分箱后环形连续段数；只数 hue_scope 内的 token")
+    sem = [name for name in ("success", "warning", "danger", "info") if name in tokens]
+    if "cvd_min" in targets and len(sem) >= 2:
+        worst, worst_pair = 1.0, ""
+        for i in range(len(sem)):
+            for j in range(i + 1, len(sem)):
+                a, b = sem[i], sem[j]
+                for kind in ("protan", "deutan", "tritan"):
+                    sa = parse_color(fmt_hex(simulate_cvd(parse_color(tokens[a])[0], kind)))[0]
+                    sb = parse_color(fmt_hex(simulate_cvd(parse_color(tokens[b])[0], kind)))[0]
+                    de = delta_e_ok(sa, sb)
+                    if de < worst:
+                        worst, worst_pair = de, "%s×%s@%s" % (a, b, kind)
+        add("语义色色觉最小间隔", targets["cvd_min"], round(worst, 4),
+            worst >= targets["cvd_min"], "最弱对 " + worst_pair)
+
+    failed = [c for c in checks if not c["pass"]]
+    payload = {"name": card.get("name"), "story": card.get("story"),
+               "scene": card.get("scene"), "checks": checks,
+               "failed": len(failed), "verdict": "PASS" if not failed else "FAIL"}
+    lines = ["故事卡验收：%s" % (card.get("name") or "(未命名)")]
+    if card.get("story"):
+        lines.append("  故事：%s" % card["story"])
+    if card.get("scene"):
+        lines.append("  场景：%s" % json.dumps(card["scene"], ensure_ascii=False))
+    for c in checks:
+        lines.append("  [%s] %-22s 目标 %s，实测 %s%s" % (
+            "PASS" if c["pass"] else "FAIL", c["check"], c["target"], c["measured"],
+            ("（%s）" % c["note"]) if c["note"] else ""))
+    lines.append("结论：%s" % ("故事卡声明的数值目标全部满足" if not failed else
+                            "%d / %d 项不满足，按差额调骨架参数或改承载面" % (
+                                len(failed), len(checks))))
+    lines.append("注：名称与故事本身是否贴切属人工判断，本命令只验数值目标")
+    emit(args, payload, lines)
+    return 1 if failed else 0
+
+
+def _kebab(name):
+    out = "".join(("-" + c.lower()) if c.isupper() else c for c in name)
+    return out.strip("-")
+
+
+def cmd_export(args):
+    if not Path(args.tokens).is_file():
+        raise InputError("找不到 tokens 文件：" + str(args.tokens))
+    spec = json.loads(Path(args.tokens).read_text(encoding="utf-8"))
+    tokens = _tokens_from_spec(spec)
+    if "bg" not in tokens or "text" not in tokens:
+        raise InputError("导出至少需要 bg 与 text 两个 token")
+    name = args.name or "theme"
+    slug = args.slug or "theme"
+    out_dir = Path(args.out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    formats = [f.strip() for f in (args.formats or "json,css,tailwind").split(",") if f.strip()]
+    written = []
+    if "json" in formats:
+        path = out_dir / (slug + ".json")
+        data = {"name": name, "story": args.story, "mode": args.mode, "tokens": tokens,
+                "meta": {"generator": "shese", "source": str(Path(args.tokens))}}
+        path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        written.append(str(path))
+    if "css" in formats:
+        path = out_dir / (slug + ".css")
+        body = [':root[data-theme="%s"] {' % name]
+        body += ["  --%s: %s;" % (k, tokens[k]) for k in TOKEN_NAMES if k in tokens]
+        body += ["}", ""]
+        path.write_text("\n".join(body), encoding="utf-8")
+        written.append(str(path))
+    if "tailwind" in formats:
+        path = out_dir / (slug + ".tailwind.css")
+        body = ["@theme {"]
+        body += ["  --color-%s: %s;" % (_kebab(k), tokens[k]) for k in TOKEN_NAMES if k in tokens]
+        body += ["}", ""]
+        path.write_text("\n".join(body), encoding="utf-8")
+        written.append(str(path))
+    payload = {"name": name, "story": args.story, "mode": args.mode,
+               "tokens": tokens, "files": written}
+    emit(args, payload, ["已导出：%s（%d 个 token）" % (name, len(tokens))]
+         + ["  %s" % p for p in written])
     return 0
 
 
@@ -957,6 +1256,32 @@ def build_parser():
     p.add_argument("--mode", choices=("dark", "light"))
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_preview)
+
+    p = sub.add_parser("solve", help="保色相求最小改动，二分 L 到刚达标")
+    p.add_argument("text")
+    p.add_argument("bg")
+    p.add_argument("--size", type=float)
+    p.add_argument("--weight", type=int)
+    p.add_argument("--role", choices=sorted(ROLE_FLOOR), default="body")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_solve)
+
+    p = sub.add_parser("story", help="按故事卡验收一套 token")
+    p.add_argument("--card", required=True, help="故事卡 JSON")
+    p.add_argument("--tokens", required=True, help="tokens.json（matrix 同形状）")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_story)
+
+    p = sub.add_parser("export", help="命名主题导出 JSON / CSS / Tailwind")
+    p.add_argument("--tokens", required=True)
+    p.add_argument("--name", help="主题名称，如 夜灯")
+    p.add_argument("--story", help="一句话故事")
+    p.add_argument("--mode", choices=("dark", "light"))
+    p.add_argument("--slug", default="theme", help="输出文件名（不含扩展名）")
+    p.add_argument("--out", required=True, help="输出目录")
+    p.add_argument("--formats", default="json,css,tailwind", help="json,css,tailwind 逗号分隔")
+    p.add_argument("--json", action="store_true")
+    p.set_defaults(func=cmd_export)
 
     p = sub.add_parser("selftest", help="锚定自检")
     p.add_argument("--json", action="store_true")
