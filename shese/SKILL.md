@@ -3,7 +3,7 @@ name: shese
 description: "审查一套配色在指定阅读场景下的可读性，给出最小改动后的新色值与可直接看效果的场景预览、可导出的主题包；也能按一个名称与一段故事生成整套配色。Use when 用户要判断一套配色或主题读起来累不累，或说「读着累」「看着刺眼」「色阶塌了」，或要把主题改暗、改亮、补对比，或想按一个名字与一段故事做配色；英文问 palette、contrast、theme。"
 metadata:
   author: ErgeAIA
-  version: "1.2.0"
+  version: "1.2.1"
 ---
 
 # 设色 · Shese
