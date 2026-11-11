@@ -588,15 +588,25 @@ class TestSkillFacade(unittest.TestCase):
 
     def test_description_covers_fault_wording(self):
         desc = self.description()
-        for phrase in ("主题改暗", "主题改亮", "色阶塌了", "对比不够", "看着刺眼"):
+        for phrase in ("主题改暗", "主题改亮", "色阶塌了", "对比不够", "看着刺眼", "读着累"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, desc, "description 未覆盖故障式触发词：" + phrase)
 
     def test_description_covers_english_triggers(self):
         desc = self.description()
-        for word in ("palette", "contrast"):
+        for word in ("palette", "contrast", "theme", "dark mode"):
             with self.subTest(word=word):
                 self.assertIn(word, desc, "description 未覆盖英文触发词：" + word)
+
+    def test_description_covers_input_forms_and_naming(self):
+        desc = self.description()
+        for token in ("hex", "rgb()", "hsl()", "故事"):
+            with self.subTest(token=token):
+                self.assertIn(token, desc, "description 未覆盖输入写法或命名轨：" + token)
+
+    def test_description_is_not_oversized(self):
+        desc = self.description()
+        self.assertLessEqual(len(desc), 700, "description 过长，路由信号会被稀释：" + str(len(desc)))
 
     def test_description_declares_boundary(self):
         desc = self.description()
