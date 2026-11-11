@@ -137,7 +137,7 @@ shese/
 ├── SKILL.md              执行规则、判定表、输出契约（AI 读）
 ├── README.md             本文件（人读）
 ├── CHANGELOG.md          版本历史
-├── references/           mechanisms / scenes / thresholds / generate / story / audit-report / theme-source / troubleshooting / tool-usage
+├── references/           mechanisms / scenes / thresholds / generate / story / evidence / audit-report / theme-source / troubleshooting / tool-usage
 ├── scripts/shese.py      计算层（零依赖）
 ├── scripts/test_shese.py 单元测试
 ├── assets/scene-preview.html  场景预览页模板
@@ -154,7 +154,9 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.14.7 实测：`Ran 88 tests ... OK`（新增 14 项覆盖端点守卫、`solve`、`story`、`export`、预览页页脚）；selftest 27 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.13.16 实测：`Ran 89 tests ... OK`（新增 15 项覆盖端点守卫、`solve`、`story`、`export`、预览页页脚、`solve`/`story` 逐字节确定性）；selftest 27 项全 PASS、退出码 0。
+
+实现核验记在 `references/evidence.md`：字号-字重矩阵 250 格与官方 LUT 逐格相同、942 对不透明组合与官方 `apca-w3` 的 Lc 零差异、8 条官方测试向量全中、`solve`/`story` 同输入逐字节可复现。真实色板的召回与误报因没有人工标注集，未测也不给数字。
 
 ## 边界
 

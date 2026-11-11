@@ -754,6 +754,28 @@ class TestExport(unittest.TestCase):
         self.assertIn("bg 与 text", err)
 
 
+class TestDeterminism(unittest.TestCase):
+    """同输入连跑两次，stdout 必须逐字节相同（判定不能靠随机或字典序）。"""
+
+    def _run(self, *args):
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPT), *args],
+            capture_output=True, text=True, encoding="utf-8",
+        )
+        return proc.returncode, proc.stdout
+
+    def test_solve_and_story_are_byte_stable(self):
+        card = SCRIPT.parent.parent / "assets" / "story-cards" / "夜灯.json"
+        tokens = SCRIPT.parent.parent / "assets" / "story-cards" / "夜灯.tokens.json"
+        for args in (
+            ("solve", "#F2570F", "#16120E", "--size", "16", "--weight", "400", "--json"),
+            ("story", "--card", str(card), "--tokens", str(tokens), "--json"),
+        ):
+            first = self._run(*args)
+            second = self._run(*args)
+            self.assertEqual(first, second, "同输入两次输出不一致：" + args[0])
+
+
 class TestPreviewFooter(unittest.TestCase):
     def test_footer_points_to_real_subcommand(self):
         html = (SCRIPT.parent.parent / "assets" / "scene-preview.html").read_text(encoding="utf-8")

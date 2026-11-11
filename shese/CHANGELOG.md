@@ -18,18 +18,19 @@ shese 所有值得注意的变更都记录在此文件中。
 - `export`：命名主题导出 JSON / CSS vars / Tailwind `@theme`，名称与故事一并写入。
 - `matrix` 端点守卫：纯黑大底、深色纯白正文、浅色纯黑正文，命中即 exit 1；此前只在文字规则里、靠人眼。
 - `assets/story-cards/`：夜灯、晨光两张故事卡与对应 token 示例，可原样跑 `story`。
-- `test-prompts.json` 增 3 组命名轨用例（含「只给名字不给故事」的反向用例），合计 20 组；单测 88 项。
+- `test-prompts.json` 增 3 组命名轨用例（含「只给名字不给故事」的反向用例），合计 20 组；单测 89 项。
+- `references/evidence.md`：实现核验记录——字号-字重矩阵 250 格与官方 `fontMatrixAscend` 逐格相同、反查 183 格无过严、942 对不透明组合与官方 `apca-w3` 的 Lc 零差异、8 条官方测试向量与 1 条 alpha 向量命中、`solve`/`story`/`export` 确定性口径；并单列「真实色板召回与误报未测」。新增 `TestDeterminism` 把「同输入两次输出逐字节相同」变成机检。
 
 ### 变更
 
-- 故障处置十二类（高频五类 + 其余七类）统一收进 `references/troubleshooting.md`，SKILL.md 只留四类分诊；正文由 21037B 压回 20819B，重新守进 20849B 上限。
+- 故障处置十二类（高频五类 + 其余七类）统一收进 `references/troubleshooting.md`，SKILL.md 只留四类分诊；正文由 21037B 压回 20836B，重新守进 20849B 上限。
 - README 预览页描述改为实际能力：色板 + 三级文字 + 深浅双模式 + 三档字号 + 三色觉模拟 + 角色说明表，**不给判定结论**；命令速查补 `solve` / `story` / `export`，场景表补命名轨示例。
 - `references/tool-usage.md` 补三个子命令签名、故事卡字段与四条配方。
 
 ### 修复
 
 - 预览页页脚把 Python 函数名 `apca_required_lc` 当成 CLI 子命令，用户照做必报错；改为可执行的 `contrast "#TEXT" "#BG" --size N --weight W`，并加单测防止回退。
-- CHANGELOG 1.1.2 条目称「守在 20849B 内」，实测 21037B；本轮实测 20819B。
+- CHANGELOG 1.1.2 条目称「守在 20849B 内」，实测 21037B；本轮实测 20836B。
 
 ## [1.1.2] - 2026-10-22 · 门面触发与边界声明补全
 
