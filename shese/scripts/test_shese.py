@@ -575,7 +575,7 @@ class TestProgressiveDisclosure(unittest.TestCase):
 
 
 class TestSkillFacade(unittest.TestCase):
-    """门面 description：触发句要覆盖故障式表述与英文提问，并声明不适用范围。"""
+    """门面 description：两段式（做什么 + Use when 何时用）；边界归正文 Non-Goals，不进 description。"""
 
     ROOT = SCRIPT.parent.parent
     SKILL = ROOT / "SKILL.md"
@@ -586,34 +586,40 @@ class TestSkillFacade(unittest.TestCase):
                 return line
         self.fail("SKILL.md frontmatter 缺 description 行")
 
+    def test_description_is_what_plus_when(self):
+        desc = self.description()
+        self.assertIn("Use when", desc, "description 缺 Use when 触发段")
+        for banned in ("不适用于", "Not for", "Not For"):
+            with self.subTest(banned=banned):
+                self.assertNotIn(banned, desc, "边界写进了 description（应归正文 Non-Goals）：" + banned)
+
     def test_description_covers_fault_wording(self):
         desc = self.description()
-        for phrase in ("主题改暗", "主题改亮", "色阶塌了", "对比不够", "看着刺眼", "读着累"):
+        for phrase in ("读着累", "看着刺眼", "色阶塌了", "改暗", "改亮"):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, desc, "description 未覆盖故障式触发词：" + phrase)
 
     def test_description_covers_english_triggers(self):
         desc = self.description()
-        for word in ("palette", "contrast", "theme", "dark mode"):
+        for word in ("palette", "contrast", "theme"):
             with self.subTest(word=word):
                 self.assertIn(word, desc, "description 未覆盖英文触发词：" + word)
 
-    def test_description_covers_input_forms_and_naming(self):
+    def test_description_covers_naming_track(self):
         desc = self.description()
-        for token in ("hex", "rgb()", "hsl()", "故事"):
-            with self.subTest(token=token):
-                self.assertIn(token, desc, "description 未覆盖输入写法或命名轨：" + token)
+        self.assertIn("故事", desc, "description 未体现命名轨（名称与故事）")
 
     def test_description_is_not_oversized(self):
         desc = self.description()
-        self.assertLessEqual(len(desc), 700, "description 过长，路由信号会被稀释：" + str(len(desc)))
+        self.assertLessEqual(len(desc), 500, "description 常驻上下文，过长会稀释路由信号：" + str(len(desc)))
 
-    def test_description_declares_boundary(self):
-        desc = self.description()
-        self.assertIn("不适用于", desc, "description 未声明不适用范围（Non-Goals 门面化）")
-        for scope in ("数据可视化", "插画摄影印刷", "整套设计系统"):
+    def test_boundary_lives_in_body(self):
+        text = self.SKILL.read_text(encoding="utf-8")
+        self.assertIn("## Non-Goals", text, "正文缺 Non-Goals 节（边界的归宿）")
+        self.assertIn("Not for", text, "Non-Goals 节未以 Not for 表述不接范围")
+        for scope in ("数据可视化", "插画", "摄影", "印刷", "整套设计系统"):
             with self.subTest(scope=scope):
-                self.assertIn(scope, desc, "description 边界漏项：" + scope)
+                self.assertIn(scope, text, "正文边界漏项：" + scope)
 
 
 class TestFailureHandling(unittest.TestCase):

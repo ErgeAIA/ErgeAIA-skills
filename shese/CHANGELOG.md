@@ -11,7 +11,8 @@ shese 所有值得注意的变更都记录在此文件中。
 - 色值入参不再只收十六进制：`rgb()` / `rgba()` / `hsl()` / `hsla()` 均可直接传入（逗号或空格分隔、alpha 作第 4 参数或 `/` 后、通道可用百分比），所有收色值的子命令与 `--tokens name=…`、spec 的 `hex` 字段共用同一解析器。通道越界报 exit 2 而不按 CSS 静默夹取；命名色与 `lab()`、`oklch()` 等其它函数式写法仍拒收。
 - 边界表述收紧：明确「不生成无角色的 50–950 整条色阶」（有角色与承载面的阶梯用 `mix --space oklab` 逐档推、逐档判），明确「不在 Display P3 下判定」（先转 sRGB 再判并声明偏差），补在 `README.md` 与 `references/generate.md`；`references/tool-usage.md` 增入参写法表。
 - 单测 89 → 93 项：新增 rgb/hsl 与 hex 等价、alpha 三种写法一致、越界报错、未知函数拒收四类用例。
-- 门面 description 重写：从「审查并优化既有配色…」改为「配色审查与生成：给 hex / rgb() / hsl() 或语义 token 与阅读场景，判 APCA 可读性与色觉、给最小改动值，导预览页与主题包；也能按名称与故事生成配色」，补入参写法、APCA/色觉、`theme`/`dark mode` 英文触发与「读着累」症状词，同时压掉冗语（518B → 526B，靠删掉 SKILL 内重复的「hex 一律加引号」保持正文 20825B）；`TestSkillFacade` 增 3 项机检（输入写法与命名轨、英文触发词、description 长度上限），单测 93 → 95。
+- 门面 description 改为两段式（按 skill-workshop v2.8 现行规范）：`[审查一套配色在指定场景下的可读性，给出最小改动值与预览页、主题包；也能按名称与故事生成配色] + Use when [用户何时会想到它]`。边界句「不适用于物理可视化色阶…」按规范从 description 移除，改由正文 `## Non-Goals` 的 `Not for（何时不接）` 承载；description 补入真实用户话术（读着累、看着刺眼、色阶塌了、改暗、改亮）与英文触发（palette、contrast、theme），删掉实现细节（入参写法、子命令名）。同步清理 SKILL.md 三处重复指针与元叙述（机制点名句、命令旗标重复句、`references/` 罗列句），正文 20825B → 20617B。
+- `TestSkillFacade` 改为机检两段式门面：description 必须含 `Use when`、不得出现「不适用于 / Not for」、覆盖故障词与英文触发与命名轨、长度 ≤500 字符；另加一例机检边界确在正文 Non-Goals 节。单测 95 → 96。
 
 ## [1.2.0] - 2026-11-11 · 命名轨与可复算出口
 

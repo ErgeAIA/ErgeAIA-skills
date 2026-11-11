@@ -145,7 +145,7 @@ shese/
 └── test-prompts.json     验收用例（darwin 格式：顶层数组，每条 id / prompt / expected）
 ```
 
-**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。另有 `TestFailureHandling` 5 个用例机检失败模式：四类分诊齐全、故障表每行都写了能否交付、交付闸三闸位与静默失败六查编号齐全；`TestSkillFacade` 3 个用例机检门面 description 覆盖故障式触发词（主题改暗、主题改亮、色阶塌了、对比不够、看着刺眼）、英文触发词（palette、contrast）与不适用范围声明。
+**加载策略（渐进式披露）**：`SKILL.md` 全量进上下文，只放每次都要用的判断与执行规则；`references/` 各文件在文件头写 `trigger-when`，按需读，文件之间不重复同一段规则。`test_shese.py` 机检五件事（5 个用例）：SKILL.md 里提到的每个 references 路径真实存在、`references/` 下没有 SKILL.md 未登记的孤儿文件、references 之间的互相引用都能解析、每个 reference 文件头带 `trigger-when`、SKILL.md 写明加载策略与新文件指针。另有 `TestFailureHandling` 5 个用例机检失败模式：四类分诊齐全、故障表每行都写了能否交付、交付闸三闸位与静默失败六查编号齐全；`TestSkillFacade` 6 个用例机检门面：description 必须是「做什么 + Use when」两段式、不得把边界（不适用于 / Not for）写进 description（边界归正文 Non-Goals）、覆盖故障式触发词（读着累、看着刺眼、色阶塌了、改暗、改亮）、英文触发词（palette、contrast、theme）与命名轨（按名称与故事）、长度 ≤500 字符；另有 1 例机检边界确在正文 Non-Goals 节。
 
 ## 测试与自检
 
@@ -154,7 +154,7 @@ python scripts/test_shese.py    # 单元测试（含 8 位 hex、缩写、灰度
 python scripts/shese.py selftest  # 27 项官方数值锚定（APCA 官方向量 + 矩阵锚点 + 混色不变量）
 ```
 
-[已运行验证] 本机 Python 3.13.16 实测：`Ran 89 tests ... OK`（新增 15 项覆盖端点守卫、`solve`、`story`、`export`、预览页页脚、`solve`/`story` 逐字节确定性）；selftest 27 项全 PASS、退出码 0。
+[已运行验证] 本机 Python 3.13.16 实测：`Ran 96 tests ... OK`（覆盖端点守卫、`solve`、`story`、`export`、预览页页脚、`solve`/`story` 逐字节确定性、`rgb()`/`hsl()` 入参与两段式门面）；selftest 27 项全 PASS、退出码 0。
 
 实现核验记在 `references/evidence.md`：字号-字重矩阵 250 格与官方 LUT 逐格相同、942 对不透明组合与官方 `apca-w3` 的 Lc 零差异、8 条官方测试向量全中、`solve`/`story` 同输入逐字节可复现。真实色板的召回与误报因没有人工标注集，未测也不给数字。
 
