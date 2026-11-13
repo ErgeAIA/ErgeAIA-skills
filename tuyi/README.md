@@ -17,6 +17,7 @@
 | **从规范建 rulebook** | 抽取条款转可执行 check，登记冲突与 interim | "按 docs/design/iconography.md 生成一份 profile，冲突单独登记" |
 | **判断该不该加动效** | 先走静态优先五问，任一不成立即静态；确需动画才在六形态里选一种，并给目标、触发、停止与 reduce | "这个「同步中」的徽章要不要加旋转？"; "未读状态图标加个呼吸效果合适吗" |
 | **审查已有徽章动效** | 查语义是否错位、有无真实触发、循环能否终止、结束/卸载是否停、预算与令牌、reduce 是否降级 | "审一下这个徽章的旋转，任务结束会不会停不下来"; "这个心跳在 reduced-motion 下会关掉吗" |
+| **过程编排动效（状态机）** | 「点了要等结果」的按钮按五相位判：准入三条、中断与重入、停留与回落分叉、per-key 循环预算 | "这个「同步中→成功勾→失败警」的按钮编排合理吗？停留期间能不能重试"; "检查更新查完想自动变成「更新 N」，回落分叉怎么设计" |
 | **边界确认** | 识别不归本技能的需求（画新图标/纯排版），如实路由说明 | "帮我画一个自定义 SVG 图标"（不归 tuyi）; "这个徽章的内边距调多少好看"（不归 tuyi） |
 
 ## 判据索引
@@ -26,6 +27,7 @@
 - 审查四步、严重度、误报控制、报告结构 → [references/review.md](./references/review.md)
 - profile schema、条款可执行化、脱敏 → [references/profile.md](./references/profile.md)
 - 动效判定与审查（六形态、静态优先、目标与停止、reduce、运行时验证）→ [references/motion.md](./references/motion.md)
+- 编排层判定（五相位、中断矩阵、回落分叉、per-key 预算、审查 10 项）→ [references/motion-statemachine.md](./references/motion-statemachine.md)
 - 度量口径（IoU/墨量/灰度）、盲测与回归集 → [references/evidence.md](./references/evidence.md)
 - 渲染页模块与验收 → [references/render.md](./references/render.md)
 
@@ -42,6 +44,7 @@ tuyi/
 │   ├── review.md                 # 审查四步（含动效 9 项）、严重度、误报控制、建议排序
 │   ├── profile.md                # profile schema、八种 check、抽取六步、脱敏
 │   ├── motion.md                 # 动效判定：静态优先、六形态、目标与停止、reduce、运行时验证
+│   ├── motion-statemachine.md    # 编排层：五相位、中断与重入、停留与回落分叉、per-key 预算
 │   ├── evidence.md               # 三类证据、度量口径、盲测与回归集
 │   └── render.md                 # 渲染页模块、约束、case、验收
 ├── templates/

@@ -41,7 +41,7 @@ Not for：需要新画定制图标（本技能只从真实图标库中选）；�
 
 三种模式共用同一套底座：槽位（本文件 + `references/slot-model.md`）与证据（`references/evidence.md`）。审查模式额外需要一份 profile；没有 profile 时先走 C 的轻量版（`references/profile.md` 的「快速抽取」）。
 
-动效不是第四种模式：它是 A/B 的条件分支，项目动效规则由 C 产出的 profile 承载，判据见 `references/motion.md`。
+动效不是第四种模式：它是 A/B 的条件分支，项目动效规则由 C 产出的 profile 承载，判据见 `references/motion.md`；「点了要等一会儿才有结果」的过程编排（idle→进行中→成功/失败→回落）另有一层判据，见 `references/motion-statemachine.md`。
 
 ## 底座：六个槽位
 
@@ -79,7 +79,7 @@ Not for：需要新画定制图标（本技能只从真实图标库中选）；�
 
 每步的判据、排除项清单与证据模板见 `references/selection.md`。
 
-**第 6 步（条件）：动效判定**。只有场景涉及真实状态变化、任务过程或操作反馈时才做；否则结论是「静态，不建议添加」。先问四件事：有没有真实变化、有没有停止条件、静态能不能表达、项目当前是否允许落地。结论必填 7 字段（形态/目标/语义与触发/参数来源/停止/reduce/项目允许性），判据见 `references/motion.md`。
+**第 6 步（条件）：动效判定**。只有场景涉及真实状态变化、任务过程或操作反馈时才做；否则结论是「静态，不建议添加」。先问四件事：有没有真实变化、有没有停止条件、静态能不能表达、项目当前是否允许落地。结论必填 7 字段（形态/目标/语义与触发/参数来源/停止/reduce/项目允许性），判据见 `references/motion.md`。场景是「点了要等一会儿才有结果」的按钮时，改走编排层判据（`references/motion-statemachine.md`）。
 
 ## 歧义：停下的条件与三问
 
@@ -101,7 +101,7 @@ Not for：需要新画定制图标（本技能只从真实图标库中选）；�
 
 报告结构、严重度口径、误报控制见 `references/review.md`。
 
-4. **动效审查**：在形态与语义之外，查是否有真实触发、是否正确目标、是否完成即停、是否超预算、是否用项目令牌、reduce 是否降级、静态时是否仍可理解。运行时语义 `badge_lint.py` 查不了，按 `references/motion.md` 的 9 项人判；源码不足标 `N/A`，无法运行时验证标 `needs-review`。
+4. **动效审查**：在形态与语义之外，查是否有真实触发、是否正确目标、是否完成即停、是否超预算、是否用项目令牌、reduce 是否降级、静态时是否仍可理解。运行时语义 `badge_lint.py` 查不了，按 `references/motion.md` 的 9 项人判；源码不足标 `N/A`，无法运行时验证标 `needs-review`。过程编排类实现（idle/burst/sync/done/error 一类相位状态机）加查 `references/motion-statemachine.md` 的 10 项。
 
 ## 渲染页（每次选型必出）
 
@@ -160,6 +160,7 @@ PYTHONIOENCODING=utf-8 uv run --no-project python scripts/iconlab.py render --ca
 | 建 profile、抽取规范、登记冲突 | `references/profile.md` |
 | 算 IoU/灰度、写三段证据、做盲测 | `references/evidence.md` |
 | 判断该不该加动效、审查动效、做 reduce 与运行时验证 | `references/motion.md` |
+| 判「点了要等结果」的按钮该不该用编排、审相位/中断/回落分叉 | `references/motion-statemachine.md` |
 | 生成或验收渲染页 | `references/render.md` |
 | 抄一份 profile 骨架 | `templates/profile.example.yaml` |
 | 抄一份 case 骨架 | `templates/case.example.yaml` |

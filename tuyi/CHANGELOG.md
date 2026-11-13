@@ -2,6 +2,16 @@
 
 未发布条目在此累积；版本号只在切发布时改（版本与提交解耦）。
 
+### 新增
+
+- 编排层动效判定（`references/motion-statemachine.md`）：过程型状态机（idle→burst→sync→done/error→回落）独立成层，不是六形态的第七行——准入三条（真实异步 / 成败可判 / 用户盯着等）与不该用清单、五相位与形态映射、中断与重入矩阵、停留与回落分叉（回落时结算，非 done 开始时）、每实例循环预算、aria 三件套与按相位 reduce、编排审查 10 项。判据与参数锚点来自一次真实 React 项目的三段状态机实现（420ms 触发、1.5s/3s 停留、回落分叉、六页接入）。
+- profile 新增 `motion.state_machine` 可选块（phases / hold / reentry / settle_fork / loop_budget）；无此块即视为未批准编排，只出建议。SKILL 模式路由、选型第 6 步、审查第 4 步与 README 已接线该层。
+
+### 验证
+
+- `tests/run_selfcheck.py` ALL OK；`skill_cli validate` Spec passed（advisory 告警为既有类别）；SKILL 与新参考 frontmatter YAML 解析 PASS；版本保持 1.1.0（不升版）。
+- Round-trip：以编排层审查项回测一项真实 React 项目（五相位实现、6 个接入文件、10 处已批准接入）——已记录决策全部复现（含回落分叉、批量更新回落固定回检查、部分成功即成功的成败口径）；3 项裁定不做的场景（秒完成刷新 / 先计划后执行 / 面板开关入口）确认未使用编排；纯开关（收藏乐观更新）与两段式确认第一段（armed 样式）正确落在不该用清单；另抓到 1 处源码注释与实现漂移（注释声称勾描边与双向拉开，实现为颜色切换与单向轻推 2px），判定 minor。规则与已记录事实零矛盾。
+
 ### 变更
 
 - 仓库归属迁入开源仓 `ErgeAIA-skills`（不升版）：技能内容、版本与行为不变；此前开发历史留在私有仓，公开仓自本条起。

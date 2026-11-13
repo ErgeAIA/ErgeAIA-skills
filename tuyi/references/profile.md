@@ -86,10 +86,20 @@ motion:                   # 项目动效规则；不写进 mappings
   reduced_motion:
     strategy: instant     # stop | instant | opacity-only
     path: null            # reduce 规则所在文件
+  state_machine:          # 过程型编排（「点了要等结果」的按钮）；可选块，无则视为未批准编排
+    enabled: false        # 是否批准编排动画落地
+    spec_source: null     # 编排规范/组件出处（相对路径:行）
+    phases: [idle, burst, sync, done, error]  # 相位白名单；自定义命名须同步映射表
+    hold:                 # 成功/失败停留时长；只引用令牌，无令牌标 proposal
+      done_ms: null
+      error_ms: null
+    reentry: restart      # restart | ignore
+    settle_fork: false    # 回落时改写静止态（分叉）是否批准
+    loop_budget: per-instance                 # 每实例至多一个循环；全局并发用 budget.max_primary
   human_checks: []        # 生命周期/语义/预算等无法静态检查的条款
 ```
 
-动效配置只承载**项目已批准**的规则：`locked` 场景可以执行；未批准的建议写进报告，不进 profile；`motion` 不进 `mappings`——图标语义与动画语义分开维护，规范改版时才不会互相拖累。
+动效配置只承载**项目已批准**的规则：`locked` 场景可以执行；未批准的建议写进报告，不进 profile；`motion` 不进 `mappings`——图标语义与动画语义分开维护，规范改版时才不会互相拖累。过程编排的相位、停留、重入、回落分叉由 `state_machine` 块承载，判定见 `references/motion-statemachine.md`；循环预算按实例计，全局并发上限仍用 `budget.max_primary`。
 
 ## 八种 check
 
@@ -123,7 +133,7 @@ motion:                   # 项目动效规则；不写进 mappings
 3. **抽映射**：规范里点名的「某概念 = 某图标」，全部进 `mappings` 并标 `locked`；只提了概念没给图标的，留空，交给选型模式补。
 4. **抽条款**：把形态规定转成八种 check 之一，带 `source_ref` 行号；转不了的转 `human_check`。
 5. **登记冲突**：同一件事两处规定不一致 → 进 `conflicts`，写清两种读法各自导致什么后果，选一个 `interim` 值继续工作，状态 `pending`。
-6. **抽动效**：把动效规范抽进 `motion` 块——是否允许落地、六形态白名单、已批准场景与出处、预算、时长令牌、reduce 策略；生命周期/语义类条款进 `human_checks`。参考文档与产品规范冲突时登记，不把参考建议写成 `locked`。
+6. **抽动效**：把动效规范抽进 `motion` 块——是否允许落地、六形态白名单、已批准场景与出处、预算、时长令牌、reduce 策略；生命周期/语义类条款进 `human_checks`。参考文档与产品规范冲突时登记，不把参考建议写成 `locked`。有过程编排（相位状态机）时加抽 `state_machine` 块（相位、停留、重入、回落分叉）。
 
 ## 轻量抽取（没有完整规范时）
 

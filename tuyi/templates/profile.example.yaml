@@ -249,4 +249,14 @@ motion:
   reduced_motion:
     strategy: instant         # stop | instant | opacity-only
     path: null                # reduce 规则所在文件
+  state_machine:              # 过程型编排（可选块；无则视为未批准编排）
+    enabled: false            # 是否批准编排动画落地
+    spec_source: null         # 编排规范/组件出处（相对路径:行）
+    phases: [idle, burst, sync, done, error]  # 相位白名单
+    hold:                     # 成功/失败停留时长；只引用令牌，无令牌标 proposal
+      done_ms: null
+      error_ms: null
+    reentry: restart          # restart | ignore
+    settle_fork: false        # 回落时改写静止态（分叉）是否批准
+    loop_budget: per-instance # 每实例至多一个循环；全局并发用 budget.max_primary
   human_checks: []            # 生命周期/语义/预算等无法静态检查的条款
