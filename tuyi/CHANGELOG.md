@@ -4,20 +4,14 @@
 
 ### 新增
 
-- 编排层动效判定（`references/motion-statemachine.md`）：过程型状态机（idle→burst→sync→done/error→回落）独立成层，不是六形态的第七行——准入三条（真实异步 / 成败可判 / 用户盯着等）与不该用清单、五相位与形态映射、中断与重入矩阵、停留与回落分叉（回落时结算，非 done 开始时）、每实例循环预算、aria 三件套与按相位 reduce、编排审查 10 项。判据与参数锚点来自一次真实 React 项目的三段状态机实现（420ms 触发、1.5s/3s 停留、回落分叉、六页接入）。
-- profile 新增 `motion.state_machine` 可选块（phases / hold / reentry / settle_fork / loop_budget）；无此块即视为未批准编排，只出建议。SKILL 模式路由、选型第 6 步、审查第 4 步与 README 已接线该层。
-
-### 验证
-
-- `tests/run_selfcheck.py` ALL OK；`skill_cli validate` Spec passed（advisory 告警为既有类别）；SKILL 与新参考 frontmatter YAML 解析 PASS；版本保持 1.1.0（不升版）。
-- Round-trip：以编排层审查项回测一项真实 React 项目（五相位实现、6 个接入文件、10 处已批准接入）——已记录决策全部复现（含回落分叉、批量更新回落固定回检查、部分成功即成功的成败口径）；3 项裁定不做的场景（秒完成刷新 / 先计划后执行 / 面板开关入口）确认未使用编排；纯开关（收藏乐观更新）与两段式确认第一段（armed 样式）正确落在不该用清单；另抓到 1 处源码注释与实现漂移（注释声称勾描边与双向拉开，实现为颜色切换与单向轻推 2px），判定 minor。规则与已记录事实零矛盾。
-
-- 编排层机检落地（`badge_lint.py`）：新增四种 check——`phase_css_required`（相位类名序列）、`phase_anim_reduce_required`（reduce 媒体块内关关键帧）、`phase_slot_overlay_required`（槽位绝对定位 + 默认 opacity 0）、`phase_aria_busy_required`（编排类源文件设 aria-busy）；`parse_css` 增强 @media 上下文跟随与逗号选择器组合并。`tests/fixtures/motion-{good,bad}/` + `motion-profile.yaml` 锁定行为：good 零误报、bad 逐条 file:line 命中。真实 React 项目实现实测 4/4 规则 PASS、零 findings。
-- `iconlab.py render-motion`：新增可交互状态机演示页（离线单页、内联 SVG、双主题、reduce 两档、失败路径、停留期重入、卸载清理、回落分叉、getAnimations() 审计面板）；参数为 proposal 锚点，非项目令牌。运行时实测（Playwright 1440×950）：五相位宽度全程不变、无限循环只在 sync 且回落后归零、系统级 reduce 下关键帧动画 0 而结论链保留、卸载后无遗留循环、双主题无横向溢出；实测抓到并修复三处演示页缺陷（动画期改可见文字撑宽、初始缺 is-idle 类、卸载未复位相位致 loader 遗留）。文档同步：`references/profile.md` 八种 → 十二种 check、`references/motion-statemachine.md` §九、`references/render.md` 演示页验收节、README 怎么用表与索引。
-- 全量机检：selfcheck ALL OK（含 render-motion 冒烟 10 项）、`skill_cli validate` Spec passed / Skill is valid、3 份 frontmatter YAML 解析 OK；版本保持 1.1.0（不升版）。
+- 新增过程型状态机动效的编排层判定（准入、五相位、中断与回落分叉、每实例循环预算、审查清单），使「点了要等结果」的按钮不再按单图标动效硬套。
+- profile 新增 `motion.state_machine` 可选块；未配置即视为项目未批准编排。
+- 新增四种编排机检（相位类名、reduce 关关键帧、槽位叠放、aria-busy）与对应测试样例。
+- 新增可交互状态机演示页生成命令，供运行时验证 reduce、打断、卸载与回落分叉。
 
 ### 变更
 
+- 参考资源、README 与渲染页验收同步接线编排层；版本保持 1.1.0，不因提交升版。
 - 仓库归属迁入开源仓 `ErgeAIA-skills`（不升版）：技能内容、版本与行为不变；此前开发历史留在私有仓，公开仓自本条起。
 - 第二轮脚本热点优化（不升版）：`badge_lint.py` 的开标签定位加「停字符集 + C 级查找」快路径，非 CSS 目标的倒排索引改为按需建立，路径归一化去掉重复 `resolve`，选择器规格只解析一次；`iconlab.py` 的胶囊栅格化改为逐行区间填充、重量级模块按需导入。目的是缩短全量扫描与预览渲染的等待，判定结论与产物字节不变。
 - 实测（HEAD 对改后交替 5–15 轮取最小）：真实项目 `src/`（87 个前端文件）全量扫描约 −7%～−13%，`render` 约 −6%～−9%，`measure` 约 −3%～−6%，`catalog`/`search`/单 fixture 扫描变化落在进程启动噪声内（±2%）。
