@@ -1,11 +1,12 @@
 ---
 name: render
-description: 渲染页的模块、视觉约束、case 结构与验收方法：单文件离线、双主题、灰度、真实行上下文、候选对比与混淆矩阵。
+description: "渲染页的模块、视觉约束、case 结构与验收方法：单文件离线、双主题、灰度、真实行上下文、候选对比与混淆矩阵；另含过程型状态机演示页的生成与运行时验收。"
 version: 1.0.0
 trigger-when:
   - 要生成选型结论的 HTML 预览页
   - 要验收渲染页是否达标
   - 需要写 case.yaml
+  - 要生成或验收过程型状态机演示页
 ---
 
 # 渲染页
@@ -82,6 +83,27 @@ PYTHONIOENCODING=utf-8 uv run --no-project python scripts/iconlab.py render --ca
 ```
 
 截图要看得见结论头与混淆矩阵——只截首屏、看不到证据，等于没验收。
+
+## 状态机演示页（render-motion）
+
+`render-motion` 是另一类产物：验证编排层判定（`references/motion-statemachine.md`），不替代选型预览页的八个模块。生成：
+
+```bash
+PYTHONIOENCODING=utf-8 uv run --no-project python scripts/iconlab.py render-motion --out motion-demo.html
+```
+
+参数是 proposal 锚点（`--burst-ms` / `--hold-done-ms` / `--hold-error-ms`），不是项目令牌。页面须可交互：五相位走完、reduce 两档（系统媒体查询 + 页面强制档）、失败路径、停留期重入、卸载清理、回落分叉、`getAnimations()` 审计面板。
+
+运行时验收（真浏览器，不能只 grep 源码）：
+
+1. **相位流**：点击 → burst → sync → done/error → 回落；每相位类名、aria-busy、disabled 联动
+2. **宽度不变**：全程按钮宽度与槽位宽度恒定（可见文字常显，只有 aria-label 随相位换）
+3. **无限循环**：`getAnimations()` 中无限循环只在 sync 出现；任务结束、打断、卸载后归零
+4. **reduce**：`emulateMedia({reducedMotion:'reduce'})` 或页面强制档下，关键帧动画（burst 位移 / sync 旋转）为 0、无位移 opacity 淡入与结论色保留
+5. **分叉与重挂载**：回落时改写静止态；卸载清定时器并复位相位；重挂载状态归零
+6. **双主题与溢出**：与选型预览页同口径（1440×950 无横向滚动，零外部请求）
+
+Playwright MCP 禁 `file:` 协议时，用本机回环静态服务指向同一份产物（`python -m http.server --bind 127.0.0.1`），不改动产物字节。没有浏览器环境时标「运行时未验证」，不得声称通过。
 
 ## 反例
 

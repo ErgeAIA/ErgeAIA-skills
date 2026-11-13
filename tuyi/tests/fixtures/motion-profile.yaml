@@ -1,0 +1,32 @@
+# 编排层机检用 profile（自测专用）：只含四条动效规则
+profile:
+  name: motion-fixture
+  version: 1.0.0
+  updated: 2026-11-13
+  icon_library: lucide
+
+rules:
+  - id: MOTION-PHASE-01
+    text: 五相位必须在样式表有 .<base>.is-<phase> 覆盖
+    source_ref: "motion-selection.md:53"
+    severity: major
+    check: {kind: phase_css_required, base_class: action-btn, phases: [idle, burst, sync, done, error]}
+    fix: 为缺失相位补 .action-btn.is-<phase> 规则
+  - id: MOTION-REDUCE-01
+    text: 相位动画必须在 prefers-reduced-motion: reduce 下关闭
+    source_ref: "motion-selection.md:63"
+    severity: major
+    check: {kind: phase_anim_reduce_required, base_class: action-btn, phases: [burst, sync]}
+    fix: 在 reduce 媒体块内为同相位补 animation: none
+  - id: MOTION-SLOT-01
+    text: 槽位图标须绝对定位叠放且默认 opacity 0
+    source_ref: "motion-selection.md:62"
+    severity: major
+    check: {kind: phase_slot_overlay_required, selectors: [".action-ico"]}
+    fix: 补 position: absolute 与默认 opacity: 0，由相位类点亮
+  - id: MOTION-ARIA-01
+    text: 编排类源文件必须设置 aria-busy
+    source_ref: "motion-selection.md:59"
+    severity: major
+    check: {kind: phase_aria_busy_required, marker: action-btn}
+    fix: 在按钮上补 aria-busy 相位联动

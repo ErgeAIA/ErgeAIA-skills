@@ -58,6 +58,10 @@ CHECK_KINDS = (
     "dom_text_forbidden",
     "dom_forbid_descendant",
     "source_forbid_regex",
+    "phase_css_required",
+    "phase_anim_reduce_required",
+    "phase_slot_overlay_required",
+    "phase_aria_busy_required",
 )
 
 PROPERTY_ALIASES = {
@@ -176,12 +180,13 @@ def _token_hexs(token_color: str | None, value: str) -> str | None:
 
 
 class CssRule:
-    '''一段 CSS 规则块。'''
+    '''一段 CSS 规则块。media 记录所在 @media 查询（顶层为 None），供相位动画 reduce 检查用。'''
 
-    def __init__(self, selector: str, start: int, end: int) -> None:
+    def __init__(self, selector: str, start: int, end: int, media: str | None = None) -> None:
         self.selector = selector.strip()
         self.start = start
         self.end = end
+        self.media = media
         self.declarations: list[tuple[int, str, str]] = []
 
     def matches(self, sel: str) -> bool:
@@ -196,17 +201,40 @@ class CssRule:
 
 
 def parse_css(text: str, path: Path) -> list[CssRule]:
-    '''抽出所有块级规则；行号用逐行计数，不猜。'''
+    '''抽出所有块级规则；行号用逐行计数，不猜。
+
+    两项启发式（只做注记，不影响既有结论）：
+    - @media 上下文按大括号净计数跟随，规则带 media 属性；嵌套 @media 只记最内层查询。
+    - 逗号续行的选择器组（`.a,` 换行 `.b {`）合并进规则头；遇到 `}` 或 @ 行即作废。
+    '''
     rules: list[CssRule] = []
     current: CssRule | None = None
-    depth = 0
+    media: str | None = None
+    media_depth = 0
+    pending: list[str] = []
     for idx, raw in enumerate(text.splitlines(), start=1):
         line = raw
+        if media is not None:
+            media_depth += line.count('{') - line.count('}')
+        elif re.match(r'^\s*@media\b', line) and '{' in line:
+            m = re.match(r'^\s*@media\b([^{]*)\{', line)
+            media = (m.group(1).strip() if m else line.strip())
+            media_depth = line.count('{') - line.count('}')
+            if media_depth <= 0:
+                media = None
+                media_depth = 0
+            continue
+        if media is not None and media_depth <= 0:
+            media = None
+            media_depth = 0
         if current is None:
             if '{' in line and not re.match(r'^\s*@', line):
                 head = line.split('{', 1)[0].strip()
+                if pending:
+                    head = (' '.join(pending) + ' ' + head).strip()
+                    pending = []
                 if head:
-                    current = CssRule(head, idx, idx)
+                    current = CssRule(head, idx, idx, media=media)
                     depth = 1
                     if '}' in line.split('{', 1)[1]:
                         body = line.split('{', 1)[1].split('}', 1)[0]
@@ -215,6 +243,12 @@ def parse_css(text: str, path: Path) -> list[CssRule]:
                         rules.append(current)
                         current = None
                 continue
+            stripped = line.strip()
+            if stripped.endswith(',') and '{' not in stripped and not stripped.startswith(('@', '//', '*', '/*')):
+                pending.append(stripped)
+                continue
+            if stripped == '}' or stripped.startswith('@'):
+                pending = []
         else:
             if '}' in line:
                 before = line.split('}', 1)[0]
@@ -1151,6 +1185,21 @@ def _decls_for_hit(t: Target, n: int, el: OpenTag | None, skipped: list[str],
     return decls
 
 
+_RE_REDUCE_MEDIA = re.compile(r'prefers-reduced-motion', re.I)
+
+
+def _token_rx(token: str) -> re.Pattern:
+    '''类名/记号整词匹配：前后不能是字母数字连字符。'''
+    return re.compile(r'(?<![\w-])' + re.escape(token) + r'(?![\w-])')
+
+
+def _is_reduce_media(media: str | None) -> bool:
+    if not media:
+        return False
+    low = media.lower()
+    return 'prefers-reduced-motion' in low and 'reduce' in low and 'no-preference' not in low
+
+
 def run_check(rule: dict, targets: list[Target], token_color: dict) -> tuple[list[dict], int, list[str], list[str]]:
     '''执行一条规则；返回 (findings, 检查数, N/A 原因, 未检查原因)。'''
     c = rule.get('check') or {}
@@ -1183,6 +1232,108 @@ def run_check(rule: dict, targets: list[Target], token_color: dict) -> tuple[lis
                 if rx.search(line):
                     findings.append(_mk(rule, t, n, '源码命中禁止模式 ' + pattern, line.strip()))
             checked += len(t.lines)
+        return findings, checked, na, skipped
+
+    if kind == 'phase_css_required':
+        base = str(c.get('base_class', '')).strip()
+        prefix = (str(c.get('class_prefix', 'is-')).strip() or 'is-')
+        phases = [str(p).strip() for p in (c.get('phases') or []) if str(p).strip()]
+        if not base or not phases:
+            na.append('缺少 check.base_class 或 check.phases')
+            return findings, checked, na, skipped
+        for t in targets:
+            if not t.is_css:
+                continue
+            base_rules = [r for r in t.css_rules if _token_rx(base).search(r.selector)]
+            if not base_rules:
+                continue
+            for phase in phases:
+                checked += 1
+                if not any(_token_rx(prefix + phase).search(r.selector) for r in t.css_rules):
+                    findings.append(_mk(rule, t, base_rules[0].start,
+                                        '相位 ' + phase + ' 缺少 .' + base + '.' + prefix + phase + ' 样式覆盖',
+                                        base_rules[0].selector))
+        return findings, checked, na, skipped
+
+    if kind == 'phase_anim_reduce_required':
+        base = str(c.get('base_class', '')).strip()
+        prefix = (str(c.get('class_prefix', 'is-')).strip() or 'is-')
+        phases = [str(p).strip() for p in (c.get('phases') or []) if str(p).strip()]
+        if not base or not phases:
+            na.append('缺少 check.base_class 或 check.phases')
+            return findings, checked, na, skipped
+        for t in targets:
+            if not t.is_css:
+                continue
+            for r in t.css_rules:
+                if _is_reduce_media(r.media):
+                    continue
+                if not _token_rx(base).search(r.selector):
+                    continue
+                anims = [(ln, val) for ln, prop, val in r.declarations
+                         if prop == 'animation' and val.strip().lower() != 'none']
+                if not anims:
+                    continue
+                hit_phase = next((p for p in phases if _token_rx(prefix + p).search(r.selector)), None)
+                if hit_phase is None:
+                    continue
+                checked += 1
+                rx = _token_rx(prefix + hit_phase)
+                reduced = any(
+                    _is_reduce_media(r2.media)
+                    and rx.search(r2.selector)
+                    and any(prop == 'animation' and val.strip().lower() == 'none'
+                            for _, prop, val in r2.declarations)
+                    for r2 in t.css_rules
+                )
+                if not reduced:
+                    findings.append(_mk(rule, t, anims[0][0],
+                                        '相位 ' + hit_phase + ' 的动画未在 prefers-reduced-motion: reduce 下关闭',
+                                        r.selector + ' { animation: ' + anims[0][1] + ' }'))
+        return findings, checked, na, skipped
+
+    if kind == 'phase_slot_overlay_required':
+        if not sels:
+            na.append('缺少 check.selectors')
+            return findings, checked, na, skipped
+        for t in targets:
+            if not t.is_css:
+                continue
+            for r in t.css_rules:
+                if not any(r.matches(sel) for sel in sels):
+                    continue
+                checked += 1
+                decl = {prop: (ln, val) for ln, prop, val in r.declarations}
+                pos = decl.get('position')
+                if pos is None or pos[1].strip().lower() not in ('absolute', 'fixed'):
+                    got = pos[1] if pos else '未声明'
+                    findings.append(_mk(rule, t, pos[0] if pos else r.start,
+                                        '槽位图标须绝对定位叠放（position: absolute/fixed），当前：' + got,
+                                        r.selector))
+                opa = decl.get('opacity')
+                if opa is None or opa[1].strip() != '0':
+                    got = opa[1] if opa else '未声明'
+                    findings.append(_mk(rule, t, opa[0] if opa else r.start,
+                                        '槽位图标默认须 opacity: 0（由相位切换点亮），当前：' + got,
+                                        r.selector))
+        return findings, checked, na, skipped
+
+    if kind == 'phase_aria_busy_required':
+        marker = str(c.get('marker', '')).strip()
+        if not marker:
+            na.append('缺少 check.marker')
+            return findings, checked, na, skipped
+        for t in targets:
+            if t.is_css:
+                continue
+            hits = [n for n, line in enumerate(t.lines, start=1) if marker in line]
+            if not hits:
+                continue
+            checked += 1
+            if not any('aria-busy' in line for line in t.lines):
+                findings.append(_mk(rule, t, hits[0],
+                                    '编排类源文件含 ' + marker + ' 但未设置 aria-busy（相位联动缺失）',
+                                    t.line(hits[0]).strip()))
         return findings, checked, na, skipped
 
     if not sels:

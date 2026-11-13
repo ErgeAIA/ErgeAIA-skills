@@ -14,6 +14,7 @@
 | **候选对比** | 明确给出备选理由与代价评估 | "为什么 hard-drive-download 不推荐？它会不会被读成下载？" |
 | **审查已有徽章系统** | 按 profile 规范扫描 HTML/CSS/TSX | "审一下我们技能库里徽章用法，哪些违反状态图标规范"; "帮我看看 iconography.md:23 的尺寸有没有被执行" |
 | **生成预览页** | 基于 case.yaml 输出带混淆矩阵的单页 HTML | "把这个结论渲染成 html，我要看双主题和灰度"; "用 case.local-plugin.yaml 生成本地徽章页" |
+| **生成状态机演示页** | `iconlab.py render-motion` 出可交互页：五相位、reduce 两档、失败路径、停留期打断、回落分叉、getAnimations() 审计 | "给这个同步按钮生成一个能点的状态机演示页，我要看 reduced-motion 下会不会还在转" |
 | **从规范建 rulebook** | 抽取条款转可执行 check，登记冲突与 interim | "按 docs/design/iconography.md 生成一份 profile，冲突单独登记" |
 | **判断该不该加动效** | 先走静态优先五问，任一不成立即静态；确需动画才在六形态里选一种，并给目标、触发、停止与 reduce | "这个「同步中」的徽章要不要加旋转？"; "未读状态图标加个呼吸效果合适吗" |
 | **审查已有徽章动效** | 查语义是否错位、有无真实触发、循环能否终止、结束/卸载是否停、预算与令牌、reduce 是否降级 | "审一下这个徽章的旋转，任务结束会不会停不下来"; "这个心跳在 reduced-motion 下会关掉吗" |
@@ -25,7 +26,7 @@
 - 六槽本体与每槽禁忌 → [references/slot-model.md](./references/slot-model.md)
 - 选型五步与第 6 步动效判定、排除项、推荐话术、歧义三问 → [references/selection.md](./references/selection.md)
 - 审查四步、严重度、误报控制、报告结构 → [references/review.md](./references/review.md)
-- profile schema、条款可执行化、脱敏 → [references/profile.md](./references/profile.md)
+- profile schema、十二种 check、抽取六步、脱敏 → [references/profile.md](./references/profile.md)
 - 动效判定与审查（六形态、静态优先、目标与停止、reduce、运行时验证）→ [references/motion.md](./references/motion.md)
 - 编排层判定（五相位、中断矩阵、回落分叉、per-key 预算、审查 10 项）→ [references/motion-statemachine.md](./references/motion-statemachine.md)
 - 度量口径（IoU/墨量/灰度）、盲测与回归集 → [references/evidence.md](./references/evidence.md)
@@ -42,7 +43,7 @@ tuyi/
 │   ├── slot-model.md             # 六槽本体、判定顺序、跨槽混用处置
 │   ├── selection.md              # 选型五步 + 动效判定、四类排除、三问、需求对照表
 │   ├── review.md                 # 审查四步（含动效 9 项）、严重度、误报控制、建议排序
-│   ├── profile.md                # profile schema、八种 check、抽取六步、脱敏
+│   ├── profile.md                # profile schema、十二种 check、抽取六步、脱敏
 │   ├── motion.md                 # 动效判定：静态优先、六形态、目标与停止、reduce、运行时验证
 │   ├── motion-statemachine.md    # 编排层：五相位、中断与重入、停留与回落分叉、per-key 预算
 │   ├── evidence.md               # 三类证据、度量口径、盲测与回归集

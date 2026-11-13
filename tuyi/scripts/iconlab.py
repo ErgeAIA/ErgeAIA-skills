@@ -2451,6 +2451,409 @@ def cmd_render(args) -> int:
 
 
 # --------------------------------------------------------------------------- #
+# render-motion：过程型状态机可交互演示页
+# --------------------------------------------------------------------------- #
+
+def _motion_button_html(btn_id: str, icon_id: str, icons: dict, size: int, stroke: float, label: str) -> str:
+    idle = _svg_markup(icons[icon_id]["n"], size, stroke, decorative=True)
+    loader = _svg_markup(icons["loader-circle"]["n"], size, stroke, decorative=True)
+    done = _svg_markup(icons["circle-check"]["n"], size, stroke, decorative=True)
+    error = _svg_markup(icons["circle-alert"]["n"], size, stroke, decorative=True)
+    return (
+        f'<button type="button" class="action-btn" id="{btn_id}" data-idle-icon="{_esc(icon_id)}" '
+        f'data-label="{_esc(label)}" data-mode="idle" aria-label="{_esc(label)}" aria-busy="false">'
+        '<span class="action-slot">'
+        f'<span class="action-ico ico-idle">{idle}</span>'
+        f'<span class="action-ico ico-sync">{loader}</span>'
+        f'<span class="action-ico ico-done">{done}</span>'
+        f'<span class="action-ico ico-err">{error}</span>'
+        '</span>'
+        f'<span class="action-text">{_esc(label)}</span>'
+        '</button>'
+    )
+
+
+def build_motion_page(args, icons: dict) -> tuple[str, dict]:
+    size = args.size
+    stroke = args.stroke
+    burst, hold_done, hold_error = args.burst_ms, args.hold_done_ms, args.hold_error_ms
+    theme = build_theme_css()
+    demo_buttons = [
+        ("btn-a", "refresh-cw", "同步清单"),
+        ("btn-b", "download", "安装"),
+        ("btn-c", "search", "检查更新"),
+    ]
+    row_html = "\n".join(_motion_button_html(bid, iid, icons, size, stroke, label)
+                         for bid, iid, label in demo_buttons)
+    params_json = json.dumps(
+        {"burst": burst, "holdDone": hold_done, "holdError": hold_error}, ensure_ascii=False
+    )
+    page = """<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>图意 · 编排层演示（过程型状态机）</title>
+<style>
+__THEME_CSS__
+__MOTION_CSS__
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="card hero">
+    <div class="hero-top">
+      <div>
+        <p class="eyebrow">TUYI · MOTION ORCHESTRATION</p>
+        <h1>编排层演示 · 过程型状态机</h1>
+        <p class="request">idle → burst → sync → done / error → 回落。相位切换只切 opacity；动画只给 burst 与 sync；成功/失败是静态色 + 停留；reduce 下按相位关动画、结论链保留。</p>
+      </div>
+      <div class="toolbar">
+        <button type="button" class="btn" id="theme-toggle">切到浅色</button>
+        <button type="button" class="btn" id="reduce-toggle" aria-pressed="false">reduce：跟随系统</button>
+        <button type="button" class="btn" id="force-fail-toggle" aria-pressed="false">强制失败：关</button>
+        <button type="button" class="btn" id="interrupt-btn">打断（清定时器回 idle）</button>
+        <button type="button" class="btn" id="unmount-btn">卸载演示行</button>
+        <button type="button" class="btn" id="mount-btn" hidden>重新挂载</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="card">
+    <h2>演示行（每实例独立 key，循环只在被点的那枚上）</h2>
+    <p class="hint">点击任一枚开始：触发轻推 → 进行中旋转（可强制失败）→ 成功绿勾停留 __HOLD_DONE__ms / 失败红警停留 __HOLD_ERROR__ms → 回落。「检查更新」回落时演示分叉：改成「更新 N」。</p>
+    <div class="demo-row" id="demo-row">
+__ROW_HTML__
+    </div>
+    <p class="hint">打断：停留期再点同一枚 = 清定时器重启（restart 语义）；「打断」按钮 = 模拟卸载清理。</p>
+  </section>
+
+  <section class="card">
+    <h2>相位与事件（实时）</h2>
+    <div class="grid2">
+      <div>
+        <h3>当前状态</h3>
+        <pre class="code" id="state-readout">（未开始）</pre>
+        <h3>事件日志</h3>
+        <pre class="code log" id="event-log"></pre>
+      </div>
+      <div>
+        <h3>运行时审计</h3>
+        <pre class="code" id="audit-readout">（点「审计」刷新）</pre>
+        <button type="button" class="btn" id="audit-btn">审计 getAnimations()</button>
+        <p class="hint">审计列出每枚按钮的活动动画数与无限循环数；任务结束后不应遗留无限循环。reduce 生效时活动动画应为 0。</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>参数（proposal 锚点，非项目令牌）</h2>
+    <table class="spec-table">
+      <tr><th>相位</th><th>表达</th><th>参数</th><th>停止</th></tr>
+      <tr><td>burst</td><td>图标轻推 2px 一次性</td><td>__BURST__ms · cubic-bezier(.2,.7,.3,1) · 1 次</td><td>自然结束</td></tr>
+      <tr><td>sync</td><td>loader 旋转</td><td>1000ms · linear · infinite</td><td>任务返回 / 打断</td></tr>
+      <tr><td>done</td><td>绿勾静态色</td><td>停留 __HOLD_DONE__ms</td><td>停留结束回落</td></tr>
+      <tr><td>error</td><td>红警静态色</td><td>停留 __HOLD_ERROR__ms</td><td>停留结束回落</td></tr>
+    </table>
+  </section>
+
+  <footer class="card foot">
+    <p>离线单页 · 颜色全部来自主题变量 · reduce 两档可切换（系统档 / 强制档）· 判定层见 references/motion-statemachine.md</p>
+  </footer>
+</div>
+<script>
+__MOTION_JS__
+</script>
+</body>
+</html>
+"""
+    page = (page
+            .replace("__THEME_CSS__", theme)
+            .replace("__MOTION_CSS__", MOTION_PAGE_CSS)
+            .replace("__ROW_HTML__", row_html)
+            .replace("__BURST__", str(burst))
+            .replace("__HOLD_DONE__", str(hold_done))
+            .replace("__HOLD_ERROR__", str(hold_error))
+            .replace("__MOTION_JS__", MOTION_PAGE_JS.replace("__PARAMS__", params_json)))
+    stats = {
+        "svg_count": page.count("<svg "),
+        "buttons": len(demo_buttons),
+    }
+    return page, stats
+
+
+def cmd_render_motion(args) -> int:
+    catalog_doc = load_catalog(Path(args.catalog))
+    icons = catalog_doc["icons"]
+    needed = ("refresh-cw", "download", "search", "loader-circle", "circle-check", "circle-alert")
+    missing = [k for k in needed if k not in icons]
+    if missing:
+        raise IconlabError("目录缺少演示图标：" + ", ".join(missing) + "（先跑 catalog）", 2)
+    page, stats = build_motion_page(args, icons)
+    out = Path(args.out)
+    _write_text(out, page)
+    size = out.stat().st_size
+    print("iconlab render-motion · 完成")
+    print(f"  输出：{out.resolve()}（{size} 字节 / {size / 1024:.1f} KiB）")
+    print(f"  目录：{_catalog_source_line(catalog_doc['source'])}")
+    print(f"  演示按钮：{stats['buttons']} 枚 · 内联 svg {stats['svg_count']} 个")
+    print(f"  参数（proposal）：burst {args.burst_ms}ms · done 停留 {args.hold_done_ms}ms · error 停留 {args.hold_error_ms}ms")
+    print("  页面自检：console 会输出 \"[iconlab] horizontal-overflow none\"（scrollWidth <= innerWidth）")
+    return 0
+
+
+MOTION_PAGE_CSS = r"""
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+}
+.wrap { max-width: 1360px; margin: 0 auto; padding: 20px 24px 40px; display: flex; flex-direction: column; gap: 14px; }
+.card { min-width: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.eyebrow { margin: 0 0 4px; font-size: 11px; letter-spacing: 0.14em; color: var(--text-faint); }
+h1 { margin: 0 0 6px; font-size: 23px; line-height: 1.3; }
+h2 { margin: 0 0 8px; font-size: 16px; }
+h3 { margin: 10px 0 6px; font-size: 13px; color: var(--text-muted); }
+.request { color: var(--text-muted); font-size: 13px; max-width: 880px; margin: 0; }
+.hint { color: var(--text-muted); font-size: 12px; margin: 8px 0 0; }
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  font: inherit; font-size: 12px; padding: 6px 12px; border-radius: 8px;
+  border: 1px solid var(--border-strong); background: var(--surface-3); color: var(--text); cursor: pointer;
+}
+.btn:hover { border-color: var(--accent); }
+.btn[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.code {
+  background: var(--code-bg); border: 1px solid var(--code-border); border-radius: 8px;
+  padding: 10px 12px; font: 12px/1.6 ui-monospace, Consolas, monospace; color: var(--text);
+  white-space: pre-wrap; overflow-wrap: anywhere; margin: 0;
+}
+.log { max-height: 220px; overflow-y: auto; }
+.demo-row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+.demo-row[hidden] { display: none; }
+/* 编排槽位：四枚图标同槽叠放，只切 opacity，按钮宽度全程不变 */
+.action-btn {
+  position: relative; display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 12px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border-strong); background: var(--surface-3); color: var(--text);
+  font: inherit; font-size: 13px;
+}
+.action-btn:disabled { cursor: default; opacity: 0.75; }
+.action-slot { position: relative; display: block; width: 16px; height: 16px; flex: none; }
+.action-ico { position: absolute; inset: 0; opacity: 0; transition: opacity 120ms linear; display: block; }
+.action-ico svg { display: block; }
+.action-btn.is-idle .ico-idle,
+.action-btn.is-burst .ico-idle { opacity: 1; }
+.action-btn.is-sync .ico-sync { opacity: 1; color: var(--accent); animation: motion-rotate 1s linear infinite; }
+.action-btn.is-done .ico-done { opacity: 1; color: var(--ok); }
+.action-btn.is-error .ico-err { opacity: 1; color: var(--error); }
+.action-btn.is-burst .ico-idle { animation: motion-burst __BURST__ms cubic-bezier(.2, .7, .3, 1) 1; }
+@keyframes motion-rotate { to { transform: rotate(360deg); } }
+@keyframes motion-burst { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(2px); } }
+@media (prefers-reduced-motion: reduce) {
+  .action-btn.is-burst .ico-idle { animation: none; }
+  .action-btn.is-sync .ico-sync { animation: none; }
+}
+html[data-reduce="on"] .action-btn.is-burst .ico-idle { animation: none; }
+html[data-reduce="on"] .action-btn.is-sync .ico-sync { animation: none; }
+.spec-table { border-collapse: collapse; font-size: 13px; width: 100%; }
+.spec-table th, .spec-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: left; }
+.spec-table th { color: var(--text-muted); font-weight: 600; }
+.foot p { color: var(--text-muted); font-size: 12px; margin: 0; }
+"""
+
+MOTION_PAGE_JS = r"""
+(function () {
+  var PARAMS = __PARAMS__;
+  var root = document.documentElement;
+  var logEl = document.getElementById('event-log');
+  var stateEl = document.getElementById('state-readout');
+  var auditEl = document.getElementById('audit-readout');
+  var timers = {};
+  var phases = {};
+  var mounted = true;
+
+  function log(msg) {
+    var t = new Date().toISOString().slice(11, 23);
+    logEl.textContent = '[' + t + '] ' + msg + '\n' + logEl.textContent;
+  }
+  function clearKey(key) {
+    (timers[key] || []).forEach(function (t) { window.clearTimeout(t); });
+    timers[key] = [];
+  }
+  function later(key, fn, ms) {
+    timers[key] = (timers[key] || []).concat(window.setTimeout(fn, ms));
+  }
+  function setPhase(btn, phase) {
+    var key = btn.id;
+    phases[key] = phase;
+    btn.classList.remove('is-idle', 'is-burst', 'is-sync', 'is-done', 'is-error');
+    btn.classList.add('is-' + phase);
+    btn.setAttribute('aria-busy', phase === 'sync' ? 'true' : 'false');
+    var label = btn.getAttribute('data-label');
+    var textEl = btn.querySelector('.action-text');
+    /* 可见文字常显（宽度全程不变）；只有 aria-label 随相位换文案。
+       回落分叉改写静止态时才换可见文字——那是 idle 相位的事，不是动画期间。 */
+    var ariaText = label;
+    if (phase === 'sync') { ariaText = label + '中…'; }
+    if (phase === 'error') { ariaText = label + '（上次失败，点击重试）'; }
+    var visible = label;
+    if (btn.getAttribute('data-mode') === 'forked' && phase === 'idle') {
+      visible = btn.getAttribute('data-fork-label') || label;
+      ariaText = visible;
+    }
+    btn.setAttribute('aria-label', ariaText);
+    if (textEl) { textEl.textContent = visible; }
+    btn.disabled = (phase === 'sync' || phase === 'burst');
+    renderState();
+    log(key + ' → ' + phase);
+  }
+  function renderState() {
+    var lines = [];
+    Object.keys(phases).forEach(function (k) {
+      var btn = document.getElementById(k);
+      var mode = btn ? btn.getAttribute('data-mode') : '?';
+      lines.push(k + ': ' + (phases[k] || 'idle') + (mode === 'forked' ? '（已分叉）' : ''));
+    });
+    stateEl.textContent = lines.join('\n') || '（未开始）';
+  }
+  function runFor(btn, forceFail) {
+    var key = btn.id;
+    clearKey(key);
+    setPhase(btn, 'burst');
+    later(key, function () {
+      setPhase(btn, 'sync');
+      var taskMs = 1200 + Math.floor(Math.random() * 800);
+      later(key, function () {
+        if (forceFail) {
+          setPhase(btn, 'error');
+          later(key, function () { settle(btn); }, PARAMS.holdError);
+        } else {
+          setPhase(btn, 'done');
+          later(key, function () { settle(btn); }, PARAMS.holdDone);
+        }
+      }, taskMs);
+    }, PARAMS.burst);
+  }
+  function settle(btn) {
+    var key = btn.id;
+    if (key === 'btn-c' && btn.getAttribute('data-mode') !== 'forked') {
+      btn.setAttribute('data-mode', 'forked');
+      btn.setAttribute('data-fork-label', '更新 3');
+      log(key + ' 回落分叉：静止态改写为「更新 3」');
+    } else if (btn.getAttribute('data-mode') === 'forked') {
+      btn.setAttribute('data-mode', 'idle');
+      log(key + ' 分叉态执行后回落：固定回原静止态');
+    }
+    setPhase(btn, 'idle');
+  }
+  function bind(btn) {
+    if (!btn.getAttribute('data-bound')) {
+      btn.addEventListener('click', function () {
+        var fail = document.getElementById('force-fail-toggle').getAttribute('aria-pressed') === 'true';
+        runFor(btn, fail);
+      });
+      btn.setAttribute('data-bound', '1');
+    }
+    btn.classList.add('is-idle');
+    phases[btn.id] = 'idle';
+  }
+  function bindAll() {
+    var btns = document.querySelectorAll('.action-btn');
+    for (var i = 0; i < btns.length; i++) { bind(btns[i]); }
+    renderState();
+  }
+  bindAll();
+
+  var themeButton = document.getElementById('theme-toggle');
+  themeButton.addEventListener('click', function () {
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    themeButton.textContent = next === 'dark' ? '切到浅色' : '切到深色';
+  });
+  var reduceButton = document.getElementById('reduce-toggle');
+  reduceButton.addEventListener('click', function () {
+    var on = root.getAttribute('data-reduce') === 'on';
+    if (on) { root.removeAttribute('data-reduce'); reduceButton.setAttribute('aria-pressed', 'false'); reduceButton.textContent = 'reduce：跟随系统'; }
+    else { root.setAttribute('data-reduce', 'on'); reduceButton.setAttribute('aria-pressed', 'true'); reduceButton.textContent = 'reduce：强制开'; }
+    log('reduce 档切换：' + (on ? '跟随系统' : '强制开'));
+  });
+  var failButton = document.getElementById('force-fail-toggle');
+  failButton.addEventListener('click', function () {
+    var on = failButton.getAttribute('aria-pressed') === 'true';
+    failButton.setAttribute('aria-pressed', on ? 'false' : 'true');
+    failButton.textContent = on ? '强制失败：关' : '强制失败：开';
+  });
+  document.getElementById('interrupt-btn').addEventListener('click', function () {
+    Object.keys(timers).forEach(clearKey);
+    var btns = document.querySelectorAll('.action-btn');
+    for (var i = 0; i < btns.length; i++) { setPhase(btns[i], 'idle'); }
+    log('打断：全部定时器已清，回落 idle（模拟卸载清理）');
+  });
+  var row = document.getElementById('demo-row');
+  var unmountBtn = document.getElementById('unmount-btn');
+  var mountBtn = document.getElementById('mount-btn');
+  unmountBtn.addEventListener('click', function () {
+    Object.keys(timers).forEach(clearKey);
+    /* 卸载须同时复位相位类：清掉 is-sync 才能停掉无限 loader，
+       否则只清定时器、类还在，动画会遗留（与真实组件卸载销毁 DOM 等价）。 */
+    var ub = document.querySelectorAll('.action-btn');
+    for (var i = 0; i < ub.length; i++) {
+      ub[i].classList.remove('is-burst', 'is-sync', 'is-done', 'is-error');
+      ub[i].classList.add('is-idle');
+      ub[i].setAttribute('aria-busy', 'false');
+      ub[i].disabled = false;
+      phases[ub[i].id] = 'idle';
+    }
+    row.hidden = true; mounted = false;
+    unmountBtn.hidden = true; mountBtn.hidden = false;
+    log('卸载：演示行移除，定时器全清、相位复位（无遗留循环）');
+    renderState();
+  });
+  mountBtn.addEventListener('click', function () {
+    row.hidden = false; mounted = true;
+    mountBtn.hidden = true; unmountBtn.hidden = false;
+    var btns = document.querySelectorAll('.action-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].setAttribute('data-mode', 'idle');
+      btns[i].removeAttribute('data-fork-label');
+      setPhase(btns[i], 'idle');
+    }
+    log('重新挂载：状态归零');
+  });
+  document.getElementById('audit-btn').addEventListener('click', function () {
+    var lines = [];
+    var btns = document.querySelectorAll('.action-btn');
+    var totalInf = 0;
+    for (var i = 0; i < btns.length; i++) {
+      var anims = btns[i].getAnimations({ subtree: true });
+      var inf = anims.filter(function (a) {
+        var it = a.effect && a.effect.getTiming ? a.effect.getTiming().iterations : 1;
+        return it === Infinity;
+      }).length;
+      totalInf += inf;
+      lines.push(btns[i].id + ': 活动动画 ' + anims.length + ' · 无限循环 ' + inf);
+    }
+    var reduceOn = root.getAttribute('data-reduce') === 'on' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    lines.push('reduce 生效：' + (reduceOn ? '是' : '否'));
+    lines.push('全局无限循环合计：' + totalInf + (mounted ? '' : '（已卸载）'));
+    auditEl.textContent = lines.join('\n');
+    log('审计：无限循环合计 ' + totalInf);
+  });
+  var overflowOk = root.scrollWidth <= window.innerWidth;
+  root.setAttribute('data-overflow-ok', overflowOk ? 'true' : 'false');
+  console.log('[iconlab] horizontal-overflow ' + (overflowOk ? 'none' : 'DETECTED') +
+    ' | scrollWidth=' + root.scrollWidth + ' | innerWidth=' + window.innerWidth);
+})();
+"""
+
+
+# --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
 
@@ -2564,6 +2967,26 @@ def build_parser() -> argparse.ArgumentParser:
     render_parser.add_argument("--stroke", type=_positive_float, default=STROKE_DEFAULT, metavar="W", help=f"线宽（24 视框单位，默认 {STROKE_DEFAULT}）")
     render_parser.add_argument("--catalog", default=str(DEFAULT_CATALOG), metavar="FILE", help="目录文件路径")
     render_parser.set_defaults(func=cmd_render)
+
+    motion_parser = subparsers.add_parser(
+        "render-motion",
+        help="产出过程型状态机（编排层）可交互演示页",
+        description=(
+            "产出离线单页 HTML：idle→burst→sync→done/error→回落 的可交互状态机演示，\n"
+            "含 reduce 两档切换、强制失败、停留期打断、卸载清理、回落分叉与 getAnimations() 审计面板。\n"
+            "参数为 proposal 锚点（非项目令牌）；判定层见 references/motion-statemachine.md。"
+        ),
+        epilog="示例：render-motion --out motion-demo.html --burst-ms 420 --hold-done-ms 1500 --hold-error-ms 3000",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    motion_parser.add_argument("--out", required=True, metavar="FILE", help="输出 HTML 路径")
+    motion_parser.add_argument("--size", type=_positive_int, default=16, metavar="PX", help="图标尺寸（默认 16）")
+    motion_parser.add_argument("--stroke", type=_positive_float, default=STROKE_DEFAULT, metavar="W", help=f"线宽（24 视框单位，默认 {STROKE_DEFAULT}）")
+    motion_parser.add_argument("--burst-ms", type=_positive_int, default=420, metavar="MS", help="触发段时长（proposal，默认 420）")
+    motion_parser.add_argument("--hold-done-ms", type=_positive_int, default=1500, metavar="MS", help="成功停留时长（proposal，默认 1500）")
+    motion_parser.add_argument("--hold-error-ms", type=_positive_int, default=3000, metavar="MS", help="失败停留时长（proposal，默认 3000）")
+    motion_parser.add_argument("--catalog", default=str(DEFAULT_CATALOG), metavar="FILE", help="目录文件路径")
+    motion_parser.set_defaults(func=cmd_render_motion)
 
     return parser
 

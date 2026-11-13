@@ -1,0 +1,12 @@
+/* 编排槽位：图标同槽叠放，只切 opacity，宽度不变 */
+.action-btn { position: relative; }
+.action-ico { position: absolute; opacity: 0; }
+.action-btn.is-idle .ico-idle { opacity: 1; }
+.action-btn.is-burst .ico-idle { animation: nudge 420ms cubic-bezier(.2, .7, .3, 1) 1; }
+.action-btn.is-sync .ico-sync { opacity: 1; animation: spin 1s linear infinite; }
+.action-btn.is-done .ico-done { opacity: 1; }
+.action-btn.is-error .ico-err { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .action-btn.is-burst .ico-idle { animation: none; }
+  .action-btn.is-sync .ico-sync { animation: none; }
+}

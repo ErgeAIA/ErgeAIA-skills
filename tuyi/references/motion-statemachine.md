@@ -109,7 +109,9 @@ trigger-when:
 
 ## 九、机检与人判的边界
 
-能静态查的（后续批次落机器）：`is-{phase}` 一类类名序列完整、多枚图标同槽只切 opacity、按钮宽度不变、`aria-busy` 随相位、reduce 下相位动画关闭。查不了仍 `human_check`：真实任务生命周期、成败判定口径、分叉正确性。
+能静态查的（已落 `badge_lint.py`，四种 check 见 `references/profile.md`「十二种 check」）：`is-{phase}` 一类类名序列完整、多枚图标同槽只切 opacity（绝对定位 + 默认 `opacity: 0`）、`aria-busy` 相位联动、reduce 媒体块内相位关键帧动画关闭。查不了仍 `human_check`：真实任务生命周期、成败判定口径、分叉正确性、循环是否真的停止。
+
+`tests/fixtures/motion-{good,bad}/` 与 `tests/fixtures/motion-profile.yaml` 锁定四检行为：good 零误报、bad 逐条 `file:line` 命中。`iconlab.py render-motion` 产可交互演示页（reduce 两档、可打断、可循环、`getAnimations()` 审计面板），是运行时验证的载体，验收清单见 `references/render.md`。
 
 ## 自检
 

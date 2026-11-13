@@ -101,7 +101,7 @@ motion:                   # 项目动效规则；不写进 mappings
 
 动效配置只承载**项目已批准**的规则：`locked` 场景可以执行；未批准的建议写进报告，不进 profile；`motion` 不进 `mappings`——图标语义与动画语义分开维护，规范改版时才不会互相拖累。过程编排的相位、停留、重入、回落分叉由 `state_machine` 块承载，判定见 `references/motion-statemachine.md`；循环预算按实例计，全局并发上限仍用 `budget.max_primary`。
 
-## 八种 check
+## 十二种 check
 
 | kind | 语义 | 关键参数 |
 | --- | --- | --- |
@@ -113,8 +113,14 @@ motion:                   # 项目动效规则；不写进 mappings
 | `dom_text_forbidden` | 元素内不得有文本 | — |
 | `dom_forbid_descendant` | 不得含某后代（如数字进图标） | `selector` |
 | `source_forbid_regex` | 源码不得匹配某模式（如绕过统一入口直接 import） | `pattern` |
+| `phase_css_required` | 每个相位必须有 `.<base>.<prefix><phase>` 样式覆盖 | `base_class`, `phases`, 可选 `class_prefix` |
+| `phase_anim_reduce_required` | 相位关键帧动画须在 `prefers-reduced-motion: reduce` 媒体块内关闭 | `base_class`, `phases`, 可选 `class_prefix` |
+| `phase_slot_overlay_required` | 编排槽位图标须绝对定位叠放、默认 `opacity: 0` | `selectors` |
+| `phase_aria_busy_required` | 含编排类标记的源文件须设置 `aria-busy` 相位联动 | `marker` |
 
-不够用的条款**不要硬塞**进这八种：标 `human_check`，在报告里转成人判清单。把不可执行的写成可执行，只会制造假阳性。
+不够用的条款**不要硬塞**进这十二种：标 `human_check`，在报告里转成人判清单。把不可执行的写成可执行，只会制造假阳性。
+
+编排四检只覆盖可静态判定的部分（类名序列、reduce 关键帧关闭、槽位叠放、aria 属性存在）；生命周期、语义必要性、任务结束是否停止、成败判定口径、回落分叉正确性仍 `human_check`——见 `references/motion-statemachine.md` §九。编排判定与 `motion.state_machine` 块是两件事：profile 存已批准规则，机检按 `rules` 执行。
 
 ## 条款可执行化的判据
 
@@ -165,7 +171,7 @@ profile 可能被分享到团队外，写的时候：
 ## 自检
 
 - 每条 rule 都有 `source_ref` 与 `fix`
-- 不可执行的条款已转 `human_check`，没有硬塞八种 check
+- 不可执行的条款已转 `human_check`，没有硬塞十二种 check
 - conflicts 有 `interim`，确实能让人继续工作
 - 没有绝对路径与产品代号
 - 从 draft 转正时，标注了依据

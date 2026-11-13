@@ -12,6 +12,10 @@
 - `tests/run_selfcheck.py` ALL OK；`skill_cli validate` Spec passed（advisory 告警为既有类别）；SKILL 与新参考 frontmatter YAML 解析 PASS；版本保持 1.1.0（不升版）。
 - Round-trip：以编排层审查项回测一项真实 React 项目（五相位实现、6 个接入文件、10 处已批准接入）——已记录决策全部复现（含回落分叉、批量更新回落固定回检查、部分成功即成功的成败口径）；3 项裁定不做的场景（秒完成刷新 / 先计划后执行 / 面板开关入口）确认未使用编排；纯开关（收藏乐观更新）与两段式确认第一段（armed 样式）正确落在不该用清单；另抓到 1 处源码注释与实现漂移（注释声称勾描边与双向拉开，实现为颜色切换与单向轻推 2px），判定 minor。规则与已记录事实零矛盾。
 
+- 编排层机检落地（`badge_lint.py`）：新增四种 check——`phase_css_required`（相位类名序列）、`phase_anim_reduce_required`（reduce 媒体块内关关键帧）、`phase_slot_overlay_required`（槽位绝对定位 + 默认 opacity 0）、`phase_aria_busy_required`（编排类源文件设 aria-busy）；`parse_css` 增强 @media 上下文跟随与逗号选择器组合并。`tests/fixtures/motion-{good,bad}/` + `motion-profile.yaml` 锁定行为：good 零误报、bad 逐条 file:line 命中。真实 React 项目实现实测 4/4 规则 PASS、零 findings。
+- `iconlab.py render-motion`：新增可交互状态机演示页（离线单页、内联 SVG、双主题、reduce 两档、失败路径、停留期重入、卸载清理、回落分叉、getAnimations() 审计面板）；参数为 proposal 锚点，非项目令牌。运行时实测（Playwright 1440×950）：五相位宽度全程不变、无限循环只在 sync 且回落后归零、系统级 reduce 下关键帧动画 0 而结论链保留、卸载后无遗留循环、双主题无横向溢出；实测抓到并修复三处演示页缺陷（动画期改可见文字撑宽、初始缺 is-idle 类、卸载未复位相位致 loader 遗留）。文档同步：`references/profile.md` 八种 → 十二种 check、`references/motion-statemachine.md` §九、`references/render.md` 演示页验收节、README 怎么用表与索引。
+- 全量机检：selfcheck ALL OK（含 render-motion 冒烟 10 项）、`skill_cli validate` Spec passed / Skill is valid、3 份 frontmatter YAML 解析 OK；版本保持 1.1.0（不升版）。
+
 ### 变更
 
 - 仓库归属迁入开源仓 `ErgeAIA-skills`（不升版）：技能内容、版本与行为不变；此前开发历史留在私有仓，公开仓自本条起。

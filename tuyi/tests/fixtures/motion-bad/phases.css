@@ -1,0 +1,5 @@
+/* 缺相位覆盖、缺 reduce 关闭、槽位不叠放 */
+.action-btn { position: relative; }
+.action-btn.is-idle .ico-idle { opacity: 1; }
+.action-btn.is-sync .ico-sync { opacity: 1; animation: spin 1s linear infinite; }
+.action-ico { position: relative; opacity: 1; }
