@@ -3,7 +3,7 @@ name: tuyi
 description: "为徽章与状态位选出可复核的图标（含首选、备选与排除理由），审查整套徽章用法，把设计规范抽成可执行规则，并判断该不该加动效。适用于徽章选型、徽章审查与规范落地。"
 metadata:
   author: ErgeAIA
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # 图意 · Tuyi
