@@ -128,6 +128,8 @@ writes-to:
 
 ## 写入规则 · `CHANGELOG.md`（项目根，可选）
 
+> **收尾流程不写本节**：`vibe-wrap` 的 triage 把 CHANGELOG 判为 `release-only`——逐会话追加必然膨胀成第二份流水。本节只在用户明确要求 `vibe-sync` 写变更日志、或初始化阶段建立骨架时适用；日常归档交 `changelog-manager` 在发版时一次性完成。
+
 - **前置**：仅当 `<project>/CHANGELOG.md` **已存在**时追加；骨架由 `vibe-init` 经 `changelog-manager +init` 建立。不存在 → **不创建**，终止回复写「无 CHANGELOG.md，请先跑 `vibe-init` 或调 changelog-manager」。
 - **只收用户可见变更**：新功能、行为修复、破坏性变更、配置/接口对外变化、对使用者有影响的文档。内部过程文档、`docs/agents/`、无行为变化的重构 **不写**。
 - **格式跟随文件既有风格**：Keep a Changelog 的 `### Added / Fixed / Changed` 或该文件已用的自定义列表；**禁止**另起一套与文件内历史不一致的结构。

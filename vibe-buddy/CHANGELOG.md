@@ -6,6 +6,21 @@
 
 ## [Unreleased]
 
+### 收尾改为「一次自审 + 按需触发」，去掉逐步停顿
+
+**背景**：原来每个触发词都要先停下确认、组合意图拆成两轮，一次收尾要来回四五趟；而且并非每轮都该写全部产物，逐项确认把「要不要写」的判断成本也摊给了用户。
+
+**改动**
+
+- 新增 `vibe-wrap`（「收尾」「会话收尾」）：自审后按 triage 表串行执行 `vibe-sync` → `vibe-distill` → `vibe-handoff`，中途不再停。
+- 「先确认再执行」改为**自审闸**：一次输出产物清单 / 每项依据 / 风险 / 跳过原因码（≤4 行）；无高风险即连续执行到底，只有覆盖既有文件、删除源文件、`CLAUDE.md` 迁移、跨白名单写入四类才停。
+- 新增 triage 表：progress / decision / debug / experience / handoff / README / CHANGELOG 各自的写入与跳过条件，跳过须给原因码（`no-change` / `single-occurrence` / `no-surface-change` / `release-only` 等）。
+- CHANGELOG 移出收尾职责：`vibe-sync` 不再逐会话追加，发版时由 `changelog-manager` 一次性归档；SKILL 验证表与 README 同步该口径。
+
+**修改文件**：`SKILL.md`、`README.md`、`references/sync-progress.md`、`CHANGELOG.md`。
+
+---
+
 ### 初始化流程新增「仓库卫生检查与补齐」
 
 **背景**：初始化项目后仍要单独调 `changelog-manager` 建 CHANGELOG；`.gitignore` 与 README 则无人负责。
