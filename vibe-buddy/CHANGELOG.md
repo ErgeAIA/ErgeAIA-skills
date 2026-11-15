@@ -22,6 +22,25 @@
 
 ---
 
+### 修复十处「同一动作两种要求」的规则自相矛盾
+
+**背景**：规则审查发现同一动作在不同文件给出互斥要求，模型只能随机选一边——同一输入产出不确定结果，比规则过严更伤。
+
+**改动**
+
+- CHANGELOG 追加位置：删去「无 `[Unreleased]` 时新增当日 `## [YYYY-MM-DD]` 节」，统一为「只写 `[Unreleased]`，缺失则提示先跑 `changelog-manager`」。
+- `decision-log` 模板：删去「回写 PRD/ADR」，改为「以本文件最新决策为准，PRD/ADR 由用户自行同步」。
+- 迁移处置统一为五态 `keep` / `merge` / `update` / `relocate` / `drop`：`agents-md-generator.md` 补 `relocate` 行，与本文件迁移保全规则同一套。
+- Codegraph 索引判定统一为「只看项目根 `.codegraph/` 是否存在」；`status` 仅作展示、退出码不参与判定。
+- 「只追加」加限定：`project-progress.md` 的当前状态块覆盖、进展条目只追加；`experience/` 正文可改写，其余四份历史条目不动。
+- `CLAUDE.md` 保留例外：用户明确要求时可保留，但须在 `agents-changelog.md` 登记为「非契约档案 + 理由」，此后不得被当作契约引用。
+- `git init` 报告统一为「已初始化仓库，默认分支 <分支名>」，分支名读 `.git/HEAD`，不凭经验填。
+- 交接「同日取新判据」去重：句子原文只留 `agents-md-generator.md` §5，`init-agents-md.md` 处改指针。
+
+**修改文件**：`references/sync-progress.md`、`assets/docs/decision-log.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`、`CHANGELOG.md`。
+
+---
+
 ## v1.8.0 (2026-10-10)
 
 ### 初始化产物目录 `docs/.ai/` 更名为 `docs/agents/`

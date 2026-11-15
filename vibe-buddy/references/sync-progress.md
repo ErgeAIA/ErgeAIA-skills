@@ -131,7 +131,7 @@ writes-to:
 - **前置**：仅当 `<project>/CHANGELOG.md` **已存在**时追加；骨架由 `vibe-init` 经 `changelog-manager +init` 建立。不存在 → **不创建**，终止回复写「无 CHANGELOG.md，请先跑 `vibe-init` 或调 changelog-manager」。
 - **只收用户可见变更**：新功能、行为修复、破坏性变更、配置/接口对外变化、对使用者有影响的文档。内部过程文档、`docs/agents/`、无行为变化的重构 **不写**。
 - **格式跟随文件既有风格**：Keep a Changelog 的 `### Added / Fixed / Changed` 或该文件已用的自定义列表；**禁止**另起一套与文件内历史不一致的结构。
-- **追加位置**：优先 `## [Unreleased]`（若存在）；无 Unreleased 则在最新版本节之后、历史节之前新增当日 `## [YYYY-MM-DD]` 或项目惯用小节；**永不改写**已发布历史版本节。
+- **追加位置**：只在 `## [Unreleased]` 节内追加；该节不存在时**不自行新建日期节**，终止回复写明「缺 `[Unreleased]`，请先跑 `changelog-manager`」；**永不改写**已发布历史版本节。
 - **不创建版本号节**：未打发布 tag 前只写 `[Unreleased]`；版本号与归档归 `changelog-manager`，本技能不新增 `## [x.y.z]` 节。
 - **条目口吻**：面向使用者的一句话（做了什么 / 修了什么），可附路径或 issue 指针；不写内部工单式流水。
 - **与 Git 对齐**：可引用本次相关 `commit` hash；未提交改动写「工作区（未提交）」，不编造版本号。

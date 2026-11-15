@@ -91,7 +91,7 @@ writes-to:
 先只读检测：`git rev-parse --is-inside-work-tree`。
 
 - 已是仓库 → 跳过，报告写「已存在仓库，跳过」
-- 不是仓库 → 执行 `git init`，报告写「已初始化仓库」
+- 不是仓库 → 执行 `git init`，报告写「已初始化仓库，默认分支 <分支名>」——分支名读 `<project>/.git/HEAD` 的 `ref: refs/heads/<名称>`，`git init` 的输出不含分支名，不得凭经验填 `main` / `master`
 - 不执行 `git add` / `commit` / `push`
 - 失败不阻塞，记「失败 + 原因」后继续
 
@@ -185,7 +185,7 @@ writes-to:
 | `docs/agents/experience/` | 可复用经验库，按领域分目录；初始化只建空目录，内容由首次蒸馏时按 `assets/experience/` 模板建立 | `vibe-distill` |
 | `docs/handoff/` | 交接文档，命名 `handoff-YYYY-MM-DD-*.md` | `vibe-handoff` |
 
-全部**只追加**，历史条目永不删除或改写；决策冲突时把旧条目标 `superseded`。
+**只追加**（下表各文件的「当前状态」可变块除外）：`decision-log` / `debug-log` / `init-report` / `agents-changelog` 的历史条目永不删除或改写，决策冲突时把旧条目标 `superseded`；`project-progress.md` 的「当前状态」块按可变区覆盖、进展条目只追加；`experience/` 是**可移植产物**——正文可改写（错的规则留着会持续误导），历史靠其 `changelog.md` 追溯。
 
 ## AGENTS.md 的文档义务（必做）
 
@@ -201,11 +201,7 @@ writes-to:
 
 **接管为什么写在 `Permissions` 而不是做成触发词**：触发词要求用户先想起它，A 层义务每会话自动生效。写进去之后，「新会话先弄清现状」不再依赖任何人记得敲命令——这是本技能对「AI 未调用技能」这个前提的唯一覆盖手段。
 
-`Conventions` 的「交接文档同日多份」一行必须写清取新判据，**不得依赖目录列出的顺序**：
-
-| 观察到的现象 | 要求 Agent 的行为 |
-|---|---|
-| 交接文档同日多份 | 按文件名里的日期取最新（兼容 `YYYY-MM-DD` 与 `YYYYMMDD` 两种写法）；同日多份再取 frontmatter `updated` 最新者，仍不可判则列出问用户 |
+`Conventions` 的「交接文档同日多份」一行必须写清取新判据，**不得依赖目录列出的顺序**；该行句子原文见 `references/agents-md-generator.md` §5（唯一真源，此处不复制）。
 
 原因：**字典序不等于时间序**。`handoff-2026-08-22-evening.md` 排在 `handoff-2026-08-22.md` **之前**（`-` 0x2D < `.` 0x2E）；旧写法的 `handoff-20260802.md` 更会排在所有 `handoff-2026-*` **之后**（`-` < `0`）——取「目录里最后一条」会取到一个多月前的文件。
 
@@ -225,7 +221,7 @@ writes-to:
 
 ## CLAUDE 受控迁移（状态 C / D）
 
-`AGENTS.md` 是唯一项目级协作契约源；`CLAUDE.md` 在迁移中只是**输入源**，不是长期运行时源。迁移完成后项目根不得再以 `CLAUDE.md` 作为协作契约存在。
+`AGENTS.md` 是唯一项目级协作契约源；`CLAUDE.md` 在迁移中只是**输入源**，不是长期运行时源。迁移完成后项目根不得再以 `CLAUDE.md` 作为协作契约存在——**唯一例外**：用户在明确要求下要保留该文件时，可按其意图保留，但必须在 `agents-changelog.md` 登记「保留为非契约档案 + 理由」，且该文件此后不得被任何文档或义务当作契约引用（见 `references/trigger-test-set.md` 的负面集口径）。
 
 迁移不是机械重命名，也不是保留指针。每条旧规则按「keep / update / merge / drop / relocate」五态处置（处置与留痕规则同决策保全节），并逐条检查是否存在 Claude 专属语法、Claude 专属工具说明或已过时规则——此类条目按 `drop` 处置并留痕；**有效但属于变更日志、人读说明、决策叙事的条目按 `relocate` 迁出**。
 
@@ -264,7 +260,7 @@ writes-to:
 
 ### 迁移保全规则
 
-- 旧 `CLAUDE.md` 中每条有效规则必须落入四处之一：`keep` / `merge` → 进入 `AGENTS.md`；`relocate` → 迁往 §6b 规定的归宿文件、原处留指针；`drop` → 在 `agents-changelog.md` 记录原因。**不得出现「既不进 AGENTS.md、也无 relocate / drop 记录」的规则。**
+- 旧 `CLAUDE.md` 中每条有效规则必须落入**五种处置之一**：`keep` / `merge` / `update` → 进入 `AGENTS.md`（`update` 须以代码现状为准改写并在层 C 留痕）；`relocate` → 迁往 §6b 规定的归宿文件、原处留指针；`drop` → 在 `agents-changelog.md` 记录原因。**不得出现「既不进 AGENTS.md、也无 relocate / drop 记录」的规则。**（与 `references/agents-md-generator.md` §2b 同一套处置，不另立分类。）
 - 待确认条目写入终止回复交用户裁决；未裁决前源文件保留。
 - 源文件未被 git 跟踪时，先按决策保全的留档规则把原文存入 `agents-changelog.md` 存档小节，再执行处置。
 - 迁移记录若早于「建立过程文档」步骤落盘：先按 §4b 模板建立 `docs/agents/agents-changelog.md`，再写迁移条目——**处置留痕必须先于源文件删除**。
@@ -306,7 +302,7 @@ writes-to:
 
 ## Codegraph 集成
 
-判定顺序：先 `codegraph --version` 查安装，再 `codegraph status` 查本项目索引。
+判定顺序：先 `codegraph --version` 查安装，再看**项目根下 `.codegraph/` 是否存在**判定本项目索引（`codegraph status` 只用于展示统计，其退出码不参与判定；祖先目录的索引属于父项目，不算本项目已有索引）。
 
 - 已安装且无索引、项目有代码 → 执行 `codegraph init`
 - 已安装且已有索引 → 跳过
