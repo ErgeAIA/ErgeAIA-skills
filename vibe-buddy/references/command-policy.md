@@ -39,5 +39,6 @@ consumed-by: references/init-env-checks.md、references/sync-progress.md、refer
 - 写操作执行前声明意图与目标路径；只读命令直接跑，不额外确认
 - 执行后如实记录退出码与关键输出；写操作另记实际耗时
 - 任何一条失败都不中断后续步骤，记入报告或回复后继续；但**先判它是不是「正常状态」而非失败**——零提交仓库里 `git log` 返回 128 并报 `does not have any commits yet`，属正常状态，记「尚无提交」
+- **「空输出」同理，判据只在这里定义一次**：`git diff --stat` 不显示未跟踪文件，为空**不等于**没有改动，应以 `git status --short` 为准；仓零提交时 git 只能给出「全部未跟踪」，属正常状态而非失败。各 references 需要时引用本条，不再复述
 - 输出含密钥或敏感路径时脱敏或截断，只留结论
 - 本项目不是 Git 仓库时，跳过全部 `git` 命令，视为「无此事实源」，不报错

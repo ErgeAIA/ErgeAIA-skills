@@ -43,8 +43,7 @@ writes-to:
 | 3 | `AGENTS.md` 与 `docs/agents/` 各文档 | 规则、进度、决策、已记录的坑 |
 | 4 | 本次会话上下文 | 仅作补充 |
 
-- `git diff --stat` **不显示未跟踪文件**，为空不等于没有改动，以 `git status --short` 为准
-- 仓库零提交（刚 `git init`、尚未提交）时 git 只能给出「全部未跟踪」，属正常状态，不代表没有进展
+- git 输出为空 / 零提交属正常状态，不代表没有进展——判据见 `references/command-policy.md` 执行纪律（此处不复述）
 - 项目不是 Git 仓库 → 跳过第 1 项，不报错
 - 取材覆盖整个仓库；但**只写** `docs/handoff/`，源码与配置一律只读
 

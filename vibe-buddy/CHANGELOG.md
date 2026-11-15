@@ -6,6 +6,22 @@
 
 ## [Unreleased]
 
+### 蒸馏去重改机读台账；语义门禁降级为审稿提示
+
+**背景**：靠读 `changelog.md` 的文字比对本轮是否蒸过并不可靠——同一段改动换个说法就"看起来不同"；同时若干语义判断（"杂音"、"明显过长"、"读者不会想到"）被写成过闸条件，模型只能宣称通过。
+
+**改动**
+
+- 蒸馏去重改用 `experience/.distill-index.json`（`range` / `head` / `at` / `produced` / `skipped`），按 commit SHA 判定；`changelog.md` 降为**一行一条**的人读台账，两份同轮写入、区间一致。
+- 「有意跳过必须穷举」改为**原因码枚举**：`no-rule` / `single-occurrence` / `no-fact-source` / `project-param` / `covered-by:<条目>`。
+- 门禁降级：`agents-md-generator` 的 N1–N6 与「行数须实测」明确为审稿提示；`init-agents-md` 的「11 步不跳步」改为「产出物清单不可缺，跳过须写依据」；init 终止回复从逐项 6 项压成 3 行 + 待确认项（明细落 `init-report.md`）。
+- 环境判定去重：`git diff --stat` 为空 / 零提交的解释收敛到 `command-policy.md` 执行纪律，`sync-progress.md` 与 `handoff-context.md` 改为指针。
+- 触发回归：`trigger-test-set.md` 补 `vibe-wrap` 正例与组合意图路由口径（明示子触发词时仍走 wrap，单意图仍走子词）。
+
+**修改文件**：`SKILL.md`、`references/distill-experience.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`、`references/command-policy.md`、`references/sync-progress.md`、`references/handoff-context.md`、`references/trigger-test-set.md`、`assets/experience/changelog.md`、`CHANGELOG.md`。
+
+---
+
 ### 收尾改为「一次自审 + 按需触发」，去掉逐步停顿
 
 **背景**：原来每个触发词都要先停下确认、组合意图拆成两轮，一次收尾要来回四五趟；而且并非每轮都该写全部产物，逐项确认把「要不要写」的判断成本也摊给了用户。

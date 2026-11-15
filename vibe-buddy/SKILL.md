@@ -91,6 +91,7 @@ Core Task：
 | 初始化执行报告，只追加 | `<project>/docs/agents/init-report.md` | `vibe-init` 独占 |
 | 项目概览（可选，按需自建） | `<project>/docs/agents/project-overview.md` | `vibe-init` |
 | 可复用经验库，按领域分目录 | `<project>/docs/agents/experience/` | `vibe-init` 建空目录；内容由 `vibe-distill` 写 |
+| 蒸馏台账（人读 / 机读） | `experience/changelog.md`（一行一条）· `experience/.distill-index.json`（去重键） | `vibe-distill` 同轮写两份，缺一视为未完成 |
 | 会话交接文档，带 frontmatter | `<project>/docs/handoff/handoff-YYYY-MM-DD[-slug].md` | `vibe-handoff` |
 | 项目审计报告，只追加 | `<project>/docs/agents/audit/audit-YYYY-MM-DD[-slug].md` | `vibe-audit`；目录缺失时由 `vibe-audit` 首次执行时建（含 `.gitkeep`） |
 | 变更日志 | `<project>/CHANGELOG.md` | `vibe-init` 经 `changelog-manager +init` 建骨架；`vibe-sync` 只按既有格式追加 |
@@ -191,5 +192,5 @@ Core Task：
 | `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；调试定位到根因时 `debug-log.md` 已追加 `BUG-NNN`；`AGENTS.md` 仅事实区被回填，契约区未动；**`CHANGELOG.md` 不在收尾职责内**（用户明确要求时才写，归档交 `changelog-manager`） |
 | `vibe-wrap` | 自审四行齐全（产物清单 / 依据 / 风险 / 跳过原因码）；该写的产物都已落盘且 `updated` 为当日；跳过的产物带原因码；全程停顿 ≤1 次且只在高风险动作上 |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，正文只展开「别处读不到」的四类、其余写指针，未覆盖既有文件 |
-| `vibe-distill` | 条目五要素齐全且各有事实源；编号在主题内递增；`experience/changelog.md` 已追加本轮（原料区间 + 覆盖主题 + 产出）；冲突已标出而非自行取舍 |
+| `vibe-distill` | 条目五要素齐全且各有事实源；编号在主题内递增；`changelog.md` 与 `.distill-index.json` **同轮各写一条**且区间一致；跳过项有原因码；冲突已标出而非自行取舍 |
 | `vibe-audit` | 每条结论带 `路径:行` 或明写「证据不足」；报告落入 `docs/agents/audit/` 且 `updated` 为当日；未改动被审项目任何文件；Skill 项目已转交而非自审 |
