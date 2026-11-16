@@ -167,4 +167,4 @@ vibe-buddy/
 
 ## 版本
 
-当前版本：**v1.9.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.10.0**，详见 [CHANGELOG.md](CHANGELOG.md)。

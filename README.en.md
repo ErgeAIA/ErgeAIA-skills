@@ -9,15 +9,15 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | Skill | One-liner | Usage example | Version |
 |-------|-----------|---------------|---------|
 | [skill-workshop](skill-workshop/) | Full-lifecycle workbench for Agent Skills: create, review, optimize, refactor, validate, package | `Optimize this skill and give me Before/After` | v2.8.0 |
-| [vibe-buddy](vibe-buddy/) | Project-side collaboration management for AI-assisted coding: AGENTS.md contract, progress / handoff / experience, read-only project audit | `vibe-init` | v1.9.0 |
+| [vibe-buddy](vibe-buddy/) | Project-side collaboration management for AI-assisted coding: AGENTS.md contract, progress / handoff / experience, read-only project audit | `vibe-init` | v1.10.0 |
 | [git-manager](git-manager/) | Git workflow safety rail: branches, commits, merges by convention; dangerous ops require explicit confirmation | `commit these changes as a conventional commit` | v1.3.3 |
-| [changelog-manager](changelog-manager/) | Keep a Changelog maintenance, generate from git commits, bilingual support | `+add Added user login` | v2.1.3 |
-| [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.1.1 |
+| [changelog-manager](changelog-manager/) | Keep a Changelog maintenance, generate from git commits, bilingual support | `+add Added user login` | v2.2.0 |
+| [shuxu](shuxu/) | Shuxu: write / refine a README for your code project (Chinese by default, optional English fork) — only facts traceable to manifests and source; every command labeled verified or not | `write a README for this project / polish my README` | v1.2.0 |
 | [shese](shese/) | Shese: audit and optimize an existing palette, or generate a new one from a single style intent or a name/story — readability verdicts, minimal-change fixes, named-theme export, and a scene preview page you can actually look at | `is this dark theme tiring to read at night? / build a quiet low-chroma dark editor palette` | v1.2.1 |
-| [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.0.4 |
+| [rea-pilot](rea-pilot/) | REA onboarding pilot: install and connect REA to your own agent, pre-install checkup, plan-first setup, three-question verification, reverse-engineering routing, hardening advice | `install REA and prove it is actually connected` | v1.1.0 |
 | [tuyi](tuyi/) | Tuyi: pick verifiable icons for badges and status slots (primary, fallback, and rejection reasons), audit an entire badge system, turn a design spec into executable rules, and decide whether motion is warranted (including process state-machine orchestration) | `pick a badge icon for "local plugin" — it marks source, not status` | v1.2.0 |
-| [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.2.1 |
-| [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.3.10 |
+| [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.3.0 |
+| [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.4.0 |
 
 ## Getting Started
 

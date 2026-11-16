@@ -1,9 +1,9 @@
 ---
 name: shuxu
-description: "当用户要写、生成、重写或优化项目 README，说写 README、优化 README、项目说明书，或要给仓库配一份说明时，为代码项目撰写 README（默认中文，开源可配英文版），按 Standard Readme 组织结构，命令与事实可溯源。Not for: README 翻译、完整 API 文档套件。"
+description: "为代码项目撰写或优化 README，默认中文主文件、开源补英文版，按 Standard Readme 组织，命令与事实可溯源。Use when 用户说写 README、优化 README、项目说明书、说明文档。"
 metadata:
   author: ErgeAIA
-  version: "1.1.1"
+  version: "1.2.0"
 ---
 
 # 书序 · Shuxu

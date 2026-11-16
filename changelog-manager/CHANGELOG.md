@@ -4,6 +4,14 @@
 
 ---
 
+## [Unreleased]
+
+## 2.2.0 (2026-11-16)
+
+### 变更
+
+- description 收为两段式（Job + Use when）：删去第三段边界清单（边界事实归正文 Non-Goals），并按技能自带触发自测集校正触发词与任务句。
+
 ## 2.1.3 (2026-09-26)
 
 ### description 按 Trigger+Job+Boundary 重写

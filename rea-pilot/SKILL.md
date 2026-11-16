@@ -1,9 +1,9 @@
 ---
 name: rea-pilot
-description: "把 REA（逆向工程与证据分析工具）装进用户当前的编程助手并让它真正连接可用，再按目标给出逆向选路、卸载回滚与加固建议。Use when 用户要安装或配置 REA、把它接到自己的 Agent 或 MCP 宿主、检查环境与连接是否正常、更新或卸载它、想知道某个逆向目标该走哪条最小路径，或要给自己拥有的应用补加密、混淆、加壳与完整性防护。Not for: 目标已连上后会话内怎么用 REA 调查（交 REA 自带技能 reverse-engineer-anything）、纯源码仓库的架构分析。"
+description: "把 REA 装进用户助手并验证连接，就逆向选路、工具面刷新、加固与回滚给出方案。Use when 用户问 REA 装没装、连没连上、这目标从哪下手，或要更新、卸干净。"
 metadata:
   author: ErgeAIA
-  version: "1.0.4"
+  version: "1.1.0"
 ---
 
 # rea-pilot

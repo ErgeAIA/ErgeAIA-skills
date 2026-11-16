@@ -1,5 +1,13 @@
 # moxian 版本历史
 
+## [Unreleased]
+
+## v0.3.0 (2026-11-16)
+
+### 变更
+
+- description 收为两段式（Job + Use when）：删去第三段边界清单（边界事实归正文 Non-Goals），并按技能自带触发自测集校正触发词与任务句。
+
 ## v0.2.1 (2026-09-26)
 - README 头图替换为 tupu 真实产物横版图谱（`Inbox/tupu/moxian/moxian.svg` → `assets/banner.svg`），README 引用路径不变。
 
