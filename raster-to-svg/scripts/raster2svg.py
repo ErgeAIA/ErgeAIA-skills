@@ -29,12 +29,32 @@ Outputs (into --outdir):
   <stem>_check.png        source | render | diff  + IoU
   <stem>_overlay.png      traced outline + node markers over the source
 """
-import argparse, json, os, shutil, subprocess, sys
+import argparse, base64, json, os, re, shutil, subprocess, sys
 import numpy as np
 import cv2
 
 VERSION = "0.1.0"
 PATH_MAGIC = "raster2svg"
+
+
+def _imread(path, flags=cv2.IMREAD_UNCHANGED):
+    """cv2.imread cannot open non-ASCII paths on Windows (a 桌面/截图.png fails).
+    Read bytes and decode instead."""
+    try:
+        buf = np.fromfile(path, dtype=np.uint8)
+    except Exception:
+        return None
+    if buf.size == 0:
+        return None
+    return cv2.imdecode(buf, flags)
+
+
+def _imwrite(path, img, params=None):
+    ext = os.path.splitext(path)[1] or ".png"
+    ok, buf = cv2.imencode(ext, img, params or [])
+    if ok:
+        buf.tofile(path)
+    return ok
 
 # ------------------------------------------------------------------ image IO
 def parse_hex(h):
@@ -43,7 +63,7 @@ def parse_hex(h):
 
 
 def load_bgr(path, bg=(255, 255, 255)):
-    raw = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+    raw = _imread(path)
     if raw is None:
         raise RuntimeError("cannot read image: %s" % path)
     if raw.ndim == 2:
@@ -327,7 +347,8 @@ def build_svg(W, H, groups, fill, title, grouped=True):
         if grouped:
             out.append('  <g id="%s">' % g["gid"])
         for p in g["paths"]:
-            out.append('    <path d="%s" fill="%s" fill-rule="evenodd"/>' % (p["d"], fill))
+            pid = (' id="%s"' % p["id"]) if p.get("id") else ""
+            out.append('    <path%s d="%s" fill="%s" fill-rule="evenodd"/>' % (pid, p["d"], fill))
         if grouped:
             out.append("  </g>")
     out.append("</svg>")
@@ -374,7 +395,7 @@ def render_svg(svg_path, w, h, renderer):
     tmp = svg_path + ".render.png"
     subprocess.run(["rsvg-convert", "-w", str(w), "-h", str(h), "-b", "white",
                     "-o", tmp, svg_path], check=True, capture_output=True)
-    r = cv2.imread(tmp, cv2.IMREAD_COLOR)
+    r = _imread(tmp, cv2.IMREAD_COLOR)
     os.remove(tmp)
     return r.astype(np.float64)
 
@@ -415,7 +436,7 @@ def write_check(outdir, stem, mask, rend_ink, iou, note):
     panel = np.concatenate([cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR),
                             cv2.cvtColor((rend_ink * 255).astype(np.uint8), cv2.COLOR_GRAY2BGR),
                             diff], axis=1)
-    cv2.imwrite(os.path.join(outdir, stem + "_check.png"), panel)
+    _imwrite(os.path.join(outdir, stem + "_check.png"), panel)
 
 # ------------------------------------------------------------------ tracing
 def fit_contour(c, args, ss):
@@ -495,12 +516,13 @@ def run_mono(args):
     roots, comps = trace_mono(mask, gray, dark_is_ink, level, args)
 
     groups_items = []
-    for r in roots:
+    for ci, r in enumerate(roots, start=1):
         subpaths = []
         for node in [r] + r["children"]:
             subpaths.append(poly_d(node["pts"]) if node["kind"] == "polygon" else curve_d(node["segs"]))
         # one path per component: outer + its holes, evenodd punches the counters out
-        groups_items.append(dict(component=r, paths=[dict(d=" ".join(subpaths))]))
+        r["pid"] = "c%02d" % ci
+        groups_items.append(dict(component=r, paths=[dict(id=r["pid"], d=" ".join(subpaths))]))
 
     gs = group_components([g["component"] for g in groups_items], args.gap)
     gid_of = {}
@@ -515,7 +537,7 @@ def run_mono(args):
 
     odir = args.outdir or os.path.dirname(os.path.abspath(args.input))
     os.makedirs(odir, exist_ok=True)
-    stem = os.path.splitext(os.path.basename(args.input))[0]
+    stem = getattr(args, "_stem", None) or os.path.splitext(os.path.basename(args.input))[0]
     svg_path = os.path.join(odir, stem + ".svg")
     with open(svg_path, "w", encoding="utf-8") as f:
         f.write(svg)
@@ -528,7 +550,7 @@ def run_mono(args):
     recs = []
     for gi, g in enumerate(groups_items):
         r = g["component"]
-        rec = {"component": gi + 1, "group": gid_of[id(r)],
+        rec = {"component": gi + 1, "group": gid_of[id(r)], "pid": r.get("pid", ""),
                "engine": r["kind"], "bbox_xywh": [round(v, 2) for v in r["bbox"]],
                "area_px": round(r["area"], 1)}
         if r["kind"] == "polygon":
@@ -582,7 +604,26 @@ def run_mono(args):
                 cv2.polylines(mark, [np.round(node["pts"]).astype(np.int32)], True, (230, 120, 0), 1, cv2.LINE_AA)
                 for v in node["pts"]:
                     cv2.circle(mark, (int(round(v[0])), int(round(v[1]))), 3, (0, 0, 255), -1, cv2.LINE_AA)
-    cv2.imwrite(os.path.join(odir, stem + "_overlay.png"), mark)
+    _imwrite(os.path.join(odir, stem + "_overlay.png"), mark)
+
+    diff_path = os.path.join(odir, stem + "_diff.png")
+    dimg = np.full((H, W, 3), 250, np.uint8)
+    dimg[src_ink] = (205, 205, 205)
+    dimg[src_ink & ~rend_ink] = (40, 40, 220)
+    dimg[~src_ink & rend_ink] = (40, 180, 90)
+    _imwrite(diff_path, dimg)
+
+    if args.html:
+        nodes_total = sum(len(c.get("vertices_xy") or []) or len(c.get("cubic_segments") or [])
+                          for c in recs)
+        rmeta = dict(w=W, h=H, score="%.4f" % meta["iou"], ink="%.3f" % meta["ink_ratio"],
+                     parts="%d" % len(roots), nodes=str(nodes_total),
+                     bytes="%d B" % os.path.getsize(svg_path),
+                     source=os.path.basename(args.input), renderer=meta["renderer"],
+                     surrogate=meta["surrogate"], mode=args.mode,
+                     engine=args.mode, ss=args.ss)
+        print("html          : %s" % write_report(odir, stem, rmeta, recs, svg_path,
+                                                  args.input, diff_path, args.mode))
 
     print("engine        : %s (ss=%d)" % (args.mode, args.ss))
     print("image         : %dx%d  50%%-ink fraction %.3f (otsu %g, polarity %s)"
@@ -685,15 +726,16 @@ def run_color(args):
 
     parts = ['<rect x="0" y="0" width="%d" height="%d" fill="%s"/>'
              % (W, H, bgr_hex(*centers[base]))]
-    for _, col, ds in layers:
-        parts.append('<path d="%s" fill="%s" fill-rule="evenodd"/>' % (" ".join(ds), col))
+    for li, (_, col, ds) in enumerate(layers, start=1):
+        parts.append('<path id="k%02d" d="%s" fill="%s" fill-rule="evenodd"/>'
+                     % (li, " ".join(ds), col))
     svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d">\n'
            '  <!-- %s v%s | color K=%d | %d layers -->\n  %s\n</svg>\n'
            % (W, H, W, H, PATH_MAGIC, VERSION, K, len(layers), "\n  ".join(parts)))
 
     odir = args.outdir or os.path.dirname(os.path.abspath(args.input))
     os.makedirs(odir, exist_ok=True)
-    stem = os.path.splitext(os.path.basename(args.input))[0]
+    stem = getattr(args, "_stem", None) or os.path.splitext(os.path.basename(args.input))[0]
     svg_path = os.path.join(odir, stem + ".svg")
     with open(svg_path, "w", encoding="utf-8") as f:
         f.write(svg)
@@ -710,7 +752,18 @@ def run_color(args):
     mse = float(np.mean((bgr.astype(np.float32) - rend_bgr.astype(np.float32)) ** 2)) if renderer else float("nan")
     psnr = 10 * np.log10(255.0 ** 2 / mse) if renderer and mse > 0 else float("nan")
     panel = np.concatenate([bgr, rend_bgr], axis=1)
-    cv2.imwrite(os.path.join(odir, stem + "_check.png"), panel)
+    _imwrite(os.path.join(odir, stem + "_check.png"), panel)
+    if args.html:
+        check_png = os.path.join(odir, stem + "_check.png")
+        rmeta = dict(w=W, h=H, score=("%.2f dB" % psnr) if renderer else "n/a",
+                     ink="K=%d" % K, parts="%d 层" % len(layers),
+                     nodes="%d 条 path" % svg.count("<path"),
+                     bytes="%d B" % os.path.getsize(svg_path),
+                     source=os.path.basename(args.input), renderer=renderer,
+                     surrogate=not bool(renderer), mode="color", engine="polygon", ss=ss)
+        print("html          : %s" % write_report(odir, stem, rmeta, [], svg_path,
+                                                  args.input, check_png, "color"))
+
     print("mode          : color K=%d ss=%d" % (K, ss))
     print("layers        : %d" % len(layers))
     print("psnr_rendered : %s" % ("%.2f dB" % psnr if renderer else "n/a (no renderer)"))
@@ -725,13 +778,296 @@ def bgr_hex(b, g, r):
     return "#%02x%02x%02x" % (int(r), int(g), int(b))
 
 
+# ------------------------------------------------------------------ text input
+def safe_stem(text):
+    keep = []
+    for ch in text:
+        if ch.isalnum() or ch in "-_":
+            keep.append(ch)
+        elif ch.strip():
+            keep.append("_")
+    s = "".join(keep).strip("_")
+    return (s or "text")[:40]
+
+
+def find_default_font():
+    import os
+    cands = [
+        "C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simhei.ttf",
+        "C:/Windows/Fonts/simsun.ttc",
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/Supplemental/Songti.ttc",
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ]
+    for c in cands:
+        if os.path.exists(c):
+            return c
+    return None
+
+
+def render_text_png(text, font_path, size, out_png, ss=4, pad=None):
+    """Render one line of text to an antialiased PNG, then trace that.
+
+    The tracer's whole premise is "the ink boundary is the 50%-coverage line", so
+    the text has to arrive as a real rasterisation: 4x supersample, then box-filter
+    down. A font file is the true source here - tracing the PNG is a fallback, not
+    an upgrade.
+    """
+    from PIL import Image, ImageDraw, ImageFont
+    size = max(12, int(size))
+    pad = int(pad if pad is not None else max(8, size // 4))
+    font = ImageFont.truetype(font_path, size * ss)
+    box = font.getbbox(text)          # already in supersampled pixels
+    w = max(1, box[2] - box[0]) + 2 * pad * ss
+    h = max(1, box[3] - box[1]) + 2 * pad * ss
+    img = Image.new("L", (w, h), 255)
+    ImageDraw.Draw(img).text((pad * ss - box[0], pad * ss - box[1]), text,
+                              font=font, fill=0)
+    img = img.resize((max(1, w // ss), max(1, h // ss)), Image.BOX)
+    img.save(out_png)
+    return out_png
+
+
+# ------------------------------------------------------------------ html report
+def _data_uri(path, max_side=1600):
+    raw = _imread(path)
+    if raw is None:
+        return ""
+    if max(raw.shape[:2]) > max_side:
+        k = max_side / float(max(raw.shape[:2]))
+        raw = cv2.resize(raw, None, fx=k, fy=k, interpolation=cv2.INTER_AREA)
+    ok, buf = cv2.imencode(".png", raw)
+    if not ok:
+        return ""
+    return "data:image/png;base64," + base64.b64encode(buf.tobytes()).decode("ascii")
+
+
+def _nodes_group(comps):
+    parts = ['<g id="r2s-nodes">']
+    for c in comps:
+        for xy in c.get("vertices_xy") or []:
+            parts.append('<circle cx="%s" cy="%s" r="1.6"/>' % (fmt(xy[0]), fmt(xy[1])))
+        for seg in c.get("cubic_segments") or []:
+            for xy in (seg[1], seg[2]):
+                parts.append('<circle cx="%s" cy="%s" r="1.2"/>' % (fmt(xy[0]), fmt(xy[1])))
+    parts.append("</g>")
+    return "".join(parts)
+
+
+REPORT_CSS = """
+:root{--bg:#0f1216;--panel:#171c22;--line:#262c34;--fg:#e8ecef;--dim:#98a2ad;--accent:#f0a03c;--ok:#4ec9a0;--bad:#f2705a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.7 -apple-system,"Segoe UI","Noto Sans SC",sans-serif}
+header{padding:36px 40px 8px}
+h1{margin:0 0 4px;font-size:26px;letter-spacing:.01em}
+.sub{color:var(--dim);margin:0 0 18px;font-size:13px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin:0 0 8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.card span{color:var(--dim);font-size:12px;display:block}
+.card b{font-size:20px;font-weight:600}
+main{padding:18px 40px 60px;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(260px,.75fr);gap:22px}
+@media(max-width:980px){main{grid-template-columns:1fr}}
+.stage{background:#0b0e12;border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative;height:min(62vh,560px);cursor:grab}
+.stage.dragging{cursor:grabbing}
+.canvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
+.canvas img,.canvas .vec{position:absolute;top:0;left:0;width:100%;height:100%}
+.canvas .vec svg{display:block;width:100%;height:100%}
+#r2s-nodes{display:none;pointer-events:none}
+#r2s-nodes circle{fill:none;stroke:var(--accent);stroke-width:.45}
+.views{display:flex;gap:6px;margin:0 0 10px}
+.views button{background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
+.views button.on{color:#111;background:var(--accent);border-color:var(--accent)}
+.tools{display:flex;align-items:center;gap:16px;margin:10px 0 0;color:var(--dim);font-size:13px;flex-wrap:wrap}
+.tools input[type=range]{width:120px;accent-color:var(--accent)}
+.tools label{display:flex;align-items:center;gap:6px}
+.hint{margin-left:auto}
+aside{min-width:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 14px}
+.panel h2{font-size:13px;color:var(--dim);font-weight:600;margin:0 0 10px;letter-spacing:.04em}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--dim);font-weight:600}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#1d232b}
+tr.hl{background:rgba(240,160,60,.12)}
+.layer{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;color:var(--fg)}
+.layer i{width:14px;height:14px;border-radius:3px;border:1px solid #0004;display:inline-block}
+.layer input{accent-color:var(--accent)}
+.dl{display:inline-block;margin-top:6px;color:var(--accent);text-decoration:none;font-size:13px}
+code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
+"""
+
+REPORT_JS = """
+(function(){
+  var stage=document.getElementById('stage'), canvas=document.getElementById('canvas');
+  var src=document.getElementById('src'), vec=document.getElementById('vec'), dif=document.getElementById('diff');
+  var scale=1, tx=0, ty=0, drag=null;
+  function apply(){canvas.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';}
+  function fit(){
+    var cw=canvas.offsetWidth||1, ch=canvas.offsetHeight||1;
+    scale=Math.min((stage.clientWidth-2)/cw,(stage.clientHeight-2)/ch,4);
+    tx=(stage.clientWidth-cw*scale)/2; ty=(stage.clientHeight-ch*scale)/2; apply();
+  }
+  window.addEventListener('load',fit);
+  stage.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var k=e.deltaY<0?1.12:1/1.12, r=stage.getBoundingClientRect();
+    var mx=e.clientX-r.left, my=e.clientY-r.top;
+    var nx=(mx-tx)/scale, ny=(my-ty)/scale;
+    scale=Math.min(12,Math.max(.15,scale*k));
+    tx=mx-nx*scale; ty=my-ny*scale; apply();
+  },{passive:false});
+  stage.addEventListener('mousedown',function(e){drag={x:e.clientX,y:e.clientY,tx:tx,ty:ty};stage.classList.add('dragging');});
+  window.addEventListener('mousemove',function(e){if(!drag)return;tx=drag.tx+(e.clientX-drag.x);ty=drag.ty+(e.clientY-drag.y);apply();});
+  window.addEventListener('mouseup',function(){drag=null;stage.classList.remove('dragging');});
+  stage.addEventListener('dblclick',fit);
+  var meta=JSON.parse(document.getElementById('meta').textContent);
+  var views=document.querySelectorAll('.views button');
+  views.forEach(function(b){b.addEventListener('click',function(){
+    views.forEach(function(x){x.classList.toggle('on',x===b);});
+    var v=b.dataset.view;
+    src.style.display=(v==='src'||v==='split')?'block':'none';
+    vec.style.display=(v==='vec'||v==='split')?'block':'none';
+    dif.style.display=(v==='diff')?'block':'none';
+    if(op){op.value=(v==='split')?55:100; vec.style.opacity=op.value/100;}
+  });});
+  var op=document.getElementById('op');
+  if(op){ vec.style.opacity=op.value/100;
+    op.addEventListener('input',function(){vec.style.opacity=op.value/100;}); }
+  var nt=document.getElementById('nodes-toggle');
+  var nodes=document.querySelector('#r2s-nodes');
+  if(nt&&nodes) nt.addEventListener('change',function(){nodes.style.display=nt.checked?'block':'none';});
+  if(nt&&!nodes) nt.parentNode.style.display='none';
+  var svg=document.querySelector('#vec svg');
+  if(svg){
+    var items=svg.querySelectorAll('path[id]');
+    items = Array.prototype.slice.call(items);
+    var box=document.getElementById('layers');
+    if(box) items.forEach(function(el){
+      var row=document.createElement('label'); row.className='layer';
+      var cb=document.createElement('input'); cb.type='checkbox'; cb.checked=true;
+      cb.addEventListener('change',function(){el.style.display=cb.checked?'':'none';});
+      var sw=document.createElement('i'); sw.style.background=el.getAttribute('fill')||'#8b96a2';
+      var tx2=document.createElement('span'); tx2.textContent=el.id;
+      row.appendChild(cb); row.appendChild(sw); row.appendChild(tx2); box.appendChild(row);
+    });
+    document.querySelectorAll('tbody tr[data-gid]').forEach(function(tr){
+      var gid=tr.dataset.gid;
+      tr.addEventListener('mouseenter',function(){var g=svg.querySelector('#'+gid); if(g) g.classList.add('hl');});
+      tr.addEventListener('mouseleave',function(){var g=svg.querySelector('#'+gid); if(g) g.classList.remove('hl');});
+      tr.addEventListener('click',function(){
+        var g=svg.querySelector('#'+gid); if(!g) return;
+        g.style.stroke='#f0a03c'; g.style.strokeWidth='0.6';
+        setTimeout(function(){g.style.stroke=''; g.style.strokeWidth='';},900);
+      });
+    });
+  }
+})();
+"""
+
+
+def write_report(outdir, stem, meta, comps, svg_path, src_png, diff_png, mode):
+    svg_txt = open(svg_path, encoding="utf-8").read()
+    if comps:
+        svg_txt = svg_txt.replace("</svg>", _nodes_group(comps) + "</svg>")
+    svg_txt = re.sub(r'(<svg[^>]*?)width="\d+"\s+height="\d+"', r'\1width="100%" height="100%"',
+                     svg_txt, count=1)
+    title = "%s · 描摹报告" % stem
+    sub = ("引擎 %s · 画布 %dx%d · 版本 v%s · 渲染器 %s%s"
+           % (mode, meta["w"], meta["h"], VERSION, meta["renderer"] or "缺（代评分）",
+              " · ⚠ 代理指标" if meta.get("surrogate") else ""))
+    cards = [
+        ("IoU / PSNR", meta["score"]), ("墨量比", meta["ink"]), ("部件/层", meta["parts"]),
+        ("节点/路径", meta["nodes"]), ("SVG 体积", meta["bytes"]), ("源图", meta["source"]),
+    ]
+    card_html = "".join('<div class="card"><span>%s</span><b>%s</b></div>' % (k, v) for k, v in cards)
+    rows = []
+    for c in comps:
+        n = len(c.get("vertices_xy") or []) or len(c.get("cubic_segments") or []) or len(c.get("holes") or [])
+        rows.append("<tr data-gid=\"%s\"><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>"
+                    % (c.get("pid", ""), c.get("pid", c.get("group", "")), c.get("engine", ""),
+                       c.get("bbox_xywh", ""), c.get("area_px", ""), n))
+    table = ("<table><thead><tr><th>组</th><th>引擎</th><th>bbox</th><th>面积</th><th>节点</th></tr></thead>"
+             "<tbody>%s</tbody></table>" % "".join(rows)) if rows else \
+            "<p class=\"sub\">彩色模式：每层颜色与顺序见左侧列表；不输出逐部件坐标。</p>"
+    json_meta = json.dumps(meta, ensure_ascii=False)
+    html = REPORT_TEMPLATE
+    for key, val in (("__W__", str(meta["w"])), ("__H__", str(meta["h"])),
+                     ("__TITLE__", title), ("__SUB__", sub), ("__CARDS__", card_html),
+                     ("__CSS__", REPORT_CSS), ("__SRC__", _data_uri(src_png)),
+                     ("__DIFF__", _data_uri(diff_png) if diff_png else ""),
+                     ("__SVG__", svg_txt), ("__META__", json_meta), ("__TABLE__", table),
+                     ("__JS__", REPORT_JS), ("__STEM__", stem), ("__MODE__", mode)):
+        html = html.replace(key, val)
+    path = os.path.join(outdir, stem + ".html")
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(html)
+    return path
+
+
+REPORT_TEMPLATE = """<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>__TITLE__</title><style>__CSS__</style></head>
+<body>
+<header>
+  <h1>__TITLE__</h1>
+  <p class="sub">__SUB__</p>
+  <div class="cards">__CARDS__</div>
+</header>
+<main>
+  <section>
+    <div class="views">
+      <button data-view="split" class="on">对比</button>
+      <button data-view="src">源图</button>
+      <button data-view="vec">矢量</button>
+      <button data-view="diff">差异</button>
+    </div>
+    <div class="stage" id="stage">
+      <div class="canvas" id="canvas" style="width:__W__px;height:__H__px">
+        <img id="src" src="__SRC__" alt="源图">
+        <div id="vec" class="vec">__SVG__</div>
+        <img id="diff" src="__DIFF__" alt="差异" style="display:none">
+      </div>
+    </div>
+    <div class="tools">
+      <label><input type="checkbox" id="nodes-toggle"> 显示节点</label>
+      <label>矢量不透明度 <input type="range" id="op" min="0" max="100" value="55"></label>
+      <span class="hint">差异视图：红=源图有墨而 SVG 丢了 · 绿=SVG 多出的墨</span>
+      <span class="hint">滚轮缩放 · 拖动平移 · 双击复位</span>
+    </div>
+  </section>
+  <aside>
+    <div class="panel"><h2>层 / 部件</h2><div id="layers"></div>
+      <a class="dl" href="__STEM__.svg" download>下载 SVG</a></div>
+    <div class="panel"><h2>部件坐标</h2>__TABLE__</div>
+  </aside>
+</main>
+<script type="application/json" id="meta">__META__</script>
+<script>__JS__</script>
+</body></html>
+"""
+
+
 def build_parser():
     p = argparse.ArgumentParser(
         description="Raster image -> editable SVG contour tracer (polygon/curve engines). "
                     "Version %s" % VERSION,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    p.add_argument("-i", "--input", required=True, help="source PNG/JPG/WebP path")
+    p.add_argument("-i", "--input", required=False, help="source PNG/JPG/WebP path")
     p.add_argument("-o", "--outdir", default=None, help="output directory (default: input dir)")
+    p.add_argument("--text", default=None,
+                   help="skip the image: render this line of text with --font, then trace it")
+    p.add_argument("--font", default=None,
+                   help="TTF/OTF path for --text (default: a system CJK font if one is present)")
+    p.add_argument("--size", type=int, default=128, help="--text: em size in px")
+    p.add_argument("--name", default=None, help="output stem (default: from the input file or --text)")
+    p.add_argument("--html", dest="html", action="store_true", default=True,
+                   help="write an interactive <stem>.html report")
+    p.add_argument("--no-html", dest="html", action="store_false", help="skip the HTML report")
     p.add_argument("--mode", choices=["auto", "polygon", "curve"], default="auto",
                    help="auto decides per contour; forced modes apply to every contour")
     p.add_argument("--colors", type=int, default=1,
@@ -770,7 +1106,25 @@ def build_parser():
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
+    if not args.text and not args.input:
+        print("error: pass -i/--input <image> or --text <words>", file=sys.stderr)
+        return 2
     try:
+        if args.text:
+            if args.colors > 1:
+                print("error: --text is a mono input; drop --colors", file=sys.stderr)
+                return 2
+            font = args.font or find_default_font()
+            if not font or not os.path.exists(font):
+                print("error: --text needs a font; pass --font <path.ttf|otf> "
+                      "(no system CJK font found)", file=sys.stderr)
+                return 2
+            stem = args.name or safe_stem(args.text)
+            odir = args.outdir or os.getcwd()
+            os.makedirs(odir, exist_ok=True)
+            args.input = render_text_png(args.text, font, args.size,
+                                         os.path.join(odir, stem + "_source.png"))
+            args._stem = stem
         if getattr(args, "colors", 1) and args.colors > 1:
             return run_color(args)
         return run_mono(args)

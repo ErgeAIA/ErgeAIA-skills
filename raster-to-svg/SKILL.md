@@ -17,6 +17,8 @@ before tracing anything.
 
 Use it for:
 
+- **a word or short line** the user typed ("把这几个字做成 SVG"): render it with a font
+  (`--text`) and trace that - never hand-draw outlines for typed text;
 - a glyph / logotype / icon PNG that must become an editable SVG;
 - extracting outline **vertex or cubic control-point coordinates**;
 - flat-colour or limited-palette illustrations and icons (`--colors`);
@@ -26,9 +28,10 @@ Not for: OCR, font identification, recreating text as text, photographic fidelit
 
 ## Runtime
 
-`python3` + `numpy` + `opencv-python-headless`. A renderer is optional but required for
-any fidelity claim: `resvg-py` (pip) or `rsvg-convert` (binary). Without one the tool
-reports `surrogate_metric: true` and you must not quote the number.
+`python3` + `numpy` + `opencv-python-headless`; `pillow` only for `--text`.
+A renderer is optional but required for any fidelity claim: `resvg-py` (pip) or
+`rsvg-convert` (binary). Without one the tool reports `surrogate_metric: true` and you
+must not quote the number. Non-ASCII input paths (桌面/截图.png) are fine.
 
 ```bash
 uv run --with numpy --with opencv-python-headless --with resvg-py \
@@ -44,10 +47,17 @@ uv run --with numpy --with opencv-python-headless --with resvg-py \
 3. **Trace** with the default route:
 
    ```bash
+   # typed words - no image needed
+   python scripts/raster2svg.py --text "开源" --font /path/NotoSansSC.ttf --size 160 -o out
+   # an image
    python scripts/raster2svg.py -i in.png -o out --check --title "源文件名"
    # flat-colour icon instead of ink:
    python scripts/raster2svg.py -i icon.png -o out --colors 6 --check
    ```
+
+   `--text` renders one line at 4x and box-filters down, so the ink boundary is a real
+   rasterisation; ask which font if the user cares about the shape (default: a system CJK
+   font). One line only - vertical or multi-line layout is not supported.
 
 4. **Read three numbers** from stdout: `components`, `iou_rendered`, `ink_ratio`.
    - `iou_rendered >= 0.90` and `0.95 <= ink_ratio <= 1.05` → ship it.
@@ -117,10 +127,13 @@ Into `--outdir`:
 
 | File | Content |
 | --- | --- |
-| `<stem>.svg` | `<g id="glyph-NN">` groups, one `<path fill-rule="evenodd">` per component (outer + holes), optional `<title>` |
+| `<stem>.svg` | `<g id="glyph-NN">` groups, one `<path id="cNN" fill-rule="evenodd">` per component (outer + holes), optional `<title>` |
+| `<stem>.html` (`--no-html` to skip) | **self-contained interactive report** (no CDN, images inlined): zoom/pan, 对比/源图/矢量/差异 views, per-component visibility toggles, node overlay, metrics cards, coordinate table that highlights the path on hover |
 | `<stem>_coords.json` | per component: engine, bbox, `vertices_xy` + `interior_angle_deg` or `cubic_segments`, `holes`, plus `iou_rendered` / `ink_ratio` / `renderer` / `surrogate_metric` |
 | `<stem>_coords.txt` | the same table, human readable |
 | `<stem>_check.png` | source \| render \| diff (red = lost ink, green = added) |
+| `<stem>_diff.png` | the diff plate alone, embedded in the report |
+| `<stem>_source.png` | `--text` only: the rasterised text that was traced |
 | `<stem>_overlay.png` | traced outline and node markers over the source |
 
 ## Exit codes

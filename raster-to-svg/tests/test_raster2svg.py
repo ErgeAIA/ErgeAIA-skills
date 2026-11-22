@@ -111,6 +111,55 @@ class TestMono(unittest.TestCase):
         self.assertEqual(digests[0], digests[1])
 
 
+class TestTextAndReport(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_text_mode_writes_svg_and_report(self):
+        font = None
+        for cand in ("C:/Windows/Fonts/msyh.ttc", "C:/Windows/Fonts/simhei.ttf",
+                     "/System/Library/Fonts/PingFang.ttc",
+                     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"):
+            if os.path.exists(cand):
+                font = cand
+                break
+        if font is None:
+            self.skipTest("no system font to render text with")
+        r = run("--text", "口A", "--font", font, "--size", "96", "-o", self.tmp.name)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        html = os.path.join(self.tmp.name, "口A.html")
+        svg = os.path.join(self.tmp.name, "口A.svg")
+        self.assertTrue(os.path.exists(svg), "text mode must emit an SVG")
+        self.assertTrue(os.path.exists(html), "text mode must emit the HTML report")
+
+    def test_unicode_input_path(self):
+        # regression: cv2.imread cannot open non-ASCII paths, so 桌面/截图.png used to fail
+        src = os.path.join(self.tmp.name, "中文 截图.png")
+        with open(os.path.join(FIX, "kou_96.png"), "rb") as a, open(src, "wb") as b:
+            b.write(a.read())
+        r = run("-i", src, "-o", self.tmp.name)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp.name, "中文 截图.svg")))
+
+    def test_report_is_self_contained(self):
+        src = os.path.join(FIX, "kou_96.png")
+        r = run("-i", src, "-o", self.tmp.name)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        html = os.path.join(self.tmp.name, "kou_96.html")
+        with open(html, encoding="utf-8") as fh:
+            text = fh.read()
+        self.assertIn("<svg", text)
+        self.assertIn("data:image/png;base64,", text)
+        self.assertIn("滚轮缩放", text)
+        self.assertLess(os.path.getsize(html), 3 * 1024 * 1024)
+
+    def test_no_html_flag_skips_report(self):
+        r = run("-i", os.path.join(FIX, "kou_96.png"), "-o", self.tmp.name, "--no-html")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertFalse(os.path.exists(os.path.join(self.tmp.name, "kou_96.html")))
+
+
 class TestColour(unittest.TestCase):
     def _run_icon(self, k):
         tmp = tempfile.TemporaryDirectory()

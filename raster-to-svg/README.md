@@ -31,23 +31,31 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill raster-to-svg
 | 要做的事 | 要求 |
 | --- | --- |
 | 描摹（必需） | Python ≥ 3.10 + `numpy` + `opencv-python-headless` |
+| 直接给词语（`--text`） | 额外 `pillow`；需要一个字体文件（不传 `--font` 时用系统 CJK 字体） |
 | 要一个可信的保真度数字 | `resvg-py`（pip）或 `rsvg-convert`（二进制），二选一 |
 | 只要 SVG 不在乎数字 | 可以不装渲染器，但输出会标 `surrogate_metric: true` |
 
 ### 跑通一条
 
 ```bash
+# 给一张图
 uv run --with numpy --with opencv-python-headless --with resvg-py \
   python scripts/raster2svg.py -i tests/fixtures/kou_96.png -o /tmp/out --check
+
+# 只给几个字：直接渲染字体再描（不需要先找图）
+uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py \
+  python scripts/raster2svg.py --text "开源" --size 160 -o /tmp/out
 ```
 
-stdout 三行是判据：`components`（几个字形）、`iou_rendered`（真渲染 IoU）、`ink_ratio`（墨量比）。
+stdout 三行是判据：`components`（几个字形）、`iou_rendered`（真渲染 IoU）、`ink_ratio`（墨量比）。跑完会多出一份 `<name>.html`——自包含的可交互报告（滚轮缩放、对比/源图/矢量/差异四视图、按部件开关、节点叠印、坐标表悬停高亮），双击即可看。
 
 ## 怎么用
 
 | 场景 | 一句话要点 | 可复制示例提示词 |
 | --- | --- | --- |
+| 只给词语，没有图 | `--text` 渲染字体再描，别手画轮廓 | 「把『开源』两个字做成 SVG，用思源黑体」 |
 | 字/logo 转可编辑 SVG | 用默认 `auto`，看 ink_ratio 再决定调什么 | 「把这张字图描成 SVG，直角保持住，每个字一个组」 |
+| 要一份能看的报告 | 默认已生成 `<name>.html`，可直接发给别人 | 「跑完给我一份能交互看结果的页面」 |
 | 只要轮廓坐标 | 交付 `_coords.json`，别只给 SVG | 「导出这些字形的顶点坐标和内角，我要拿去重建」 |
 | 平色图标转矢量 | `--colors 6` 起，逐层看 `_check.png` | 「这个图标转 SVG，颜色分 6 层，别把圆角啃掉」 |
 | 判断照片能不能矢量化 | 先答「不能无损」，再给海报化或嵌图两条路 | 「这张照片能转成矢量吗？我要印刷级」 |
@@ -79,6 +87,18 @@ stdout 三行是判据：`components`（几个字形）、`iou_rendered`（真�
 语料、方法、逐样本胜负与「明确没测的」都在 `references/evidence.md`。
 
 ## 文件地图
+
+跑完的产物（每个输入一套）：
+
+| 文件 | 内容 |
+| --- | --- |
+| `<name>.svg` | 可编辑矢量：每组 `<g id>`，每部件一条 `<path id="cNN">`（含孔洞） |
+| `<name>.html` | 自包含交互报告：四视图、缩放平移、部件开关、节点叠印、指标卡、坐标表 |
+| `<name>_coords.json/.txt` | 顶点/内角或三次控制点（单色模式） |
+| `<name>_check.png` | 源图 \| 渲染 \| 差异三联 |
+| `<name>_diff.png` | 差异图（红=丢墨，绿=多墨） |
+| `<name>_overlay.png` | 轮廓与节点叠在源图上 |
+| `<name>_source.png` | 仅 `--text`：渲染出来的字图（也就是被描的那张） |
 
 ```
 raster-to-svg/
