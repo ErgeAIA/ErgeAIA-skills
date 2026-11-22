@@ -73,8 +73,12 @@ is folded into it before tracing. Start at the number of visually distinct colou
 not at 32. `--ss` applies here too (it closes the half-pixel seams between adjacent
 layers) and `--grow` (default 1 supersampled px) closes the rest. Verified colour PSNR:
 30-37 dB on flat shape art and gradients, 24-25 dB once small text or antialiased edges
-dominate; for dense UI screenshots `vtracer` scores 1-4 dB higher, so say so instead of
-overclaiming.
+dominate; on three real Chromium-rendered pages it was 21.8-22.9 dB against vtracer's
+23.7-25.3 dB, so say so instead of overclaiming - and note the trade: 5-10 paths and 7-49 KB
+versus vtracer's 348-738 paths and 276-631 KB. Raising K does not buy fidelity on real UI
+(K=12 was worse than K=6 on two of three pages). Small text does not survive colour mode at
+all: at K=6 the text of a real UI page breaks into unreadable blocks - if the source has text
+that must stay legible, this is the wrong route, not a tuning problem.
 
 Measured warning: forcing `curve` on rectilinear shapes (口/日/思源宋体) costs 15-40 IoU
 points — a 口 at 96 px went 0.93 → 0.52 when forced to `curve`. Leave `auto` on unless
