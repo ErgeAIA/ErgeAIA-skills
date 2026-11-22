@@ -92,6 +92,13 @@ class TestMono(unittest.TestCase):
         svg, meta, r = self._trace("zhi_128.png")
         self.assertEqual(len(meta["components"]), 2, meta["components"])
 
+    @unittest.skipUnless(have_renderer(), "needs resvg-py or rsvg-convert")
+    def test_low_contrast_ink_is_traced(self):
+        # regression: a fixed 127.5 coverage level traced nothing at all on #999 ink
+        _svg, meta, r = self._trace("grey60_yong.png")
+        self.assertGreaterEqual(meta.get("iou_rendered", 0), 0.85, meta)
+        self.assertLessEqual(meta["ink_ratio"], 1.10)
+
     def test_deterministic_bytes(self):
         src = os.path.join(FIX, "kou_96.png")
         digests = []

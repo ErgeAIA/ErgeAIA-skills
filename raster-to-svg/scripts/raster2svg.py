@@ -66,10 +66,30 @@ def make_mask(gray, invert="auto"):
     return mask, thr, frac, dark_is_ink
 
 
-def coverage_mask(gray, dark_is_ink, ss=1):
+def ink_level(gray):
+    """Midpoint between the paper value and the ink core, not a fixed 127.5.
+
+    Black-on-white gives 127.5, but low-contrast ink (a #999 glyph on white, a
+    watermarked scan) sits far above it - a fixed level traces nothing at all.
+    Percentiles of the whole image are unusable: when ink is under 2% of the
+    pixels the 2nd percentile lands on the antialiasing shoulder (measured: a
+    48 px 口 gave p2=191, which would erode the whole glyph)."""
+    vals, counts = np.unique(gray, return_counts=True)
+    paper = float(vals[int(np.argmax(counts))])
+    t, _ = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    if paper > t:
+        ink_px = gray[gray < t]
+        ink = float(np.percentile(ink_px, 5)) if ink_px.size else float(t)
+    else:
+        ink_px = gray[gray >= t]
+        ink = float(np.percentile(ink_px, 95)) if ink_px.size else float(t)
+    return 0.5 * (ink + paper)
+
+
+def coverage_mask(gray, dark_is_ink, ss=1, level=127.5):
     g = gray if ss == 1 else cv2.resize(gray.astype(np.float32), (gray.shape[1] * ss, gray.shape[0] * ss),
                                        interpolation=cv2.INTER_CUBIC)
-    ink = (g < 127.5) if dark_is_ink else (g > 127.5)
+    ink = (g < level) if dark_is_ink else (g > level)
     return ink.astype(np.uint8) * 255
 
 
@@ -415,10 +435,11 @@ def fit_contour(c, args, ss):
     return poly if poly is not None else curv
 
 
-def trace_mono(mask, gray, dark_is_ink, args):
+def trace_mono(mask, gray, dark_is_ink, level, args):
     ss = max(1, int(args.ss))
     keep = cv2.resize(mask, (mask.shape[1] * ss, mask.shape[0] * ss), interpolation=cv2.INTER_NEAREST)
-    up = cv2.bitwise_and(keep, coverage_mask(gray, dark_is_ink, ss)) if ss > 1 else mask
+    up = cv2.bitwise_and(keep, coverage_mask(gray, dark_is_ink, ss, level)) if ss > 1 else mask
+
     cnts, hier = cv2.findContours(up, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     if hier is None or not len(cnts):
         raise RuntimeError("no contours found (all components below --min-area?)")
@@ -469,8 +490,9 @@ def run_mono(args):
     H, W = gray.shape
     mask, thr, frac, dark_is_ink = make_mask(gray, args.invert)
     mask = clean_mask(mask, args.close, args.min_area)
-    src_ink = coverage_mask(gray, dark_is_ink, 1) > 0
-    roots, comps = trace_mono(mask, gray, dark_is_ink, args)
+    level = ink_level(gray)
+    src_ink = coverage_mask(gray, dark_is_ink, 1, level) > 0
+    roots, comps = trace_mono(mask, gray, dark_is_ink, level, args)
 
     groups_items = []
     for r in roots:

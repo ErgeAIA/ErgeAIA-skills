@@ -84,6 +84,16 @@ Measured warning: forcing `curve` on rectilinear shapes (口/日/思源宋体) c
 points — a 口 at 96 px went 0.93 → 0.52 when forced to `curve`. Leave `auto` on unless
 the user explicitly wants curves everywhere.
 
+## Tool choice (state it, do not guess)
+
+- **Pure mono outline, high contrast, potrace available** → potrace wins: 0.957 vs 0.933 IoU
+  on the same 12 glyphs, and 10-100x faster. Use this skill when the user needs what potrace
+  cannot emit: grouped editable SVG, vertex/control-point coordinate tables, colour layers,
+  or low-contrast ink (potrace's fixed 0.5 threshold returns an empty file on #999 text; this
+  tool traces it).
+- **Anti-aliased small text that must stay readable** → neither colour mode here nor a
+  posterising tracer; keep the raster or say the text will break.
+
 ## Hard rules
 
 - **Never quote a proxy metric as fidelity.** `surrogate_metric: true` means no renderer
@@ -93,6 +103,9 @@ the user explicitly wants curves everywhere.
 - **Do not promise photo vectorisation.** SVG regions are piecewise constant; a photo is
   continuous tone. `--colors` posterises. Offer: keep the raster, accept posterisation as
   a style, or embed the raster as `<image>` (not vector data).
+- **The ink level is measured, not assumed.** `ink_level()` takes the midpoint between the
+  paper value and the ink core, so #999 ink on white (level 204) traces; a fixed 127.5 would
+  return no contours at all.
 - **Counters are holes, not shapes.** 口/日/回 keep their inner white area; the component
   path carries holes with `fill-rule="evenodd"`. Flat layers on top would fill them.
 - **One `<g id>` per visual component.** Do not flatten the SVG to a single path; the
