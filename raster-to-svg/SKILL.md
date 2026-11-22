@@ -126,6 +126,18 @@ the user explicitly wants curves everywhere.
 - **Anti-aliased small text that must stay readable** → neither colour mode here nor a
   posterising tracer; keep the raster or say the text will break.
 
+## Do not (red lines)
+
+- **Never overwrite or delete the user's source image.** Write only into `--outdir`.
+- **Never hand-edit coordinates** in `_coords.json`, and never invent points to make a metric pass.
+- **Never claim fidelity without a `--check` number from a real renderer**; a proxy is not a score.
+- **Never call a photo trace "vectorised without loss".** Posterisation is a style, not fidelity.
+- **Never quote vtracer's or potrace's scores as this tool's result.** Use this tool's own corpus.
+- **Never emit `<text>`.** Output is outlines; editable text needs the font, not a trace.
+- **Never upscale the source** and then report "high precision" - set the SVG `width`/`height`
+  attributes instead; `viewBox` already carries the real geometry.
+- **Never run vertical, rotated or multi-line input and ship the broken grouping.** Say it is unsupported.
+
 ## Hard rules
 
 - **Never quote a proxy metric as fidelity.** `surrogate_metric: true` means no renderer
