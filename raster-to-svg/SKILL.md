@@ -26,6 +26,20 @@ Use it for:
 
 Not for: OCR, font identification, recreating text as text, photographic fidelity.
 
+## Checkpoints (do not skip)
+
+| # | Marker | Fires when | What you do |
+| --- | --- | --- | --- |
+| 1 | 🛑 STOP | a vector original exists (font file, source SVG, design export) | ask the user for it and stop; tracing a raster of a known vector is strictly worse |
+| 2 | 🔴 CHECKPOINT | the user typed the words and cares about the shape | confirm which font (and that the output is outlines, not editable text) before running |
+| 3 | 🔴 CHECKPOINT | the first run misses the gate (`iou_rendered < 0.90` or ink_ratio outside 0.95-1.05) | show the three numbers + the `_check.png` reading, change **one** parameter, report again; do not silently sweep flags |
+| 4 | 🛑 STOP | no renderer is installed (`surrogate_metric: true`) | deliver the SVG, say the number is a proxy, do not quote it as fidelity |
+| 5 | 🛑 STOP | the source is a photograph the user calls "lossless" | never call a photo trace lossless vector data; offer raster / posterisation / `<image>` |
+
+These are gates, not advice: an agent that keeps tracing past gate 1, quotes a proxy number
+past gate 4, or promises a lossless photo past gate 5 has produced a wrong answer, not a
+slightly worse one.
+
 ## Runtime
 
 `python3` + `numpy` + `opencv-python-headless`; `pillow` only for `--text`.
@@ -41,7 +55,7 @@ uv run --with numpy --with opencv-python-headless --with resvg-py \
 ## Workflow
 
 1. **Locate the source.** The image must exist as a file; if it only lives on a page,
-   save it first. If a vector original exists, stop here and use that instead.
+   save it first. **🛑 STOP** if a vector original exists - ask for it (checkpoint 1).
 2. **Look at it once.** Ink polarity, flat vs continuous tone, rectilinear vs curved,
    smallest stroke width in pixels. Stroke width < 2 px will not survive tracing.
 3. **Trace** with the default route:
@@ -56,17 +70,25 @@ uv run --with numpy --with opencv-python-headless --with resvg-py \
    ```
 
    `--text` renders one line at 4x and box-filters down, so the ink boundary is a real
-   rasterisation; ask which font if the user cares about the shape (default: a system CJK
-   font). One line only - vertical or multi-line layout is not supported.
+   rasterisation. **🔴 CHECKPOINT** when the user typed the words and the shape matters:
+   confirm the font, and say the deliverable is outlines, not selectable text (checkpoint 2).
+   Default font when none is given: a system CJK font (override with `--font`).
+   One line only - vertical or multi-line layout is not supported.
 
 4. **Read three numbers** from stdout: `components`, `iou_rendered`, `ink_ratio`.
    - `iou_rendered >= 0.90` and `0.95 <= ink_ratio <= 1.05` → ship it.
-   - `ink_ratio < 0.95` → ink is being lost: raise `--ss`, drop `--min-area`, set `--close 0`.
-   - `ink_ratio > 1.05` → ink is being invented: lower `--error`, or force `--mode polygon`.
+   - `ink_ratio < 0.95` (ink lost) → try, **one at a time in this order**: `--min-area 10` →
+     `--close 0` → `--ss 6`.
+   - `ink_ratio > 1.05` (ink invented) → try, one at a time: `--error 0.8` → `--mode polygon`.
+   Apply a single change, re-run, report the numbers again (checkpoint 3).
 5. **Only tune what the numbers indict.** `<stem>_check.png` marks lost ink red and added
-   ink green; read it before touching flags. Full parameter semantics: `references/parameters.md`.
+   ink green; read it before touching flags. **🔴 CHECKPOINT** (checkpoint 3): if the first run
+   misses the gate, report the three numbers, change one parameter, then report again - no
+   silent sweep.
+   Full parameter semantics: `references/parameters.md`.
 6. **Deliver** `<stem>.svg` together with the numbers and `<stem>_check.png`. State the
-   renderer used. If `surrogate_metric` is true, say the metric is a proxy.
+   renderer used. **🛑 STOP** if `surrogate_metric` is true: hand over the file and say the
+   number is a proxy - do not dress it as fidelity (checkpoint 4).
 
 ## Engine routing
 
