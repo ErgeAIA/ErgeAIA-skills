@@ -67,6 +67,14 @@ uv run --with numpy --with opencv-python-headless --with resvg-py \
 | `--mode curve` | cubic Bézier (Schneider + Newton) | genuinely curved strokes only |
 | `--colors K` | k-means colour layers, base rect + stacked paths | flat-colour art, never photos |
 
+Colour mode in one paragraph: `K` is an **upper bound** — k-means spends clusters on
+antialiasing fringe, so a small cluster within `--merge` (default 40 RGB) of a bigger one
+is folded into it before tracing. Start at the number of visually distinct colours (6-8),
+not at 32. `--ss` applies here too (it closes the half-pixel seams between adjacent
+layers) and `--grow` (default 1 supersampled px) closes the rest. Verified colour PSNR:
+30-36 dB on flat icons and gradients, 24-25 dB on text-heavy UI crops — for dense UI
+screenshots `vtracer` scores 1-4 dB higher, so say so instead of overclaiming.
+
 Measured warning: forcing `curve` on rectilinear shapes (口/日/思源宋体) costs 15-40 IoU
 points — a 口 at 96 px went 0.93 → 0.52 when forced to `curve`. Leave `auto` on unless
 the user explicitly wants curves everywhere.

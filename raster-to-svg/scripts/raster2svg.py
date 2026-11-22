@@ -349,13 +349,14 @@ def render_svg(svg_path, w, h, renderer):
         from PIL import Image
         import resvg_py
         b = resvg_py.svg_to_bytes(svg_path=svg_path, background="#ffffff", width=w, height=h)
-        return np.array(Image.open(io.BytesIO(b)).convert("L"), np.float64)
+        rgb = np.array(Image.open(io.BytesIO(b)).convert("RGB"))
+        return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR).astype(np.float64)
     tmp = svg_path + ".render.png"
     subprocess.run(["rsvg-convert", "-w", str(w), "-h", str(h), "-b", "white",
                     "-o", tmp, svg_path], check=True, capture_output=True)
-    r = cv2.imread(tmp, cv2.IMREAD_GRAYSCALE).astype(np.float64)
+    r = cv2.imread(tmp, cv2.IMREAD_COLOR)
     os.remove(tmp)
-    return r
+    return r.astype(np.float64)
 
 
 def verify(svg_path, mask, outdir, stem, fill_bgr):
@@ -366,7 +367,7 @@ def verify(svg_path, mask, outdir, stem, fill_bgr):
     if renderer:
         try:
             rendered = render_svg(svg_path, w, h, renderer)
-            rend_ink = rendered < 127.5
+            rend_ink = cv2.cvtColor(rendered.astype(np.uint8), cv2.COLOR_BGR2GRAY) < 127.5
             surrogate = False
         except Exception as e:
             print("warning: renderer failed (%s); falling back to fillPoly proxy" % e, file=sys.stderr)
@@ -588,18 +589,65 @@ def run_color(args):
     crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.5)
     cv2.setRNGSeed(0)
     _, labels, centers = cv2.kmeans(Z, K, None, crit, 8, cv2.KMEANS_PP_CENTERS)
-    centers = centers.astype(np.uint8)
+    centers = centers.astype(np.float32)
     labels = labels.reshape(H, W)
+    raw = sorted([(int((labels == i).sum()), i) for i in range(K)], reverse=True)
+    # k-means spends clusters on antialiasing fringe: on a 3-colour badge at K=12,
+    # 10 clusters were 100-450 px edge pixels and the real shapes lost their cluster.
+    # Rule: a cluster under --merge-share of the canvas that sits within --merge of a
+    # bigger cluster is fringe, and is folded into it. Small-but-distinct colours are
+    # further than --merge away, so they survive; gradient steps are all >= share, so
+    # they survive too. K is an upper bound, never a promise of K layers.
+    total_px = float(Z.shape[0])
+    share = float(getattr(args, "merge_share", 0.02))
+    merge_d = float(getattr(args, "merge", 40.0))
+    groups = []                      # list of dict(idx=[...], n=int, c=np.ndarray)
+    for n, i in raw:
+        if n == 0:
+            continue
+        col = centers[i]
+        target = None
+        if n / total_px < share:
+            best = None
+            for g in groups:
+                if g["n"] <= n:
+                    continue
+                d = float(np.linalg.norm(g["c"] - col))
+                if d <= merge_d and (best is None or d < best[0]):
+                    best = (d, g)
+            target = best[1] if best else None
+        if target is None:
+            groups.append(dict(idx=[i], n=n, c=col.copy()))
+        else:
+            target["c"] = (target["c"] * target["n"] + col * n) / (target["n"] + n)
+            target["n"] += n
+            target["idx"].append(i)
+    if len(groups) < len(raw):
+        kept = np.stack([g["c"] for g in groups])
+        lab = np.empty(Z.shape[0], np.int32)
+        for s0 in range(0, Z.shape[0], 200000):
+            seg = Z[s0:s0 + 200000]
+            lab[s0:s0 + 200000] = ((seg[:, None, :] - kept[None, :, :]) ** 2).sum(-1).argmin(1)
+        labels = lab.reshape(H, W)
+        centers = kept
+    K = len(groups)
+    centers = np.round(centers).astype(np.uint8)
     counts = sorted([(int((labels == i).sum()), i) for i in range(K)], reverse=True)
     base = counts[0][1]
-    ss = 1  # colour labels carry no antialiasing; subpixel refinement is a mono-only gain
+    ss = max(1, int(args.ss))
     layers = []
     for cnt_i, i in counts[1:]:
         if cnt_i == 0:
             continue
         m = np.where(labels == i, 255, 0).astype(np.uint8)
         m = clean_mask(m, args.close, args.min_area)
-        cs, hh = cv2.findContours(m, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+        # quantised labels have no antialiasing, so the 50%-coverage trick does not
+        # apply; supersampling only shrinks the half-pixel inset that opens seams
+        # between adjacent layers. --grow (in supersampled px) closes the rest.
+        up = cv2.resize(m, (W * ss, H * ss), interpolation=cv2.INTER_NEAREST)
+        if args.grow > 0:
+            up = cv2.dilate(up, np.ones((3, 3), np.uint8), iterations=int(args.grow))
+        cs, hh = cv2.findContours(up, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
         if hh is None:
             continue
         hh = hh[0]
@@ -632,8 +680,7 @@ def run_color(args):
     rend_bgr = None
     if renderer:
         try:
-            rend_bgr = cv2.cvtColor(render_svg(svg_path, W, H, renderer).astype(np.uint8),
-                                    cv2.COLOR_GRAY2BGR)
+            rend_bgr = render_svg(svg_path, W, H, renderer).astype(np.uint8)
         except Exception:
             rend_bgr = None
     if rend_bgr is None:
@@ -679,6 +726,12 @@ def build_parser():
                    help="drop connected components smaller than this (source px^2); "
                         "300 deletes the dot of 之 at 128px em")
     p.add_argument("--close", type=int, default=0, help="morphological close iterations")
+    p.add_argument("--grow", type=int, default=1,
+                   help="colour mode: dilate each layer by this many supersampled px to close inter-layer seams")
+    p.add_argument("--merge", type=float, default=40.0,
+                   help="colour mode: fold a small cluster into a bigger one when their RGB distance is below this")
+    p.add_argument("--merge-share", type=float, default=0.02,
+                   help="colour mode: only clusters under this share of pixels may be folded (fringe guard)")
     p.add_argument("--gap", type=int, default=40, help="x-gap (px) that starts a new <g> group")
     p.add_argument("--invert", choices=["auto", "dark", "light"], default="auto", help="ink polarity")
     p.add_argument("--bg", default="#ffffff", help="background used to composite alpha")

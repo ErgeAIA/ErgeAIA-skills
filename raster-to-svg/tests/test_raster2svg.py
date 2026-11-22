@@ -105,15 +105,35 @@ class TestMono(unittest.TestCase):
 
 
 class TestColour(unittest.TestCase):
+    def _run_icon(self, k):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        r = run("-i", os.path.join(FIX, "icon_flat.png"), "-o", tmp.name,
+                "--colors", str(k))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        with open(os.path.join(tmp.name, "icon_flat.svg"), encoding="utf-8") as fh:
+            text = fh.read()
+        return text, r
+
     def test_flat_icon_layers(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            r = run("-i", os.path.join(FIX, "icon_flat.png"), "-o", tmp, "--colors", "6")
-            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-            with open(os.path.join(tmp, "icon_flat.svg"), encoding="utf-8") as fh:
-                text = fh.read()
-            self.assertIn("<rect", text)
-            self.assertIn("<path", text)
-            self.assertIn("layers", r.stdout)
+        text, r = self._run_icon(6)
+        self.assertIn("<rect", text)
+        self.assertIn("<path", text)
+        self.assertEqual(text.count("<path"), 4)          # 4 shapes over 1 background
+        self.assertIn("layers", r.stdout)
+
+    def test_high_k_does_not_lose_layers(self):
+        # K is an upper bound: antialiasing fringe clusters are folded, so K=12 must
+        # not end up with fewer real layers than K=6 (this regressed once).
+        low, _ = self._run_icon(6)
+        high, _ = self._run_icon(12)
+        self.assertGreaterEqual(high.count("<path"), low.count("<path"))
+
+    @unittest.skipUnless(have_renderer(), "needs resvg-py or rsvg-convert")
+    def test_flat_icon_psnr(self):
+        _text, r = self._run_icon(6)
+        line = [l for l in r.stdout.splitlines() if l.startswith("psnr_rendered")][0]
+        self.assertGreaterEqual(float(line.split(":")[-1].split()[0]), 30.0, r.stdout)
 
 
 if __name__ == "__main__":
