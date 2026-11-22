@@ -32,10 +32,19 @@
 - 解耦运行时：删除 `/mnt/cos`、`/mnt/work`、`e2b_read_image`、`image_generate` 等宿主专属路径与工具，改为纯文件路径 + 可选渲染器。
 - frontmatter：`name` 改为 `raster-to-svg`；删去非标 `title` / `when_to_use`，合并进双引号 `description`；补 `metadata.version`。
 
+### 变更
+
+- `SKILL.md` 208 → 176 行：彩色模式的 12 行实测数字与 potrace 的 0.957/0.933 收归 `references/`；「Hard rules」并入「Do not (red lines)」；失败症状表下沉到 `references/parameters.md` §故障。description 改为第三人称「做什么 + Use when」，并补「把几个字或一句短语做成 SVG 轮廓」触发词。
+- 出货线统一：`--check` 判定 = iou ≥ 0.88 且 ink_ratio ∈ [0.95,1.05] 且渲染器在场；0.90 降为高精度目标（语料最差样本 0.8937）。
+- 新增 `--ink-min` / `--ink-max`（默认 0.95 / 1.05），失败信息只报真正命中的原因。
+
 ### 修复
 
 - 非 ASCII 输入路径读不了：`cv2.imread`/`cv2.imwrite` 在 Windows 打不开「桌面/截图.png」，导致中文路径一律报 `cannot read image`（`--text` 生成的中文 stem 首当其冲）。改为 `np.fromfile + imdecode` / `imencode + tofile`，中文与空格路径均可。
 - `--text` 的源图画布 4× 过大：字体 bbox 已经是超采样像素，又乘了一次 `ss`，文字缩在巨大的白底左上角。已改为紧凑画布（400×225 而非 1360×661）。
+- pillow 未列入依赖：渲染器解码走 `from PIL import Image`，按文档装完跑 `--check` 只能拿到代理分。已列为必需依赖。
+- 彩色模式渲染失败时拿**白底**算 PSNR，浅色页面可能高分通过 `--check`。改为 `render_failed` 标记，此时 `--check` 必失败。
+- 文档失真（Deep Review 查出 17 条）：彩色产物契约（`_coords/_diff/_overlay` 实际只在单色模式产出）、evidence §6「明确未测」与 §7/§9 自相矛盾、「15-40 点」覆盖不住自己的 41 点例子、「10-20 点」应为 13-31、`python3`/`python` 混用、8→16 条测试计数。均已改正。
 - 低对比墨一条轮廓都取不到：墨平面写死 127.5，`#999`（153）与 `#ccc`（204）全被判成纸色。改为 `ink_level()`——取纸色众数与墨芯（Otsu 分出的暗侧 5 分位）的中点；黑底白字仍是 127.5，低对比自动上移。`#999` 0.9399、`#ccc` 0.9354（potrace 同输入空输出），回归用例 `grey60_yong.png`。
 
 - 半像素内缩导致的系统性掉墨（细笔画 ink 损失 10-25%）。
