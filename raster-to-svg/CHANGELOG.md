@@ -41,4 +41,5 @@
 - 12 个真值字形语料（SimHei / SimSun / KaiTi / Noto Sans SC / 思源宋体 CN），resvg 渲染 IoU：均值 0.933、最差 0.894；同语料 vtracer polygon 均值 0.913、最差 0.856；本版 8/12 样本占优。
 - `python -m unittest discover -s tests -v` → 8 tests OK。
 - 确定性：mono 与 color 两次运行 SVG 字节一致。
-- 彩色语料 8 图（resvg 渲染，源图 vs 输出）：K=6 口径本版均值 28.94 dB，vtracer 26.48 dB，5 胜 3 负；文件小 5-10 倍。落后项集中在文字密集 UI（1-4 dB），已写入能力边界。
+- 彩色语料 8 图（resvg 渲染，源图 vs 输出）：K=6 口径本版均值 28.91 dB，vtracer 26.48 dB，4 胜 4 负；文件小 5-10 倍。落后项集中在文字密集 UI（1-4 dB）与孔洞/徽章（0.2-1.1 dB），已写入能力边界。
+- 彩色层固定走折线引擎并把角点位移收紧到 1.5 源像素：交给 `auto` 时会选曲线并撑开共享边界，5 色图标 36.66 → 19.88 dB（实测）。
