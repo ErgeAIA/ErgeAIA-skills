@@ -13,7 +13,7 @@
 - `--ss`（默认 4）：边界取灰度 127.5 等值线，替代「阈值化像素外沿」。
 - `--check` / `--min-iou` / `--min-psnr`：把保真度变成退出码闸门。
 - `iou_rendered` / `ink_ratio` / `renderer` / `surrogate_metric`：验证走 resvg 或 rsvg-convert 渲染**输出文件**；无渲染器时如实降级并标注。
-- `tests/`：10 条 unittest（CLI 门面、分组与孔洞、渲染 IoU 闸门、小点存活回归、确定性、彩色层数与高 K 不丢层）。
+- `tests/`：unittest 覆盖 CLI 门面、分组与孔洞、渲染 IoU 闸门、小点存活回归、低对比墨、确定性、彩色层数与高 K 不丢层、文本输入、Unicode 路径、报告自包含、唯一 id（当前 16 条）。
 - `tests/tools/gen_colour_corpus.py`：8 图彩色语料（平色图标 ×2、孔洞图、徽章、UI 面板、密集 UI、线性渐变、径向渐变），纯 OpenCV 图元、确定性生成。
 - 彩色模式抗锯齿小簇折叠：`--merge`（默认 40 RGB）/ `--merge-share`（默认 0.02），**K 是上界而非层数承诺**。
 - `--grow`（默认 1 个超采样像素）：彩色层外扩以闭合层间缝隙。
@@ -51,7 +51,7 @@
 - **真实照片 K=16**：31.84 / 27.40 dB（vtracer 22.32 / 15.79），15 条 path vs 321-530 条。
 - **被否掉的两次尝试**：外扩补半像素（0.9329→0.9136→0.8662）、收紧 dp-eps 到 0.8（均值 +0.5 点但最差退步、节点变多）。均未采用。
 
-- 12 个真值字形语料（SimHei / SimSun / KaiTi / Noto Sans SC / 思源宋体 CN），resvg 渲染 IoU：均值 0.933、最差 0.894；同语料 vtracer polygon 均值 0.913、最差 0.856；本版 8/12 样本占优。
+- 12 个真值字形语料（SimHei / SimSun / KaiTi / Noto Sans SC / 思源宋体 CN），resvg 渲染 IoU：均值 0.933、最差 0.894；同语料 vtracer polygon 均值 0.913、最差 0.856；本版 9/12 样本占优（另一负 -0.0004 实为平手）。
 - `python -m unittest discover -s tests -v` → 8 tests OK。
 - 确定性：mono 与 color 两次运行 SVG 字节一致。
 - 彩色语料 8 图（resvg 渲染，源图 vs 输出）：K=6 口径本版均值 28.91 dB，vtracer 26.48 dB，4 胜 4 负；文件小 5-10 倍。落后项集中在文字密集 UI（1-4 dB）与孔洞/徽章（0.2-1.1 dB），已写入能力边界。

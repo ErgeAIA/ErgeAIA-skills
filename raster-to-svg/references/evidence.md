@@ -6,11 +6,15 @@ description: "raster-to-svg 的验证记录：12 个字形的真值闭环语料�
 
 # 验证记录（evidence）
 
-所有数字来自本机实际运行（Windows 11，Python 3.12.9，opencv-python-headless 5.1.0.95，resvg-py 0.5.0）。语料与脚本在 `tests/fixtures`，复算步骤见文末。
+所有数字来自本机实际运行（Windows 11，Python 3.12.9，opencv-python-headless 5.1.0.95，resvg-py 0.5.0）。自带语料在 `tests/fixtures`，彩色语料生成器在 `tests/tools/gen_colour_corpus.py`，追踪器在 `scripts/`；复算步骤见文末。
 
 ## 1. 语料：真值已知，不是随手找的图
 
 12 个字形，从本机字体文件用 FreeType 渲染（4× 超采样后面积降采样），因此**原始轮廓可精确取得**：
+
+> 复算口径：这 12 张由**本机字体现场渲染**（fonttools → PIL 4× 超采样），技能包只随 4 张 fixture；
+> 包内可复算的是彩色语料（`tests/tools/gen_colour_corpus.py`）与 4 张 fixture 上的自检。要重跑整张表，
+> 需要同名字体文件与本机同一渲染链——做不到时不要声称复现。
 
 | 字体 | 字形 | 字号（em px） |
 | --- | --- | --- |
@@ -39,7 +43,7 @@ description: "raster-to-svg 的验证记录：12 个字形的真值闭环语料�
 | vtracer 0.6.15 `polygon` | 0.9127 | 0.8560 | 0.9909 | 35 | 517 B |
 | vtracer 0.6.15 `spline` | 0.9124 | 0.8521 | 0.9905 | 50 | 4093 B |
 
-逐样本胜负：本版胜 8 / 12（vs vtracer polygon），平 0，负 3（notosans 口 -0.055、思源宋体 日 -0.008、simhei 口 -0.0004）。
+逐样本胜负：本版胜 9 / 12（vs vtracer polygon），负 3（notosans 口 -0.055、思源宋体 日 -0.008、simhei 口 -0.0004；最后一负实为平手）。
 本版节点更少（25 vs 35）但文件更大（765 B vs 517 B）：坐标保留两位小数、带 `<g id>` 与注释。
 
 ## 4. 初稿的四个实测缺陷（本版已修）
@@ -90,6 +94,10 @@ description: "raster-to-svg 的验证记录：12 个字形的真值闭环语料�
 chrome --headless=new --disable-gpu --hide-scrollbars --window-size=900,560 --screenshot=out.png \
   "file:///<repo>/skills-browser.html"
 ```
+
+> 复算口径：这三个页面住在 **Skills-Depot 仓**（`skills-browser.html`、`ErgeAIA-skills/shese/assets/scene-preview.html`、
+> `local-tests/dudong-counter-demo/读懂.html`），不在本技能包内。上面的命令是**复现这份测量**用的，
+> 不是技能自带语料；技能包自带的语料只有 `tests/fixtures/` 与 `tests/tools/gen_colour_corpus.py`。
 
 | 页面 | 本版 K=6 | 本版 K=12 | vtracer color | 路径数 本版/vt | 文件 B 本版/vt |
 | --- | --- | --- | --- | --- | --- |
