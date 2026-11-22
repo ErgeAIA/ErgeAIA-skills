@@ -1,6 +1,6 @@
 ---
 name: raster-to-svg
-description: "Trace a raster image (PNG、JPG、WebP) into a grouped, editable SVG — a polygon engine for rectilinear and heiti glyphs, a cubic-Bezier engine for serif、kai and organic shapes, per-contour engine choice by measured fit error, subpixel contours taken from the 50%-coverage edge at 4x supersampling, and fidelity scored by rasterising the shipped SVG in a real renderer. Use when the user wants PNG 转 SVG、矢量化、描摹、轮廓提取、顶点或控制点坐标、图标或平色插画转矢量，or asks whether a photo can be vectorised."
+description: "Trace a raster image (PNG、JPG、WebP) into a grouped, editable SVG — a polygon engine for rectilinear and heiti glyphs, a cubic-Bezier engine for serif、kai and organic shapes, per-contour engine choice by measured fit error, subpixel contours taken from the 50%-coverage edge at 4x supersampling, and fidelity scored by rasterising the shipped SVG in a real renderer. Use when the user wants PNG 转 SVG、矢量化、描摹、轮廓提取、顶点或控制点坐标、图标或平色插画转矢量、把几个字/一句短语做成 SVG 轮廓，or asks whether a photo can be vectorised."
 metadata:
   author: ErgeAIA
   version: "0.1.0"
@@ -26,6 +26,19 @@ Use it for:
 
 Not for: OCR, font identification, recreating text as text, photographic fidelity.
 
+## Modes at a glance
+
+| | mono (default) | colour (`--colors K`) |
+| --- | --- | --- |
+| stdout gate | `components` / `iou_rendered` / `ink_ratio` | `layers` / `psnr_rendered` (no iou, no ink ratio) |
+| `--check` | iou >= 0.88 and ink 0.95-1.05 | psnr >= 30 dB |
+| SVG | `<g id="glyph-NN">` + `<path id="cNN">` | `<rect>` + one path per layer, **no groups, no ids** |
+| coordinates | `_coords.json` / `_coords.txt` | **none** |
+| images | `_check` (3-up), `_diff`, `_overlay` | `_check` (2-up only) |
+
+If the user asks for colour **and** vertex coordinates, say up front that this tool cannot
+give both: colour layers have no coordinate table.
+
 ## Checkpoints (do not skip)
 
 | # | Marker | Fires when | What you do |
@@ -42,7 +55,8 @@ slightly worse one.
 
 ## Runtime
 
-`python3` + `numpy` + `opencv-python-headless`; `pillow` only for `--text`.
+`python` + `numpy` + `opencv-python-headless` + `pillow` (the renderer path decodes with
+PIL, so `--check` needs it too - without it you get a proxy warning, not a score).
 A renderer is optional but required for any fidelity claim: `resvg-py` (pip) or
 `rsvg-convert` (binary). Without one the tool reports `surrogate_metric: true` and you
 must not quote the number. Non-ASCII input paths (桌面/截图.png) are fine.
@@ -76,7 +90,9 @@ uv run --with numpy --with opencv-python-headless --with resvg-py \
    One line only - vertical or multi-line layout is not supported.
 
 4. **Read three numbers** from stdout: `components`, `iou_rendered`, `ink_ratio`.
-   - `iou_rendered >= 0.90` and `0.95 <= ink_ratio <= 1.05` → ship it.
+   - `--check` exit 0 (that means `iou_rendered >= 0.88` **and** `0.95 <= ink_ratio <= 1.05`)
+     → ship it. 0.90 is the high-precision target, not the ship line: the corpus minimum is
+     0.8937, so a 0.90 gate would fail this tool's own evidence.
    - `ink_ratio < 0.95` (ink lost) → try, **one at a time in this order**: `--min-area 10` →
      `--close 0` → `--ss 6`.
    - `ink_ratio > 1.05` (ink invented) → try, one at a time: `--error 0.8` → `--mode polygon`.
@@ -104,16 +120,16 @@ antialiasing fringe, so a small cluster within `--merge` (default 40 RGB) of a b
 is folded into it before tracing. Start at the number of visually distinct colours (6-8),
 not at 32. `--ss` applies here too (it closes the half-pixel seams between adjacent
 layers) and `--grow` (default 1 supersampled px) closes the rest. Verified colour PSNR:
-30-37 dB on flat shape art and gradients, 24-25 dB once small text or antialiased edges
-dominate; on three real Chromium-rendered pages it was 21.8-22.9 dB against vtracer's
+30-37 dB on flat shape art, 28-32 dB on gradients, 24-25 dB once small text or antialiased
+edges dominate; on three real Chromium-rendered pages it was 21.8-22.9 dB against vtracer's
 23.7-25.3 dB, so say so instead of overclaiming - and note the trade: 5-10 paths and 7-49 KB
 versus vtracer's 348-738 paths and 276-631 KB. Raising K does not buy fidelity on real UI
 (K=12 was worse than K=6 on two of three pages). Small text does not survive colour mode at
 all: at K=6 the text of a real UI page breaks into unreadable blocks - if the source has text
 that must stay legible, this is the wrong route, not a tuning problem.
 
-Measured warning: forcing `curve` on rectilinear shapes (口/日/思源宋体) costs 15-40 IoU
-points — a 口 at 96 px went 0.93 → 0.52 when forced to `curve`. Leave `auto` on unless
+Measured warning: forcing `curve` on rectilinear shapes (口/日/思源宋体) costs ~41 IoU
+points on the one sample measured — a 口 at 96 px went 0.93 → 0.52. Leave `auto` on unless
 the user explicitly wants curves everywhere.
 
 ## Tool choice (state it, do not guess)
@@ -136,7 +152,8 @@ the user explicitly wants curves everywhere.
 - **Never emit `<text>`.** Output is outlines; editable text needs the font, not a trace.
 - **Never upscale the source** and then report "high precision" - set the SVG `width`/`height`
   attributes instead; `viewBox` already carries the real geometry.
-- **Never run vertical, rotated or multi-line input and ship the broken grouping.** Say it is unsupported.
+- **Never ship a vertical, rotated or multi-line result whose grouping is wrong.** `--gap`
+  is an x-gap heuristic; measure the groups before delivering, and say what is unsupported.
 
 ## Hard rules
 
@@ -163,16 +180,16 @@ Into `--outdir`:
 | --- | --- |
 | `<stem>.svg` | `<g id="glyph-NN">` groups, one `<path id="cNN" fill-rule="evenodd">` per component (outer + holes), optional `<title>` |
 | `<stem>.html` (`--no-html` to skip) | **self-contained interactive report** (no CDN, images inlined): zoom/pan, 对比/源图/矢量/差异 views, per-component visibility toggles, node overlay, metrics cards, coordinate table that highlights the path on hover |
-| `<stem>_coords.json` | per component: engine, bbox, `vertices_xy` + `interior_angle_deg` or `cubic_segments`, `holes`, plus `iou_rendered` / `ink_ratio` / `renderer` / `surrogate_metric` |
-| `<stem>_coords.txt` | the same table, human readable |
-| `<stem>_check.png` | source \| render \| diff (red = lost ink, green = added) |
-| `<stem>_diff.png` | the diff plate alone, embedded in the report |
+| `<stem>_coords.json` | **mono only**: per component engine, bbox, `vertices_xy` + `interior_angle_deg` or `cubic_segments`, `holes`, plus `iou_rendered` / `ink_ratio` / `renderer` / `surrogate_metric` |
+| `<stem>_coords.txt` | **mono only**: the same table, human readable |
+| `<stem>_check.png` | mono: source \| render \| diff (red = lost ink, green = added); colour: source \| render only |
+| `<stem>_diff.png` | **mono only**: the diff plate, embedded in the report |
 | `<stem>_source.png` | `--text` only: the rasterised text that was traced |
-| `<stem>_overlay.png` | traced outline and node markers over the source |
+| `<stem>_overlay.png` | **mono only**: traced outline and node markers over the source |
 
 ## Exit codes
 
-`0` traced (and `--check` passed) · `1` traced but `--check` failed or no renderer ·
+`0` traced (with `--check`: passed) · `1` `--check` failed (iou, ink_ratio, or no renderer) ·
 `2` tool error (unreadable input, no contours above `--min-area`, renderer crash).
 
 ## Failure handling

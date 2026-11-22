@@ -638,9 +638,17 @@ def run_mono(args):
                                             ", proxy - not a fidelity claim" if meta["surrogate"] else ""))
     print("ink_ratio     : %.3f" % meta["ink_ratio"])
     print("svg           : %s" % svg_path)
-    if args.check and (meta["iou"] < args.min_iou or meta["surrogate"]):
-        print("CHECK FAILED (iou %.4f < %.2f or no renderer)" % (meta["iou"], args.min_iou),
-              file=sys.stderr)
+    ink_bad = not (args.ink_min <= meta["ink_ratio"] <= args.ink_max)
+    if args.check and (meta["iou"] < args.min_iou or meta["surrogate"] or ink_bad):
+        why = []
+        if meta["surrogate"]:
+            why.append("no renderer")
+        if meta["iou"] < args.min_iou:
+            why.append("iou %.4f < %.2f" % (meta["iou"], args.min_iou))
+        if ink_bad:
+            why.append("ink_ratio %.3f outside %.2f-%.2f"
+                       % (meta["ink_ratio"], args.ink_min, args.ink_max))
+        print("CHECK FAILED (%s)" % "; ".join(why), file=sys.stderr)
         return 1
     return 0
 
@@ -752,15 +760,19 @@ def run_color(args):
             rend_bgr = render_svg(svg_path, W, H, renderer).astype(np.uint8)
         except Exception:
             rend_bgr = None
+    render_failed = bool(renderer) and rend_bgr is None
     if rend_bgr is None:
         rend_bgr = np.full((H, W, 3), 255, np.uint8)
-    mse = float(np.mean((bgr.astype(np.float32) - rend_bgr.astype(np.float32)) ** 2)) if renderer else float("nan")
-    psnr = 10 * np.log10(255.0 ** 2 / mse) if renderer and mse > 0 else float("nan")
+    # a failed render must never score: comparing the source against a white canvas can
+    # pass --check on a light page (measured on a pale UI screenshot before this fix).
+    scored = bool(renderer) and not render_failed
+    mse = float(np.mean((bgr.astype(np.float32) - rend_bgr.astype(np.float32)) ** 2)) if scored else float("nan")
+    psnr = 10 * np.log10(255.0 ** 2 / mse) if scored and mse > 0 else float("nan")
     panel = np.concatenate([bgr, rend_bgr], axis=1)
     _imwrite(os.path.join(odir, stem + "_check.png"), panel)
     if args.html:
         check_png = os.path.join(odir, stem + "_check.png")
-        rmeta = dict(w=W, h=H, score=("%.2f dB" % psnr) if renderer else "n/a",
+        rmeta = dict(w=W, h=H, score=("%.2f dB" % psnr) if scored else "n/a",
                      ink="K=%d" % K, parts="%d 层" % len(layers),
                      nodes="%d 条 path" % svg.count("<path"),
                      bytes="%d B" % os.path.getsize(svg_path),
@@ -771,9 +783,10 @@ def run_color(args):
 
     print("mode          : color K=%d ss=%d" % (K, ss))
     print("layers        : %d" % len(layers))
-    print("psnr_rendered : %s" % ("%.2f dB" % psnr if renderer else "n/a (no renderer)"))
+    print("psnr_rendered : %s" % ("%.2f dB" % psnr if scored else
+                                  ("n/a (render failed)" if render_failed else "n/a (no renderer)")))
     print("svg           : %s" % svg_path)
-    if args.check and (not renderer or psnr < args.min_psnr):
+    if args.check and (not scored or psnr < args.min_psnr):
         print("CHECK FAILED", file=sys.stderr)
         return 1
     return 0
@@ -1103,7 +1116,10 @@ def build_parser():
     p.add_argument("--no-groups", action="store_true", help="emit one flat <path> per component")
     p.add_argument("--check", action="store_true",
                    help="exit 1 when the rendered IoU/PSNR misses the threshold or no renderer exists")
-    p.add_argument("--min-iou", type=float, default=0.88, help="threshold for --check (mono)")
+    p.add_argument("--min-iou", type=float, default=0.88,
+                   help="--check: mono IoU threshold (0.88 ships; 0.90 is the high-precision target)")
+    p.add_argument("--ink-min", type=float, default=0.95, help="--check: lower bound of ink_ratio")
+    p.add_argument("--ink-max", type=float, default=1.05, help="--check: upper bound of ink_ratio")
     p.add_argument("--min-psnr", type=float, default=30.0, help="threshold for --check (colour)")
     p.add_argument("--version", action="version", version="%(prog)s " + VERSION)
     return p
