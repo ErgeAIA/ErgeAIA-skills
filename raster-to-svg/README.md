@@ -109,7 +109,6 @@ raster-to-svg/
 │   ├── parameters.md         参数语义、调参判据、别做的事
 │   └── evidence.md           语料、指标、前后对照、未测项
 ├── scripts/raster2svg.py     追踪器（CLI）
-├── test-prompts.json         darwin-skill 评审用的 3 条测试 prompt
 └── tests/
     ├── test_raster2svg.py    16 条自检
     ├── tools/                gen_colour_corpus.py（8 图彩色语料生成器）
