@@ -99,6 +99,15 @@ class TestMono(unittest.TestCase):
         self.assertGreaterEqual(meta.get("iou_rendered", 0), 0.85, meta)
         self.assertLessEqual(meta["ink_ratio"], 1.10)
 
+    def test_svg_ids_are_unique(self):
+        # regression: one <g> per component produced duplicate id="glyph-02" x N
+        import re as _re
+        svg, meta, r = self._trace("zhi_128.png")
+        with open(svg, encoding="utf-8") as fh:
+            text = fh.read()
+        ids = _re.findall(r'id="([^"]+)"', text)
+        self.assertEqual(len(ids), len(set(ids)), "duplicate ids: %s" % ids)
+
     def test_deterministic_bytes(self):
         src = os.path.join(FIX, "kou_96.png")
         digests = []

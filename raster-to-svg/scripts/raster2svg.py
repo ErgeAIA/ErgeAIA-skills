@@ -525,13 +525,18 @@ def run_mono(args):
         groups_items.append(dict(component=r, paths=[dict(id=r["pid"], d=" ".join(subpaths))]))
 
     gs = group_components([g["component"] for g in groups_items], args.gap)
-    gid_of = {}
-    for gi, members in enumerate(gs):
-        for m in members:
-            gid_of[id(m)] = "glyph-%02d" % (gi + 1)
+    # one <g> per GROUP, not per component: several components of one glyph must share
+    # a single wrapper, otherwise the document carries duplicate id="glyph-02" (invalid
+    # SVG, and editors silently drop the repeats).
+    by_comp = {id(g["component"]): g for g in groups_items}
     groups = []
-    for g in groups_items:
-        groups.append(dict(gid=gid_of[id(g["component"])], paths=g["paths"]))
+    for gi, members in enumerate(gs):
+        paths = []
+        for m in members:
+            paths.extend(by_comp[id(m)]["paths"])
+        for m in members:
+            m["group"] = "glyph-%02d" % (gi + 1)
+        groups.append(dict(gid="glyph-%02d" % (gi + 1), paths=paths))
 
     svg = build_svg(W, H, groups, args.fill, args.title, grouped=not args.no_groups)
 
@@ -550,7 +555,7 @@ def run_mono(args):
     recs = []
     for gi, g in enumerate(groups_items):
         r = g["component"]
-        rec = {"component": gi + 1, "group": gid_of[id(r)], "pid": r.get("pid", ""),
+        rec = {"component": gi + 1, "group": r.get("group", ""), "pid": r.get("pid", ""),
                "engine": r["kind"], "bbox_xywh": [round(v, 2) for v in r["bbox"]],
                "area_px": round(r["area"], 1)}
         if r["kind"] == "polygon":
