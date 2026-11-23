@@ -910,7 +910,7 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 .toolbar label{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:13px}
 .ednote{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.6}
 #r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5;fill-opacity:.92}
-#r2s-edit-labels text{font:600 1px ui-monospace,Consolas,monospace;fill:#3d454e;opacity:.85;
+#r2s-edit-labels text{font-family:ui-monospace,Consolas,monospace;font-weight:600;fill:#3d454e;opacity:.85;
   paint-order:stroke;stroke:#ffffff;stroke-width:2.2px;cursor:pointer;user-select:none}
 #r2s-edit-labels text:hover{fill:#f0a03c;opacity:1}
 #r2s-edit-labels text.sel{fill:#f0a03c;opacity:1}
