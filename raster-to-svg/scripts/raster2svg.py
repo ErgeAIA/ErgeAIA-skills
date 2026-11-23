@@ -910,10 +910,13 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 .toolbar label{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:13px}
 .ednote{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.6}
 #r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5;fill-opacity:.92}
-#r2s-edit-labels text{font-family:ui-monospace,Consolas,monospace;font-weight:600;fill:#3d454e;opacity:.85;
-  paint-order:stroke;stroke:#ffffff;stroke-width:2.2px;cursor:pointer;user-select:none}
-#r2s-edit-labels text:hover{fill:#f0a03c;opacity:1}
-#r2s-edit-labels text.sel{fill:#f0a03c;opacity:1}
+#r2s-edit-labels{position:absolute;inset:0;pointer-events:none;z-index:5}
+.lbl{position:absolute;transform:translate(-50%,-140%);pointer-events:auto;cursor:pointer;
+  font:600 12px/1 ui-monospace,Consolas,monospace;color:#2b333b;background:#fff;
+  border:1px solid #b9c1c9;border-radius:5px;padding:2px 5px;white-space:nowrap;
+  box-shadow:0 1px 2px #0002}
+.lbl:hover{color:#111;border-color:#f0a03c}
+.lbl.sel{background:#f0a03c;border-color:#f0a03c;color:#111}
 #r2s-edit-nodes circle.h{fill:var(--accent);stroke:#fff;stroke-width:.4}
 .colorbtn{width:26px;height:20px;padding:0;border:1px solid var(--line);border-radius:4px;background:none;cursor:pointer}
 .hex{width:82px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:3px 6px;font:inherit;font-size:12px;text-transform:uppercase}
@@ -931,7 +934,8 @@ REPORT_JS = """
   var stage=document.getElementById('stage'), canvas=document.getElementById('canvas');
   var src=document.getElementById('src'), vec=document.getElementById('vec'), dif=document.getElementById('diff');
   var scale=1, tx=0, ty=0, drag=null;
-  function apply(){canvas.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';canvas.setAttribute('data-scale',scale);}
+  function apply(){canvas.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';canvas.setAttribute('data-scale',scale);
+    if(window.__r2sDrawLabels) window.__r2sDrawLabels();}
   function fit(){
     var cw=canvas.offsetWidth||1, ch=canvas.offsetHeight||1;
     scale=Math.min((stage.clientWidth-2)/cw,(stage.clientHeight-2)/ch,4);
@@ -1071,8 +1075,11 @@ REPORT_EDITOR_JS = r"""
     end('col'+i);
   }
   var layer=document.createElementNS(NS,'g'); layer.id='r2s-edit-nodes'; layer.style.display='none';
-  var labelLayer=document.createElementNS(NS,'g'); labelLayer.id='r2s-edit-labels';
-  svg.appendChild(layer); svg.appendChild(labelLayer);
+  svg.appendChild(layer);
+  // labels live in HTML above the stage: SVG text proved unreliable to size and paint
+  var labelLayer=document.createElement('div');
+  labelLayer.id='r2s-edit-labels';
+  document.getElementById('stage').appendChild(labelLayer);
   function offsetOf(p){
     var g=p.parentNode, m=g&&g.getAttribute&&g.getAttribute('transform');
     if(!m) return [0,0];
@@ -1094,24 +1101,28 @@ REPORT_EDITOR_JS = r"""
     while(labelLayer.firstChild) labelLayer.removeChild(labelLayer.firstChild);
     var on=document.getElementById('ed-labels');
     if(!on||!on.checked) return;
-    var z=+(document.getElementById('canvas').getAttribute('data-scale')||1);
+    var ctm=svg.getScreenCTM(); if(!ctm) return;
+    var stageRect=document.getElementById('stage').getBoundingClientRect();
     paths.forEach(function(p,i){
       var b=bboxOf(p); if(!b) return;
       var off=offsetOf(p);
-      var t=document.createElementNS(NS,'text');
-      t.setAttribute('x',f2(b.x+off[0]));
-      t.setAttribute('y',f2(b.y+off[1]-5/z));
-      t.setAttribute('font-size',f2(13/z));
-      t.setAttribute('data-pi',i);
-      t.textContent=p.id||('c'+i);
-      t.addEventListener('click',function(e){ e.stopPropagation(); select(i); });
-      labelLayer.appendChild(t);
+      var sx=ctm.a*(b.x+off[0])+ctm.c*(b.y+off[1])+ctm.e-stageRect.left;
+      var sy=ctm.b*(b.x+off[0])+ctm.d*(b.y+off[1])+ctm.f-stageRect.top;
+      var chip=document.createElement('button');
+      chip.className='lbl'+(i===selected?' sel':'');
+      chip.type='button';
+      chip.textContent=p.id||('c'+i);
+      chip.style.left=Math.round(sx)+'px';
+      chip.style.top=Math.round(sy)+'px';
+      chip.setAttribute('data-pi',i);
+      chip.addEventListener('click',function(e){ e.stopPropagation(); select(i); });
+      labelLayer.appendChild(chip);
     });
   }
   function select(i){
     selected=i;
     rowEls.forEach(function(r,j){ if(r) r.classList.toggle('sel', j===i); });
-    [].slice.call(labelLayer.querySelectorAll('text')).forEach(function(t,j){
+    [].slice.call(labelLayer.querySelectorAll('.lbl')).forEach(function(t){
       t.classList.toggle('sel', +t.getAttribute('data-pi')===i);
     });
     if(rowEls[i]&&rowEls[i].scrollIntoView) rowEls[i].scrollIntoView({block:'nearest'});
@@ -1282,6 +1293,7 @@ REPORT_EDITOR_JS = r"""
     link.download=(document.title||'edited').replace(/[^\w\u4e00-\u9fa5-]+/g,'_')+'.svg';
     link.click(); setTimeout(function(){URL.revokeObjectURL(link.href);},2000);
   });
+  window.__r2sDrawLabels=drawLabels;
   var lab=document.getElementById('ed-labels');
   if(lab) lab.addEventListener('change',drawLabels);
   syncControls(); drawLabels();
