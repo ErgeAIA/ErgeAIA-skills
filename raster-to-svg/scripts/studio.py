@@ -15,6 +15,7 @@ import io
 import json
 import os
 import sys
+import subprocess
 import tempfile
 import threading
 import time
@@ -479,12 +480,54 @@ def make_handler(fonts):
     return H
 
 
+WATCHED = ("raster2svg.py", "studio.py")
+
+
+def _stamps():
+    out = {}
+    for name in WATCHED:
+        try:
+            st = os.stat(os.path.join(HERE, name))
+            out[name] = (st.st_mtime, st.st_size)
+        except OSError:
+            out[name] = None
+    return out
+
+
+def watch_and_restart(argv):
+    """Re-exec this process when a watched script changes.
+
+    The page shell is baked in at import time, so a long-lived process serves a
+    stale UI even though generate() reloads the tracer. Rather than ask the user
+    to restart, replace ourselves - RUNS is on disk, so history survives.
+    """
+    base = _stamps()
+    while True:
+        time.sleep(1.0)
+        now = _stamps()
+        if now != base:
+            print("reload: change detected, restarting")
+            sys.stdout.flush()
+            # os.execv splits the script path on spaces on Windows, so spawn instead
+            try:
+                cmd = [sys.executable, os.path.abspath(__file__)] + list(argv or [])
+                if "--reload" not in cmd:
+                    cmd.append("--reload")
+                subprocess.Popen(cmd, cwd=HERE, close_fds=True)
+            except Exception as exc:  # noqa: BLE001
+                print("reload failed: %r" % (exc,), file=sys.stderr)
+                return
+            os._exit(0)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Preview a system font, then trace on demand")
     ap.add_argument("--list-fonts", action="store_true", help="print CJK-capable fonts as JSON")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--no-cache", action="store_true")
+    ap.add_argument("--reload", action="store_true",
+                    help="restart automatically when scripts/*.py change")
     args = ap.parse_args(argv)
 
     fonts = scan(cache=not args.no_cache)
@@ -497,6 +540,9 @@ def main(argv=None):
     RUNS.update(load_runs())
     srv = ThreadingHTTPServer((args.host, args.port), make_handler(fonts))
     print("studio on http://%s:%d  (%d fonts)" % (args.host, args.port, len(fonts)))
+    if args.reload:
+        threading.Thread(target=watch_and_restart, args=(argv,), daemon=True).start()
+        print("reload: watching scripts/*.py")
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

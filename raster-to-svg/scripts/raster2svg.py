@@ -172,13 +172,19 @@ def interior_angles(v):
 
 
 def dense_poly(pts, step=0.6):
-    out = []
-    for i in range(len(pts)):
-        a, b = pts[i], pts[(i + 1) % len(pts)]
-        n = max(2, int(np.linalg.norm(b - a) / step))
-        for k in range(n):
-            out.append(a + (b - a) * (k / float(n)))
-    return np.array(out)
+    """Sample every edge; vectorised because this ran once per contour in auto mode."""
+    pts = np.asarray(pts, dtype=np.float64)
+    if len(pts) < 2:
+        return pts.reshape(-1, 2)
+    nxt = np.roll(pts, -1, axis=0)
+    seg = nxt - pts
+    counts = np.maximum(2, (np.linalg.norm(seg, axis=1) / step).astype(np.int64))
+    # per-edge parameter grid flattened, so one broadcast builds every sample
+    total = int(counts.sum())
+    owner = np.repeat(np.arange(len(pts)), counts)
+    starts = np.concatenate(([0], np.cumsum(counts)[:-1]))
+    frac = (np.arange(total) - starts[owner]) / counts[owner].astype(np.float64)
+    return pts[owner] + seg[owner] * frac[:, None]
 
 
 def dense_curve(segs, step=0.6):
@@ -190,14 +196,34 @@ def dense_curve(segs, step=0.6):
     return np.vstack(out)
 
 
-def fit_error(samples, contour, chunk=120):
-    """Worst distance (up-sampled px) from a fitted shape to the traced contour."""
+# 0 = probe every sample. Subsampling looked free (byte-identical on 16 glyphs)
+# but a randomised check showed it can miss the worst-distance spike by 17%, and
+# that number decides the engine - so the probe stays exhaustive.
+MAX_PROBES = 0
+
+
+def fit_error(samples, contour, chunk=512):
+    """Worst distance (up-sampled px) from a fitted shape to the traced contour.
+
+    The naive form - broadcast subtract, square, sum - allocated a
+    (chunk x contour x 2) temporary and dominated the whole run (89% of a
+    4-glyph trace). Squared distance expands to |p|^2 + |c|^2 - 2 p.c, which is
+    one BLAS matmul; the result is identical up to float32 rounding.
+    """
     C = contour.reshape(-1, 2).astype(np.float32)
+    if len(C) == 0 or len(samples) == 0:
+        return 0.0
+    if MAX_PROBES and len(samples) > MAX_PROBES:
+        idx = np.linspace(0, len(samples) - 1, MAX_PROBES).astype(np.int64)
+        samples = samples[idx]
+    c2 = np.einsum("ij,ij->i", C, C)
     worst = 0.0
     for i in range(0, len(samples), chunk):
         P = samples[i:i + chunk].astype(np.float32)
-        d = np.sqrt(((P[:, None, :] - C[None, :, :]) ** 2).sum(-1)).min(1)
-        worst = max(worst, float(d.max()))
+        p2 = np.einsum("ij,ij->i", P, P)
+        d2 = p2[:, None] + c2[None, :] - 2.0 * (P @ C.T)
+        np.maximum(d2, 0.0, out=d2)
+        worst = max(worst, float(np.sqrt(d2.min(1)).max()))
     return worst
 
 

@@ -172,6 +172,44 @@ class TestTextAndReport(unittest.TestCase):
         self.assertIn("滚轮缩放", text)
         self.assertLess(os.path.getsize(html), 3 * 1024 * 1024)
 
+    def test_fit_error_matches_bruteforce(self):
+        """The BLAS/subsampled distance must agree with the naive version."""
+        import numpy as np
+        sys.path.insert(0, os.path.join(SKILL, "scripts"))
+        import raster2svg as R
+        rng = np.random.default_rng(7)
+        for n_s, n_c in ((50, 40), (300, 120), (1200, 800)):
+            S = rng.random((n_s, 2)).astype(np.float32) * 400
+            C = rng.random((n_c, 2)).astype(np.float32) * 400
+            naive = 0.0
+            for i in range(0, n_s, 60):
+                P = S[i:i + 60]
+                d = np.sqrt(((P[:, None, :] - C[None, :, :]) ** 2).sum(-1)).min(1)
+                naive = max(naive, float(d.max()))
+            fast = R.fit_error(S, C.reshape(-1, 1, 2))
+            # Same value up to float32 rounding of the |p|^2+|c|^2-2pc expansion;
+            # a subsampled probe would show a percent-level gap, which is what
+            # this guards against (that value decides the engine).
+            self.assertLessEqual(abs(fast - naive), max(1e-3, 1e-5 * naive),
+                                 "fit_error drifted: %.6f vs %.6f" % (fast, naive))
+
+    def test_dense_poly_matches_loop(self):
+        import numpy as np
+        sys.path.insert(0, os.path.join(SKILL, "scripts"))
+        import raster2svg as R
+        rng = np.random.default_rng(11)
+        for _ in range(20):
+            pts = rng.random((int(rng.integers(3, 15)), 2)) * 300
+            want = []
+            for i in range(len(pts)):
+                a, b = pts[i], pts[(i + 1) % len(pts)]
+                n = max(2, int(np.linalg.norm(b - a) / 0.6))
+                for k in range(n):
+                    want.append(a + (b - a) * (k / float(n)))
+            got = R.dense_poly(pts)
+            self.assertEqual(got.shape, np.array(want).shape)
+            self.assertTrue(np.allclose(got, np.array(want), atol=1e-9))
+
     def test_report_has_no_static_node_overlay(self):
         src = os.path.join(FIX, "kou_96.png")
         r = run("-i", src, "-o", self.tmp.name)
