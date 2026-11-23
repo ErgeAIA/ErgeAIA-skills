@@ -130,7 +130,8 @@ def generate(text, font, size, gap):
     return {"ok": code == 0, "code": code, "log": log[-4000:], "run": run, "stem": stem,
             "url": "/out/%s/%s.html" % (run, stem),
             "svg": "/out/%s/%s.svg" % (run, stem),
-            "thumb": "/out/%s/%s_source.png" % (run, stem)}
+            "thumb": "/out/%s/%s.svg" % (run, stem),
+            "thumb_src": "/out/%s/%s_source.png" % (run, stem)}
 
 
 PAGE = """<!doctype html><html lang="zh"><head><meta charset="utf-8">
@@ -157,6 +158,8 @@ input[type=text],select{width:100%;background:var(--panel);color:var(--fg);borde
 input[type=range]{width:100%;accent-color:var(--accent)}
 .slot{display:flex;gap:8px;align-items:center;margin-bottom:6px}
 .slot b{width:16px;color:var(--accent);font-size:13px}
+.fav{background:var(--panel);color:var(--accent);border:1px solid var(--line);border-radius:7px;padding:6px 9px;font:inherit;cursor:pointer}
+.fav.on{background:var(--accent);color:#111;border-color:var(--accent)}
 .hint{color:var(--dim);font-size:12px;margin-top:10px}
 .hist{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .hitem{display:block;background:var(--panel);border:1px solid var(--line);border-radius:7px;overflow:hidden;text-decoration:none;color:var(--dim);font-size:11px}
@@ -170,9 +173,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <label>文字</label><input type="text" id="text" value="织音">
   <label>过滤（三栏共用）</label><input type="text" id="q" placeholder="思源 / PuHui / 宋">
   <label>候选字体（本机 CJK 字体 __COUNT__ 个）</label>
-  <div class="slot"><b>A</b><select class="fsel" data-slot="0"></select></div>
-  <div class="slot"><b>B</b><select class="fsel" data-slot="1"></select></div>
-  <div class="slot"><b>C</b><select class="fsel" data-slot="2"></select></div>
+  <div class="slot"><b>A</b><select class="fsel" data-slot="0"></select><button class="fav" data-slot="0" title="收藏这款字体">★</button></div>
+  <div class="slot"><b>B</b><select class="fsel" data-slot="1"></select><button class="fav" data-slot="1" title="收藏这款字体">★</button></div>
+  <div class="slot"><b>C</b><select class="fsel" data-slot="2"></select><button class="fav" data-slot="2" title="收藏这款字体">★</button></div>
   <label>字号 <span id="sizeV" class="hint"></span></label><input type="range" id="size" min="60" max="280" step="2" value="150">
   <label>字距 <span id="gapV" class="hint"></span></label><input type="range" id="gap" min="0" max="120" step="1" value="16">
   <div class="hint" id="state">选好三款字体，右侧对比后再生成。</div>
@@ -190,19 +193,48 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <script>
 var FONTS = __FONTS__;
 var sels = [].slice.call(document.querySelectorAll(".fsel"));
+var FAV_KEY = "r2s.favs.v1", PICK_KEY = "r2s.picks.v1";
+function load(key, dflt){ try{ var v = JSON.parse(localStorage.getItem(key) || "null"); return v || dflt; }catch(e){ return dflt; } }
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+var favs = load(FAV_KEY, []);
 var faces = sels.map(function(){
   var s = document.createElement("style"); document.head.appendChild(s); return s;
 });
-sels.forEach(function(sel){
-  FONTS.forEach(function(f, i){
-    var o = document.createElement("option"); o.value = i; o.textContent = f.label;
-    o.dataset.key = f.keys || f.label.toLowerCase(); sel.appendChild(o);
-  });
-});
-// default three candidates: the first three distinct families
+function fill(sel, keep){
+  var cur = keep !== undefined ? String(keep) : sel.value;
+  sel.textContent = "";
+  var add = function(parent, list){
+    list.forEach(function(i){
+      var f = FONTS[i], o = document.createElement("option");
+      o.value = i; o.textContent = f.label;
+      o.dataset.key = f.keys || f.label.toLowerCase();
+      parent.appendChild(o);
+    });
+  };
+  if(favs.length){
+    var grp = document.createElement("optgroup"); grp.label = "收藏"; add(grp, favs); sel.appendChild(grp);
+  }
+  var rest = FONTS.map(function(_f, i){ return i; }).filter(function(i){ return favs.indexOf(i) < 0; });
+  var grp2 = document.createElement("optgroup"); grp2.label = "全部字体"; add(grp2, rest); sel.appendChild(grp2);
+  if(cur !== undefined && cur !== "") sel.value = cur;
+}
+// defaults: last session's picks, else the first three distinct families
 var fams = [], picks = [];
 FONTS.forEach(function(f, i){ if(fams.indexOf(f.family) < 0){ fams.push(f.family); if(picks.length < 3) picks.push(i); } });
-sels.forEach(function(sel, i){ sel.value = String(picks[i] || 0); });
+var saved = load(PICK_KEY, []);
+sels.forEach(function(sel, i){
+  var want = (saved[i] !== undefined && FONTS[saved[i]]) ? saved[i] : (picks[i] || 0);
+  fill(sel, want);
+});
+function remember(){ save(PICK_KEY, sels.map(function(sel){ return +sel.value; })); }
+function toggleFav(slot){
+  var i = +sels[slot].value, at = favs.indexOf(i);
+  if(at >= 0) favs.splice(at, 1); else favs.push(i);
+  save(FAV_KEY, favs);
+  var keep = sels.map(function(sel){ return +sel.value; });
+  sels.forEach(function(sel, k){ fill(sel, keep[k]); });
+  paintFav(); render();
+}
 function applyFace(i, slot){
   var name = "R2S_" + slot + "_" + i;
   faces[slot].textContent = "@font-face{font-family:" + name + ";src:url(/font/" + i + ")}";
@@ -239,7 +271,16 @@ document.getElementById("q").addEventListener("input", function(){
   });
   render();
 });
-sels.forEach(function(sel){ sel.addEventListener("change", render); });
+sels.forEach(function(sel){ sel.addEventListener("change", function(){ remember(); paintFav(); render(); }); });
+[].slice.call(document.querySelectorAll(".fav")).forEach(function(b){
+  b.addEventListener("click", function(){ toggleFav(+b.dataset.slot); });
+});
+function paintFav(){
+  [].slice.call(document.querySelectorAll(".fav")).forEach(function(b){
+    var on = favs.indexOf(+sels[+b.dataset.slot].value) >= 0;
+    b.classList.toggle("on", on);
+  });
+}
 ["text","size","gap"].forEach(function(id){ document.getElementById(id).addEventListener("input", render); });
 var hist = document.getElementById("hist");
 function addHistory(entry){
@@ -270,7 +311,7 @@ function addHistory(entry){
     .catch(function(e){ btn.disabled = false; st.textContent = "请求失败：" + e; });
   });
 });
-render();
+render(); paintFav();
 </script></body></html>"""
 
 
