@@ -182,8 +182,10 @@ class TestTextAndReport(unittest.TestCase):
                          "static node overlay removed; the editor draws live handles instead")
         self.assertNotIn("nodes-toggle", text, "the obsolete show-nodes checkbox is gone")
         self.assertIn("r2s-edit-labels", text, "component labels must be present")
-        self.assertIn("class='lbl'", text.replace('"', "'"),
+        self.assertIn("chip.className='lbl'", text,
                       "labels are HTML chips, not SVG text (SVG text would not size reliably)")
+        self.assertIn("#r2s-edit-labels{position:absolute", text.replace("\n", ""),
+                      "the label layer must be an HTML overlay, not an SVG group")
         self.assertIn('"夜灯"', text, "theme palette should be embedded")
 
     def test_report_is_editable(self):
