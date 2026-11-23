@@ -17,6 +17,8 @@ metadata:
 
 ## 接不接
 
+五类接，四类不接，剩下的那条判断是：**手里已经有原始矢量，就别描**。
+
 | 接 | 为什么 |
 | --- | --- |
 | 字形、标志、图标的 PNG → 要能改的 SVG | 这是本技能的正面战场 |
@@ -30,18 +32,18 @@ metadata:
 
 ## 怎么跑
 
+图、字、平色图标，都是同一条命令，只换参数：
+
+| 输入 | 换成 |
+| --- | --- |
+| 一张图 | 不动 |
+| 只有字 | `--text "开源" --size 160`（不给 `--font` 就用系统 CJK 字体；只支持单行） |
+| 平色图标 | `--colors 6` |
+
 ```bash
 uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py \
   python scripts/raster2svg.py -i in.png -o out --check
 ```
-
-三种入口只换参数，别的不动：
-
-| 情况 | 换什么 |
-| --- | --- |
-| 图 | 上面这条 |
-| 只有字 | `--text "开源" --size 160`（不给 `--font` 就用系统 CJK 字体；只支持单行） |
-| 平色图标 | `--colors 6` |
 
 默认 `--mode auto` 逐条轮廓自己选折线或曲线；矩形字形用 `--mode polygon`，确实弯的笔画才上
 `--mode curve`。彩色里 K 是**上界**，从能数出来的颜色数起（6-8），别从 32 起。
@@ -51,8 +53,7 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 
 ## 数字怎么读
 
-单色看三个：`components`（几个部件）、`iou_rendered`（真渲染 IoU）、`ink_ratio`（墨量比）。
-彩色只看两个：`layers`、`psnr_rendered`——**彩色没有 iou，也没有墨量比**。
+**过闸就一句话：`--check` 退 0，即 iou ≥ 0.88 且墨量比在 0.95-1.05。** 没过就按下表改，一次一个。
 
 | 看到 | 意思 | 下一步 |
 | --- | --- | --- |
@@ -62,11 +63,16 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 | iou 上不去、渲染器也在 | 形状没贴住 | 先看 `_check.png`（红 = 丢墨，绿 = 多墨），再按上面两行改 |
 | 彩色 psnr < 30 dB | 海报化过头或不够 | 换 K；或承认这张不该走彩色路线 |
 
+字段名对一下：单色三个数是 `components`（几个部件）、`iou_rendered`（真渲染 IoU）、`ink_ratio`（墨量比）；
+彩色只有 `layers` 和 `psnr_rendered`——**彩色没有 iou，也没有墨量比**。
+
 出货线是 **0.88**，不是 0.90：语料最差样本就是 0.8937，写 0.90 会否掉自己的证据。0.90 只当高精度目标。
 
 调参只有一条协议：**一次改一个，改完重跑，把新数字报出来**。别一口气扫一串参数。
 
 ## 该停就停
+
+五种情况必须先停下来问人，越过任何一条，交出去的就是错答案：
 
 | 标记 | 什么情况 | 停下来做什么 |
 | --- | --- | --- |
@@ -76,11 +82,9 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 | 🛑 | 没装渲染器（`surrogate_metric: true`） | 交 SVG，说明这个数是代理值，不能当保真度 |
 | 🛑 | 用户说照片要"无损" | 不承诺无损；给三条路：留位图 / 接受海报化 / 嵌 `<image>`（嵌位图不算矢量） |
 
-这五条是硬判据。越过任何一条，交出去的就是错答案。
-
 ## 交付什么
 
-都写进 `--outdir`：
+一次运行给六类产物：SVG、交互报告、坐标表、三联对比图、差异图、叠图——后三样只在单色模式。都写进 `--outdir`：
 
 | 文件 | 内容 | 出现条件 |
 | --- | --- | --- |
@@ -120,9 +124,9 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 
 ## 出错怎么办
 
-症状 → 原因 → 修法在 `references/parameters.md` §故障；调参顺序在同一份的 §判据。
 两条不能临场发挥：`cannot read image` → 重新定位源文件（别凭记忆重建）；`no contours found`
-→ 先确认图不是空白，再降 `--min-area`。
+→ 先确认图不是空白，再降 `--min-area`。其余症状 → 原因 → 修法在 `references/parameters.md` §故障，
+调参顺序在同一份的 §判据。
 
 ## 证据
 
