@@ -28,6 +28,7 @@ First release. The draft `text-png-to-svg` was renamed `raster-to-svg` and the c
 - **One ship gate**: `--check` = iou ≥ 0.88 **and** ink_ratio ∈ [0.95, 1.05] **and** a renderer present; 0.90 is the high-precision target (corpus minimum 0.8937).
 - **SKILL.md rewritten in Chinese and slimmed**: 208 → 163 lines, description is now "what it does + Use when"; measured numbers moved to `references/`.
 - **Decoupled from the host**: host-specific paths and tools removed; plain file paths plus an optional renderer.
+- **Docs and assets**: `SKILL.md` rewritten in Chinese in execution order (208 → 133 lines, conclusion first); added `README.en.md` and `CHANGELOG.en.md`; a skill banner (`assets/banner.svg`, `.json`, `.png`); and `assets/shot.ps1`, a screenshot helper (zero-margin wrapper, renders 300px taller, crops to content, warns on overflow) shared by the banner and the evidence page instead of hand-rolled one-offs that clipped a strip.
 
 ### Fixed
 

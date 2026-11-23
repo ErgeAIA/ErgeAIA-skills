@@ -3,21 +3,22 @@
 `banner.svg` 是唯一真源，`banner.png` 由它渲染后裁切得到，`banner.json` 是编辑器可载入的结构化版本。
 改字先改 SVG，再同步 JSON，最后重渲 PNG——三处不同步就会出现"图里是旧数字、JSON 里是新数字"。
 
-## 渲染配方（照抄即可）
+## 重新生成 PNG
 
-```bash
-# 1) 用零边距页面包住 SVG，避免浏览器给图片加白边
-#    page.html = <style>html,body{margin:0;padding:0;background:#1a0f0c;overflow:hidden}svg{display:block}</style> + banner.svg 内容
-# 2) 按 560 高渲染，再裁到 400
-chrome --headless=new --disable-gpu --hide-scrollbars \
-  --window-size=1200,560 --virtual-time-budget=4000 \
-  --screenshot=tall.png "file:///…/page.html"
-# 3) 裁掉底部多余 160px（用 System.Drawing / PIL / magick 都行）
+一条命令，`shot.ps1` 负责零边距包装、多留高度、按内容裁切、越界报警：
+
+```powershell
+cd assets
+pwsh -File shot.ps1 -In banner.svg -Width 1200 -Height 400 -Out banner.png -Bg "#1a0f0c"
 ```
 
-**为什么是 560 不是 400**：`--headless=new` 的内视口比 `--window-size` **矮约 80px**（模拟了浏览器
-chrome）。按 400 渲只截到 y≈320，页脚、左下 L 形取景标记、右区图注会被裁掉——2026-11-23 就这么
-裁过一次。探针可复现：在 y=380 画一条红色 rect，400 高截图里它根本不出现。
+- `-Height 0` = 自动高度（按最后一行内容 + 24px 裁），用于长短不一的页面截图；
+- 固定 `-Height` = 画布尺寸（banner 就是 400），内容超出会**报警退出 1**，而不是静默裁掉；
+- Chromium 走 `-Chrome` / `CHROME` 环境变量 / Playwright 缓存目录，三者都找不到才报错。
+
+**这脚本为什么存在**：`--headless=new` 的内视口比 `--window-size` **矮约 80px**，按目标高度直接截图
+会裁掉底部——2026-11-23 banner 的页脚、L 形取景标记、右区图注就是这么丢的。探针可复现：在 y=380
+画一条红 rect，400 高的截图里它根本不出现。
 
 ## 图里的数字从哪来
 
