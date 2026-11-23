@@ -2,11 +2,15 @@
 
 ![raster-to-svg](assets/banner.png)
 
-> 栅格描摹者，取其边以为线。直者还直，曲者还曲，成器而后可改。
-
-**v0.1.0** · Agent Skill ｜ 位图 → 可编辑 SVG 轮廓追踪 ｜ [English](README.en.md)
-
 **把一张图或几个字，变成能改的 SVG。** 不是一张糊着的位图外套，是分组可编辑的轮廓、能导出的坐标表，外加一个用**真渲染器**渲你交付件算出来的保真分。
+
+```bash
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill raster-to-svg
+```
+
+**v0.1.0** · Agent Skill ｜ [English](README.en.md) · [CHANGELOG](CHANGELOG.md)
+
+> 栅格描摹者，取其边以为线。直者还直，曲者还曲，成器而后可改。
 
 ## 解决什么
 
@@ -52,6 +56,8 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 stdout 三行是判据：`components`（几个字形）、`iou_rendered`（真渲染 IoU）、`ink_ratio`（墨量比）。跑完会多出一份 `<name>.html`——自包含的可交互报告（滚轮缩放、对比/源图/矢量/差异四视图、按部件开关、节点叠印、坐标表悬停高亮），双击即可看。
 
 ## 怎么用
+
+从左列找到你手上这种情况，右列那句话可以直接发给 agent。
 
 | 场景 | 一句话要点 | 可复制示例提示词 |
 | --- | --- | --- |

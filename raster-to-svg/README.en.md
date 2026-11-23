@@ -2,13 +2,15 @@
 
 ![raster-to-svg](assets/banner.png)
 
-> A raster tracer: take the edge, make the line. Straight stays straight, curved stays curved — and the result can still be edited.
-
-**v0.1.0** · Agent Skill | raster → editable SVG contour tracing
-
-[中文](README.md) · **English**
-
 **Turns an image or a few words into an editable SVG.** Not a raster in a vector wrapper: grouped contours you can still edit, exportable coordinates, and a fidelity number computed by rasterising what you ship with a **real renderer**.
+
+```bash
+npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill raster-to-svg
+```
+
+**v0.1.0** · Agent Skill | [中文](README.md) · [CHANGELOG](CHANGELOG.en.md) · **English**
+
+> A raster tracer: take the edge, make the line. Straight stays straight, curved stays curved — and the result can still be edited.
 
 ## What it solves
 
@@ -54,6 +56,8 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 Three stdout lines are the judgement: `components` (how many glyphs), `iou_rendered` (real rendered IoU), `ink_ratio` (ink area ratio). Every run also drops a `<name>.html` — a self-contained interactive report (wheel zoom, 对比 / 源图 / 矢量 / 差异 views, per-component toggles, node overlay, coordinate table with hover highlight). Double-click to open.
 
 ## How to use
+
+Find your situation on the left; the right-hand prompt can be pasted to an agent as is.
 
 | Scenario | The one-line point | Copyable example prompt |
 | --- | --- | --- |
