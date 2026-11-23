@@ -258,6 +258,18 @@ class TestStudio(unittest.TestCase):
             self.assertTrue(os.path.isfile(item["path"]), item["path"])
             self.assertTrue(item["label"])
 
+    def test_stale_detection_logic(self):
+        """The banner must fire on a code change and stay quiet otherwise."""
+        sys.path.insert(0, os.path.join(SKILL, "scripts"))
+        import studio  # noqa: E402
+        self.assertFalse(studio.tracer_stale(), "fresh import must not look stale")
+        self.assertIn(":", studio.tracer_version())
+        # a fresh process must render no banner at all
+        self.assertEqual(studio.stale_banner(8765), "")
+        # and when it does fire it must carry the exact restart command
+        self.assertIn("python scripts/studio.py --port 8765",
+                      studio.STALE_TEMPLATE % ("00:00:00", "00:00:00", 8765))
+
     def test_font_index_reaches_the_renderer(self):
         fonts = json.loads(run_studio("--list-fonts").stdout)
         cjk = [f for f in fonts if f.get("cjk")] or fonts

@@ -133,11 +133,43 @@ def save_runs():
         pass
 
 
+SERVER_START = time.time()
+
+
+def tracer_stat():
+    return os.stat(os.path.join(HERE, "raster2svg.py"))
+
+
 def tracer_version():
-    """mtime+size of the tracer, so a stale server is visible instead of silent."""
-    path = os.path.join(HERE, "raster2svg.py")
-    st = os.stat(path)
-    return "%s %s" % (time.strftime("%H:%M:%S", time.localtime(st.st_mtime)), st.st_size)
+    """mtime of the tracer, so a stale server is visible instead of silent."""
+    st = tracer_stat()
+    return time.strftime("%m-%d %H:%M:%S", time.localtime(st.st_mtime))
+
+
+def tracer_stale():
+    """True when the tracer on disk changed after this process started.
+
+    generate() reloads the module, so a stale process still traces correctly -
+    but the page shell itself (HTML/CSS/JS) is baked in at import time, which is
+    exactly how an "old UI" reaches the user. Say so instead of hiding it.
+    """
+    try:
+        return tracer_stat().st_mtime > SERVER_START + 0.5
+    except OSError:
+        return False
+
+
+STALE_TEMPLATE = (
+    '<div class="warn">服务启动于 %s，而描摹器在 %s 之后被修改过——'
+    "页面外壳可能仍是旧版。请重启：<code>python scripts/studio.py --port %d</code></div>"
+)
+
+
+def stale_banner(port):
+    if not tracer_stale():
+        return ""
+    return STALE_TEMPLATE % (
+        time.strftime("%H:%M:%S", time.localtime(SERVER_START)), tracer_version(), port)
 
 
 def generate(text, font, size, gap):
@@ -190,6 +222,9 @@ body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,"
 header{padding:18px 28px;border-bottom:1px solid var(--line)}
 h1{font-size:18px;margin:0 0 4px}
 .sub{color:var(--dim);font-size:13px}
+.warn{margin:10px 0 0;padding:8px 12px;border-radius:8px;background:#3a2a12;
+  border:1px solid #6b4a1c;color:#f3c98b;font-size:13px}
+.warn code{background:#2a1e0d;padding:1px 5px;border-radius:4px;color:#ffd9a3}
 main{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 80px)}
 aside{padding:18px 22px;border-right:1px solid var(--line);overflow:auto}
 .stage{display:flex;flex-direction:column;gap:10px;padding:14px;background:#f7f7f5;overflow:auto}
@@ -216,7 +251,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 </style></head><body>
 <header><h1>字体对比与生成 <span class="tag" style="background:#161d25;border:1px solid #243040;border-radius:6px;padding:2px 8px;font-size:12px;color:#8b98a5">raster-to-svg</span></h1>
 <div class="sub">三栏同屏比字体，预览是纯 CSS（不描摹）；点某一栏的「生成」才跑脚本。
-    <span id="build" style="color:#6b6b66">描摹器 __BUILD__</span></div></header>
+    <span id="build" style="color:#6b6b66">描摹器 __BUILD__</span></div>__STALE__</header>
 <main>
 <aside>
   <label>文字</label><input type="text" id="text" value="织音">
@@ -396,6 +431,7 @@ def make_handler(fonts):
                 page = PAGE.replace("__COUNT__", str(len(fonts))).replace(
                     "__CJK__", str(cjk)).replace(
                     "__BUILD__", tracer_version()).replace(
+                    "__STALE__", stale_banner(self.server.server_port)).replace(
                     "__FONTS__", json.dumps([{"label": f["label"], "family": f["family"],
                                                "cjk": bool(f.get("cjk")),
                                                "keys": (f["label"] + " " + f["path"]).lower()}
