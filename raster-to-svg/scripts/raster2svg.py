@@ -29,7 +29,7 @@ Outputs (into --outdir):
   <stem>_check.png        source | render | diff  + IoU
   <stem>_overlay.png      traced outline + node markers over the source
 """
-import argparse, base64, json, os, re, shutil, subprocess, sys
+import argparse, base64, json, os, re, shutil, subprocess, sys, time
 import numpy as np
 import cv2
 
@@ -911,10 +911,13 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 .ednote{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.6}
 #r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5;fill-opacity:.92}
 #r2s-edit-labels{position:absolute;inset:0;pointer-events:none;z-index:5}
-.lbl{position:absolute;transform:translate(-50%,-140%);pointer-events:auto;cursor:pointer;
+.lbl{position:absolute;pointer-events:auto;cursor:pointer;
   font:600 12px/1 ui-monospace,Consolas,monospace;color:#2b333b;background:#fff;
   border:1px solid #b9c1c9;border-radius:5px;padding:2px 5px;white-space:nowrap;
   box-shadow:0 1px 2px #0002}
+.lbl-lines{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+.lbl-lines line{stroke:#9aa4ae;stroke-width:1;stroke-dasharray:2 2}
+.lbl-lines circle{fill:#f0a03c}
 .lbl:hover{color:#111;border-color:#f0a03c}
 .lbl.sel{background:#f0a03c;border-color:#f0a03c;color:#111}
 #r2s-edit-nodes circle.h{fill:var(--accent);stroke:#fff;stroke-width:.4}
@@ -1001,9 +1004,14 @@ def write_report(outdir, stem, meta, comps, svg_path, src_png, diff_png, mode):
     svg_txt = re.sub(r'(<svg[^>]*?)width="\d+"\s+height="\d+"', r'\1width="100%" height="100%"',
                      svg_txt, count=1)
     title = "%s · 描摹报告" % stem
-    sub = ("引擎 %s · 画布 %dx%d · 版本 v%s · 渲染器 %s%s"
+    try:
+        _st = os.stat(__file__)
+        build = " · 构建 %s" % time.strftime("%m-%d %H:%M", time.localtime(_st.st_mtime))
+    except Exception:
+        build = ""
+    sub = ("引擎 %s · 画布 %dx%d · 版本 v%s · 渲染器 %s%s%s"
            % (mode, meta["w"], meta["h"], VERSION, meta["renderer"] or "缺（代评分）",
-              " · ⚠ 代理指标" if meta.get("surrogate") else ""))
+              " · ⚠ 代理指标" if meta.get("surrogate") else "", build))
     cards = [
         ("IoU / PSNR", meta["score"]), ("墨量比", meta["ink"]), ("部件/层", meta["parts"]),
         ("节点/路径", meta["nodes"]), ("SVG 体积", meta["bytes"]), ("源图", meta["source"]),
@@ -1103,21 +1111,63 @@ REPORT_EDITOR_JS = r"""
     if(!on||!on.checked) return;
     var ctm=svg.getScreenCTM(); if(!ctm) return;
     var stageRect=document.getElementById('stage').getBoundingClientRect();
+    var items=[];
     paths.forEach(function(p,i){
       var b=bboxOf(p); if(!b) return;
       var off=offsetOf(p);
-      var sx=ctm.a*(b.x+off[0])+ctm.c*(b.y+off[1])+ctm.e-stageRect.left;
-      var sy=ctm.b*(b.x+off[0])+ctm.d*(b.y+off[1])+ctm.f-stageRect.top;
+      function toScreen(ux,uy){
+        return [ctm.a*ux+ctm.c*uy+ctm.e-stageRect.left, ctm.b*ux+ctm.d*uy+ctm.f-stageRect.top];
+      }
+      var c=toScreen(b.x+off[0]+b.w/2, b.y+off[1]);   // top centre of the part
       var chip=document.createElement('button');
       chip.className='lbl'+(i===selected?' sel':'');
       chip.type='button';
       chip.textContent=p.id||('c'+i);
-      chip.style.left=Math.round(sx)+'px';
-      chip.style.top=Math.round(sy)+'px';
       chip.setAttribute('data-pi',i);
       chip.addEventListener('click',function(e){ e.stopPropagation(); select(i); });
       labelLayer.appendChild(chip);
+      var w=chip.offsetWidth||30, h=chip.offsetHeight||16;
+      items.push({chip:chip, ax:c[0], ay:c[1], w:w, h:h, wantY:c[1]-h-6});
     });
+    // declutter: sort by desired y, then push each chip down until it clears its neighbours
+    items.sort(function(a,b){ return a.wantY-b.wantY || a.ax-b.ax; });
+    var placed=[];
+    var GAP=3;
+    items.forEach(function(it){
+      var y=it.wantY;
+      var moved=true, guard=0;
+      while(moved && guard++<200){
+        moved=false;
+        for(var k=0;k<placed.length;k++){
+          var o=placed[k];
+          var overlapX=Math.abs(it.ax-o.ax) < (it.w+o.w)/2 + GAP;
+          var overlapY=!(y+it.h <= o.y || y >= o.y+o.h+GAP);
+          if(overlapX && overlapY){ y=o.y+o.h+GAP; moved=true; }
+        }
+      }
+      it.y=y;
+      placed.push(it);
+      it.chip.style.left=Math.round(it.ax - it.w/2)+'px';
+      it.chip.style.top=Math.round(y)+'px';
+    });
+    // leader lines: one hairline per chip, from chip edge to the part's top centre
+    var svgLines=document.createElementNS(NS,'svg');
+    svgLines.setAttribute('class','lbl-lines');
+    var bw=stageRect.width, bh=stageRect.height;
+    svgLines.setAttribute('width',bw); svgLines.setAttribute('height',bh);
+    svgLines.setAttribute('viewBox','0 0 '+bw+' '+bh);
+    items.forEach(function(it){
+      var x1=it.ax, y1=it.ay, x2=it.ax, y2=it.y+it.h;
+      if(Math.abs(y2-y1) < 2) return;
+      var ln=document.createElementNS(NS,'line');
+      ln.setAttribute('x1',f2(x1)); ln.setAttribute('y1',f2(y1));
+      ln.setAttribute('x2',f2(x2)); ln.setAttribute('y2',f2(y2));
+      svgLines.appendChild(ln);
+      var dot=document.createElementNS(NS,'circle');
+      dot.setAttribute('cx',f2(x1)); dot.setAttribute('cy',f2(y1)); dot.setAttribute('r','1.6');
+      svgLines.appendChild(dot);
+    });
+    labelLayer.insertBefore(svgLines,labelLayer.firstChild);
   }
   function select(i){
     selected=i;

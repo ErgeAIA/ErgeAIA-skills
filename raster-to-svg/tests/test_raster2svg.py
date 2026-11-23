@@ -186,6 +186,8 @@ class TestTextAndReport(unittest.TestCase):
                       "labels are HTML chips, not SVG text (SVG text would not size reliably)")
         self.assertIn("#r2s-edit-labels{position:absolute", text.replace("\n", ""),
                       "the label layer must be an HTML overlay, not an SVG group")
+        self.assertIn("lbl-lines", text, "labels need leader lines to their part")
+        self.assertIn("declutter", text.lower().replace("-", ""), "chips must be decluttered")
         self.assertIn('"夜灯"', text, "theme palette should be embedded")
 
     def test_report_is_editable(self):

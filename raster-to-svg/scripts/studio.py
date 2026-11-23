@@ -17,6 +17,7 @@ import os
 import sys
 import tempfile
 import threading
+import time
 import uuid
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, quote, unquote
@@ -132,8 +133,18 @@ def save_runs():
         pass
 
 
+def tracer_version():
+    """mtime+size of the tracer, so a stale server is visible instead of silent."""
+    path = os.path.join(HERE, "raster2svg.py")
+    st = os.stat(path)
+    return "%s %s" % (time.strftime("%H:%M:%S", time.localtime(st.st_mtime)), st.st_size)
+
+
 def generate(text, font, size, gap):
+    import importlib
     import raster2svg as R
+    # reload so an edit to raster2svg.py takes effect without restarting the studio
+    importlib.reload(R)
     outdir = tempfile.mkdtemp(prefix="r2s-studio-")
     buf = io.StringIO()
     code = 0
@@ -204,7 +215,8 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .hitem span{display:block;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style></head><body>
 <header><h1>字体对比与生成 <span class="tag" style="background:#161d25;border:1px solid #243040;border-radius:6px;padding:2px 8px;font-size:12px;color:#8b98a5">raster-to-svg</span></h1>
-<div class="sub">三栏同屏比字体，预览是纯 CSS（不描摹）；点某一栏的「生成」才跑脚本。</div></header>
+<div class="sub">三栏同屏比字体，预览是纯 CSS（不描摹）；点某一栏的「生成」才跑脚本。
+    <span id="build" style="color:#6b6b66">描摹器 __BUILD__</span></div></header>
 <main>
 <aside>
   <label>文字</label><input type="text" id="text" value="织音">
@@ -373,6 +385,7 @@ def make_handler(fonts):
             self.send_response(code)
             self.send_header("Content-Type", ctype)
             self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store, must-revalidate")
             self.end_headers()
             self.wfile.write(body)
 
@@ -382,6 +395,7 @@ def make_handler(fonts):
                 cjk = sum(1 for f in fonts if f.get("cjk"))
                 page = PAGE.replace("__COUNT__", str(len(fonts))).replace(
                     "__CJK__", str(cjk)).replace(
+                    "__BUILD__", tracer_version()).replace(
                     "__FONTS__", json.dumps([{"label": f["label"], "family": f["family"],
                                                "cjk": bool(f.get("cjk")),
                                                "keys": (f["label"] + " " + f["path"]).lower()}
