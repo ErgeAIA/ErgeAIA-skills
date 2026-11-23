@@ -1,6 +1,8 @@
 {
   "meta": {
-    "name": "banner-raster-to-svg"
+    "name": "banner-raster-to-svg",
+    "render": "chromium --headless=new --window-size=1200,560 --screenshot, then crop to 1200x400; the new headless viewport is ~80px shorter than the window, so rendering at 400 clips the bottom rows",
+    "source": "numbers from references/evidence.md §3 (0.933 IoU / 25 nodes / 765 B)"
   },
   "content": {
     "category": "AGENT SKILL · RASTER → SVG",
