@@ -115,7 +115,7 @@ raster-to-svg/
 ├── README.en.md              English README
 ├── CHANGELOG.md              中文变更记录
 ├── CHANGELOG.en.md           English changelog
-├── assets/                   banner.svg / .png / .json
+├── assets/                   banner.svg（真源）/ .png / .json / render.md（渲染配方）
 ├── references/
 │   ├── parameters.md         参数语义、调参判据、别做的事
 │   └── evidence.md           语料、指标、前后对照、未测项

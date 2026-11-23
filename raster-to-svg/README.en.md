@@ -115,7 +115,7 @@ raster-to-svg/
 ├── README.en.md              this file
 ├── CHANGELOG.md              Chinese changelog
 ├── CHANGELOG.en.md           English changelog
-├── assets/                   banner.svg / .png / .json
+├── assets/                   banner.svg (source of truth) / .png / .json / render.md (render recipe)
 ├── references/
 │   ├── parameters.md         flag semantics, tuning criteria, what not to do
 │   └── evidence.md           corpus, metrics, before/after, untested items
