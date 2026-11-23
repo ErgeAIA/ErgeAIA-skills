@@ -163,6 +163,17 @@ class TestTextAndReport(unittest.TestCase):
         self.assertIn("滚轮缩放", text)
         self.assertLess(os.path.getsize(html), 3 * 1024 * 1024)
 
+    def test_report_is_editable(self):
+        src = os.path.join(FIX, "kou_96.png")
+        r = run("-i", src, "-o", self.tmp.name)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        with open(os.path.join(self.tmp.name, "kou_96.html"), encoding="utf-8") as fh:
+            text = fh.read()
+        for marker in ('id="ed-mode"', 'id="ed-spacing"', 'id="ed-weight"',
+                       'id="ed-undo"', 'id="ed-export"', 'r2s-edit-nodes',
+                       "paintOrder"):
+            self.assertIn(marker, text, "missing editor marker: " + marker)
+
     def test_no_html_flag_skips_report(self):
         r = run("-i", os.path.join(FIX, "kou_96.png"), "-o", self.tmp.name, "--no-html")
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)

@@ -916,6 +916,16 @@ tr.hl{background:rgba(240,160,60,.12)}
 .layer input{accent-color:var(--accent)}
 .dl{display:inline-block;margin-top:6px;color:var(--accent);text-decoration:none;font-size:13px}
 code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.toolbar button{background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:6px 11px;font:inherit;font-size:13px;cursor:pointer}
+.toolbar button.on{background:var(--accent);color:#111;border-color:var(--accent)}
+.toolbar button.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
+.toolbar input[type=range]{width:110px;accent-color:var(--accent)}
+.toolbar label{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:13px}
+.ednote{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.6}
+#r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5}
+#r2s-edit-nodes circle.h{fill:var(--accent);stroke:#fff;stroke-width:.4}
+.colorbtn{width:26px;height:20px;padding:0;border:1px solid var(--line);border-radius:4px;background:none;cursor:pointer}
 """
 
 REPORT_JS = """
@@ -1018,12 +1028,143 @@ def write_report(outdir, stem, meta, comps, svg_path, src_png, diff_png, mode):
                      ("__CSS__", REPORT_CSS), ("__SRC__", _data_uri(src_png)),
                      ("__DIFF__", _data_uri(diff_png) if diff_png else ""),
                      ("__SVG__", svg_txt), ("__META__", json_meta), ("__TABLE__", table),
-                     ("__JS__", REPORT_JS), ("__STEM__", stem), ("__MODE__", mode)):
+                     ("__JS__", REPORT_JS), ("__EDITOR_JS__", REPORT_EDITOR_JS),
+                     ("__STEM__", stem), ("__MODE__", mode)):
         html = html.replace(key, val)
     path = os.path.join(outdir, stem + ".html")
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(html)
     return path
+
+
+REPORT_EDITOR_JS = r"""
+(function(){
+  var svg=document.querySelector('#vec svg'); if(!svg) return;
+  var NS='http://www.w3.org/2000/svg';
+  var paths=[].slice.call(svg.querySelectorAll('path[id]'));
+  var groups=[].slice.call(svg.querySelectorAll('g[id^="glyph-"]'));
+  var hist=[], future=[], nodeMode=false, pending={};
+  function begin(k){ if(!pending[k]){ push(); pending[k]=true; } }
+  function end(k){ pending[k]=false; }
+  var layer=document.createElementNS(NS,'g'); layer.id='r2s-edit-nodes'; layer.style.display='none';
+  svg.appendChild(layer);
+
+  function f2(v){ v=+v; return String(Math.round(v*100)/100); }
+  function parse(d){
+    var t=(d||'').match(/[MLCZ]|-?\d*\.?\d+(?:e[-+]?\d+)?/gi)||[], out=[], i=0, cur=[0,0], start=[0,0];
+    while(i<t.length){
+      var op=t[i++];
+      if(op==='M'){ cur=[+t[i++],+t[i++]]; start=cur.slice(); out.push({c:'M',p:cur.slice()}); }
+      else if(op==='L'){ cur=[+t[i++],+t[i++]]; out.push({c:'L',p:cur.slice()}); }
+      else if(op==='C'){ var a=[+t[i++],+t[i++]],b=[+t[i++],+t[i++]],p=[+t[i++],+t[i++]]; out.push({c:'C',c1:a,c2:b,p:p}); cur=p; }
+      else if(op==='Z'){ out.push({c:'Z'}); cur=start.slice(); }
+      else break;
+    }
+    return out;
+  }
+  function write(cmds){
+    return cmds.map(function(k){
+      if(k.c==='Z') return 'Z';
+      if(k.c==='M') return 'M'+f2(k.p[0])+' '+f2(k.p[1]);
+      if(k.c==='L') return 'L'+f2(k.p[0])+' '+f2(k.p[1]);
+      return 'C'+f2(k.c1[0])+' '+f2(k.c1[1])+' '+f2(k.c2[0])+' '+f2(k.c2[1])+' '+f2(k.p[0])+' '+f2(k.p[1]);
+    }).join(' ');
+  }
+  function snap(){ return {paths:paths.map(function(p){return {d:p.getAttribute('d'),fill:p.getAttribute('fill'),
+    stroke:p.getAttribute('stroke'),sw:p.getAttribute('stroke-width'),po:p.style.paintOrder};}),
+    trans:groups.map(function(g){return g.getAttribute('transform')||'';})}; }
+  function apply(s){
+    paths.forEach(function(p,i){var q=s.paths[i]; if(!q)return; p.setAttribute('d',q.d); p.setAttribute('fill',q.fill||'#000');
+      if(q.stroke&&q.stroke!=='none'){p.setAttribute('stroke',q.stroke);p.setAttribute('stroke-width',q.sw);} else {p.removeAttribute('stroke');p.removeAttribute('stroke-width');}
+      p.style.paintOrder=q.po||'';});
+    groups.forEach(function(g,i){var t=s.trans[i]; if(t)g.setAttribute('transform',t); else g.removeAttribute('transform');});
+    drawNodes(); syncControls();
+  }
+  function push(){ hist.push(snap()); if(hist.length>60)hist.shift(); future=[]; }
+  function undo(){ if(!hist.length)return; future.push(snap()); apply(hist.pop()); }
+  function redo(){ if(!future.length)return; hist.push(snap()); apply(future.pop()); }
+
+  function drawNodes(){
+    while(layer.firstChild) layer.removeChild(layer.firstChild);
+    if(!nodeMode) return;
+    paths.forEach(function(p,pi){
+      parse(p.getAttribute('d')).forEach(function(k,ki){
+        var pts = k.c==='C' ? [['h',k.c1],['h',k.c2],['a',k.p]] :
+                  (k.c==='M'||k.c==='L') ? [['a',k.p]] : [];
+        pts.forEach(function(pair){
+          var c=document.createElementNS(NS,'circle');
+          c.setAttribute('cx',f2(pair[1][0])); c.setAttribute('cy',f2(pair[1][1]));
+          c.setAttribute('r',pair[0]==='a'?1.9:1.3);
+          if(pair[0]==='h') c.setAttribute('class','h');
+          c.setAttribute('data-pi',pi); c.setAttribute('data-ki',ki); c.setAttribute('data-pt',pair[0]);
+          layer.appendChild(c);
+        });
+      });
+    });
+  }
+  layer.addEventListener('mousedown',function(e){e.stopPropagation();});
+  layer.addEventListener('pointerdown',function(e){
+    var c=e.target; if(c.tagName!=='circle') return;
+    e.preventDefault(); e.stopPropagation(); push();
+    var p=paths[+c.getAttribute('data-pi')], cmds=parse(p.getAttribute('d')), k=cmds[+c.getAttribute('data-ki')];
+    var key=c.getAttribute('data-pt')==='a'?'p':c.getAttribute('data-pt');
+    function at(ev){ var pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
+      return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+    function move(ev){ var q=at(ev); k[key][0]=Math.round(q.x*100)/100; k[key][1]=Math.round(q.y*100)/100;
+      p.setAttribute('d',write(cmds)); c.setAttribute('cx',k[key][0]); c.setAttribute('cy',k[key][1]); }
+    function up(){ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); }
+    window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
+  });
+
+  // colour inputs: replace the passive swatch in the existing layer panel
+  [].slice.call(document.querySelectorAll('#layers .layer')).forEach(function(row,i){
+    var sw=row.querySelector('i'); if(!sw||!paths[i]) return;
+    var col=document.createElement('input'); col.type='color'; col.className='colorbtn';
+    col.title='改这个部件的颜色';
+    col.value=(paths[i].getAttribute('fill')||'#000000').replace('#','') .length===6 ? paths[i].getAttribute('fill') : '#000000';
+    col.addEventListener('input',function(){ begin('c'+i); paths[i].setAttribute('fill',col.value); sw.style.background=col.value; });
+    col.addEventListener('change',function(){ end('c'+i); });
+    row.insertBefore(col,sw.nextSibling); sw.style.display='none';
+  });
+
+  var sp=document.getElementById('ed-spacing'), wt=document.getElementById('ed-weight');
+  var mode=document.getElementById('ed-mode');
+  if(!groups.length && sp){ sp.disabled=true; sp.parentNode.style.opacity=.45; }
+  if(mode) mode.addEventListener('click',function(){
+    nodeMode=!nodeMode; layer.style.display=nodeMode?'block':'none';
+    mode.classList.toggle('on',nodeMode); mode.textContent=nodeMode?'编辑节点：开':'编辑节点：关'; drawNodes();
+  });
+  if(sp) sp.addEventListener('input',function(){ begin('sp'); var v=+sp.value;
+    groups.forEach(function(g,i){ g.setAttribute('transform','translate('+(i*v)+',0)'); }); });
+  if(sp) sp.addEventListener('change',function(){ end('sp'); });
+  if(wt) wt.addEventListener('input',function(){ begin('wt'); var v=+wt.value;
+    paths.forEach(function(p){ if(v>0){ p.setAttribute('stroke',p.getAttribute('fill')||'#000');
+      p.setAttribute('stroke-width',String(v*2)); p.style.paintOrder='stroke fill'; }
+      else { p.removeAttribute('stroke'); p.removeAttribute('stroke-width'); p.style.paintOrder=''; } }); });
+  if(wt) wt.addEventListener('change',function(){ end('wt'); });
+
+  var initial=snap();
+  function syncControls(){ if(sp){ var t=groups[0]?groups[0].getAttribute('transform'):'';
+      var m=t&&t.match(/translate\((-?[\d.]+)/); sp.value=m?m[1]:0; }
+    if(wt){ var s=paths[0]?paths[0].getAttribute('stroke-width'):''; wt.value=s?(+s/2):0; } }
+  document.getElementById('ed-undo').addEventListener('click',undo);
+  document.getElementById('ed-redo').addEventListener('click',redo);
+  document.getElementById('ed-reset').addEventListener('click',function(){ push(); apply(initial); });
+  document.addEventListener('keydown',function(e){ if(!(e.ctrlKey||e.metaKey))return;
+    if(e.key==='z'){ e.preventDefault(); e.shiftKey?redo():undo(); } });
+  document.getElementById('ed-export').addEventListener('click',function(){
+    var clone=svg.cloneNode(true);
+    var a=clone.querySelector('#r2s-edit-nodes'); if(a)a.parentNode.removeChild(a);
+    var b=clone.querySelector('#r2s-nodes'); if(b&&b.style.display!=='block')b.parentNode.removeChild(b);
+    var text=new XMLSerializer().serializeToString(clone);
+    var blob=new Blob([text],{type:'image/svg+xml;charset=utf-8'});
+    var link=document.createElement('a'); link.href=URL.createObjectURL(blob);
+    link.download=(document.title||'edited').replace(/[^\w\u4e00-\u9fa5-]+/g,'_')+'.svg';
+    link.click(); setTimeout(function(){URL.revokeObjectURL(link.href);},2000);
+  });
+  syncControls();
+})();
+"""
 
 
 REPORT_TEMPLATE = """<!doctype html>
@@ -1057,6 +1198,14 @@ REPORT_TEMPLATE = """<!doctype html>
       <span class="hint">差异视图：红=源图有墨而 SVG 丢了 · 绿=SVG 多出的墨</span>
       <span class="hint">滚轮缩放 · 拖动平移 · 双击复位</span>
     </div>
+    <div class="toolbar">
+      <button id="ed-mode">编辑节点：关</button>
+      <label>字距 <input type="range" id="ed-spacing" min="-30" max="40" step="1" value="0"></label>
+      <label>视觉加粗 <input type="range" id="ed-weight" min="0" max="4" step="0.5" value="0"></label>
+      <button id="ed-undo">撤销</button><button id="ed-redo">重做</button><button id="ed-reset">复位</button>
+      <button id="ed-export" class="primary">导出 SVG</button>
+    </div>
+    <p class="ednote">打开「编辑节点」后拖白色锚点或橙色控制点；颜色在右侧图层列表里改。字距按每个字整体平移，视觉加粗用描边模拟（不是换字体）。导出的是改后的 SVG，源图不会被改动。</p>
   </section>
   <aside>
     <div class="panel"><h2>层 / 部件</h2><div id="layers"></div>
@@ -1066,6 +1215,7 @@ REPORT_TEMPLATE = """<!doctype html>
 </main>
 <script type="application/json" id="meta">__META__</script>
 <script>__JS__</script>
+<script>__EDITOR_JS__</script>
 </body></html>
 """
 
