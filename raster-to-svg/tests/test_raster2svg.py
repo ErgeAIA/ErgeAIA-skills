@@ -171,7 +171,7 @@ class TestTextAndReport(unittest.TestCase):
             text = fh.read()
         for marker in ('id="ed-mode"', 'id="ed-spacing"', 'id="ed-weight"',
                        'id="ed-undo"', 'id="ed-export"', 'r2s-edit-nodes',
-                       "paintOrder"):
+                       "paintOrder", "ed-palette", "normHex"):
             self.assertIn(marker, text, "missing editor marker: " + marker)
 
     def test_no_html_flag_skips_report(self):

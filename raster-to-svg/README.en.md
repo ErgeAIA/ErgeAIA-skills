@@ -101,7 +101,7 @@ Outputs per run:
 | File | Content |
 | --- | --- |
 | `<name>.svg` | editable vector: `<g id>` per group, one `<path id="cNN">` per component (holes included) |
-| `<name>.html` | self-contained interactive report **and editor**: four views, zoom/pan, component toggles, draggable nodes, per-part colours, letter-spacing / simulated weight, undo/reset, SVG export |
+| `<name>.html` | self-contained interactive report **and editor**: four views, zoom/pan, component toggles, draggable nodes, per-part colours (picker / hex / preset palette), letter-spacing / simulated weight, undo/reset, SVG export |
 | `<name>_coords.json/.txt` | vertices + interior angles, or cubic control points (mono only) |
 | `<name>_check.png` | source \| render \| diff, three-up |
 | `<name>_diff.png` | the diff plate (red = lost ink, green = added) |

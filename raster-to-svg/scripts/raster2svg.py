@@ -926,6 +926,12 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 #r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5}
 #r2s-edit-nodes circle.h{fill:var(--accent);stroke:#fff;stroke-width:.4}
 .colorbtn{width:26px;height:20px;padding:0;border:1px solid var(--line);border-radius:4px;background:none;cursor:pointer}
+.hex{width:82px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:3px 6px;font:inherit;font-size:12px;text-transform:uppercase}
+.hex.bad{border-color:var(--bad)}
+.palette{display:flex;gap:6px;align-items:center;margin:8px 0 0}
+.palette b{font-size:12px;color:var(--dim);font-weight:500}
+.palette i{width:18px;height:18px;border-radius:4px;border:1px solid #fff4;cursor:pointer;display:inline-block}
+.layer.sel{outline:1px solid var(--accent);outline-offset:-1px}
 """
 
 REPORT_JS = """
@@ -1043,9 +1049,24 @@ REPORT_EDITOR_JS = r"""
   var NS='http://www.w3.org/2000/svg';
   var paths=[].slice.call(svg.querySelectorAll('path[id]'));
   var groups=[].slice.call(svg.querySelectorAll('g[id^="glyph-"]'));
-  var hist=[], future=[], nodeMode=false, pending={};
+  var hist=[], future=[], nodeMode=false, pending={}, selected=0, rowEls=[];
   function begin(k){ if(!pending[k]){ push(); pending[k]=true; } }
   function end(k){ pending[k]=false; }
+  function normHex(v){
+    v=(v||'').trim().replace(/^#/,'').replace(/^0x/i,'').replace(/[^0-9a-fA-F]/g,'');
+    if(v.length===3) v=v[0]+v[0]+v[1]+v[1]+v[2]+v[2];
+    return /^[0-9a-fA-F]{6}$/.test(v) ? '#'+v.toLowerCase() : null;
+  }
+  function setColor(i,hex){
+    var p=paths[i]; if(!p||!hex) return;
+    begin('col'+i); p.setAttribute('fill',hex);
+    rowEls.forEach(function(row,j){ if(!row) return;
+      var c=row.querySelector('.colorbtn'), h=row.querySelector('.hex'), s=row.querySelector('i');
+      if(!c||!h) return;
+      if(j===i){ c.value=hex; h.value=hex.slice(1).toUpperCase(); h.classList.remove('bad'); if(s)s.style.background=hex; }
+    });
+    end('col'+i);
+  }
   var layer=document.createElementNS(NS,'g'); layer.id='r2s-edit-nodes'; layer.style.display='none';
   svg.appendChild(layer);
 
@@ -1119,13 +1140,32 @@ REPORT_EDITOR_JS = r"""
   // colour inputs: replace the passive swatch in the existing layer panel
   [].slice.call(document.querySelectorAll('#layers .layer')).forEach(function(row,i){
     var sw=row.querySelector('i'); if(!sw||!paths[i]) return;
+    rowEls[i]=row;
+    var cur=normHex(paths[i].getAttribute('fill'))||'#000000';
     var col=document.createElement('input'); col.type='color'; col.className='colorbtn';
-    col.title='改这个部件的颜色';
-    col.value=(paths[i].getAttribute('fill')||'#000000').replace('#','') .length===6 ? paths[i].getAttribute('fill') : '#000000';
-    col.addEventListener('input',function(){ begin('c'+i); paths[i].setAttribute('fill',col.value); sw.style.background=col.value; });
-    col.addEventListener('change',function(){ end('c'+i); });
-    row.insertBefore(col,sw.nextSibling); sw.style.display='none';
+    col.title='取色器'; col.value=cur;
+    var hx=document.createElement('input'); hx.type='text'; hx.className='hex'; hx.id='ed-hex';
+    hx.value=cur.slice(1).toUpperCase(); hx.title='HEX：#ff0000 / ff0000 / f00 都行';
+    row.addEventListener('click',function(){
+      selected=i; rowEls.forEach(function(r,j){ if(r) r.classList.toggle('sel',j===i); });
+    });
+    col.addEventListener('input',function(){ setColor(i,col.value); });
+    hx.addEventListener('input',function(){
+      var v=normHex(hx.value);
+      if(!v){ hx.classList.add('bad'); return; }
+      hx.classList.remove('bad'); setColor(i,v);
+    });
+    row.insertBefore(hx,sw.nextSibling); row.insertBefore(col,hx); sw.style.display='none';
   });
+  var pal=document.getElementById('ed-palette');
+  if(pal){
+    ['#000000','#ffffff','#f26a1b','#e5484d','#30a46c','#3b82f6','#a855f7','#f5d90a'].forEach(function(hex){
+      var b=document.createElement('i'); b.style.background=hex; b.title=hex;
+      b.addEventListener('click',function(){ setColor(selected,hex); });
+      pal.appendChild(b);
+    });
+  }
+  if(rowEls.length) rowEls[0].classList.add('sel');
 
   var sp=document.getElementById('ed-spacing'), wt=document.getElementById('ed-weight');
   var mode=document.getElementById('ed-mode');
@@ -1205,7 +1245,8 @@ REPORT_TEMPLATE = """<!doctype html>
       <button id="ed-undo">撤销</button><button id="ed-redo">重做</button><button id="ed-reset">复位</button>
       <button id="ed-export" class="primary">导出 SVG</button>
     </div>
-    <p class="ednote">打开「编辑节点」后拖白色锚点或橙色控制点；颜色在右侧图层列表里改。字距按每个字整体平移，视觉加粗用描边模拟（不是换字体）。导出的是改后的 SVG，源图不会被改动。</p>
+    <div class="palette" id="ed-palette"><b>常用色</b></div>
+    <p class="ednote">先点右侧某个部件选中它，再点头顶色块套色；也可在每行直接用取色器或输入 HEX（<code>#</code>、<code>0x</code> 会自动去掉，支持 3 位缩写）。打开「编辑节点」后拖白色锚点或橙色控制点。字距按每个字整体平移，视觉加粗用描边模拟（不是换字体）。导出的是改后的 SVG，源图不会被改动。</p>
   </section>
   <aside>
     <div class="panel"><h2>层 / 部件</h2><div id="layers"></div>
