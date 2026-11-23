@@ -862,18 +862,6 @@ def _data_uri(path, max_side=1600):
     return "data:image/png;base64," + base64.b64encode(buf.tobytes()).decode("ascii")
 
 
-def _nodes_group(comps):
-    parts = ['<g id="r2s-nodes" style="display:none">']
-    for c in comps:
-        for xy in c.get("vertices_xy") or []:
-            parts.append('<circle cx="%s" cy="%s" r="1.6"/>' % (fmt(xy[0]), fmt(xy[1])))
-        for seg in c.get("cubic_segments") or []:
-            for xy in (seg[1], seg[2]):
-                parts.append('<circle cx="%s" cy="%s" r="1.2"/>' % (fmt(xy[0]), fmt(xy[1])))
-    parts.append("</g>")
-    return "".join(parts)
-
-
 REPORT_CSS = """
 :root{--bg:#0f1216;--panel:#171c22;--line:#262c34;--fg:#e8ecef;--dim:#98a2ad;--accent:#f0a03c;--ok:#4ec9a0;--bad:#f2705a}
 *{box-sizing:border-box}
@@ -892,8 +880,6 @@ main{padding:18px 40px 60px;display:grid;grid-template-columns:minmax(0,1.55fr) 
 .canvas{position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform}
 .canvas img,.canvas .vec{position:absolute;top:0;left:0;width:100%;height:100%}
 .canvas .vec svg{display:block;width:100%;height:100%}
-#r2s-nodes{display:none;pointer-events:none}
-#r2s-nodes circle{fill:none;stroke:var(--accent);stroke-width:.45}
 .views{display:flex;gap:6px;margin:0 0 10px}
 .views button{background:var(--panel);color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font:inherit;font-size:13px;cursor:pointer}
 .views button.on{color:#111;background:var(--accent);border-color:var(--accent)}
@@ -924,9 +910,10 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 .toolbar label{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:13px}
 .ednote{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.6}
 #r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5;fill-opacity:.92}
-#r2s-edit-labels text{font:500 1px ui-monospace,Consolas,monospace;fill:#8f98a3;opacity:.9;
-  paint-order:stroke;stroke:#ffffff;stroke-width:.9px;cursor:pointer;user-select:none}
+#r2s-edit-labels text{font:600 1px ui-monospace,Consolas,monospace;fill:#3d454e;opacity:.85;
+  paint-order:stroke;stroke:#ffffff;stroke-width:2.2px;cursor:pointer;user-select:none}
 #r2s-edit-labels text:hover{fill:#f0a03c;opacity:1}
+#r2s-edit-labels text.sel{fill:#f0a03c;opacity:1}
 #r2s-edit-nodes circle.h{fill:var(--accent);stroke:#fff;stroke-width:.4}
 .colorbtn{width:26px;height:20px;padding:0;border:1px solid var(--line);border-radius:4px;background:none;cursor:pointer}
 .hex{width:82px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:3px 6px;font:inherit;font-size:12px;text-transform:uppercase}
@@ -976,10 +963,6 @@ REPORT_JS = """
   var op=document.getElementById('op');
   if(op){ vec.style.opacity=op.value/100;
     op.addEventListener('input',function(){vec.style.opacity=op.value/100;}); }
-  var nt=document.getElementById('nodes-toggle');
-  var nodes=document.querySelector('#r2s-nodes');
-  if(nt&&nodes) nt.addEventListener('change',function(){nodes.style.display=nt.checked?'block':'none';});
-  if(nt&&!nodes) nt.parentNode.style.display='none';
   var svg=document.querySelector('#vec svg');
   if(svg){
     var items=svg.querySelectorAll('path[id]');
@@ -1010,8 +993,7 @@ REPORT_JS = """
 
 def write_report(outdir, stem, meta, comps, svg_path, src_png, diff_png, mode):
     svg_txt = open(svg_path, encoding="utf-8").read()
-    if comps:
-        svg_txt = svg_txt.replace("</svg>", _nodes_group(comps) + "</svg>")
+    # the static node overlay was removed: the editor draws its own live handles
     svg_txt = re.sub(r'(<svg[^>]*?)width="\d+"\s+height="\d+"', r'\1width="100%" height="100%"',
                      svg_txt, count=1)
     title = "%s · 描摹报告" % stem
@@ -1117,8 +1099,9 @@ REPORT_EDITOR_JS = r"""
       var b=bboxOf(p); if(!b) return;
       var off=offsetOf(p);
       var t=document.createElementNS(NS,'text');
-      t.setAttribute('x',f2(b.x+off[0]+1.5/z)); t.setAttribute('y',f2(b.y+off[1]+9/z));
-      t.setAttribute('font-size',f2(9/z));
+      t.setAttribute('x',f2(b.x+off[0]));
+      t.setAttribute('y',f2(b.y+off[1]-5/z));
+      t.setAttribute('font-size',f2(13/z));
       t.setAttribute('data-pi',i);
       t.textContent=p.id||('c'+i);
       t.addEventListener('click',function(e){ e.stopPropagation(); select(i); });
@@ -1128,6 +1111,9 @@ REPORT_EDITOR_JS = r"""
   function select(i){
     selected=i;
     rowEls.forEach(function(r,j){ if(r) r.classList.toggle('sel', j===i); });
+    [].slice.call(labelLayer.querySelectorAll('text')).forEach(function(t,j){
+      t.classList.toggle('sel', +t.getAttribute('data-pi')===i);
+    });
     if(rowEls[i]&&rowEls[i].scrollIntoView) rowEls[i].scrollIntoView({block:'nearest'});
   }
 
@@ -1290,7 +1276,6 @@ REPORT_EDITOR_JS = r"""
   document.getElementById('ed-export').addEventListener('click',function(){
     var clone=svg.cloneNode(true);
     var a=clone.querySelector('#r2s-edit-nodes'); if(a)a.parentNode.removeChild(a);
-    var b=clone.querySelector('#r2s-nodes'); if(b&&b.style.display!=='block')b.parentNode.removeChild(b);
     var text=new XMLSerializer().serializeToString(clone);
     var blob=new Blob([text],{type:'image/svg+xml;charset=utf-8'});
     var link=document.createElement('a'); link.href=URL.createObjectURL(blob);
@@ -1330,7 +1315,6 @@ REPORT_TEMPLATE = """<!doctype html>
       </div>
     </div>
     <div class="tools">
-      <label><input type="checkbox" id="nodes-toggle"> 显示节点</label>
       <label>矢量不透明度 <input type="range" id="op" min="0" max="100" value="55"></label>
       <span class="hint">差异视图：红=源图有墨而 SVG 丢了 · 绿=SVG 多出的墨</span>
       <span class="hint">滚轮缩放 · 拖动平移 · 双击复位</span>
