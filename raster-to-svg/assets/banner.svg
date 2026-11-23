@@ -1,0 +1,33 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+<defs><style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;family=Noto+Serif+SC:wght@700;900&amp;display=swap');</style>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffe9dc" stroke-opacity="0.035" stroke-width="1"/></pattern></defs>
+<rect width="1200" height="400" fill="#1a0f0c"/>
+<rect width="1200" height="400" fill="url(#grid)"/>
+<rect x="0" y="0" width="1200" height="9" fill="#F26A1B"></rect>
+<rect class="lmark" x="40" y="352" width="9" height="28" fill="#F26A1B"/><rect class="lmark" x="40" y="371" width="28" height="9" fill="#F26A1B"/>
+<text x="80" y="88" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="700" letter-spacing="3" fill="#F26A1B">AGENT SKILL · RASTER → SVG</text>
+<text x="80" y="176" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="72" font-weight="900" fill="#ffe9dc" letter-spacing="-2.5">raster-to-svg</text>
+<text x="80" y="210" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="500" letter-spacing="4" fill="#c08a6e">CONTOUR TRACER</text>
+<text x="80" y="250" font-family="'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif" font-size="26" font-weight="700" fill="#e6b49a" letter-spacing="1">位图描成可编辑轮廓</text>
+<text x="80" y="282" font-family="'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif" font-size="17" font-weight="500" fill="#e6b49a" letter-spacing="0.5">分组<tspan font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>坐标表<tspan font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>彩色分层<tspan font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-weight="700" fill="#F26A1B"> · </tspan>低对比墨</text>
+<text x="80" y="312" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="400" fill="#c08a6e" letter-spacing="0.3"><tspan fill="#F26A1B" font-weight="700">0.933</tspan> IoU · <tspan fill="#F26A1B" font-weight="700">25</tspan> 节点/字形 · <tspan fill="#F26A1B" font-weight="700">765 B</tspan> · 12 字形真值语料</text>
+<text x="80" y="344" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="400" fill="#c08a6e" letter-spacing="0.3">github.com/ErgeAIA/ErgeAIA-skills · MIT</text>
+<text x="740" y="88" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" letter-spacing="2" fill="#F26A1B">TRACE PIPELINE</text>
+<rect x="740" y="132" width="318" height="34" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+<text x="756" y="153" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700" fill="#f26a1b">01</text>
+<text x="778" y="153" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#e6b49a">读入位图 / 或口述的字</text>
+<circle cx="1058" cy="149" r="2.5" fill="#f26a1b"/><path d="M 1058 149 H 1075 V 174" fill="none" stroke="#f26a1b" stroke-width="2"/><path d="M 1070.5 174 L 1075 180 L 1079.5 174 Z" fill="#f26a1b"/>
+<rect x="740" y="180" width="352" height="34" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+<text x="756" y="201" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700" fill="#eb631a">02</text>
+<text x="778" y="201" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#e6b49a">4× 超采样取 50% 覆盖边</text>
+<circle cx="1092" cy="197" r="2.5" fill="#eb631a"/><path d="M 1092 197 H 1109 V 222" fill="none" stroke="#eb631a" stroke-width="2"/><path d="M 1104.5 222 L 1109 228 L 1113.5 222 Z" fill="#eb631a"/>
+<rect x="740" y="228" width="386" height="34" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+<text x="756" y="249" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700" fill="#e45d18">03</text>
+<text x="778" y="249" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#e6b49a">逐轮廓择折线或曲线</text>
+<circle cx="1126" cy="245" r="2.5" fill="#e45d18"/><path d="M 1126 245 H 1143 V 270" fill="none" stroke="#e45d18" stroke-width="2"/><path d="M 1138.5 270 L 1143 276 L 1147.5 270 Z" fill="#e45d18"/>
+<rect x="740" y="276" width="420" height="34" rx="4" fill="#241512" stroke="#4a2c22" stroke-width="1"/>
+<text x="756" y="297" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="700" fill="#dc5617">04</text>
+<text x="778" y="297" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="16" font-weight="700" fill="#e6b49a">resvg 复核交付的那个 SVG</text>
+<circle cx="1160" cy="293" r="2.5" fill="#dc5617"/>
+<text x="740" y="358" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="17" font-weight="500" letter-spacing="1" fill="#ffe9dc">位图 → 轮廓 → 分组 SVG → 可复算的数</text>
+</svg>

@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "name": "banner-raster-to-svg"
+  },
+  "content": {
+    "category": "AGENT SKILL · RASTER → SVG",
+    "title": "raster-to-svg",
+    "captionEn": "CONTOUR TRACER",
+    "subtitle": "位图描成可编辑轮廓",
+    "points": "分组 · 坐标表 · 彩色分层 · 低对比墨",
+    "feature": "0.933 IoU · 25 节点/字形 · 765 B · 12 字形真值语料",
+    "emFeature": true,
+    "footer": "github.com/ErgeAIA/ErgeAIA-skills · MIT",
+    "caption": "位图 → 轮廓 → 分组 SVG → 可复算的数"
+  },
+  "style": {
+    "theme": "ember",
+    "bg": "#1a0f0c",
+    "card": "#241512",
+    "border": "#4a2c22",
+    "surface2": "#2f1c17",
+    "text": "#ffe9dc",
+    "muted": "#e6b49a",
+    "dim": "#c08a6e",
+    "accent": "#F26A1B",
+    "accentDeep": "#c23e12",
+    "amber": "#ffb638",
+    "idle": "#5a4038",
+    "showGrid": true,
+    "showLMark": true
+  },
+  "glyph": {
+    "type": "C4",
+    "label": "TRACE PIPELINE",
+    "flow": [
+      "读入位图 / 或口述的字",
+      "4× 超采样取 50% 覆盖边",
+      "逐轮廓择折线或曲线",
+      "resvg 复核交付的那个 SVG"
+    ]
+  }
+}

@@ -1,8 +1,10 @@
 # raster-to-svg
 
+![raster-to-svg](assets/banner.png)
+
 > 栅格描摹者，取其边以为线。直者还直，曲者还曲，成器而后可改。
 
-**v0.1.0** · Agent Skill ｜ 位图 → 可编辑 SVG 轮廓追踪
+**v0.1.0** · Agent Skill ｜ 位图 → 可编辑 SVG 轮廓追踪 ｜ [English](README.en.md)
 
 把一张 PNG/JPG/WebP 描成可编辑的 SVG，并且用**真渲染器**证明它像——不是用描摹器自己的掩膜自证。
 
@@ -102,9 +104,12 @@ stdout 三行是判据：`components`（几个字形）、`iou_rendered`（真�
 
 ```
 raster-to-svg/
-├── SKILL.md                  Agent 执行规则
+├── SKILL.md                  Agent 执行规则（中文）
 ├── README.md                 本文件
-├── CHANGELOG.md
+├── README.en.md              English README
+├── CHANGELOG.md              中文变更记录
+├── CHANGELOG.en.md           English changelog
+├── assets/                   banner.svg / .png / .json
 ├── references/
 │   ├── parameters.md         参数语义、调参判据、别做的事
 │   └── evidence.md           语料、指标、前后对照、未测项
