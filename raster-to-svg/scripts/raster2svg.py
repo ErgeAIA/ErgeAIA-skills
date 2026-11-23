@@ -939,7 +939,7 @@ REPORT_JS = """
   var stage=document.getElementById('stage'), canvas=document.getElementById('canvas');
   var src=document.getElementById('src'), vec=document.getElementById('vec'), dif=document.getElementById('diff');
   var scale=1, tx=0, ty=0, drag=null;
-  function apply(){canvas.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';}
+  function apply(){canvas.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')';canvas.setAttribute('data-scale',scale);}
   function fit(){
     var cw=canvas.offsetWidth||1, ch=canvas.offsetHeight||1;
     scale=Math.min((stage.clientWidth-2)/cw,(stage.clientHeight-2)/ch,4);
@@ -1122,7 +1122,14 @@ REPORT_EDITOR_JS = r"""
         });
       });
     });
+    // keep handles around 10px on screen at any zoom level
+    var z=+(document.getElementById('canvas').getAttribute('data-scale')||1);
+    [].slice.call(layer.querySelectorAll('circle')).forEach(function(c){
+      c.setAttribute('r', c.getAttribute('class')==='h' ? Math.max(1.3,3.5/z) : Math.max(1.9,5/z));
+    });
   }
+  var stageEl=document.getElementById('stage');
+  if(stageEl) stageEl.addEventListener('wheel',function(){ setTimeout(drawNodes,0); });
   layer.addEventListener('mousedown',function(e){e.stopPropagation();});
   layer.addEventListener('pointerdown',function(e){
     var c=e.target; if(c.tagName!=='circle') return;
@@ -1132,8 +1139,23 @@ REPORT_EDITOR_JS = r"""
     function at(ev){ var pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
       return pt.matrixTransform(svg.getScreenCTM().inverse()); }
     function move(ev){ var q=at(ev); k[key][0]=Math.round(q.x*100)/100; k[key][1]=Math.round(q.y*100)/100;
-      p.setAttribute('d',write(cmds)); c.setAttribute('cx',k[key][0]); c.setAttribute('cy',k[key][1]); }
-    function up(){ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); }
+      p.setAttribute('d',write(cmds)); c.setAttribute('cx',k[key][0]); c.setAttribute('cy',k[key][1]);
+      var cd=document.getElementById('ed-coord');
+      if(cd) cd.textContent='('+f2(k[key][0])+', '+f2(k[key][1])+')';
+    }
+    function up(){
+      window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up);
+      var pts=[]; parse(p.getAttribute('d')).forEach(function(k){
+        if(k.c==='Z') return;
+        pts.push(k.p); if(k.c==='C'){ pts.push(k.c1); pts.push(k.c2); }
+      });
+      if(!pts.length) return;
+      var xs=pts.map(function(q){return q[0];}), ys=pts.map(function(q){return q[1];});
+      var x0=Math.min.apply(null,xs), y0=Math.min.apply(null,ys);
+      var bb='['+f2(x0)+', '+f2(y0)+', '+f2(Math.max.apply(null,xs)-x0)+', '+f2(Math.max.apply(null,ys)-y0)+']';
+      var row=document.querySelector('tbody tr[data-gid="'+p.id+'"]');
+      if(row && row.cells[2]) row.cells[2].textContent=bb;
+    }
     window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
   });
 
@@ -1242,6 +1264,7 @@ REPORT_TEMPLATE = """<!doctype html>
       <button id="ed-mode">编辑节点：关</button>
       <label>字距 <input type="range" id="ed-spacing" min="-30" max="40" step="1" value="0"></label>
       <label>视觉加粗 <input type="range" id="ed-weight" min="0" max="4" step="0.5" value="0"></label>
+      <span id="ed-coord" class="hint">(—, —)</span>
       <button id="ed-undo">撤销</button><button id="ed-redo">重做</button><button id="ed-reset">复位</button>
       <button id="ed-export" class="primary">导出 SVG</button>
     </div>

@@ -89,7 +89,7 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 | 文件 | 内容 | 出现条件 |
 | --- | --- | --- |
 | `<name>.svg` | 每个部件一条 `<path id="cNN" fill-rule="evenodd">`（外轮廓 + 孔洞），按横向间距进 `<g id="glyph-NN">` | 总是 |
-| `<name>.html` | 自包含**交互报告 + 编辑器**：四视图、缩放平移、部件开关、节点叠印、坐标表；还能改每个部件颜色（取色器 / HEX 输入 / 常用色板，HEX 自动去 "#" 与 "0x"）、拖节点（含贝塞尔控制点）、调字距与视觉加粗，撤销/复位并导出改后的 SVG | 总是（`--no-html` 关） |
+| `<name>.html` | 自包含**交互报告 + 编辑器**：四视图、缩放平移、部件开关、节点叠印、坐标表；还能改每个部件颜色（取色器 / HEX 输入 / 常用色板，HEX 自动去 "#" 与 "0x"）、拖节点（含贝塞尔控制点，手柄随缩放保持屏幕尺寸、拖动时显示坐标并同步 bbox）、调字距与视觉加粗，撤销/复位并导出改后的 SVG | 总是（`--no-html` 关） |
 | `<name>_coords.json` / `.txt` | 逐部件的引擎、bbox、顶点+内角或三次控制点、孔洞，外加三项指标 | 仅单色 |
 | `<name>_check.png` | 源图 \| 渲染 \| 差异；彩色只有前两栏 | 总是 |
 | `<name>_diff.png`、`<name>_overlay.png` | 差异图 / 轮廓与节点叠图 | 仅单色 |
