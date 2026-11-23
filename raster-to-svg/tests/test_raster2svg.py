@@ -172,6 +172,16 @@ class TestTextAndReport(unittest.TestCase):
         self.assertIn("滚轮缩放", text)
         self.assertLess(os.path.getsize(html), 3 * 1024 * 1024)
 
+    def test_report_hides_node_overlay(self):
+        src = os.path.join(FIX, "kou_96.png")
+        r = run("-i", src, "-o", self.tmp.name)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        with open(os.path.join(self.tmp.name, "kou_96.html"), encoding="utf-8") as fh:
+            text = fh.read()
+        self.assertIn('<g id="r2s-nodes" style="display:none"', text,
+                      "node overlay must start hidden or the vector view shows stray dots")
+        self.assertIn('"夜灯"', text, "theme palette should be embedded")
+
     def test_report_is_editable(self):
         src = os.path.join(FIX, "kou_96.png")
         r = run("-i", src, "-o", self.tmp.name)

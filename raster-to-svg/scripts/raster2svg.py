@@ -931,7 +931,9 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 .colorbtn{width:26px;height:20px;padding:0;border:1px solid var(--line);border-radius:4px;background:none;cursor:pointer}
 .hex{width:82px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:3px 6px;font:inherit;font-size:12px;text-transform:uppercase}
 .hex.bad{border-color:var(--bad)}
-.palette{display:flex;gap:6px;align-items:center;margin:8px 0 0}
+.palette{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 0}
+.palgroup{display:inline-flex;gap:5px;align-items:center}
+.palgroup em{font-style:normal;font-size:11px;color:var(--dim);margin-right:2px}
 .palette b{font-size:12px;color:var(--dim);font-weight:500}
 .palette i{width:18px;height:18px;border-radius:4px;border:1px solid #fff4;cursor:pointer;display:inline-block}
 .layer.sel{outline:1px solid var(--accent);outline-offset:-1px}
@@ -1038,6 +1040,7 @@ def write_report(outdir, stem, meta, comps, svg_path, src_png, diff_png, mode):
                      ("__DIFF__", _data_uri(diff_png) if diff_png else ""),
                      ("__SVG__", svg_txt), ("__META__", json_meta), ("__TABLE__", table),
                      ("__JS__", REPORT_JS), ("__EDITOR_JS__", REPORT_EDITOR_JS),
+                     ("__PALETTE__", json.dumps(REPORT_PALETTE, ensure_ascii=False)),
                      ("__STEM__", stem), ("__MODE__", mode)):
         html = html.replace(key, val)
     path = os.path.join(outdir, stem + ".html")
@@ -1045,6 +1048,21 @@ def write_report(outdir, stem, meta, comps, svg_path, src_png, diff_png, mode):
         fh.write(html)
     return path
 
+
+REPORT_PALETTE = [
+    ("夜灯", [("#F2570F", "夜灯 · 主行动"), ("#C2460B", "夜灯 · hover"),
+              ("#9E3A08", "夜灯 · deep"), ("#FFB380", "夜灯 · 次强调"),
+              ("#EDE4D8", "夜灯 · 主文本"), ("#16120E", "夜灯 · 背景"),
+              ("#201A15", "夜灯 · 面板"), ("#4A4339", "夜灯 · 强边框")]),
+    ("晨光", [("#FF6A2B", "晨光 · 主行动"), ("#D15723", "晨光 · hover"),
+              ("#B84A14", "晨光 · deep"), ("#8C3A12", "晨光 · 次强调"),
+              ("#171614", "晨光 · 主文本"), ("#FAF1E9", "晨光 · 背景"),
+              ("#FBE8DD", "晨光 · 面板"), ("#EDE8DE", "晨光 · 次级表面")]),
+    ("功能", [("#257552", "成功"), ("#E0564A", "危险"), ("#B2820B", "警告"),
+              ("#6478D9", "信息"), ("#8D73E3", "排队")]),
+    ("基础", [("#000000", "纯黑"), ("#171614", "近黑"), ("#6B7280", "中灰"),
+              ("#C0B7A9", "暖灰"), ("#FFFFFF", "纯白")]),
+]
 
 REPORT_EDITOR_JS = r"""
 (function(){
@@ -1226,12 +1244,19 @@ REPORT_EDITOR_JS = r"""
     });
     row.insertBefore(hx,sw.nextSibling); row.insertBefore(col,hx); sw.style.display='none';
   });
-  var pal=document.getElementById('ed-palette');
+  var pal=document.getElementById('ed-palette-body');
+  var PALETTE=JSON.parse(document.getElementById('palette').textContent);
   if(pal){
-    ['#000000','#ffffff','#f26a1b','#e5484d','#30a46c','#3b82f6','#a855f7','#f5d90a'].forEach(function(hex){
-      var b=document.createElement('i'); b.style.background=hex; b.title=hex;
-      b.addEventListener('click',function(){ setColor(selected,hex); });
-      pal.appendChild(b);
+    PALETTE.forEach(function(group){
+      var g=document.createElement('span'); g.className='palgroup';
+      var lg=document.createElement('em'); lg.textContent=group[0]; g.appendChild(lg);
+      group[1].forEach(function(pair){
+        var b=document.createElement('i'); b.style.background=pair[0];
+        b.title=pair[1]+'  '+pair[0];
+        b.addEventListener('click',function(){ setColor(selected,pair[0]); });
+        g.appendChild(b);
+      });
+      pal.appendChild(g);
     });
   }
   if(rowEls.length) rowEls[0].classList.add('sel');
@@ -1319,7 +1344,7 @@ REPORT_TEMPLATE = """<!doctype html>
       <button id="ed-undo">撤销</button><button id="ed-redo">重做</button><button id="ed-reset">复位</button>
       <button id="ed-export" class="primary">导出 SVG</button>
     </div>
-    <div class="palette" id="ed-palette"><b>常用色</b></div>
+    <div class="palette" id="ed-palette"><b>常用色</b><span id="ed-palette-body"></span></div>
     <p class="ednote">先点右侧某个部件选中它，再点头顶色块套色；也可在每行直接用取色器或输入 HEX（<code>#</code>、<code>0x</code> 会自动去掉，支持 3 位缩写）。打开「编辑节点」后拖白色锚点或橙色控制点。字距按每个字整体平移，视觉加粗用描边模拟（不是换字体）。导出的是改后的 SVG，源图不会被改动。</p>
   </section>
   <aside>
@@ -1329,6 +1354,7 @@ REPORT_TEMPLATE = """<!doctype html>
   </aside>
 </main>
 <script type="application/json" id="meta">__META__</script>
+<script type="application/json" id="palette">__PALETTE__</script>
 <script>__JS__</script>
 <script>__EDITOR_JS__</script>
 </body></html>
