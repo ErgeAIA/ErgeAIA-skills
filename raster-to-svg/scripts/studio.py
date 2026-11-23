@@ -19,7 +19,7 @@ import tempfile
 import threading
 import uuid
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse, quote, unquote
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
@@ -27,8 +27,9 @@ if HERE not in sys.path:
 
 from PIL import Image, ImageDraw, ImageFont
 
-CACHE = os.path.join(tempfile.gettempdir(), "raster2svg-fonts-v2.json")
+CACHE = os.path.join(tempfile.gettempdir(), "raster2svg-fonts-v3.json")
 RUNS = {}
+RUNS_FILE = os.path.join(tempfile.gettempdir(), "raster2svg-studio-runs.json")
 
 
 def font_dirs():
@@ -44,68 +45,91 @@ def font_dirs():
     return [d for d in dirs if d and os.path.isdir(d)]
 
 
-def _render_pair(font):
-    """Two CJK glyphs; a font that draws tofu produces identical bitmaps."""
-    out = []
+def _renders_cjk(font):
+    """Two CJK glyphs, larger canvas; tofu boxes are identical, real glyphs are not."""
+    shots = []
     for ch in ("织", "音"):
-        im = Image.new("L", (44, 44), 255)
-        ImageDraw.Draw(im).text((3, 3), ch, font=font, fill=0)
-        out.append(im.tobytes())
+        im = Image.new("L", (72, 72), 255)
+        ImageDraw.Draw(im).text((6, 6), ch, font=font, fill=0)
+        shots.append(im.tobytes())
+    ink = max(255 - min(shots[0]), 255 - min(shots[1]))
+    return ink > 40 and shots[0] != shots[1]
+
+
+def _faces(path):
+    """Every usable face in a file (.ttc may hold several), with a CJK flag."""
+    out = []
+    for idx in range(8):
+        try:
+            f = ImageFont.truetype(path, 40, index=idx)
+        except Exception:
+            break
+        try:
+            family, style = f.getname()
+        except Exception:
+            family, style = os.path.splitext(os.path.basename(path))[0], ""
+        out.append({"family": family or os.path.basename(path), "style": style,
+                    "path": path, "index": idx, "cjk": _renders_cjk(f)})
+        if not path.lower().endswith((".ttc", ".otc")):
+            break
     return out
 
 
-def _probe(path):
-    """First TTC index that really draws CJK glyphs, plus (family, style)."""
-    for idx in range(6):
-        try:
-            f = ImageFont.truetype(path, 24, index=idx)
-        except Exception:
-            return None
-        a, b = _render_pair(f)
-        ink = max(255 - min(a), 255 - min(b))
-        if ink > 55 and a != b:  # real glyphs differ; tofu boxes do not
-            try:
-                family, style = f.getname()
-            except Exception:
-                family, style = os.path.basename(path), ""
-            return {"family": family, "style": style, "path": path, "index": idx}
-    return None
-
-
 def scan(cache=True):
+    stamp = max((os.path.getmtime(d) for d in font_dirs()), default=0)
     if cache and os.path.isfile(CACHE):
         try:
             with open(CACHE, encoding="utf-8") as fh:
                 data = json.load(fh)
-            stamp = max((os.path.getmtime(d) for d in font_dirs()), default=0)
             if data.get("stamp") == stamp and data.get("fonts"):
                 return data["fonts"]
         except Exception:
             pass
-    found, seen = [], set()
+    found, seen = [], {}
     for d in font_dirs():
         for root, _dirs, files in os.walk(d):
             for name in files:
-                if not name.lower().endswith((".ttf", ".otf", ".ttc", ".ttf")):
+                if not name.lower().endswith((".ttf", ".otf", ".ttc", ".otc")):
                     continue
-                item = _probe(os.path.join(root, name))
-                if not item:
-                    continue
-                key = (item["family"], item["style"])
-                if key in seen:
-                    continue
-                seen.add(key)
-                item["label"] = item["family"] + ((" · " + item["style"]) if item["style"] else "")
-                found.append(item)
-    found.sort(key=lambda x: (x["family"].lower(), x["style"]))
+                for face in _faces(os.path.join(root, name)):
+                    key = (face["family"], face["style"])
+                    prev = seen.get(key)
+                    if prev is not None and (prev["cjk"] or not face["cjk"]):
+                        continue
+                    face["label"] = face["family"] + ((" · " + face["style"]) if face["style"] else "")
+                    found.append(face)
+                    seen[key] = face
+    out = []
+    for face in found:  # keep the surviving face for each key, in input order
+        if seen.get((face["family"], face["style"])) is face:
+            out.append(face)
+    out.sort(key=lambda x: (not x["cjk"], x["family"].lower(), x["style"]))
     if cache:
         try:
-            stamp = max((os.path.getmtime(d) for d in font_dirs()), default=0)
             with open(CACHE, "w", encoding="utf-8") as fh:
-                json.dump({"stamp": stamp, "fonts": found}, fh, ensure_ascii=False)
+                json.dump({"stamp": stamp, "fonts": out}, fh, ensure_ascii=False)
         except Exception:
             pass
-    return found
+    return out
+
+
+def load_runs():
+    if os.path.isfile(RUNS_FILE):
+        try:
+            with open(RUNS_FILE, encoding="utf-8") as fh:
+                data = json.load(fh)
+            return {k: v for k, v in data.items() if os.path.isdir(v)}
+        except Exception:
+            pass
+    return {}
+
+
+def save_runs():
+    try:
+        with open(RUNS_FILE, "w", encoding="utf-8") as fh:
+            json.dump(RUNS, fh, ensure_ascii=False)
+    except Exception:
+        pass
 
 
 def generate(text, font, size, gap):
@@ -127,11 +151,23 @@ def generate(text, font, size, gap):
     html = os.path.join(outdir, stem + ".html")
     run = uuid.uuid4().hex[:12]
     RUNS[run] = outdir
+    save_runs()
+    q = quote(stem)
     return {"ok": code == 0, "code": code, "log": log[-4000:], "run": run, "stem": stem,
-            "url": "/out/%s/%s.html" % (run, stem),
-            "svg": "/out/%s/%s.svg" % (run, stem),
-            "thumb": "/out/%s/%s.svg" % (run, stem),
-            "thumb_src": "/out/%s/%s_source.png" % (run, stem)}
+            "url": "/out/%s/%s.html" % (run, q),
+            "svg": "/out/%s/%s.svg" % (run, q),
+            "thumb": "/out/%s/%s.svg" % (run, q),
+            "thumb_src": "/out/%s/%s_source.png" % (run, q)}
+
+
+MISS_PAGE = """<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>找不到了 · raster-to-svg</title>
+<style>body{background:#0f1419;color:#e6edf3;font:15px/1.7 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+padding:48px}code{background:#161d25;padding:2px 6px;border-radius:4px}a{color:#f0a03c}</style></head><body>
+<h1 style="font-size:18px">这一页打不开</h1>
+<p>%s。</p>
+<p>回到 <a href="/">字体台</a> 重新生成；生成目录在系统临时目录下，重启服务后旧链接会失效。</p>
+</body></html>"""
 
 
 PAGE = """<!doctype html><html lang="zh"><head><meta charset="utf-8">
@@ -171,8 +207,9 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 <main>
 <aside>
   <label>文字</label><input type="text" id="text" value="织音">
-  <label>过滤（三栏共用）</label><input type="text" id="q" placeholder="思源 / PuHui / 宋">
-  <label>候选字体（本机 CJK 字体 __COUNT__ 个）</label>
+  <label>过滤（三栏共用）</label><input type="text" id="q" placeholder="思源 / PuHui / 宋 / Arial">
+  <label style="margin-top:6px"><input type="checkbox" id="onlycjk"> 只看能渲染中文的</label>
+  <label>候选字体（本机 __COUNT__ 个 · 可渲染中文 __CJK__ 个）</label>
   <div class="slot"><b>A</b><select class="fsel" data-slot="0"></select><button class="fav" data-slot="0" title="收藏这款字体">★</button></div>
   <div class="slot"><b>B</b><select class="fsel" data-slot="1"></select><button class="fav" data-slot="1" title="收藏这款字体">★</button></div>
   <div class="slot"><b>C</b><select class="fsel" data-slot="2"></select><button class="fav" data-slot="2" title="收藏这款字体">★</button></div>
@@ -208,6 +245,7 @@ function fill(sel, keep){
       var f = FONTS[i], o = document.createElement("option");
       o.value = i; o.textContent = f.label;
       o.dataset.key = f.keys || f.label.toLowerCase();
+      o.dataset.cjk = f.cjk ? "1" : "0";
       parent.appendChild(o);
     });
   };
@@ -255,11 +293,13 @@ function render(){
     col.querySelector(".nm").textContent = FONTS[+sel.value].label;
   });
 }
-document.getElementById("q").addEventListener("input", function(){
-  var q = this.value.trim().toLowerCase();
+function applyFilter(){
+  var q = document.getElementById("q").value.trim().toLowerCase();
+  var only = document.getElementById("onlycjk").checked;
   sels.forEach(function(sel){
     [].slice.call(sel.options).forEach(function(o){
-      o.style.display = (!q || (o.dataset.key || "").indexOf(q) >= 0) ? "" : "none";
+      var ok = (!q || (o.dataset.key || "").indexOf(q) >= 0) && (!only || o.dataset.cjk === "1");
+      o.style.display = ok ? "" : "none";
     });
     var vis = [].slice.call(sel.options).filter(function(o){ return o.style.display !== "none"; });
     if(!vis.length){
@@ -270,7 +310,9 @@ document.getElementById("q").addEventListener("input", function(){
     if(sel.selectedOptions[0] && sel.selectedOptions[0].style.display === "none") sel.value = vis[0].value;
   });
   render();
-});
+}
+document.getElementById("q").addEventListener("input", applyFilter);
+document.getElementById("onlycjk").addEventListener("change", applyFilter);
 sels.forEach(function(sel){ sel.addEventListener("change", function(){ remember(); paintFav(); render(); }); });
 [].slice.call(document.querySelectorAll(".fav")).forEach(function(b){
   b.addEventListener("click", function(){ toggleFav(+b.dataset.slot); });
@@ -332,8 +374,11 @@ def make_handler(fonts):
         def do_GET(self):
             u = urlparse(self.path)
             if u.path == "/":
+                cjk = sum(1 for f in fonts if f.get("cjk"))
                 page = PAGE.replace("__COUNT__", str(len(fonts))).replace(
+                    "__CJK__", str(cjk)).replace(
                     "__FONTS__", json.dumps([{"label": f["label"], "family": f["family"],
+                                               "cjk": bool(f.get("cjk")),
                                                "keys": (f["label"] + " " + f["path"]).lower()}
                                               for f in fonts], ensure_ascii=False))
                 return self._send(200, page, "text/html; charset=utf-8")
@@ -351,11 +396,13 @@ def make_handler(fonts):
             if u.path.startswith("/out/"):
                 parts = u.path.split("/")
                 if len(parts) < 4 or parts[2] not in RUNS:
-                    return self._send(404, b"no")
-                name = os.path.basename(parts[3])
+                    return self._send(404, MISS_PAGE % ("这次生成的目录已不在本机（多半是重启过服务）"),
+                                      "text/html; charset=utf-8")
+                name = os.path.basename(unquote(parts[3]))
                 full = os.path.join(RUNS[parts[2]], name)
                 if not os.path.isfile(full):
-                    return self._send(404, b"no")
+                    return self._send(404, MISS_PAGE % ("这个文件不在生成目录里"),
+                                      "text/html; charset=utf-8")
                 ctype = "text/html; charset=utf-8" if name.endswith(".html") else (
                     "image/svg+xml" if name.endswith(".svg") else "image/png")
                 with open(full, "rb") as fh:
@@ -392,6 +439,7 @@ def main(argv=None):
     if not fonts:
         print("no CJK-capable font found", file=sys.stderr)
         return 2
+    RUNS.update(load_runs())
     srv = ThreadingHTTPServer((args.host, args.port), make_handler(fonts))
     print("studio on http://%s:%d  (%d fonts)" % (args.host, args.port, len(fonts)))
     try:

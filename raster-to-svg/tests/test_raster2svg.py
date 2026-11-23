@@ -234,14 +234,16 @@ class TestStudio(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         data = json.loads(r.stdout)
         self.assertIsInstance(data, list)
-        self.assertGreater(len(data), 0, "no CJK font found on this machine")
+        self.assertGreater(len(data), 0, "no font found on this machine")
+        self.assertTrue(any(f.get("cjk") for f in data), "no CJK-capable font found")
         for item in data[:5]:
             self.assertTrue(os.path.isfile(item["path"]), item["path"])
             self.assertTrue(item["label"])
 
     def test_font_index_reaches_the_renderer(self):
         fonts = json.loads(run_studio("--list-fonts").stdout)
-        pick = fonts[0]
+        cjk = [f for f in fonts if f.get("cjk")] or fonts
+        pick = cjk[0]
         with tempfile.TemporaryDirectory() as tmp:
             r = run("--text", "织", "--font", pick["path"], "--font-index",
                     str(pick["index"]), "--size", "96", "-o", tmp, "--no-html")
