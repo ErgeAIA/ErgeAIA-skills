@@ -181,13 +181,14 @@ h1{font-size:18px;margin:0 0 4px}
 .sub{color:var(--dim);font-size:13px}
 main{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 80px)}
 aside{padding:18px 22px;border-right:1px solid var(--line);overflow:auto}
-.stage{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px;background:#f7f7f5;overflow:auto}
-.col{background:#fff;border:1px solid #e3e3de;border-radius:10px;display:flex;flex-direction:column;min-width:0}
-.hd{font-size:12px;color:#6b6b66;padding:8px 12px;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.hd b{color:#111}
-.pvwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden}
+.stage{display:flex;flex-direction:column;gap:10px;padding:14px;background:#f7f7f5;overflow:auto}
+.col{background:#fff;border:1px solid #e3e3de;border-radius:10px;display:grid;
+  grid-template-columns:190px minmax(0,1fr) 132px;align-items:center;gap:14px;padding:8px 12px;min-height:120px}
+.hd{font-size:12px;color:#6b6b66;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd b{color:#111;display:block;font-size:13px}
+.pvwrap{display:flex;align-items:center;justify-content:center;overflow:hidden;min-width:0}
 .pv{color:#000;white-space:nowrap;line-height:1.35;text-align:center}
-.gen{margin:0 10px 10px;background:var(--accent);color:#111;border:0;border-radius:7px;padding:8px;font:inherit;font-weight:600;cursor:pointer}
+.gen{background:var(--accent);color:#111;border:0;border-radius:7px;padding:9px 8px;font:inherit;font-weight:600;cursor:pointer}
 .gen:disabled{opacity:.5;cursor:progress}
 label{display:block;color:var(--dim);font-size:12px;margin:12px 0 5px}
 input[type=text],select{width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font:inherit}
@@ -219,11 +220,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
   <div class="hint" style="margin-top:14px">最近生成</div><div class="hist" id="hist"></div>
 </aside>
 <div class="stage">
-  <div class="col" data-slot="0"><div class="hd"><b>A</b> <span class="nm"></span></div>
+  <div class="col" data-slot="0"><div class="hd"><b>A</b><span class="nm"></span></div>
     <div class="pvwrap"><div class="pv"></div></div><button class="gen">生成这一栏</button></div>
-  <div class="col" data-slot="1"><div class="hd"><b>B</b> <span class="nm"></span></div>
+  <div class="col" data-slot="1"><div class="hd"><b>B</b><span class="nm"></span></div>
     <div class="pvwrap"><div class="pv"></div></div><button class="gen">生成这一栏</button></div>
-  <div class="col" data-slot="2"><div class="hd"><b>C</b> <span class="nm"></span></div>
+  <div class="col" data-slot="2"><div class="hd"><b>C</b><span class="nm"></span></div>
     <div class="pvwrap"><div class="pv"></div></div><button class="gen">生成这一栏</button></div>
 </div>
 </main>
@@ -287,9 +288,13 @@ function render(){
     var col = document.querySelector('.col[data-slot="' + i + '"]');
     var pv = col.querySelector(".pv");
     pv.textContent = txt;
-    pv.style.fontSize = size + "px";
     pv.style.letterSpacing = gap + "px";
     pv.style.fontFamily = applyFace(+sel.value, i);
+    var box = col.querySelector(".pvwrap"), s = size, guard = 0;
+    pv.style.fontSize = s + "px";
+    while(pv.scrollWidth > box.clientWidth - 6 && s > 18 && guard++ < 60){
+      s -= 4; pv.style.fontSize = s + "px";
+    }
     col.querySelector(".nm").textContent = FONTS[+sel.value].label;
   });
 }

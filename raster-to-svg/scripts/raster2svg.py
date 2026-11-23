@@ -863,7 +863,7 @@ def _data_uri(path, max_side=1600):
 
 
 def _nodes_group(comps):
-    parts = ['<g id="r2s-nodes">']
+    parts = ['<g id="r2s-nodes" style="display:none">']
     for c in comps:
         for xy in c.get("vertices_xy") or []:
             parts.append('<circle cx="%s" cy="%s" r="1.6"/>' % (fmt(xy[0]), fmt(xy[1])))
