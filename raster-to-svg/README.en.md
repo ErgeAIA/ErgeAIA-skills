@@ -8,7 +8,7 @@
 
 [中文](README.md) · **English**
 
-Traces a PNG/JPG/WebP into an editable SVG, and proves it looks right with a **real renderer** — not with the tracer's own mask.
+**Turns an image or a few words into an editable SVG.** Not a raster in a vector wrapper: grouped contours you can still edit, exportable coordinates, and a fidelity number computed by rasterising what you ship with a **real renderer**.
 
 ## What it solves
 
