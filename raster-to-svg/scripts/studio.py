@@ -129,108 +129,148 @@ def generate(text, font, size, gap):
     RUNS[run] = outdir
     return {"ok": code == 0, "code": code, "log": log[-4000:], "run": run, "stem": stem,
             "url": "/out/%s/%s.html" % (run, stem),
-            "svg": "/out/%s/%s.svg" % (run, stem)}
+            "svg": "/out/%s/%s.svg" % (run, stem),
+            "thumb": "/out/%s/%s_source.png" % (run, stem)}
 
 
 PAGE = """<!doctype html><html lang="zh"><head><meta charset="utf-8">
-<title>字体与生成 · raster-to-svg</title>
+<title>字体对比与生成 · raster-to-svg</title>
 <style>
 :root{--bg:#0f1419;--panel:#161d25;--line:#243040;--fg:#e6edf3;--dim:#8b98a5;--accent:#f0a03c}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,'Segoe UI','Microsoft YaHei',sans-serif}
-header{padding:20px 28px;border-bottom:1px solid var(--line)}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+header{padding:18px 28px;border-bottom:1px solid var(--line)}
 h1{font-size:18px;margin:0 0 4px}
 .sub{color:var(--dim);font-size:13px}
-main{display:grid;grid-template-columns:340px 1fr;gap:0;height:calc(100vh - 82px)}
-aside{padding:20px 24px;border-right:1px solid var(--line);overflow:auto}
-.stage{display:flex;align-items:center;justify-content:center;background:#f7f7f5;position:relative}
-.pv{color:#000;white-space:nowrap;line-height:1.4;text-align:center}
-label{display:block;color:var(--dim);font-size:12px;margin:14px 0 6px}
-input[type=text],select{width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);
-  border-radius:7px;padding:8px 10px;font:inherit}
+main{display:grid;grid-template-columns:320px 1fr;height:calc(100vh - 80px)}
+aside{padding:18px 22px;border-right:1px solid var(--line);overflow:auto}
+.stage{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding:14px;background:#f7f7f5;overflow:auto}
+.col{background:#fff;border:1px solid #e3e3de;border-radius:10px;display:flex;flex-direction:column;min-width:0}
+.hd{font-size:12px;color:#6b6b66;padding:8px 12px;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hd b{color:#111}
+.pvwrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden}
+.pv{color:#000;white-space:nowrap;line-height:1.35;text-align:center}
+.gen{margin:0 10px 10px;background:var(--accent);color:#111;border:0;border-radius:7px;padding:8px;font:inherit;font-weight:600;cursor:pointer}
+.gen:disabled{opacity:.5;cursor:progress}
+label{display:block;color:var(--dim);font-size:12px;margin:12px 0 5px}
+input[type=text],select{width:100%;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;font:inherit}
 input[type=range]{width:100%;accent-color:var(--accent)}
-button{width:100%;margin-top:18px;background:var(--accent);color:#111;border:0;border-radius:8px;
-  padding:11px;font:inherit;font-weight:600;cursor:pointer}
-button:disabled{opacity:.5;cursor:progress}
-.row{display:flex;gap:10px}
-.row>div{flex:1}
-.hint{color:var(--dim);font-size:12px;margin-top:12px}
-pre{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;
-  font-size:11px;max-height:180px;overflow:auto;color:#c8d3dd;white-space:pre-wrap}
-.tag{display:inline-block;background:var(--panel);border:1px solid var(--line);border-radius:6px;
-  padding:2px 8px;font-size:12px;color:var(--dim);margin-left:8px}
+.slot{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.slot b{width:16px;color:var(--accent);font-size:13px}
+.hint{color:var(--dim);font-size:12px;margin-top:10px}
+.hist{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hitem{display:block;background:var(--panel);border:1px solid var(--line);border-radius:7px;overflow:hidden;text-decoration:none;color:var(--dim);font-size:11px}
+.hitem img{width:100%;display:block;background:#fff}
+.hitem span{display:block;padding:4px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style></head><body>
-<header><h1>字体与生成 <span class="tag">raster-to-svg</span></h1>
-<div class="sub">预览是纯 CSS，不描摹；只有点「生成」才跑脚本。字体来自本机已安装字体。</div></header>
+<header><h1>字体对比与生成 <span class="tag" style="background:#161d25;border:1px solid #243040;border-radius:6px;padding:2px 8px;font-size:12px;color:#8b98a5">raster-to-svg</span></h1>
+<div class="sub">三栏同屏比字体，预览是纯 CSS（不描摹）；点某一栏的「生成」才跑脚本。</div></header>
 <main>
 <aside>
   <label>文字</label><input type="text" id="text" value="织音">
-  <label>字体（本机 CJK 字体 __COUNT__ 个）</label>
-  <input type="text" id="q" placeholder="过滤：输入字体名，如 思源 / PuHui / 宋">
-  <select id="font"></select>
-  <div class="row"><div><label>字号</label><input type="range" id="size" min="60" max="300" step="2" value="160"></div>
-  <div><label>字距</label><input type="range" id="gap" min="0" max="120" step="1" value="18"></div></div>
-  <div class="row"><div><span class="hint" id="sizeV">160 px</span></div><div><span class="hint" id="gapV">18 px</span></div></div>
-  <button id="go">生成 SVG 与可编辑报告</button>
-  <div class="hint" id="state">选好字体，右侧预览确认后再生成。</div>
-  <pre id="log"></pre>
+  <label>过滤（三栏共用）</label><input type="text" id="q" placeholder="思源 / PuHui / 宋">
+  <label>候选字体（本机 CJK 字体 __COUNT__ 个）</label>
+  <div class="slot"><b>A</b><select class="fsel" data-slot="0"></select></div>
+  <div class="slot"><b>B</b><select class="fsel" data-slot="1"></select></div>
+  <div class="slot"><b>C</b><select class="fsel" data-slot="2"></select></div>
+  <label>字号 <span id="sizeV" class="hint"></span></label><input type="range" id="size" min="60" max="280" step="2" value="150">
+  <label>字距 <span id="gapV" class="hint"></span></label><input type="range" id="gap" min="0" max="120" step="1" value="16">
+  <div class="hint" id="state">选好三款字体，右侧对比后再生成。</div>
+  <div class="hint" style="margin-top:14px">最近生成</div><div class="hist" id="hist"></div>
 </aside>
-<div class="stage"><div class="pv" id="pv">织音</div></div>
+<div class="stage">
+  <div class="col" data-slot="0"><div class="hd"><b>A</b> <span class="nm"></span></div>
+    <div class="pvwrap"><div class="pv"></div></div><button class="gen">生成这一栏</button></div>
+  <div class="col" data-slot="1"><div class="hd"><b>B</b> <span class="nm"></span></div>
+    <div class="pvwrap"><div class="pv"></div></div><button class="gen">生成这一栏</button></div>
+  <div class="col" data-slot="2"><div class="hd"><b>C</b> <span class="nm"></span></div>
+    <div class="pvwrap"><div class="pv"></div></div><button class="gen">生成这一栏</button></div>
+</div>
 </main>
 <script>
 var FONTS = __FONTS__;
-var fonts = document.getElementById('font'), pv = document.getElementById('pv'), face = null;
-FONTS.forEach(function(f, i){
-  var o = document.createElement('option'); o.value = i; o.textContent = f.label; fonts.appendChild(o);
+var sels = [].slice.call(document.querySelectorAll(".fsel"));
+var faces = sels.map(function(){
+  var s = document.createElement("style"); document.head.appendChild(s); return s;
 });
-function loadFace(i){
-  var name = 'R2S_' + i;
-  if(!face){ face = document.createElement('style'); document.head.appendChild(face); }
-  face.textContent = '@font-face{font-family:' + name + ';src:url(/font/' + i + ')}';
-  pv.style.fontFamily = name + ', sans-serif';
+sels.forEach(function(sel){
+  FONTS.forEach(function(f, i){
+    var o = document.createElement("option"); o.value = i; o.textContent = f.label;
+    o.dataset.key = f.keys || f.label.toLowerCase(); sel.appendChild(o);
+  });
+});
+// default three candidates: the first three distinct families
+var fams = [], picks = [];
+FONTS.forEach(function(f, i){ if(fams.indexOf(f.family) < 0){ fams.push(f.family); if(picks.length < 3) picks.push(i); } });
+sels.forEach(function(sel, i){ sel.value = String(picks[i] || 0); });
+function applyFace(i, slot){
+  var name = "R2S_" + slot + "_" + i;
+  faces[slot].textContent = "@font-face{font-family:" + name + ";src:url(/font/" + i + ")}";
+  return name + ", sans-serif";
 }
 function render(){
-  var s = +document.getElementById('size').value, g = +document.getElementById('gap').value;
-  pv.textContent = document.getElementById('text').value || '织音';
-  pv.style.fontSize = s + 'px';
-  pv.style.letterSpacing = g + 'px';
-  document.getElementById('sizeV').textContent = s + ' px';
-  document.getElementById('gapV').textContent = g + ' px';
-}
-document.getElementById('q').addEventListener('input', function(){
-  var q = this.value.trim().toLowerCase();
-  [].slice.call(fonts.options).forEach(function(o){
-    o.style.display = (!q || o.textContent.toLowerCase().indexOf(q) >= 0) ? '' : 'none';
+  var txt = document.getElementById("text").value || "织音";
+  var size = +document.getElementById("size").value, gap = +document.getElementById("gap").value;
+  document.getElementById("sizeV").textContent = size + " px";
+  document.getElementById("gapV").textContent = gap + " px";
+  sels.forEach(function(sel, i){
+    var col = document.querySelector('.col[data-slot="' + i + '"]');
+    var pv = col.querySelector(".pv");
+    pv.textContent = txt;
+    pv.style.fontSize = size + "px";
+    pv.style.letterSpacing = gap + "px";
+    pv.style.fontFamily = applyFace(+sel.value, i);
+    col.querySelector(".nm").textContent = FONTS[+sel.value].label;
   });
-  var first = [].slice.call(fonts.options).filter(function(o){ return o.style.display !== 'none'; })[0];
-  if(first){ fonts.value = first.value; loadFace(+first.value); render(); }
+}
+document.getElementById("q").addEventListener("input", function(){
+  var q = this.value.trim().toLowerCase();
+  sels.forEach(function(sel){
+    [].slice.call(sel.options).forEach(function(o){
+      o.style.display = (!q || (o.dataset.key || "").indexOf(q) >= 0) ? "" : "none";
+    });
+    var vis = [].slice.call(sel.options).filter(function(o){ return o.style.display !== "none"; });
+    if(!vis.length){
+      [].slice.call(sel.options).forEach(function(o){ o.style.display = ""; });
+      document.getElementById("state").textContent = "没有匹配的字体，已恢复全部";
+      return;
+    }
+    if(sel.selectedOptions[0] && sel.selectedOptions[0].style.display === "none") sel.value = vis[0].value;
+  });
+  render();
 });
-fonts.addEventListener('change', function(){ loadFace(+fonts.value); render(); });
-document.getElementById('text').addEventListener('input', render);
-document.getElementById('size').addEventListener('input', render);
-document.getElementById('gap').addEventListener('input', render);
-document.getElementById('go').addEventListener('click', function(){
-  var btn = this, st = document.getElementById('state');
-  btn.disabled = true; st.textContent = '正在描摹……';
-  document.getElementById('log').textContent = '';
-  fetch('/generate', {method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({text: document.getElementById('text').value,
-      font: +fonts.value, size: +document.getElementById('size').value,
-      gap: +document.getElementById('gap').value})})
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    btn.disabled = false;
-    document.getElementById('log').textContent = d.log || '';
-    if(d.ok){
-      st.textContent = '生成完成，正在打开报告。';
-      window.open(d.url, '_blank');
-      var a = document.createElement('a'); a.href = d.svg; a.textContent = '下载 SVG';
-      a.style.cssText = 'display:block;margin-top:8px;color:#f0a03c'; st.appendChild(a);
-    } else { st.textContent = '生成失败，看下面的日志。'; }
-  })
-  .catch(function(e){ btn.disabled = false; st.textContent = '请求失败：' + e; });
+sels.forEach(function(sel){ sel.addEventListener("change", render); });
+["text","size","gap"].forEach(function(id){ document.getElementById(id).addEventListener("input", render); });
+var hist = document.getElementById("hist");
+function addHistory(entry){
+  var a = document.createElement("a");
+  a.className = "hitem"; a.href = entry.url; a.target = "_blank";
+  var im = document.createElement("img"); im.src = entry.thumb; a.appendChild(im);
+  var sp = document.createElement("span"); sp.textContent = entry.label; a.appendChild(sp);
+  hist.insertBefore(a, hist.firstChild);
+  while(hist.children.length > 10) hist.removeChild(hist.lastChild);
+}
+[].slice.call(document.querySelectorAll(".gen")).forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var col = btn.parentNode, slot = +col.getAttribute("data-slot");
+    var sel = sels[slot], st = document.getElementById("state");
+    btn.disabled = true; st.textContent = "正在描摹 " + FONTS[+sel.value].label + " ……";
+    fetch("/generate", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({text: document.getElementById("text").value,
+        font: +sel.value, size: +document.getElementById("size").value,
+        gap: +document.getElementById("gap").value})})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      btn.disabled = false;
+      if(d.ok){ st.textContent = "生成完成：" + FONTS[+sel.value].label;
+        addHistory({url: d.url, thumb: d.thumb, label: FONTS[+sel.value].label});
+        window.open(d.url, "_blank"); }
+      else { st.textContent = "生成失败（看控制台日志）"; }
+    })
+    .catch(function(e){ btn.disabled = false; st.textContent = "请求失败：" + e; });
+  });
 });
-loadFace(0); render();
+render();
 </script></body></html>"""
 
 
@@ -252,7 +292,9 @@ def make_handler(fonts):
             u = urlparse(self.path)
             if u.path == "/":
                 page = PAGE.replace("__COUNT__", str(len(fonts))).replace(
-                    "__FONTS__", json.dumps([{"label": f["label"]} for f in fonts], ensure_ascii=False))
+                    "__FONTS__", json.dumps([{"label": f["label"], "family": f["family"],
+                                               "keys": (f["label"] + " " + f["path"]).lower()}
+                                              for f in fonts], ensure_ascii=False))
                 return self._send(200, page, "text/html; charset=utf-8")
             if u.path.startswith("/font/"):
                 try:

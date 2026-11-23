@@ -59,7 +59,8 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
   python scripts/studio.py --list-fonts   # 本机能画中文的字体（JSON）
 ```
 
-字体台左边选字体/字号/字距，右边**纯 CSS 预览**（不描摹、不耗时）；点「生成」才跑描摹并打开编辑器。
+字体台左边选**三款候选字体**（同屏并排对比，过滤框匹配字体名与文件路径，中文名如「黑体」也搜得到）、
+字号与字距，右侧**纯 CSS 预览**（不描摹、不耗时）；点某一栏「生成」才跑描摹并打开编辑器，生成记录带缩略图留在左栏。
 脚本侧对应参数是 `--font <路径>` 与 `--font-index <ttc 里的第几face>`。
 
 ## 数字怎么读

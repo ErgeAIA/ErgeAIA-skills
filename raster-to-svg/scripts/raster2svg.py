@@ -1073,6 +1073,12 @@ REPORT_EDITOR_JS = r"""
   var layer=document.createElementNS(NS,'g'); layer.id='r2s-edit-nodes'; layer.style.display='none';
   var labelLayer=document.createElementNS(NS,'g'); labelLayer.id='r2s-edit-labels';
   svg.appendChild(layer); svg.appendChild(labelLayer);
+  function offsetOf(p){
+    var g=p.parentNode, m=g&&g.getAttribute&&g.getAttribute('transform');
+    if(!m) return [0,0];
+    var r=m.match(/translate\(\s*(-?[\d.]+)[ ,]+(-?[\d.]+)?\s*\)/);
+    return r ? [parseFloat(r[1])||0, parseFloat(r[2])||0] : [0,0];
+  }
   function bboxOf(p){
     var xs=[], ys=[];
     parse(p.getAttribute('d')).forEach(function(k){
@@ -1091,8 +1097,9 @@ REPORT_EDITOR_JS = r"""
     var z=+(document.getElementById('canvas').getAttribute('data-scale')||1);
     paths.forEach(function(p,i){
       var b=bboxOf(p); if(!b) return;
+      var off=offsetOf(p);
       var t=document.createElementNS(NS,'text');
-      t.setAttribute('x',f2(b.x+1.5/z)); t.setAttribute('y',f2(b.y+9/z));
+      t.setAttribute('x',f2(b.x+off[0]+1.5/z)); t.setAttribute('y',f2(b.y+off[1]+9/z));
       t.setAttribute('font-size',f2(9/z));
       t.setAttribute('data-pi',i);
       t.textContent=p.id||('c'+i);
@@ -1149,8 +1156,9 @@ REPORT_EDITOR_JS = r"""
         var pts = k.c==='C' ? [['h',k.c1],['h',k.c2],['a',k.p]] :
                   (k.c==='M'||k.c==='L') ? [['a',k.p]] : [];
         pts.forEach(function(pair){
+          var off=offsetOf(p);
           var c=document.createElementNS(NS,'circle');
-          c.setAttribute('cx',f2(pair[1][0])); c.setAttribute('cy',f2(pair[1][1]));
+          c.setAttribute('cx',f2(pair[1][0]+off[0])); c.setAttribute('cy',f2(pair[1][1]+off[1]));
           c.setAttribute('r',pair[0]==='a'?1.9:1.3);
           if(pair[0]==='h') c.setAttribute('class','h');
           c.setAttribute('data-pi',pi); c.setAttribute('data-ki',ki); c.setAttribute('data-pt',pair[0]);
@@ -1173,9 +1181,11 @@ REPORT_EDITOR_JS = r"""
     var p=paths[+c.getAttribute('data-pi')], cmds=parse(p.getAttribute('d')), k=cmds[+c.getAttribute('data-ki')];
     var key=c.getAttribute('data-pt')==='a'?'p':c.getAttribute('data-pt');
     function at(ev){ var pt=svg.createSVGPoint(); pt.x=ev.clientX; pt.y=ev.clientY;
-      return pt.matrixTransform(svg.getScreenCTM().inverse()); }
+      return pt.matrixTransform(p.getScreenCTM().inverse()); }
     function move(ev){ var q=at(ev); k[key][0]=Math.round(q.x*100)/100; k[key][1]=Math.round(q.y*100)/100;
-      p.setAttribute('d',write(cmds)); c.setAttribute('cx',k[key][0]); c.setAttribute('cy',k[key][1]);
+      p.setAttribute('d',write(cmds));
+      var off0=offsetOf(p);
+      c.setAttribute('cx',k[key][0]+off0[0]); c.setAttribute('cy',k[key][1]+off0[1]);
       var cd=document.getElementById('ed-coord');
       if(cd) cd.textContent='('+f2(k[key][0])+', '+f2(k[key][1])+')';
     }
@@ -1234,7 +1244,8 @@ REPORT_EDITOR_JS = r"""
     mode.classList.toggle('on',nodeMode); mode.textContent=nodeMode?'编辑节点：开':'编辑节点：关'; drawNodes();
   });
   if(sp) sp.addEventListener('input',function(){ begin('sp'); var v=+sp.value;
-    groups.forEach(function(g,i){ g.setAttribute('transform','translate('+(i*v)+',0)'); }); });
+    groups.forEach(function(g,i){ g.setAttribute('transform','translate('+(i*v)+',0)'); });
+    drawNodes(); drawLabels(); });
   if(sp) sp.addEventListener('change',function(){ end('sp'); });
   if(wt) wt.addEventListener('input',function(){ begin('wt'); var v=+wt.value;
     paths.forEach(function(p){ if(v>0){ p.setAttribute('stroke',p.getAttribute('fill')||'#000');
