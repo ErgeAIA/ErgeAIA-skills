@@ -63,6 +63,7 @@ Find your situation on the left; the right-hand prompt can be pasted to an agent
 | --- | --- | --- |
 | Only words, no image | `--text` renders the font, then traces; never hand-draw outlines | "Turn the characters 开源 into an SVG, using Source Han Sans" |
 | Glyph / logo to editable SVG | Start with `auto`, read `ink_ratio` before touching anything | "Trace this glyph image into SVG, keep the right angles, one group per character" |
+| Pick a font before tracing | open the font studio, preview in CSS, generate only when happy | "show me the CJK fonts I have and use this one" |
 | Want a report you can also edit | `<name>.html` now changes colours, drags nodes, adjusts spacing and exports SVG | "Give me a page where I can click through the result" |
 | Only the outline coordinates | Ship `_coords.json`, not just the SVG | "Export the vertex coordinates and interior angles; I need to rebuild from them" |
 | Flat-colour icon to vector | Start at `--colors 6`, check `_check.png` layer by layer | "Convert this icon to SVG in 6 colour layers, don't chew off the rounded corners" |

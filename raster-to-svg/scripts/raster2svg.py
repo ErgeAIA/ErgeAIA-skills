@@ -825,7 +825,7 @@ def find_default_font():
     return None
 
 
-def render_text_png(text, font_path, size, out_png, ss=4, pad=None):
+def render_text_png(text, font_path, size, out_png, ss=4, pad=None, font_index=0):
     """Render one line of text to an antialiased PNG, then trace that.
 
     The tracer's whole premise is "the ink boundary is the 50%-coverage line", so
@@ -836,7 +836,7 @@ def render_text_png(text, font_path, size, out_png, ss=4, pad=None):
     from PIL import Image, ImageDraw, ImageFont
     size = max(12, int(size))
     pad = int(pad if pad is not None else max(8, size // 4))
-    font = ImageFont.truetype(font_path, size * ss)
+    font = ImageFont.truetype(font_path, size * ss, index=int(font_index or 0))
     box = font.getbbox(text)          # already in supersampled pixels
     w = max(1, box[2] - box[0]) + 2 * pad * ss
     h = max(1, box[3] - box[1]) + 2 * pad * ss
@@ -923,7 +923,10 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12px;color:#c8d3dd}
 .toolbar input[type=range]{width:110px;accent-color:var(--accent)}
 .toolbar label{display:flex;align-items:center;gap:6px;color:var(--dim);font-size:13px}
 .ednote{font-size:12px;color:var(--dim);margin:8px 0 0;line-height:1.6}
-#r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5}
+#r2s-edit-nodes circle{cursor:move;fill:#fff;stroke:#111;stroke-width:.5;fill-opacity:.92}
+#r2s-edit-labels text{font:500 1px ui-monospace,Consolas,monospace;fill:#8f98a3;opacity:.9;
+  paint-order:stroke;stroke:#ffffff;stroke-width:.9px;cursor:pointer;user-select:none}
+#r2s-edit-labels text:hover{fill:#f0a03c;opacity:1}
 #r2s-edit-nodes circle.h{fill:var(--accent);stroke:#fff;stroke-width:.4}
 .colorbtn{width:26px;height:20px;padding:0;border:1px solid var(--line);border-radius:4px;background:none;cursor:pointer}
 .hex{width:82px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:3px 6px;font:inherit;font-size:12px;text-transform:uppercase}
@@ -1068,7 +1071,40 @@ REPORT_EDITOR_JS = r"""
     end('col'+i);
   }
   var layer=document.createElementNS(NS,'g'); layer.id='r2s-edit-nodes'; layer.style.display='none';
-  svg.appendChild(layer);
+  var labelLayer=document.createElementNS(NS,'g'); labelLayer.id='r2s-edit-labels';
+  svg.appendChild(layer); svg.appendChild(labelLayer);
+  function bboxOf(p){
+    var xs=[], ys=[];
+    parse(p.getAttribute('d')).forEach(function(k){
+      if(k.c==='Z') return;
+      xs.push(k.p[0]); ys.push(k.p[1]);
+      if(k.c==='C'){ xs.push(k.c1[0],k.c2[0]); ys.push(k.c1[1],k.c2[1]); }
+    });
+    if(!xs.length) return null;
+    return {x:Math.min.apply(null,xs), y:Math.min.apply(null,ys),
+            w:Math.max.apply(null,xs)-Math.min.apply(null,xs), h:Math.max.apply(null,ys)-Math.min.apply(null,ys)};
+  }
+  function drawLabels(){
+    while(labelLayer.firstChild) labelLayer.removeChild(labelLayer.firstChild);
+    var on=document.getElementById('ed-labels');
+    if(!on||!on.checked) return;
+    var z=+(document.getElementById('canvas').getAttribute('data-scale')||1);
+    paths.forEach(function(p,i){
+      var b=bboxOf(p); if(!b) return;
+      var t=document.createElementNS(NS,'text');
+      t.setAttribute('x',f2(b.x+1.5/z)); t.setAttribute('y',f2(b.y+9/z));
+      t.setAttribute('font-size',f2(9/z));
+      t.setAttribute('data-pi',i);
+      t.textContent=p.id||('c'+i);
+      t.addEventListener('click',function(e){ e.stopPropagation(); select(i); });
+      labelLayer.appendChild(t);
+    });
+  }
+  function select(i){
+    selected=i;
+    rowEls.forEach(function(r,j){ if(r) r.classList.toggle('sel', j===i); });
+    if(rowEls[i]&&rowEls[i].scrollIntoView) rowEls[i].scrollIntoView({block:'nearest'});
+  }
 
   function f2(v){ v=+v; return String(Math.round(v*100)/100); }
   function parse(d){
@@ -1099,7 +1135,7 @@ REPORT_EDITOR_JS = r"""
       if(q.stroke&&q.stroke!=='none'){p.setAttribute('stroke',q.stroke);p.setAttribute('stroke-width',q.sw);} else {p.removeAttribute('stroke');p.removeAttribute('stroke-width');}
       p.style.paintOrder=q.po||'';});
     groups.forEach(function(g,i){var t=s.trans[i]; if(t)g.setAttribute('transform',t); else g.removeAttribute('transform');});
-    drawNodes(); syncControls();
+    drawNodes(); drawLabels(); syncControls();
   }
   function push(){ hist.push(snap()); if(hist.length>60)hist.shift(); future=[]; }
   function undo(){ if(!hist.length)return; future.push(snap()); apply(hist.pop()); }
@@ -1129,7 +1165,7 @@ REPORT_EDITOR_JS = r"""
     });
   }
   var stageEl=document.getElementById('stage');
-  if(stageEl) stageEl.addEventListener('wheel',function(){ setTimeout(drawNodes,0); });
+  if(stageEl) stageEl.addEventListener('wheel',function(){ setTimeout(function(){ drawNodes(); drawLabels(); },0); });
   layer.addEventListener('mousedown',function(e){e.stopPropagation();});
   layer.addEventListener('pointerdown',function(e){
     var c=e.target; if(c.tagName!=='circle') return;
@@ -1155,6 +1191,7 @@ REPORT_EDITOR_JS = r"""
       var bb='['+f2(x0)+', '+f2(y0)+', '+f2(Math.max.apply(null,xs)-x0)+', '+f2(Math.max.apply(null,ys)-y0)+']';
       var row=document.querySelector('tbody tr[data-gid="'+p.id+'"]');
       if(row && row.cells[2]) row.cells[2].textContent=bb;
+      drawLabels();
     }
     window.addEventListener('pointermove',move); window.addEventListener('pointerup',up);
   });
@@ -1224,7 +1261,9 @@ REPORT_EDITOR_JS = r"""
     link.download=(document.title||'edited').replace(/[^\w\u4e00-\u9fa5-]+/g,'_')+'.svg';
     link.click(); setTimeout(function(){URL.revokeObjectURL(link.href);},2000);
   });
-  syncControls();
+  var lab=document.getElementById('ed-labels');
+  if(lab) lab.addEventListener('change',drawLabels);
+  syncControls(); drawLabels();
 })();
 """
 
@@ -1262,6 +1301,7 @@ REPORT_TEMPLATE = """<!doctype html>
     </div>
     <div class="toolbar">
       <button id="ed-mode">编辑节点：关</button>
+      <label><input type="checkbox" id="ed-labels" checked> 显示部件编号</label>
       <label>字距 <input type="range" id="ed-spacing" min="-30" max="40" step="1" value="0"></label>
       <label>视觉加粗 <input type="range" id="ed-weight" min="0" max="4" step="0.5" value="0"></label>
       <span id="ed-coord" class="hint">(—, —)</span>
@@ -1295,6 +1335,8 @@ def build_parser():
                    help="skip the image: render this line of text with --font, then trace it")
     p.add_argument("--font", default=None,
                    help="TTF/OTF path for --text (default: a system CJK font if one is present)")
+    p.add_argument("--font-index", type=int, default=0,
+                   help="--text: face index inside a .ttc collection (default: 0)")
     p.add_argument("--size", type=int, default=128, help="--text: em size in px")
     p.add_argument("--name", default=None, help="output stem (default: from the input file or --text)")
     p.add_argument("--html", dest="html", action="store_true", default=True,
@@ -1358,7 +1400,8 @@ def main(argv=None):
             odir = args.outdir or os.getcwd()
             os.makedirs(odir, exist_ok=True)
             args.input = render_text_png(args.text, font, args.size,
-                                         os.path.join(odir, stem + "_source.png"))
+                                         os.path.join(odir, stem + "_source.png"),
+                                         font_index=args.font_index)
             args._stem = stem
         if getattr(args, "colors", 1) and args.colors > 1:
             return run_color(args)

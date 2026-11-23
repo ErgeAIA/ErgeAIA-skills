@@ -20,8 +20,17 @@ FIX = os.path.join(HERE, "fixtures")
 
 
 def run(*args):
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
     return subprocess.run([sys.executable, SCRIPT] + list(args),
-                          capture_output=True, text=True)
+                          capture_output=True, text=True, encoding="utf-8",
+                          errors="replace", env=env)
+
+
+def run_studio(*args):
+    studio = os.path.join(SKILL, "scripts", "studio.py")
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    return subprocess.run([sys.executable, studio] + list(args),
+                          capture_output=True, text=True, encoding="utf-8", env=env)
 
 
 def have_renderer():
@@ -171,7 +180,8 @@ class TestTextAndReport(unittest.TestCase):
             text = fh.read()
         for marker in ('id="ed-mode"', 'id="ed-spacing"', 'id="ed-weight"',
                        'id="ed-undo"', 'id="ed-export"', 'r2s-edit-nodes',
-                       "paintOrder", "ed-palette", "normHex"):
+                       "paintOrder", "ed-palette", "normHex", "ed-labels",
+                       "r2s-edit-labels"):
             self.assertIn(marker, text, "missing editor marker: " + marker)
 
     def test_no_html_flag_skips_report(self):
@@ -214,3 +224,26 @@ class TestColour(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestStudio(unittest.TestCase):
+    """The font studio must list real CJK faces, not tofu-only ones."""
+
+    def test_list_fonts_is_json(self):
+        r = run_studio("--list-fonts")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        data = json.loads(r.stdout)
+        self.assertIsInstance(data, list)
+        self.assertGreater(len(data), 0, "no CJK font found on this machine")
+        for item in data[:5]:
+            self.assertTrue(os.path.isfile(item["path"]), item["path"])
+            self.assertTrue(item["label"])
+
+    def test_font_index_reaches_the_renderer(self):
+        fonts = json.loads(run_studio("--list-fonts").stdout)
+        pick = fonts[0]
+        with tempfile.TemporaryDirectory() as tmp:
+            r = run("--text", "织", "--font", pick["path"], "--font-index",
+                    str(pick["index"]), "--size", "96", "-o", tmp, "--no-html")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertTrue(os.path.isfile(os.path.join(tmp, "织.svg")))

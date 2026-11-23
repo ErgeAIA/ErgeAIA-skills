@@ -51,6 +51,17 @@ uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py 
 默认参数先跑一遍，别一上来就调。依赖两件：`pillow`（渲染器解码走它，缺了 `--check` 只剩代理值）
 和渲染器（`resvg-py` 或 `rsvg-convert`，缺了标 `surrogate_metric: true`）。
 
+**字体要先挑再描**。用户说"字不好看/换字体"或没说字体时，别一次次试跑——先开字体台：
+
+```bash
+uv run --with numpy --with opencv-python-headless --with pillow --with resvg-py \
+  python scripts/studio.py            # http://127.0.0.1:8765
+  python scripts/studio.py --list-fonts   # 本机能画中文的字体（JSON）
+```
+
+字体台左边选字体/字号/字距，右边**纯 CSS 预览**（不描摹、不耗时）；点「生成」才跑描摹并打开编辑器。
+脚本侧对应参数是 `--font <路径>` 与 `--font-index <ttc 里的第几face>`。
+
 ## 数字怎么读
 
 **过闸就一句话：`--check` 退 0，即 iou ≥ 0.88 且墨量比在 0.95-1.05。** 没过就按下表改，一次一个。
