@@ -1,6 +1,6 @@
 ---
 name: rea-pilot
-description: "把 REA 装进用户助手并验证连接，就逆向选路、工具面刷新、加固与回滚给出方案。Use when 用户问 REA 装没装、连没连上、这目标从哪下手，或要更新、卸干净。"
+description: "把 REA 装进用户助手并验证连接，再把用户意图路由到 REA MCP 工具直接调用，并负责工具面刷新、加固与回滚。Use when 用户问 REA 装没装、连没连上，想让 REA 直接查一个目标或做加固，或要更新、卸干净。"
 metadata:
   author: ErgeAIA
   version: "1.1.0"
@@ -22,8 +22,9 @@ REA（<https://rea.tools/>）自带技能 `reverse-engineer-anything` 已经占�
 Core Task：
 
 ```text
-用户要装/接/验/更/卸 REA，或问「我该怎么逆向」「我该怎么加固」时：
+用户要装/接/验/更/卸 REA，或问「我该怎么逆向」「我该怎么加固」「帮我用 REA 查这个目标」时：
   先判归属（装接类 / 用 REA 类）→ 按决策矩阵进唯一一条工作流文件
+  → 用 REA 类按意图路由到 MCP 工具并直接调用，不把命令清单当交付
   → 全程守硬规则：改配置前先出计划、不确认不执行、结论必须带实测输出。
 ```
 
@@ -58,6 +59,8 @@ Not for：
 3. 目标是用户自己拥有或已获授权的资产吗？
 
 一条请求含多个意图时（例：「装好没 + 能不能做原生反编译」）：**主路由完整跑完**，其它意图只在需要前置判定时引用对应工作流的对应小节，并写明引用了哪条、为什么——仍不并列展开两条工作流。
+
+用户意图是「让 REA 直接做某件事」时，先按 `references/config/intent-routing.md` 判该不该接管：接管的用 MCP 工具调用并给原始输出要点；不接管的说明交给 REA 自带技能，不要求用户自己记命令。
 
 ### 步骤 2：守硬规则（不读文件也要守）
 
@@ -96,7 +99,7 @@ Not for：
 | --- | --- |
 | W-INSTALL | 环境体检结论（按 classification 分流）+ 人读安装计划（改哪些文件、备份在哪）+ 执行结果 + 三问验证回执 |
 | W-HOST | 只给通用字段与探索提示词，**由宿主 Agent 自己插入自己的配置**；再给重启后的验证方法 |
-| W-ROUTE | 目标类型 → 证据需求 → 引擎前置 → 最小路径命令；无引擎时给替代路径 |
+| W-ROUTE | 目标类型 → 证据需求 → 引擎前置 → MCP 工具调用与原始输出要点（用户只要结论时不给命令清单）；无引擎时给替代路径 |
 | W-HARDEN | 通用方法论（算法/密钥/完整性/混淆/加壳/运行时）→ 该项目该补哪几层 → 每条给代价与 REA 复跑验收判据 |
 | W-SYNC | 新的 `references/toolset/rea-<版本>.md` + 指向更新 + 四处版本对齐 |
 | W-ROLLBACK | 取证 → 卸载 → 还原三步 + 为什么这么做 |
@@ -135,6 +138,7 @@ Not for：
 | 要工具名 / 用途 / 副作用，或问「REA 有哪些工具 / 某个能力能干什么」 | `references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`，文件名按实测版本拼，不写死） | 完整工具面（MCP 工具 / 官方 prompt / CLI 命令，逐条含用途与副作用）；条数不在此照抄，以本机实测为准 |
 | 要写宿主 MCP 配置 | `references/specs/mcp-registration-fields.md` | 通用字段 + 探索提示词 + 校验动作 |
 | 要重新生成工具表 | `references/specs/toolset-generation.md` | 生成命令、列口径、版本锚 |
+| 用户想让 REA 直接做事 / 新工具要不要接管 | `references/config/intent-routing.md` | 自然语言意图 → MCP 工具；只登记本技能接管的工具与已评估不接管的工具 |
 | 要引擎与 Provider 前置 | `references/config/engines-and-providers.md` | 引擎矩阵、环境变量、平台限制 |
 
 ## Gotchas
@@ -147,4 +151,5 @@ Not for：
 - 长驻会话（Ghidra / Hopper / 调试器 / Frida）用完要 close，否则后续调用可能因会话不一致失败。
 - 6.8.0 起 MCP `analyze_function` 默认只返回 retained summary；要完整 dossier 必须显式传 `detail:"complete"`，否则会误判「字段变少了」。
 - 6.8.0 起 MCP 输入 schema 默认 compact；需要完整嵌套约束时设 `REA_MCP_INPUT_SCHEMA_PROFILE=full`。
+- 默认交付「工具 + 原始输出要点 + 结论」，CLI 命令只在用户明确要命令、或 MCP 不可用时给；领航员的价值是让用户不必记命令。
 - references 与 SKILL.md 的分工：SKILL.md 只做路由与硬边界，细节全在 references；本技能不用步骤级 `@` 标记（该标记只用在 references 的工作流文件里）。

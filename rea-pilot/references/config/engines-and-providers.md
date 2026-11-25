@@ -1,7 +1,7 @@
 ---
 name: "引擎与 Provider 前置"
 description: "REA 的分析引擎与外部工具前置：四个 provider 的启用方式、其余外部工具环境变量、平台限制、无引擎时还能做什么、副作用词表。"
-version: 1.0.0
+version: 1.1.0
 trigger-when: 判断这台机器能不能做某类逆向、或用户问缺什么引擎时
 reads-from: SKILL.md
 writes-to: 无（只读说明）
@@ -15,16 +15,16 @@ writes-to: 无（只读说明）
 | `rea doctor --format json` | `scope_checks[]`（`name` / `ok` / `classification` / `detail` / `remediation`）、`providerInspections[]` |
 | `rea capabilities --format json` | `analysis_provider_candidates[].availability{status,code,reason,diagnostics}`、`server_identity` |
 
-本页为 **2026-11-11 在 REA 6.8.0 / Node 24.22.1 / win32 x64 上的一次实测**，不是官方承诺。版本或平台一变就重取，不要照抄。`rea providers --format json` 与 `rea capabilities` 输出同一个 envelope。
+本页为 **2026-11-25 在 REA 6.10.1 / Node 24.22.1 / win32 x64 上的一次实测**，不是官方承诺。版本或平台一变就重取，不要照抄。`rea providers --format json` 与 `rea capabilities` 输出同一个 envelope。
 
 ## 四个分析 Provider
 
 | id | 名称 | 启用方式 | 本机状态 | 说明 |
 | --- | --- | --- | --- | --- |
-| `ghidra` | Ghidra | `GHIDRA_INSTALL_DIR` 指向解压后的 Ghidra 12.1.x 目录 | `unavailable / not_configured` | 诊断逐项给 configuration / platform / architecture / installation / version / headless / native_decompiler / java；Windows 上 `java` 探针要求 **绝对路径**（实测 `java.exe` 报 `ERR_REA_WINDOWS_NATIVE`、Win32 87），且 Ghidra 在 Windows 为官方标注的实验性平台 |
+| `ghidra` | Ghidra | `GHIDRA_INSTALL_DIR` 指向解压后的 Ghidra 12.x（>=12.2）目录 | `unavailable / not_configured` | 诊断逐项给 configuration / platform / architecture / installation / version / headless / native_decompiler / java；Windows 上 `java` 探针要求 **绝对路径**（实测 `java.exe` 报 `ERR_REA_WINDOWS_NATIVE`、Win32 87），且 Ghidra 在 Windows 为官方标注的实验性平台 |
 | `hopper` | Hopper Disassembler | 仅 macOS：`rea setup --install-hopper` 或 `HOPPER_LAUNCHER_PATH` | `unavailable / unsupported_host` | 非 macOS 无解，不要建议用户装 |
 | `ida` | IDA MCP adapter | `REA_IDA_MCP_CONFIG` 指向上游 IDA MCP 注册 JSON | `unavailable / not_configured` | 见官方 `docs/ida-provider.md` |
-| `kuna` | Kuna | `REA_KUNA_COMMAND` 指向自备 kuna 可执行文件绝对路径 | `unavailable / not_configured` | 官方以 1.833 验证；**REA 不下载、不安装、不更新** |
+| `kuna` | Kuna | `REA_KUNA_COMMAND` 指向自备 kuna 可执行文件绝对路径 | `unavailable / not_configured` | 6.10.1 官方以 1.1000 验证；**REA 不下载、不安装、不更新** |
 
 ## 其余外部工具（不是 provider，按需自备）
 

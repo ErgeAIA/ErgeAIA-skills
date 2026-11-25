@@ -13,7 +13,7 @@ writes-to: references/toolset/rea-<版本>.md
 | 输入 | 提供什么 |
 | --- | --- |
 | `rea-agents` 包内 `dist/mcp-catalog.json` 的 `tools` / `prompts` | 工具名、title、description、annotations（229 / 6）；官方随包数据，直接读最稳 |
-| `rea --llms` | CLI 命令清单（**175 条命令**；判漂移看命令条数、工具数与目录摘要，不看字符数） |
+| `rea --llms` | CLI 命令清单（**命令条数以当前版本快照为准，如 6.10.1 为 204 条**；判漂移看命令条数、工具数与目录摘要，不看字符数） |
 | `rea capabilities --format json` | 副作用（effects）、可用性、`server_identity.catalog`（计数与摘要） |
 | `rea --version` + `rea mcp doctor --json` | 版本锚与自检计数 |
 
@@ -28,7 +28,7 @@ rea capabilities --format json                  # 副作用与可用性
 rea mcp doctor --json                           # 自检计数与目录摘要
 ```
 
-CLI 行解析正则（`rea --llms` 175 行全部命中）：
+CLI 行解析正则（以当前版本 `rea --llms` 表格行为准）：
 
 ```text
 ^\|\s*`rea\s+([^`]+)`\s*\|\s*(.*?)\s*\|\s*$
@@ -54,21 +54,21 @@ effects 中文标签：`launches_process`=启动进程 / `may_show_ui`=可能弹
 
 ## 分组规则
 
-按工具名关键字分组，**顺序敏感（先匹配先归）**，共 12 组；分组完成后逐组计数必须与下表一致、总数必须等于 229：
+按工具名关键字分组，**顺序敏感（先匹配先归）**，共 12 组；分组完成后逐组计数必须与当前版本快照一致、总数必须等于该快照的工具总数（6.10.1 = 263）：
 
 | 分组 | 计数 |
 | --- | --- |
-| 会话与目标 | 29 |
-| 原生二进制 | 46 |
+| 会话与目标 | 43 |
+| 原生二进制 | 53 |
 | 托管代码 PE/CLR | 7 |
-| JavaScript 与 Electron | 18 |
-| 浏览器观察与场景录制 | 10 |
-| Android 与移动设备 | 40 |
+| JavaScript 与 Electron | 19 |
+| 浏览器观察与场景录制 | 12 |
+| Android 与移动设备 | 41 |
 | Apple 平台 | 18 |
-| 归档·固件·格式 | 13 |
+| 归档·固件·格式 | 21 |
 | 网络与信号采集 | 7 |
 | 调试器与插桩 | 22 |
-| 证据与验证 | 14 |
+| 证据与验证 | 15 |
 | 模型与字节码 | 5 |
 
 **规则维护要求**：
@@ -76,13 +76,13 @@ effects 中文标签：`launches_process`=启动进程 / `may_show_ui`=可能弹
 - Android 组的关键字必须覆盖 `apktool`（2026-10-19 修正：`inspect_apktool_client` 曾因缺此词落进「其他」）。
 - **不允许留「其他」组**：出现未归类工具 = 分组规则缺词，去补规则；补不了再考虑新建组，并同步更新计数表与总数判据。
 - 6.8.0 新增的模型 / GPU 代码 / IL2CPP 元数据 / Python pyc / Erlang BEAM 归「模型与字节码」；新增工具先试既有组，确实无归属再新建组。
-- 计数与总数判据写进校验：229 = 各组之和；不成立就停止发布。
+- 计数与总数判据写进校验：当前版本工具总数 = 各组之和（6.10.1 为 263 = 43+53+7+19+12+41+18+21+7+22+15+5）；不成立就停止发布。
 
 ## 版本锚与自检
 
-- frontmatter `version` = `rea --version` 输出（如 `6.8.0`）；`generated-at` 带时区偏移（本仓统一 `+08:00`）。
+- frontmatter `version` = `rea --version` 输出（如 `6.10.1`）；`generated-at` 带时区偏移（本仓统一 `+08:00`）。
 - 写入三处摘要，便于下次发现漂移：`catalog.digests.tools_sha256` / `prompts_sha256` / `combined_sha256`（来源 `rea capabilities --format json` → `server_identity.catalog.digests`）。
-- 自检等式（三者必须一致，否则不许发布）：`rea mcp doctor --json` 的 `inventory.tools.expected == observed` = `catalog.counts.mcp_tools` = 分组总数；另有 `cli_commands`（175）与 `mcp_prompts`（6）。
+- 自检等式（三者必须一致，否则不许发布）：`rea mcp doctor --json` 的 `inventory.tools.expected == observed` = `catalog.counts.mcp_tools` = 分组总数；另有 `cli_commands`（当前版本实测，6.10.1 为 204）与 `mcp_prompts`（6）。
 
 ## 输出与维护
 

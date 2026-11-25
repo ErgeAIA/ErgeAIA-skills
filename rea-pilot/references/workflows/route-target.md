@@ -1,14 +1,14 @@
 ---
 name: "W-ROUTE 目标选路"
-description: "按目标类型给出证据需求、引擎前置与最小路径命令；无引擎时给替代路径。"
-version: 1.0.0
-trigger-when: 用户问某个目标该怎么逆向、该用哪些工具时
-reads-from: SKILL.md, references/toolset/rea-<版本>.md, references/config/engines-and-providers.md
+description: "按自然语言意图把目标映射到 MCP 工具并直接调用，给证据与判据；无 MCP 时给最小路径命令。"
+version: 1.1.0
+trigger-when: 用户问某个目标该怎么逆向、该用哪些工具，或想让 REA 直接查这个目标时
+reads-from: SKILL.md, references/config/intent-routing.md, references/toolset/rea-<版本>.md, references/config/engines-and-providers.md
 writes-to: 无（只读建议）
 ---
 # @工作流: W-ROUTE 目标选路
 
-本工作流**只选路**：告诉用户该按什么顺序取哪类证据、前置是什么、最小路径是哪几条命令，**不重写 REA 的调查方法**（那属于 REA 自带技能）。
+本工作流按 `references/config/intent-routing.md` 把用户意图映射到当前版本工具面里的 MCP 工具，**直接调用**并把原始输出要点交给用户；CLI 最小路径只在用户明确要命令、或 MCP 不可用时给。**不重写 REA 的调查方法**（那属于 REA 自带技能）。
 
 ## @步骤1: 判定目标类型
 
@@ -42,12 +42,12 @@ writes-to: 无（只读建议）
 
 读 `references/config/engines-and-providers.md`，先回答「这台机器能不能做这件事」：
 
-- 原生反编译需要 Ghidra 12.1.x（+ 64 位 JDK 21+）或 Hopper（仅 macOS）；Windows 上 Ghidra 官方标注实验性。
+- 原生反编译需要 Ghidra 12.x（>=12.2，+ 64 位 JDK 21+）或 Hopper（仅 macOS）；Windows 上 Ghidra 官方标注实验性。
 - 托管、JavaScript/Electron、归档、Android 清单、已有证据类：**不需要外部反编译器**，缺引擎也能做。
 - 固件、抓包、信号解码：需要 Linux 与用户自备的外部工具（如 tshark/capinfos/sigrok）与对应环境变量。
 - 运行观测：浏览器走 CDP；原生调用观测在 macOS 由 LLDB 承担；Android 走 adb。
 
-## @步骤4: 给最小路径（3–5 条，按顺序）
+## @步骤4: 按意图调用 MCP（3–5 步，按顺序）
 
 `rea doctor --format json` 看 `provider` 与 `classification` 决定走哪条；命令形如：
 
@@ -57,6 +57,7 @@ npx -y rea-agents@latest search <目标> "<关键字>" --format json  # 用字�
 npx -y rea-agents@latest function <目标> <符号> --provider ghidra --json   # 再深挖一个函数
 ```
 
+- 每一步都先匹配 `intent-routing.md`：有接管工具 → 调 MCP；命令形态只作后备并在回执里说明为什么用后备。
 - 每一步给「看什么、什么算命中、命中后下一步是什么」。
 - 目标很大时先给范围收缩策略（先字符串/符号定位，再函数/模块），不要一上来全量反编译。
 - 证据要留痕：用 `evidence-export` / `export_evidence_bundle` 存下来，后续对比与复跑都靠它。
@@ -69,7 +70,7 @@ npx -y rea-agents@latest function <目标> <符号> --provider ghidra --json   #
 | JADX | Android 清单、资源、类与方法级结构仍可用；源码级反编译需用户自备 JAR |
 | 全部外部工具 | 只做「读已保留证据」类工作（`inspect_analysis_view`、`compare_bundles`） |
 
-@验证点：交付里必须出现① 目标类型判定② 证据需求③ 前置结论（能不能做、缺什么）④ 3–5 条带判据的命令。缺任一项就是没选完路。
+@验证点：交付里必须出现① 目标类型判定② 证据需求③ 前置结论（能不能做、缺什么）④ 实际调用的 MCP 工具名 + 原始输出要点 + 判据（命令形态仅作后备）。缺任一项就是没选完路。
 
 ## 案例参照（官方 showcase）
 

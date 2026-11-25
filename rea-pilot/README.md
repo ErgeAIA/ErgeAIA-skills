@@ -58,8 +58,8 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
 | 帮我装一下 REA / 把 REA 接到我的 Cursor | 先 `rea doctor` 体检并按 classification 分流，再把 `rea setup --dry-run` 的计划翻成人话给你确认，确认后才执行 | `帮我在这台机器上装 REA，先给我看它准备改哪些文件` |
 | REA 装好了吗 / 我怎么确认它真连上了 | 三问分开答（见上面自检表）：`rea mcp doctor` / 注册 `state=aligned` / 重启后工具真出现 | `REA 装了吗？我怎么确认它真的连上了我的助手` |
 | 我的助手 setup 认不出来，怎么手动接 MCP | 走宿主手动接入：只给通用字段与探索提示词，由宿主自己去定位并插入自己的配置，再验证 | `我的助手不在 REA 支持列表里，你教我怎么手动加 MCP 服务器` |
-| 我有一个 exe（或 asar / apk / 网站），想逆向，该怎么下手 | 先定目标类型，再定证据需求，最后给 3–5 条带判据的最小路径 | `我有一个 Electron 应用（app.asar），想搞清它的剪贴板行为，该怎么查` |
-| 我该怎么做加密和加壳，才能防住这种逆向 | REA 能拿到什么，你就在哪层补什么；每条都给代价与 REA 复跑验收判据 | `看完我的 Android 应用能拿到什么，我该怎么加密和加壳` |
+| 我有一个 exe（或 asar / apk / 网站），想逆向，该怎么下手 | 先定目标类型，再定证据需求，再按意图把任务路由到 MCP 工具直接调用；只有你要命令或 MCP 不可用时才给 CLI | `我有一个 Electron 应用（app.asar），想搞清它的剪贴板行为，该怎么查` |
+| 我该怎么做加密和加壳，才能防住这种逆向 | REA 能拿到什么，你就在哪层补什么；每条都给代价与 REA 复跑验收判据，可调用 MCP 工具复跑 | `看完我的 Android 应用能拿到什么，我该怎么加密和加壳` |
 | REA 升级了，工具清单对不上 | 读官方 CHANGELOG → 重新生成带版本号的工具表 → 四处版本对齐 | `REA 更新了，把工具清单刷新一下` |
 | 把 REA 卸掉 / 装坏了想还原 | 先取证会动哪些文件，再 `rea uninstall`，必要时用备份路径还原 | `把 REA 卸干净，别动我的其他 MCP 配置` |
 
@@ -82,7 +82,7 @@ npx skills add https://github.com/ErgeAIA/ErgeAIA-skills --skill rea-pilot
 
 | 目标 | 典型形态 | 主要证据面 | 引擎前置 |
 | --- | --- | --- | --- |
-| 原生可执行 / 库 | exe、dll、so、dylib、App 主二进制 | 函数伪代码、调用图、字符串与常量、段权限 | Ghidra 12.1.x（+ 64 位 JDK 21+）或 Hopper（仅 macOS）；Windows 上 Ghidra 官方标注实验性 |
+| 原生可执行 / 库 | exe、dll、so、dylib、App 主二进制 | 函数伪代码、调用图、字符串与常量、段权限 | Ghidra 12.x（>=12.2，+ 64 位 JDK 21+）或 Hopper（仅 macOS）；Windows 上 Ghidra 官方标注实验性 |
 | 托管程序 | .NET PE / CLR 程序集 | 类型与成员、CIL、P/Invoke 边界 | 不需要外部引擎 |
 | Electron / JavaScript | `app.asar`、应用目录、bundle | 模块图、IPC handler 配对、暴露 API、fuses | 不需要外部引擎 |
 | 打包移动应用 | apk / aab / ipa / hap | 清单与组件、资源、类与方法、AOT 快照 | 清单与资源不需要；源码级反编译需自备 JADX（`REA_JADX_MCP_JAR`） |
@@ -210,6 +210,8 @@ rea-pilot/
 ## 版本与许可
 
 当前版本：**v1.1.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+
+用户说人话，Agent 调 MCP：默认交付「工具 + 原始输出要点 + 结论」，不把命令清单当输出；意图路由见 `references/config/intent-routing.md`。
 
 工具面快照按 REA 版本生成：`references/toolset/rea-<版本>.md`（`<版本>` = 本机 `rea --version`；仓内保留历史版本），完整工具面以该快照为准，不在 README 照抄条数。
 
