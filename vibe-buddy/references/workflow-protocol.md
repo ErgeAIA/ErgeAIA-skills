@@ -4,6 +4,7 @@ description: vibe-buddy 全部工作流的公共协议：触发与前置顺序�
 trigger-when: 执行任一触发词前，或需要判定“该读什么、该写哪里、算不算完成”时
 role: spec
 consumed-by: references/init-agents-md.md、references/sync-progress.md、references/handoff-context.md、references/distill-experience.md、references/audit-project.md、references/command-policy.md
+known-limits: 只定义顺序与形态，不写具体动作；分级与阈值是启发式，允许用户一句话改档
 ---
 
 # 公共协议
@@ -61,12 +62,15 @@ consumed-by: references/init-agents-md.md、references/sync-progress.md、refere
 
 终止回复 ≤3 行 + 待确认项，**不复述产物正文**：① 落盘路径（或未写入原因）；② 统计（写了几个文件 / 各几条 / 跳过几个及原因码）；③ 待确认项（无则写「无」）。
 
-判定分两栏，不得混写：
+判定分两栏，不得混写。
 
-- **可判定项**：存在性、frontmatter `updated` 为当日、编号连续、台账区间一致、行数上限、`References` 每条为条件式指针。
-- **人工项**：语义质量、冲突是否真冲突、证据是否足够、方向是否合理。
+### 可判定项（逐项报，漏一项写 `skipped:<原因码>`）
 
-漏判的可判定项必须显式写 `skipped:<原因码>`，否则视为未完成。
+J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一（含 `archive/`）· J4 蒸馏双台账 `range` 一致 · J5 产物未超 P10 阈值 · J6 `References` 每行含 `→ 见` 与用途短语 · J7 未覆盖既有文件（写入前实读、写入后比对未变）。
+
+### 人工项
+
+语义质量、冲突是否真冲突、证据是否足够、方向是否合理。人工项**不由 AI 自判通过**，交用户验证。
 
 ## P7 委托契约
 

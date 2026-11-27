@@ -13,6 +13,7 @@ reads-from:
   - git status / git log / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
   - <project>/docs/handoff/handoff-YYYY-MM-DD[-slug].md
+known-limits: 只写交接，不负责接管；不复制 AGENTS.md 已有规则
 ---
 
 # handoff · 生成会话交接文档
@@ -33,6 +34,19 @@ writes-to:
 | `docs/agents/project-progress.md` 与 `decision-log.md` 是否存在 | 缺哪个报哪个，引导先跑 `vibe-init`，不自行创建 |
 | `docs/handoff/` 是否存在 | 不存在 → 引导先跑 `vibe-init`；用户坚持现在就要 → 建空目录并说明 |
 | 本次会话是否有可交接的内容 | 没有实质进展 → 明说，不生成空文档 |
+
+## 建议触发信号（只建议，不自动写）
+
+「上下文将满」是主观判断，用户不看 token 计数。以下信号任一命中即**建议**交接，由用户决定：
+
+| 信号 | 观察方式 |
+|---|---|
+| 本轮已写 ≥3 个产物 | 执行台账 `produced` 字段 |
+| `project-progress.md` 本轮新增 ≥5 条「最后更新」 | 与本轮起点比对 |
+| 用户明确提到换会话 / 换窗口 / 换 agent | 会话内直接听到 |
+| 单轮工具调用明显变多且出现重复读取同一文件 | 观察自身行为 |
+
+**只建议，不落盘**：用户没准备换会话时自动生成交接文档，只会留下无主文件。建议句式固定为一句「本轮产物已 X 个，建议写交接后再换会话」，用户否决即不再提。
 
 ## 事实源与取材
 

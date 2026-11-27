@@ -4,6 +4,7 @@ description: 项目初始化生成规范（句式契约、黑名单、路由、�
 trigger-when: 执行 vibe-init 生成或增量维护 AGENTS.md 与过程文档时必读
 role: spec
 consumed-by: references/init-agents-md.md
+known-limits: 只出草稿与自检结论，不直接写入项目；语义类判据（杂音 N1–N6）无法机检
 ---
 
 # Role：项目初始化生成器
@@ -140,7 +141,23 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 - `docs/handoff/` 与 `docs/agents/experience/` 各用空文件 `.gitkeep` 占位，让 Git 追踪空目录
 - 同名文件已存在 → 跳过，禁止覆盖，禁止改写历史条目
 - 模板中的 `<...>` 占位：初始化时已确知的当场填，未知的原样保留，由首次 `vibe-sync` 补齐
-- 层 B `docs/agents/project-overview.md` **无模板、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建，内容为目录索引、依赖方向、开源附加分析；不需要就不建
+- 层 B `docs/agents/project-overview.md` **可选、按需自建**：仅当项目有目录或依赖结构需要索引、且 PRD 未覆盖时建；不需要就不建。**建了就要有结构**，最小四段（缺段不算基线）：
+
+  ````markdown
+  ## 分层
+  <有哪些层（如 ui / domain / infra），各层职责一句话；层名与目录的对应关系>
+
+  ## 允许的依赖方向
+  <如 ui → domain → infra；写成有向列表，越界即违规>
+
+  ## 禁跨层
+  <明确禁止的调用，如 ui 不得直接引 infra 的 DAO>
+
+  ## 例外
+  <已知的合理越界及其理由；没有就写「无」>
+  ````
+
+  `vibe-audit` 的架构维度以这四段为基线：有基线时结论可指到「违反第 N 条依赖方向」；无基线时只能按目录边界粗判并**必须声明无基线**。
 - 仓库根三件**不在本树内**：`.gitignore` 归 `git-manager`、`CHANGELOG.md` 归 `changelog-manager`、`README.md` 归 `shuxu`；由执行顺序步骤 3 委托，本表不管
 
 ## 5 产物模板（严格填空，禁止增删章节）

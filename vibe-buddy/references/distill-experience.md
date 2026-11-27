@@ -13,6 +13,7 @@ reads-from:
   - git log / git status / git diff --stat（仅本项目在 Git 仓库内时）
 writes-to:
   - <project>/docs/agents/experience/
+known-limits: 不裁决冲突（只标出）；不写 docs/agents 流水；不外送经验到任何外部仓库
 ---
 
 # distill · 把开发过程蒸馏成可复用经验

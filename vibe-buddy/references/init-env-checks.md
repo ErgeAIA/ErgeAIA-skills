@@ -9,6 +9,7 @@ reads-from:
 writes-to:
   - <project>/.git/（仅 git init）
   - <project>/.codegraph/（仅 codegraph init）
+known-limits: 只检测与建索引，不代装 codegraph；不判定项目是否该用 codegraph
 ---
 
 # init 环境检查 · Git 与 Codegraph

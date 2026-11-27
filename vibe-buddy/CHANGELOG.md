@@ -4,27 +4,33 @@
 
 ---
 
-## [Unreleased]
+## v1.11.0 (2026-11-27)
 
 ### 新增
 
-- `references/workflow-protocol.md`：全部工作流的公共协议（触发与前置顺序、事实源优先级、写入落点唯一性、高风险四类、变更集三要素、终止回复、完成判据两栏、委托契约、失败处理、14 个原因码枚举、档案增长阈值、任务三档分级）。六份 reference 各加一行指针，公共段不再各写一遍。
-- 档案增长边界：6 个只追加产物（进度 / 决策 / 调试 / 契约变更 / 初始化报告 / 蒸馏台账）与 2 个目录型产物（`docs/handoff/`、`docs/agents/audit/`）超阈值时先归档再写；归档只追加、总条目守恒、编号取「活跃 + 归档」最大值。此前无任何上限，本仓 `project-progress.md` 已长到 2072 行 / 585KB，超出单次读取上限，使「会话开始先读三件套」的义务物理上不可执行。
+- `references/workflow-protocol.md`：全部工作流的公共协议（触发与前置顺序、事实源优先级、写入落点唯一性、高风险四类、变更集三要素、终止回复、完成判据 7 项可判定 + 人工项、委托契约、失败处理、14 个原因码、档案增长阈值、任务三档分级）。13 份 reference 各加 `known-limits` 一行，公共段不再各写一遍。
+- `references/audit-checklist.md`：审查清单——通用危险写法 10 条（G1–G10）+ 安全维度 12 条（S1–S12），每条给判据 / 证据要求 / 反例 / 复审日期，让两次审查的结论集合可比。
+- `references/release-checklist.md`：发布治理契约。发布现在被切成三块（`changelog-manager` 归档不建 tag、`git-manager` 管分支不管版本决策、构建测试在白名单外），没有一方持整链，而 tag 不可逆、回滚点只能在发布前定。六步闸 + 回滚点四项，**不执行任何命令**。
+- `references/check-artifacts.md`：只读档案体检（第 7 个触发词 `vibe-check`）。10 项（C1–C10）：结构、体量、指针形态、指针断链、`updated` 滞后、编号连续、双台账一致、超阈值、交接可取最新、写者边界。每条给「问题 + 证据 + 修复入口」，**一个文件都不写**。
+- 档案增长边界：6 个只追加产物（进度 300 行 / 决策 200 条 / 调试 100 条 / 契约变更 200 行 / 初始化报告 3 节 / 蒸馏台账 300 行）与 2 个目录型产物（handoff 30 份 / audit 20 份）超阈值先归档再写；归档只追加、总条目守恒、编号取「活跃 + 归档」最大值。此前无任何上限，本仓 `project-progress.md` 已长到 2072 行 / 585KB，超出单次读取上限，使「会话开始先读三件套」的义务物理上不可执行。
+- `vibe-sync` 执行台账：每条进展末尾追加 `<!-- vibe: produced=... skipped=... level=T2 -->`，让「跳过了什么、为什么」从对话落到文件，成为效率度量与回归比对的唯一数据源。
 - `SKILL.md` 本文件写入闸三条（约束行为吗 / 优先进 reference / 行数 ≤185）。
 
 ### 变更
 
-- `SKILL.md` 由 196 行压到 185 行：5 条 CLAUDE 迁移失败模式移到 `references/init-agents-md.md` 的「失败处理」节，4 条审查失败模式移到 `references/audit-project.md`，原位各留一行指针；产物布局表合并同类行；非目标与 Gotchas 去重。
-- 脱敏收敛为 `SKILL.md` 单一真源，`handoff-context.md` / `audit-project.md` 改为引用；`sync-progress.md` 补上此前缺失的脱敏条（它是过程档案的主要写入者，最易夹带凭据）。
-- 五态处置定义收敛到 `agents-md-generator.md` §2b，`init-agents-md.md` 只留处置步骤与指针。
-- 原因码统一：`already-covered:<条目>` 并入 `covered-by:<条目>`，新增 `no-threshold-hit`。
-- 归档阈值只在 `workflow-protocol.md` P10 定义，`sync-progress` / `handoff-context` / `audit-project` / `init-agents-md` / `agents-md-generator` 不再复述具体数字。
+- `vibe-audit` 增加两个模式：**变更集**（只审本次改动，基线三选一，未变更文件仅在直接引用时读）与 **`mode=security`**（只跑安全清单，报告首行写「静态检查，非安全认证」）。
+- Git 白名单扩 `--numstat` / `--name-status` / `-U3 -- <path>` / `--cached -- <path>` / `merge-base`，`log --oneline` 支持 `<base>..HEAD`；**显式禁止**裸 `git diff`、`log -p`、`show`；三重上限 30 文件 / 400 行 / 80KB，超限写明未覆盖项。此前只允许 `--stat`，拿不到行号，等于逼审查读整个文件猜位置。
+- `SKILL.md` 196→185 行：迁移与审查失败模式移入对应 reference，原位留指针；产物布局表合并同类行。
+- 脱敏收敛为 `SKILL.md` 单一真源，`handoff-context.md` / `audit-project.md` 改为引用；`sync-progress.md` 补上此前缺失的脱敏条。
+- 五态处置定义收敛到 `agents-md-generator.md` §2b；原因码 `already-covered` 并入 `covered-by`，新增 `no-threshold-hit`；归档阈值只在协议 P10 定义。
+- `project-overview.md` 从「目录索引」升级为**架构基线**四段（分层 / 允许的依赖方向 / 禁跨层 / 例外），`vibe-audit` 的架构维度以它为基线，无基线时必须声明「按目录边界粗判」。
+- `vibe-handoff` 增加建议触发信号（4 个可观察信号，只建议不自动写）与目录份数闸。
 
 ### 修复
 
-- `assets/experience/changelog.md` 的追加格式原写「唯一真源 = `references/distill-experience.md`」，但该模板会被原样复制进目标项目，那里没有这个文件。改为模板自带完整规格（区间三写法 / 原因码 / 双台账一致性 / 修订留痕），目标项目可独立执行。
+- `assets/experience/changelog.md` 的追加格式原写「唯一真源 = `references/distill-experience.md`」，但该模板会被原样复制进目标项目，那里没有这个文件。改为模板自带完整规格，目标项目可独立执行。
 - 同一类问题在前一轮 P0 中也出现过：`assets/docs/project-progress.md` 与 `agents-md-generator.md` 的 Conventions 行一度改成指向 `workflow-protocol.md`，已恢复具体阈值。新增自检门「模板自包含」——模板类文件不得出现 `references/*.md` / `workflow-protocol` / `SKILL.md`。
-- `README.md` 的「与相邻技能的边界」明确为非目标的人读导航，规则本体归 `SKILL.md`，消除两处不同步。
+- `README.md` 的「与相邻技能的边界」明确为非目标的人读导航，规则本体归 `SKILL.md`。
 
 ---
 

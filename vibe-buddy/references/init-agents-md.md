@@ -27,6 +27,7 @@ writes-to:
   - <project>/.gitignore（委托 git-manager；本技能不直接写）
   - <project>/.git/（仅 git init）
   - <project>/.codegraph/（仅 codegraph init）
+known-limits: 不建 CLAUDE.md；不做代码迁移；不跑构建与测试；不改运行态配置
 ---
 
 # init · 建立协作契约与过程文档
@@ -54,7 +55,7 @@ writes-to:
     │   ├── debug-log.md             # bug 记录
     │   ├── agents-changelog.md      # 层 C：AGENTS.md 变更记录
     │   ├── init-report.md           # 本次初始化执行报告
-    │   ├── project-overview.md      # 可选，层 B
+    │   ├── project-overview.md      # 可选，层 B；建则须含分层/依赖方向/禁跨层/例外四段
     │   ├── archive/                 # 超阈值归档落点（首次归档时建）
     │   └── experience/              # 可复用经验库（仅建空目录，内容由 vibe-distill 首次蒸馏时建）
     └── handoff/                     # 交接文档

@@ -1,9 +1,9 @@
 ---
 name: vibe-buddy
-description: "固化项目协作契约、进度与跨会话交接，产出开发项目只读审查报告。Use when 用户说初始化项目、生成 AGENTS.md、同步进度、把踩的坑记下来、写交接文档、经验蒸馏、审查项目或收尾，或直呼 vibe- 命令。"
+description: "固化项目协作契约、进度与跨会话交接，产出开发项目只读审查报告与档案体检结论。Use when 用户说初始化项目、生成 AGENTS.md、同步进度、把踩的坑记下来、写交接文档、经验蒸馏、审查项目、审这次改动、只看安全、发版前检查、体检档案或收尾，或直呼 vibe- 命令。"
 metadata:
   author: ErgeAIA
-  version: "1.10.0"
+  version: "1.11.0"
 ---
 
 # vibe-buddy
@@ -30,7 +30,7 @@ Core Task：
 2. **不猜测** —— 读不到的事实写占位符，绝不编造版本号、路径、命令、结论。
 3. **不越界** —— 只**写**协作契约与过程文档区（路径见下方产物布局）及**可选**的项目根 `CHANGELOG.md`（仅 `vibe-sync`，且文件已存在时追加），不改项目其他文件；唯一的删除动作是受控迁移完成后删除源 `CLAUDE.md`（闸门见 `references/init-agents-md.md`）；**读**可及项目内任意文件与白名单只读命令；不发布。
 4. **不静默** —— 删除或改写必须留下「旧值 → 处置 → 新值」的可见记录。
-5. **只读层（仅 `vibe-audit`）** —— 写入纪律只约束审计报告这一个落点：对报告文件本身仍「不覆盖 / 不静默」；不改被审项目任何其他文件；发现问题只报告，不代写 `project-progress.md` / `decision-log.md` / `debug-log.md`；只给问题 + 证据 + 方向，不生成待办与排期。第 2、3 条对审计照常生效。
+5. **只读层（`vibe-audit` / `vibe-check`）** —— 写入纪律只约束报告与体检这一个落点：对报告文件本身仍「不覆盖 / 不静默」；不改被审项目任何其他文件；发现问题只报告，不代写过程文档；只给问题 + 证据 + 方向，不生成待办与排期。`vibe-check` 更进一步：**一个文件都不写**。第 2、3 条对二者照常生效。
 
 ## 路由与硬规则
 
@@ -42,13 +42,17 @@ Core Task：
 | 任务完成，要沉淀进度、决策、调试与用户可见变更日志，或回填工具链与命令 | 「同步进度」「更新项目进度」「把踩的坑记下来」「更新日志」「vibe-sync」 | `references/sync-progress.md` |
 | 换会话、换 agent、上下文将满，要留下一份交接文档 | 「交接上下文」「写交接文档」「vibe-handoff」 | `references/handoff-context.md` |
 | 一轮开发告一段落，要把其中反复成立的做法提炼成可复用经验 | 「经验蒸馏」「提炼可复用经验」「vibe-distill」 | `references/distill-experience.md` |
-| 审查开发类项目（前端 / 后端 / Web）的代码质量、架构与技术栈，并要不动栈的优化方向 | 「审查项目」「审查技术栈」「vibe-audit」 | `references/audit-project.md` |
+| 审查开发类项目的代码质量、架构与技术栈，并要不动栈的优化方向；含「只审本次改动」与「只看安全」两种模式 | 「审查项目」「审查技术栈」「审这次改动」「只看安全」「vibe-audit」 | `references/audit-project.md` + `references/audit-checklist.md` |
+| 发版前检查、定版本依据、记发布记录与回滚点 | 「准备发版」「发版前检查」「这次发布记一下」「vibe-release」 | `references/release-checklist.md`（**只持契约，不执行命令**） |
+| 只想看协作档案健不健康：`updated` 过期、编号断裂、台账不一致、产物超阈值 | 「体检」「检查项目档案」「文档是不是过期了」「vibe-check」 | `references/check-artifacts.md`（**只读，不写任何文件**） |
 | 一轮开发结束要收尾（同步进度 + 总结经验 + 留交接 + 文档同步） | 「收尾」「会话收尾」「vibe-wrap」 | 先自审，再按下方 triage 表**串行执行** `vibe-sync` → `vibe-distill` → `vibe-handoff`，中途不停 |
+
+**对象分流（防抢）**：`vibe-check` 看**档案**，`vibe-audit` 看**代码**。用户只说「检查一下这个项目」时**问一句**查档案还是查代码，不自行归类。含 `SKILL.md` 的项目要审质量 → 转 skill-workshop。
 
 ### @步骤2: 强规则摘要
 
 - 🔴 **自审闸 · 唯一的前置停顿**：识别触发后先输出一次自审（≤4 行），再动手——① 本轮将写的产物清单；② 每项依据（哪条事实触发它）；③ 是否触及高风险（覆盖既有文件 / 删除源文件 / CLAUDE 迁移 / 写白名单外路径）；④ 显式跳过的产物与原因码。**无高风险 → 连续执行到完，中途不再停**；有高风险 → 只针对那一件事停一次。🛑 本技能的「停」= 只输出文字、不碰任何文件。
-- 🛑 **STOP · 目标类型前置判定（仅 `vibe-audit`）**：执行前先判目标。命中「含 `SKILL.md` 且 frontmatter 有 `name`」→ 停止自审，只输出转交说明（目标路径 / 已观测 frontmatter 字段 / 是否含 `scripts/` / 判定依据一句话）并指向 skill-workshop。无法判定 → 停下问用户，不猜、不自审。
+- 🛑 **STOP · 目标类型前置判定（`vibe-audit` / `vibe-check`）**：执行前先判目标。`vibe-audit` 命中「含 `SKILL.md` 且 frontmatter 有 `name`」→ 停止自审，只输出转交说明（目标路径 / 已观测 frontmatter 字段 / 是否含 `scripts/` / 判定依据一句话）并指向 skill-workshop。`vibe-check` 只查档案，目标含 `SKILL.md` 且要审质量 → 同样转交。无法判定 → 停下问用户，不猜、不自审。
 - **写入前声明并入自审**：操作类型 / 目标路径 / 是否覆盖 / 风险等级一次说完，不逐文件重复声明。**只有高风险四类**（覆盖既有文件、删除源文件、`CLAUDE.md` 迁移、跨白名单写入）必须拿到用户点头，其余动作不按触发词逐个确认；「同步并交接」这类组合意图在自审里列全，通过后串行执行。
 - 🛑 **STOP · 前置缺失即停**：如 `vibe-sync` 找不到 `docs/agents/` 时引导先跑 `vibe-init`，绝不代建。
 - **接管不由本技能触发**：新会话的「读项目档案 + 复述现状」是目标项目 `AGENTS.md` 的 `Permissions` 义务，每次会话自动生效。听到「接管 / 接手 / 继续上次」这类措辞时不必触发本技能——那条义务已经在跑。
@@ -84,16 +88,13 @@ Core Task：
 | 产物 | 路径 | 写入者 |
 |---|---|---|
 | AI 协作契约（唯一契约源） | `<project>/AGENTS.md` | `vibe-init` 写契约区；`vibe-sync` 回填 Toolchain 与 Commands 表；`vibe-init` 迁出杂音（`relocate`） |
-| 项目进度，实时更新 | `<project>/docs/agents/project-progress.md` | `vibe-init` 建模板，`vibe-sync` 维护 |
-| 决策日志，优先级高于 PRD，随开发持续更新 | `<project>/docs/agents/decision-log.md` | `vibe-init` 建模板，`vibe-sync` 追加 |
-| bug 修复经验 | `<project>/docs/agents/debug-log.md` | `vibe-init` 建模板，`vibe-sync` 追加 |
-| AGENTS.md 变更记录，只在契约改动时写 | `<project>/docs/agents/agents-changelog.md` | `vibe-init` 独占 |
-| 初始化执行报告，只追加 | `<project>/docs/agents/init-report.md` | `vibe-init` 独占 |
-| 项目概览（可选，按需自建） | `<project>/docs/agents/project-overview.md` | `vibe-init` |
-| 超阈值产物的归档落点 | `<project>/docs/agents/archive/` | `vibe-sync` 首次归档时建；`vibe-handoff` / `vibe-audit` 各自目录另有 `archive/` |
-| 可复用经验库，按领域分目录 | `<project>/docs/agents/experience/` | `vibe-init` 建空目录；内容与两份台账（`changelog.md` / `.distill-index.json`）由 `vibe-distill` 写 |
-| 会话交接文档，带 frontmatter | `<project>/docs/handoff/handoff-YYYY-MM-DD[-slug].md` | `vibe-handoff` |
-| 项目审计报告，只追加 | `<project>/docs/agents/audit/audit-YYYY-MM-DD[-slug].md` | `vibe-audit`；目录缺失时首次执行建（含 `.gitkeep`） |
+| 进度 / 决策 / 调试三份 | `<project>/docs/agents/` 下 `project-progress.md` · `decision-log.md` · `debug-log.md` | `vibe-init` 建模板，`vibe-sync` 维护（决策优先级高于 PRD） |
+| 契约变更记录 / 初始化报告 | `docs/agents/agents-changelog.md` · `init-report.md` | `vibe-init` 独占 |
+| 项目概览（可选） | `docs/agents/project-overview.md` | `vibe-init`；建则须含分层 / 依赖方向 / 禁跨层 / 例外四段 |
+| 超阈值产物归档落点 | `docs/agents/archive/` | `vibe-sync` 首次归档时建；`handoff` / `audit` 各自目录另有 `archive/` |
+| 可复用经验库，按领域分目录 | `docs/agents/experience/` | `vibe-init` 建空目录；内容与两份台账（`changelog.md` / `.distill-index.json`）由 `vibe-distill` 写 |
+| 会话交接 / 审计报告 | `docs/handoff/handoff-YYYY-MM-DD[-slug].md` · `docs/agents/audit/audit-YYYY-MM-DD[-slug].md` | `vibe-handoff` · `vibe-audit`（目录缺失时首次执行建，含 `.gitkeep`） |
+| 发布记录（不落独立文件） | `docs/agents/project-progress.md` 的一条 | `vibe-sync` 写；契约见 `references/release-checklist.md` |
 | 仓库三件：变更日志 / 忽略规则 / 项目说明 | `<project>/CHANGELOG.md` · `.gitignore` · `README.md` | 唯一写者分别为 `changelog-manager` / `git-manager` / `shuxu`；`vibe-init` 只检测、委托与验收，`vibe-sync` 只按既有格式追加 CHANGELOG |
 
 `vibe-init` 任何路径都不创建、不维护、不镜像 `CLAUDE.md`（见上「CHECKPOINT · AGENTS.md 唯一源」）。
@@ -109,7 +110,9 @@ Core Task：
 - 要沉淀进度、决策与调试记录 → `references/sync-progress.md`
 - 要生成交接文档 → `references/handoff-context.md`
 - 要蒸馏可复用经验 → `references/distill-experience.md`
-- 要审查开发类项目的代码质量、架构与技术栈 → `references/audit-project.md`
+- 要审查开发类项目（全项目 / 变更集 / 只看安全） → `references/audit-project.md` + `references/audit-checklist.md`
+- 要发版前检查、定版本依据、记发布与回滚点 → `references/release-checklist.md`
+- 要做只读档案体检 → `references/check-artifacts.md`
 - 改过 description 要回归触发 → `references/trigger-test-set.md`
 
 ## 本文件写入闸
@@ -125,13 +128,12 @@ Core Task：
 | CLAUDE 迁移与唯一源校验的五种失败 | 见 `references/init-agents-md.md` 的「失败处理」节 | 同上 |
 | 同日已有同名交接文档 | 加语义后缀（`handoff-YYYY-MM-DD-<slug>.md`） | 后缀仍冲突 → 加两位序号（`-02`），不回头打扰用户 |
 | `vibe-audit` 的四类失败（Skill 项目 / 类型不明 / 证据读不到 / 报告撞名） | 见 `references/audit-project.md` 的「失败处理」节 | 同上 |
+| `vibe-check` / `vibe-release` 的失败（档案不可读 / 未初始化 / 前置不通过 / tag 冲突） | 分别见 `references/check-artifacts.md` 与 `references/release-checklist.md` 的「失败处理」节 | 同上 |
 | 本次会话无可交接内容 | 明说「没有可交接的实质进展」，不生成空文档 | 用户坚持 → 只写有对话依据的条目，宁缺勿造 |
 | 关键事实采集不到（项目定位、命令、权限边界） | 停下问用户，不猜、不编造 | 用户未答 → 写占位并在终止回复列为待确认项 |
 | 白名单命令失败（`git init` / `codegraph init`） | 记「失败 + 原因」，继续后续步骤 | 仍失败 → 不自动重试，在报告建议里提示手动执行 |
 | 同步时上下文已被压缩或记忆不可靠 | 先按客观源（git 核对 / 最新交接文档 / 过程文档）重建事实再落笔 | 无法重建 → 明说「本次进展无法核实」，不写条目、不凭记忆补全 |
-| 本次会话无稳定增量 | 明说「本次无可同步的稳定增量」，不写文件 | 用户要求留痕 → 追加一行说明性占位，不编造内容 |
-| 本轮没有可蒸馏的稳定经验 | 明说「本轮无可蒸馏的稳定经验」，不编造 | 用户坚持 → 只写有事实源支撑的条目，宁缺勿造 |
-| 本轮原料区间已蒸馏过 | 指向 `changelog.md` 里已记录的那一轮，不重复蒸 | 用户要求重蒸 → 只蒸新增部分并在备注说明 |
+| 本次会话无稳定增量 / 本轮无可蒸馏经验 / 原料区间已蒸馏过 | 明说「本次无可同步（或可蒸馏）的稳定增量」，不写文件、不编造 | 用户要求留痕 → 指向台账里已记录的那一轮，只蒸新增部分 |
 | 新旧经验冲突 | 先比适用条件：前提不同则两条并存、各自标注 | 前提相同 → 停下问用户，不自行取舍 |
 | 待写内容含密钥 / 凭据 / 隐私 | 脱敏为占位符后写入 | 无法安全脱敏 → 拒绝写入并说明原因 |
 | 项目无 `CHANGELOG.md` 却要写更新日志 | 不创建文件；引导先跑 `vibe-init`（由它交 `changelog-manager +init` 建骨架） | 用户要求就地建 → 转 `changelog-manager`，本技能不代写 |
@@ -146,12 +148,9 @@ Core Task：
 - `AGENTS.md` 是**规则契约**，不承载进度与待办（进度写 `docs/agents/project-progress.md`）；它是每会话自动注入的 system prompt，进来的每行都花上下文——「看着有用但删了也不会让 AI 做错」的段落就是杂音，判据是 §6b 的 N1–N6。
 - `docs/agents/` 的**进度 / 决策 / 调试**三份只追加；决策冲突时把旧条目改标 `superseded`，不删除历史条目。它是**过程档案区**不是人类文档区，人类项目文档（README、设计稿）不放这里。
 - `CLAUDE.md` 迁移完成后不得继续作为项目级协作契约存在，也不得靠新建空 `CLAUDE.md` / 指针文件解决兼容问题。
-- 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。
-- 过程文档的 frontmatter `updated` 必须随每次修改同步改当日；漏改等于让 `updated` 说谎。
-- `vibe-init` 对半程项目**只补齐缺失文档**，绝不重写已有文件——哪怕内容看起来过时；受控迁移（CLAUDE → AGENTS）是唯一例外，且必须可追溯。
-- 不新增 `AGENTS.md` 章节：文档义务写进固定的 `Permissions` 与 `Conventions`，不另起段落。
-- `docs/agents/experience/` 是**可移植产物**，不是项目过程档案：**正文可改写**（错的规则留着会持续误导），历史靠 `changelog.md` 保追溯；`docs/agents/` 其余三份则严格**只追加**。
-- 经验条目**五要素缺一不可**（主张 / 适用 / Why / How / 反例）；写不出反例说明还没想清楚，不入库。主题名用领域名（`ui` / `frontend` / `motion` / …），不另造词——外送汇总时它就是分域依据。
+- 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。过程文档的 frontmatter `updated` 必须随每次修改同步改当日；漏改等于让 `updated` 说谎。
+- `vibe-init` 对半程项目**只补齐缺失文档**，绝不重写已有文件——哪怕内容看起来过时；受控迁移（CLAUDE → AGENTS）是唯一例外，且必须可追溯。不新增 `AGENTS.md` 章节：文档义务写进固定的 `Permissions` 与 `Conventions`，不另起段落。
+- `docs/agents/experience/` 是**可移植产物**，不是项目过程档案：**正文可改写**（错的规则留着会持续误导），历史靠 `changelog.md` 保追溯；`docs/agents/` 其余三份则严格**只追加**。经验条目**五要素缺一不可**（主张 / 适用 / Why / How / 反例），写不出反例说明还没想清楚；主题名用领域名（`ui` / `frontend` / `motion` / …），不另造词——外送汇总时它就是分域依据。
 
 ## 反例黑名单（已知会犯错的写法）
 
@@ -167,19 +166,20 @@ Core Task：
 - 不做任务拆解、排期、待办追踪；不把模糊需求转译成 PRD 或结构化指令。
 - 不写代码、不重构、不运行构建与测试命令；Git 仅限白名单内的仓库检测、初始化与只读核对。
 - 不代写 `README.md` / `CHANGELOG.md` / `.gitignore`：分别归 shuxu / changelog-manager / git-manager，本技能只检测、委托与验收。
-- 不管理规格与变更的生命周期；不做对外发布，不代发内容。
+- 不管理规格与变更的生命周期；不做对外发布，不代发内容；**发布只持契约与记录，不执行 commit / tag / push**。
 - 不管理 Agent 自身的记忆：运行时记忆目录、跨项目共享的个人记忆库与外部知识库都不读写；也不把经验条目写入任何外部仓库或目录，外送由用户另行触发。本技能只服务**当前这一个项目**。
-- 不提供「接管汇报」触发词：那是目标项目 `AGENTS.md` 的义务，不是本技能的入口。
-- 不评审 Skill 项目（归 skill-workshop）。
-- 审计不产出待办、排期与整改清单；只给问题 + 证据 + 方向。
+- 不提供「接管汇报」触发词（那是目标项目 `AGENTS.md` 的义务）；不评审 Skill 项目（归 skill-workshop）。
+- 审计与体检不产出待办、排期与整改清单；只给问题 + 证据 + 方向（体检另给修复入口）。
 
 ## 验证
 
 | 触发词 | 成功判定 |
 |---|---|
-| `vibe-init` | 状态判定（A–E）有可观测依据；`AGENTS.md` 六节成文且未新增章节；接管义务、常驻纪律与**反杂音义务**已写入 `Permissions`，杂音归宿表已写入 `Conventions`；`References` 每条为单行条件式指针（含用途一句话，无宽表）；**存量杂音已按 §6b 逐段扫描，命中项给出归宿或留痕，且规则本体未被删**；`AGENTS.md` 存在、实读可读且为唯一项目级协作契约；本次执行未新建 `CLAUDE.md`；若存在旧 `CLAUDE.md`：有效内容已迁移、五态处置已留痕、`AGENTS.md` 已实读验证、源文件已安全删除（未删则明示原因）；`docs/agents/` 各过程文档与 `docs/handoff/` 就位；Git 与 Codegraph 检查有结论；`init-report.md` 已记录全部实际操作（含迁移处置计数与杂音扫描命中数）；缺失项已补齐，既有文件未被覆盖；`.gitignore` / `CHANGELOG.md` / `README.md` 三件均有处置结论（存在跳过 / 委托完成 / 待补并写明卡点）；`.gitignore` 建成后 `git ls-files -ci --exclude-standard` 为空 |
+| `vibe-init` | 状态判定（A–E）有可观测依据；`AGENTS.md` 六节成文且未新增章节，接管义务 / 常驻纪律 / 反杂音义务在 `Permissions`、杂音归宿表在 `Conventions`，`References` 每条为条件式指针；存量杂音已按 §6b 扫描并给出归宿；唯一源校验通过；`docs/agents/` 与 `docs/handoff/` 就位；三件仓库产物均有处置结论；**逐项判据见 `references/init-agents-md.md` 的「终止回复」节** |
 | `vibe-sync` | `project-progress.md` 有新进展且 `updated` 已同步；有决策时 `decision-log.md` 已追加；调试定位到根因时 `debug-log.md` 已追加 `BUG-NNN`；`AGENTS.md` 仅事实区被回填，契约区未动；**`CHANGELOG.md` 不在收尾职责内**（用户明确要求时才写，归档交 `changelog-manager`） |
 | `vibe-wrap` | 自审四行齐全（产物清单 / 依据 / 风险 / 跳过原因码）；该写的产物都已落盘且 `updated` 为当日；跳过的产物带原因码；全程停顿 ≤1 次且只在高风险动作上 |
 | `vibe-handoff` | 交接文档落入 `docs/handoff/`，frontmatter 合规且 `updated` 为当日，正文只展开「别处读不到」的四类、其余写指针，未覆盖既有文件 |
 | `vibe-distill` | 条目五要素齐全且各有事实源；编号在主题内递增；`changelog.md` 与 `.distill-index.json` **同轮各写一条**且区间一致；跳过项有原因码；冲突已标出而非自行取舍 |
-| `vibe-audit` | 每条结论带 `路径:行` 或明写「证据不足」；报告落入 `docs/agents/audit/` 且 `updated` 为当日；未改动被审项目任何文件；Skill 项目已转交而非自审 |
+| `vibe-audit` | 每条结论带 `路径:行` 或明写「证据不足」；报告落入 `docs/agents/audit/` 且 `updated` 为当日；未改动被审项目任何文件；Skill 项目已转交而非自审；变更集模式写明基线与未覆盖项；`mode=security` 首行写「静态检查，非安全认证」 |
+| `vibe-check` | 逐项给出通过 / 问题 / 证据不足三态；每条问题带 `路径:行` 与修复入口（该跑哪个触发词）；**写入文件数 = 0**；不产待办 |
+| `vibe-release` | 六步闸按需分段执行；前置不通过即停且逐条给证据；版本依据可追溯到 `[Unreleased]` 分类；回滚点四项齐全；**0 次写 CHANGELOG、0 次 commit、0 次 tag** |

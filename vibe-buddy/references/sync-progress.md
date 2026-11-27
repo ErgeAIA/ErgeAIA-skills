@@ -18,6 +18,7 @@ writes-to:
   - <project>/docs/agents/debug-log.md
   - <project>/CHANGELOG.md（仅当已存在且本轮有用户可见变更时追加）
   - <project>/AGENTS.md（仅 Toolchain 与 Commands 两个事实表）
+known-limits: 只记录不提炼；不代跑验证命令；不代改源码与配置
 ---
 
 # sync · 沉淀进度、决策、调试与更新日志
@@ -53,14 +54,16 @@ writes-to:
 
 ## 事实源与核对顺序
 
-写任何一条之前，先按可信度从高到低取事实，**不得只凭上下文记忆落笔**：
+写任何一条之前，先按可信度从高到低取事实，**不得只凭上下文记忆落笔**。公共顺序见 `workflow-protocol.md` P2；本节只补 sync 专有的取材细节：
 
 | 序 | 事实源 | 取什么 |
 | -- | ------ | ------ |
-| 1 | `git status --short`（未提交改动的主力）、`git log --oneline -n <N>`、`git diff --stat`（只覆盖**已跟踪**文件） | 改了什么、已有哪些提交；**仅本项目在 Git 仓库内时可用** |
+| 1 | `git status --short`（未提交改动的主力）、`git log --oneline -n <N>` 或 `<base>..HEAD`、`git diff --stat` | 改了什么、已有哪些提交；**仅本项目在 Git 仓库内时可用** |
 | 2 | `docs/handoff/` 中最新一份交接文档 | 上一个会话交接的已完成项、卡点、待办 |
 | 3 | `docs/agents/project-progress.md` 与 `decision-log.md` | 已记录在案的进度与决策，同时用于去重 |
 | 4 | 本次会话上下文 | 仅作补充 |
+
+**变更集口径**：说「本次改动」时按 `workflow-protocol.md` P5 的三要素取（基线 / 范围 / 上限）。需要判规模用 `git diff --numstat`、定范围用 `--name-status`；**sync 不读 diff 正文**（那是 audit 的取证动作），只取文件清单与增删行数。
 
 **写入范围与取材范围是两件事**：能**写**的只有 `docs/agents/`、`AGENTS.md` 的事实区，以及已存在的项目根 `CHANGELOG.md`（追加）；能**取材**的是**整个仓库**（含只读命令输出）。
 
@@ -94,6 +97,7 @@ writes-to:
 | 调试 | **反复调试才定位到根因**的问题与预防规则 | `docs/agents/debug-log.md`（`BUG-NNN`） |
 | 事实 | 工具链版本、安装/测试/lint/构建命令原文 | `AGENTS.md` 的 `Toolchain` / `Commands` 表 |
 | 更新日志 | **用户/协作者可见**的功能、修复、破坏性变更、对外行为变化 | 项目根 `CHANGELOG.md`（**仅已存在时**追加） |
+| 发布记录 | 版本号 / tag / HEAD / 上一版本 tag / 回滚命令 | `project-progress.md` 的一条（格式见 `release-checklist.md`） |
 
 不属于以上各类的（正在做的细节、过程中的推测、被推翻的中间方案）一律不写。
 
@@ -108,6 +112,13 @@ writes-to:
 - **同步 `updated`**：改完把 frontmatter 的 `updated` 改为当日。漏改等于让 `updated` 说谎。
 - 验证结果只写**本次实际执行过**的命令与输出；未实际执行不得写「已通过」，也不凭推测填。本技能不代跑命令，验证输出由用户在会话中提供。
 - 不删除、不改写任何既有条目；禁止重写整个文件。
+- **每条进展末尾追加一行机读台账**（供 `vibe-check` 与效率复测用，不替代人读语句）：
+
+  ```html
+  <!-- vibe: produced=progress,decision skipped=handoff:same-session,distill:single-occurrence level=T2 -->
+  ```
+
+  字段：`produced`（本轮写了哪些产物，逗号分隔）/ `skipped`（`产物:原因码`，多个逗号分隔）/ `level`（T1 / T2 / T3）。没有跳过项时 `skipped` 留空但字段保留——**字段缺失视为未记录**，不能省。原因码取值见 `workflow-protocol.md` P9。
 
 ### 归档闸（写入前先判）
 

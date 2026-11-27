@@ -23,10 +23,12 @@ vibe-buddy 把这些答案固化成文件：
 | 触发词 | 说什么 | 做什么 |
 |---|---|---|
 | `vibe-init` | 初始化项目 / 生成 AGENTS.md / 把 CLAUDE.md 迁移整理成 AGENTS.md | 检查 Git 仓库（缺则 `git init`）、按需建 codegraph 索引、建立 `AGENTS.md` 与 `docs/agents/` 各过程文档、`docs/handoff/`；项目已有 `CLAUDE.md` 时走受控迁移（并入 `AGENTS.md`、验证后删源）；半程项目先做决策保全，再只补齐缺失文档；最后出初始化报告；缺 `.gitignore` / `CHANGELOG.md` / `README.md` 时按归属委托（git-manager / changelog-manager / shuxu）并验收 |
-| `vibe-sync` | 同步进度 / 更新项目进度 / 更新日志 | 把任务状态与验证结果写进 `project-progress.md`，决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表；项目根**已有** `CHANGELOG.md` 时，把本轮**用户可见**变更按其既有格式追加（骨架由 `vibe-init` 建立） |
-| `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD[-slug].md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针 |
+| `vibe-sync` | 同步进度 / 更新项目进度 / 更新日志 | 把任务状态与验证结果写进 `project-progress.md`（末尾附机读台账），决策追加到 `decision-log.md`，调试定位到根因时记进 `debug-log.md`，并按需回填 `AGENTS.md` 的 Toolchain / Commands 表；产物超阈值时先归档再写 |
+| `vibe-handoff` | 交接上下文 / 写交接文档 | 生成 `docs/handoff/handoff-YYYY-MM-DD[-slug].md`：只展开「别处读不到」的四类（验证状态、下一步聚焦点、卡点与失败路径、待拍板项），其余写指针；目录超 30 份先按季归档 |
 | `vibe-distill` | 经验蒸馏 / 提炼可复用经验 | 把一轮开发里**反复成立**的做法提炼成按领域组织的经验条目（主张 / 适用 / Why / How / 反例，分 🔴🟡🟢），落 `docs/agents/experience/` |
-| `vibe-audit` | 审查项目 / 审查技术栈 | 对前端 / 后端 / Web 开发类项目做**只读**审查（代码质量、架构、技术栈），报告落 `docs/agents/audit/`；每条结论带 `路径:行`；**Skill 项目转交 skill-workshop**，不自审 |
+| `vibe-audit` | 审查项目 / 审查技术栈 / 审这次改动 / 只看安全 | 对开发类项目做**只读**审查：全项目四维、变更集模式（只审本次改动）、`mode=security`（只跑安全清单）；报告落 `docs/agents/audit/`；每条结论带 `路径:行`；**Skill 项目转交 skill-workshop** |
+| `vibe-check` | 体检 / 检查项目档案 / 文档过期了吗 / 编号断了吗 | **只读**体检档案：`AGENTS.md` 结构与体量、`References` 断链、`updated` 滞后、编号连续性、双台账一致、产物超阈值；每条给「问题 + 证据 + 修复入口」，**一个文件都不写** |
+| `vibe-release` | 发版前检查 / 这次发布记一下 | 发布治理**契约**：六步闸（前置检查 → 版本决策 → 归档 → 提交打 tag → 回滚点 → 发布记录），可按需只跑某一步；**不执行 commit / tag / push，不写 CHANGELOG** |
 | `vibe-wrap` | 收尾 / 会话收尾 | 一次自审后按 triage 表**串行执行**：`vibe-sync` → 有第二条事实源时才 `vibe-distill` → 换会话时才 `vibe-handoff`；跳过的产物给原因码，中途不再逐项停顿 |
 
 ## 怎么用
@@ -42,6 +44,11 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 | 蒸馏可复用经验 | 把反复成立的做法提炼成按领域组织的经验 | `把这轮反复成立的做法提炼成可复用经验` |
 | 一轮开发收尾 | 一条命令走完同步、经验与交接；不该写的自动跳过并说明原因 | `这轮收尾一下：同步进度，有值得沉淀的经验就蒸馏，准备换会话就写交接` |
 | 只读审查开发类项目 | 审前端 / 后端 / Web 的代码质量、架构、技术栈 | `只读审查一下这个项目的技术栈和架构` |
+| 只审本次改动 | 按变更集审查，只覆盖这次改的文件 | `审查一下这次改动` |
+| 只看安全 | 只跑安全清单，出「静态检查，非安全认证」结论 | `上线前只看这个项目的安全` |
+| 档案体检 | 只读查 `updated` / 编号 / 台账 / 体量，给修复入口 | `体检一下，看看文档有没有过期、编号有没有断` |
+| 发版前检查 | 六步闸逐项核，给版本依据与回滚点，不动仓库 | `发版前帮我检查一遍` |
+| 记录一次发布 | 把版本 / tag / HEAD / 回滚命令记进进度 | `记一下这次发布 1.2.0` |
 | 边界：Skill 项目评审 | 含 `SKILL.md` 的项目转交 skill-workshop | `审查这个 skill 项目。`（交 skill-workshop） |
 | 边界：CHANGELOG 规范化 | 建立 / 改结构 / 归档 `CHANGELOG` 交 changelog-manager；初始化时由 vibe-init 自动触发 | `把这个 CHANGELOG 按规范整理一下。`（交 changelog-manager） |
 | 边界：README / 忽略规则 | README 生成或优化交 shuxu；`.gitignore` 新增或修正交 git-manager | `帮我写一份 README` / `把这些构建产物加进忽略`（分别交 shuxu / git-manager） |
@@ -156,17 +163,21 @@ vibe-buddy/
 │       ├── README.md
 │       └── changelog.md
 └── references/
+    ├── workflow-protocol.md              # 公共协议：触发顺序 / 事实源 / 变更集 / 完成判据 / 原因码 / 归档阈值 / 分级
     ├── init-agents-md.md                 # 初始化执行契约（执行顺序 / 报告 / 集成）
     ├── init-env-checks.md                # Git 检查与 Codegraph 集成（判定与失败处理）
-    ├── command-policy.md                 # 终端命令白名单单一真源（含各触发词允许的子集）
-    ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构）
-    ├── sync-progress.md                  # 进度与决策沉淀契约
+    ├── command-policy.md                 # 终端命令白名单单一真源（含 diff 取证边界与三重上限）
+    ├── agents-md-generator.md            # 生成规范（句式契约 / 自检门 / 文档结构 / 架构基线）
+    ├── sync-progress.md                  # 进度与决策沉淀契约（含归档闸与执行台账）
     ├── handoff-context.md                # 交接文档契约（只写；接管由 AGENTS.md 义务承担）
     ├── distill-experience.md             # 可复用经验蒸馏契约
-    ├── audit-project.md                  # 开发类项目只读审查契约
+    ├── audit-project.md                  # 开发类项目只读审查契约（全项目 / 变更集 / 安全模式）
+    ├── audit-checklist.md                # 审查清单：通用危险写法 10 条 + 安全 12 条
+    ├── release-checklist.md              # 发布治理契约（六步闸 / 回滚点，不执行命令）
+    ├── check-artifacts.md                # 只读档案体检（10 项，一个文件都不写）
     └── trigger-test-set.md               # 触发回归测试集
 ```
 
 ## 版本
 
-当前版本：**v1.10.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+当前版本：**v1.11.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
