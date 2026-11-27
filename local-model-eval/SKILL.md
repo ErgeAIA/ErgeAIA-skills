@@ -36,8 +36,8 @@ python scripts/eval.py probe --base-url http://127.0.0.1:8080/v1
 
 **必须看到**：`models` 非空、`backend` 为 `llama.cpp`、`props.chat_template_present` 为 true。
 
-- `chat_template_present` 为 false → **停下**，提示用户给 `llama-server` 加 `--jinja` 后重启。不加的话工具调用与对话格式都失真，测出来的分数没有意义。
-- 探测失败 → 按输出的启动命令提示用户，**不得**改用猜测的模板继续。
+- `chat_template_present` 为 false → 🛑 **STOP**：提示用户给 `llama-server` 加 `--jinja` 后重启。不加的话工具调用与对话格式都失真，测出来的分数没有意义。**等用户确认已重启并重新 probe 通过，才允许进第 2 步。**
+- 探测失败 → 🛑 **STOP**：按输出的启动命令提示用户启动服务，**不得**改用猜测的模板继续。等用户确认服务已起并重跑 probe 通过。
 
 → **verify**: probe 输出 `ok: true`，且记录了 build_info 与 model_path
 
@@ -66,6 +66,8 @@ python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/resul
 
 ### 第 4 步：看分数前先看边界
 
+🔴 **CHECKPOINT**：向用户报告各维分数、n 与区间之前，先确认自己已读完报告里「这些数字不代表什么」一节。读不完就不报分数。
+
 报告里「这些数字不代表什么」一节必须读完再解读。每维的测量边界写在 `references/measurement-contract.md`。
 
 **判读规则**：
@@ -76,6 +78,8 @@ python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/resul
 → **verify**: 能说出每个数字的 n、CI、以及它不覆盖什么
 
 ### 第 5 步（可选但强烈建议）：负对照
+
+🔴 **CHECKPOINT**：跑负对照前先向用户确认「弱配置」具体指什么（Q2_K / 更小模型 / temperature=2.0 三选一），并保证它与主配置只差这一个变量。两处同时变就无法归因，这一步白跑。
 
 证明这套题真的测得出差异：
 
@@ -102,6 +106,8 @@ kappa < 0.85 的维度会被标为「降级为参考」。不一致条目是判�
 → **verify**: 输出各维度「可信 / 降级为参考」
 
 ### 第 7 步：配对比较（换模型 / 换量化时）
+
+🔴 **CHECKPOINT**：下「A 比 B 好」的结论前，先核对两件事——① 两次运行的 `manifest.json` 除模型/量化外其他字段一致（seed、temperature、题库、端点）；② McNemar 的 p < 0.05。任一不满足，只报观测值，不下结论。
 
 ```bash
 python scripts/eval.py compare --a evals/results/q4km --b evals/results/q8 --label-a Q4_K_M --label-b Q8_0
