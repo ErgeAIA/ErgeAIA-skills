@@ -31,6 +31,12 @@
 - `assets/experience/changelog.md` 的追加格式原写「唯一真源 = `references/distill-experience.md`」，但该模板会被原样复制进目标项目，那里没有这个文件。改为模板自带完整规格，目标项目可独立执行。
 - 同一类问题在前一轮 P0 中也出现过：`assets/docs/project-progress.md` 与 `agents-md-generator.md` 的 Conventions 行一度改成指向 `workflow-protocol.md`，已恢复具体阈值。新增自检门「模板自包含」——模板类文件不得出现 `references/*.md` / `workflow-protocol` / `SKILL.md`。
 - `README.md` 的「与相邻技能的边界」明确为非目标的人读导航，规则本体归 `SKILL.md`。
+- 独立验收发现并修掉的 5 处：`check-artifacts.md` 把完成判据错引为 P7（实为 P6）；README 触发词数量三处矛盾（标题「六个」/表格 8 个/取舍「5 个」），统一为 8 个；`assets/docs/project-progress.md` 缺机读台账示例（模板是目标项目唯一会读的文件，缺示例则台账落不了地）；J1–J7 与 C1–C10 两套编号未说明分工，已补「自检项 vs 体检项」的分界；`integration-plan.md` 的执行状态表称 P3 未开始，与已落盘的代码相反。
+
+### P3
+
+- 3-A 并行审查（默认关闭）：`audit-project.md` 新增「可选并行路径」节，5 个硬条件（仅 audit / 仅只读 / 用户显式批准 / ≤3 份 / 路径不重叠）+ 冲突写「冲突未决」不二选一 + 任一路失败整体中止 + 明确「默认路径结论不变」。
+- 3-B T3 阶段门：`workflow-protocol.md` P11 新增「T3 的阶段门」（每阶段落一个可复核产物，形态按写契约 / 迁移 / 删除分三类）；`init-agents-md.md` 迁移路径映射为三段（保全 → 落盘验证 → 删源留痕），缺任一段即停并报卡在哪段。
 
 ---
 

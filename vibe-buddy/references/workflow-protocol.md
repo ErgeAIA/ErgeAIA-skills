@@ -13,12 +13,7 @@ known-limits: 只定义顺序与形态，不写具体动作；分级与阈值是
 
 ## P1 触发与前置顺序
 
-固定四步，不得跳序：
-
-1. **判目标类型**（仅需要时）：Skill 项目 → 转交 skill-workshop；开发类项目 → 继续；判不出 → 停下问用户。
-2. **判前置文件**：缺 `AGENTS.md` 或 `docs/agents/` → 引导先跑 `vibe-init`，**不代建**。
-3. **自审**：按分级（见 P11）输出产物清单、依据、风险、跳过原因码。
-4. **执行**：无高风险 → 连续执行到完；有高风险 → 只针对那一件事停一次。
+固定四步，不得跳序：① **判目标类型**（仅需要时）——Skill 项目 → 转交 skill-workshop，开发类 → 继续，判不出 → 停下问；② **判前置文件**——缺 `AGENTS.md` 或 `docs/agents/` → 引导先跑 `vibe-init`，**不代建**；③ **自审**——按分级（见 P11）输出产物清单、依据、风险、跳过原因码；④ **执行**——无高风险连续执行到完，有高风险只针对那一件事停一次。
 
 「停」= 只输出文字、不碰任何文件。
 
@@ -30,17 +25,7 @@ known-limits: 只定义顺序与形态，不写具体动作；分级与阈值是
 
 ## P3 写入落点唯一性
 
-一个产物只有一个写者；其余角色只报告缺口，不代写。
-
-| 产物 | 唯一写者 |
-|---|---|
-| `AGENTS.md` 契约区 / 事实区 | `vibe-init` / `vibe-sync` |
-| `project-progress.md` · `decision-log.md` · `debug-log.md` | `vibe-sync` |
-| `agents-changelog.md` · `init-report.md` | `vibe-init` |
-| `experience/`（含双台账） | `vibe-distill` |
-| `docs/handoff/` · `docs/agents/audit/` | `vibe-handoff` · `vibe-audit` |
-| `CHANGELOG.md` | `changelog-manager` 建与归档；`vibe-sync` 只按既有格式追加 |
-| `README.md` · `.gitignore` | `shuxu` · `git-manager` |
+一个产物只有一个写者；其余角色只报告缺口，不代写。`AGENTS.md` 契约区归 `vibe-init`、事实区归 `vibe-sync`；`project-progress.md` / `decision-log.md` / `debug-log.md` 归 `vibe-sync`；`agents-changelog.md` / `init-report.md` 归 `vibe-init`；`experience/`（含双台账）归 `vibe-distill`；`docs/handoff/` 归 `vibe-handoff`、`docs/agents/audit/` 归 `vibe-audit`；`CHANGELOG.md` 由 `changelog-manager` 建与归档、`vibe-sync` 只按既有格式追加；`README.md` 归 `shuxu`、`.gitignore` 归 `git-manager`。
 
 ## P4 高风险四类
 
@@ -67,6 +52,8 @@ known-limits: 只定义顺序与形态，不写具体动作；分级与阈值是
 ### 可判定项（逐项报，漏一项写 `skipped:<原因码>`）
 
 J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一（含 `archive/`）· J4 蒸馏双台账 `range` 一致 · J5 产物未超 P10 阈值 · J6 `References` 每行含 `→ 见` 与用途短语 · J7 未覆盖既有文件（写入前实读、写入后比对未变）。
+
+> 编号分工：**J1–J7 是「本轮写完后的自检项」**（每个工作流收尾时用）；`check-artifacts.md` 的 **C1–C10 是「档案整体体检项」**（`vibe-check` 专用，覆盖跨轮次的结构问题如编号断号、`updated` 滞后、指针断链）。两者不重复编号、不互相引用判据——体检项包含自检项，反之不成立。
 
 ### 人工项
 
@@ -118,3 +105,9 @@ J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一�
 | T3 | 触高风险四类；或跨契约；或 ≥4 产物；或需并行/多技能 | ≤6 行 | 高风险那件事 1 次 | 必须每阶段一个可验证产物 |
 
 判定只认四项输入：产物数、是否触高风险、是否需外部技能、是否跨会话。**不引入 token 估算或文件数启发式。**
+
+### T3 的阶段门
+
+T3 必须切成阶段，每阶段结束**落一个可复核产物**再进下一阶段；不允许「只在对话里说做完了」。阶段产物形态：写契约 → 草稿或目标文件实读回显；迁移 → 处置清单已写入 `agents-changelog.md`；删除/覆盖 → 原文已留档 + 目标文件实读通过。
+
+三条纪律：阶段产物**不替代** `agents-changelog.md` 的留痕（它是额外前置证明）；不额外增加停顿（高风险仍只停那一次，阶段产物写完即继续）；某阶段产物缺失 → 不进下一阶段，终止回复写「卡在第 N 阶段」并列出缺什么。

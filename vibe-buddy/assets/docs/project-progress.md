@@ -12,6 +12,7 @@ description: >
 
 > 记录当前任务状态、分支和最近进展。每次会话更新。
 > 新进展插在「当前状态」之后、旧「最后更新」之前。
+> 每条进展末尾加一行机读台账 `<!-- vibe: produced=... skipped=... level=T1|T2|T3 -->`：`produced` 写本轮写了哪些产物，`skipped` 写「产物:原因码」（无跳过时留空但字段保留），`level` 写任务档位。
 > 活跃文件超 300 行时，先把最旧整段归档到 `docs/agents/archive/progress-YYYY-MM.md`，再写新条目；归档只追加，归档条数 + 活跃条数必须守恒。
 
 ---
@@ -24,6 +25,7 @@ description: >
 - **工具链**：<已建立的工具链；未建立时写明无哪些>
 - **最后更新**：YYYY-MM-DD <一句话主题>
   - <本次进展，逐条列：改了什么、落在哪个路径、产出什么>
+  - <!-- vibe: produced=progress skipped=handoff:same-session level=T2 -->
 - **下一步**：<下一个动作>
 - **本阶段禁止**：<本阶段明确不做的事，逗号分隔>
 

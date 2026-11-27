@@ -7,7 +7,7 @@ reads-from:
   - <project>/AGENTS.md
   - <project>/docs/agents/ 全部产物（含 archive/）
   - <project>/docs/handoff/
-  - references/workflow-protocol.md（P10 阈值、P7 完成判据）
+  - references/workflow-protocol.md（P10 阈值、P6 完成判据）
 writes-to: []
 known-limits: 只读，不写任何文件；不产待办；不代跑修复；不检查代码质量
 ---
