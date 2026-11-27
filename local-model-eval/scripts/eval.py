@@ -8,7 +8,9 @@
   score     对已有 raw.jsonl 重新判分（判分器改动后重算，不重跑模型）
   report    渲染静态 HTML 报告
   compare   两个结果的配对比较
-  selftest  判分器对抗样例自检
+  selftest       判分器对抗样例自检
+  probe-hw       探测本机硬件（来源标注）
+  hardware       生成硬件适配 HTML 报告
   export-recheck  导出人工复判样本
   recheck   计算人机一致率，给出各维度是否可信
 
@@ -38,6 +40,41 @@ def cmd_probe(args) -> int:
         print(f"  {probe.START_HINTS['llama.cpp']}", file=sys.stderr)
         return 1
     return 0
+
+
+def cmd_probe_hw(args) -> int:
+    import json
+    import probe_hw
+    data = probe_hw.probe()
+    os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
+    with open(args.out, "w", encoding="utf-8") as fh:
+        json.dump(data, fh, ensure_ascii=False, indent=2)
+    gpu = data["gpu"]
+    if gpu.get("available"):
+        print(f"GPU: {gpu['name']['value']}  显存 {gpu['vram_free_mib']['value']:.0f}/"
+              f"{gpu['vram_total_mib']['value']:.0f} MiB 空闲（实测）")
+    else:
+        print(f"GPU: 未取得实测数据（{gpu.get('error', '未知')}）", file=sys.stderr)
+    ram = data["ram"]
+    print(f"RAM: {ram.get('total_gib', {}).get('value', '—')} GiB 总量 / "
+          f"{ram.get('available_gib', {}).get('value', '—')} GiB 可用（实测）")
+    print(f"已写入 {os.path.abspath(args.out)}")
+    return 0
+
+
+def cmd_hardware(args) -> int:
+    import subprocess
+    here = os.path.dirname(os.path.abspath(__file__))
+    cmd = [sys.executable, os.path.join(here, "hardware.py"),
+           "--hardware", args.hardware, "--models", args.models,
+           "--out", args.out, "--title", args.title or "本机硬件适配评估"]
+    if args.poly:
+        cmd += ["--poly", args.poly]
+    if args.contexts:
+        cmd += ["--contexts", args.contexts]
+    if args.quants:
+        cmd += ["--quants", args.quants]
+    return subprocess.call(cmd)
 
 
 def cmd_tasks(args) -> int:
@@ -264,6 +301,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     sp = sub.add_parser("selftest", help="判分器对抗样例自检")
     sp.set_defaults(func=cmd_selftest)
+
+    sp = sub.add_parser("probe-hw", help="探测本机硬件，逐项标注来源")
+    sp.add_argument("--out", default="hardware.json")
+    sp.set_defaults(func=cmd_probe_hw)
+
+    sp = sub.add_parser("hardware", help="生成硬件适配 HTML 报告")
+    sp.add_argument("--hardware", required=True, help="probe-hw 产出的 JSON")
+    sp.add_argument("--models", required=True, help="模型清单 JSON")
+    sp.add_argument("--out", default="hardware-report.html")
+    sp.add_argument("--poly", default=None, help="PolyStrata 实机核验 JSON")
+    sp.add_argument("--contexts", default=None)
+    sp.add_argument("--quants", default=None)
+    sp.add_argument("--title", default=None)
+    sp.set_defaults(func=cmd_hardware)
 
     sp = sub.add_parser("export-recheck", help="导出人工复判样本 CSV")
     sp.add_argument("--out", required=True, help="结果目录")

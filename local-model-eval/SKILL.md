@@ -30,6 +30,25 @@ metadata:
 
 标记语义：**🛑 STOP** = 阻断并交还用户，等用户操作后才继续；**🔴 CHECKPOINT** = 自检或向用户确认后再继续，不必然中断。
 
+### 第 0 步：硬件适配闸门（选型阶段）
+
+用户还没定模型，或问「这台机器能跑什么 / 要不要升级」时先做这一步。方法见 `references/hardware-fit.md`。
+
+```bash
+python scripts/eval.py probe-hw --out evals/hardware.json
+python scripts/eval.py hardware --hardware evals/hardware.json --models <模型清单.json> --out evals/hardware-report.html
+```
+
+模型清单需给每个模型的 `name` / `params_b` / `layers` / `kv_heads` / `head_dim`，以及各量化的实际权重文件大小（GiB）。没有实际权重文件时按参数量估算，**报告会标「估算」**。
+
+四态：显存内 / 部分卸载 / 仅 CPU / 放不下。数据不足写「数据不足，暂不判定」，**不是第五种状态**。
+
+- 目标配置落在「放不下」→ 🛑 **STOP**：告诉用户预计失败阶段与缺失量，先换量化或降上下文，不要直接跑第 3 步浪费时间。
+- 落在「仅 CPU」→ 🔴 **CHECKPOINT**：容量可行不代表速度实用，向用户确认是否接受慢速后再继续。
+- 硬件报告固定 ThemeVault #001 夜灯 + B站·宝藏二哥AIA 署名；**能力评测报告维持双主题无署名**，两者是不同产物。
+
+→ **verify**: 硬件报告首屏能回答「最受什么限制、能跑到哪一档」；每个数字带来源标注
+
 ### 第 1 步：确认服务与运行时事实
 
 ```bash
@@ -126,6 +145,7 @@ python scripts/eval.py compare --a evals/results/q4km --b evals/results/q8 --lab
 | `summary.json` | 各维均值/CI/通过率、幻觉率、ECE、成本 | 机读汇总 |
 | `manifest.json` | 端点、模型、seed、温度、时间、raw 哈希 | 复现核对 |
 | `report.html` | 单文件静态报告，离线可开 | 给人看 |
+| `hardware-report.html` | 硬件适配报告，夜灯固定 + 品牌署名 | 选型/升级决策 |
 
 失败时必须报告：探测失败的原始输出 + 启动命令；判分异常时说明是请求失败还是判分失败，不得把请求失败静默算成 0 分而不标注。
 
@@ -148,6 +168,7 @@ python scripts/eval.py compare --a evals/results/q4km --b evals/results/q8 --lab
 | `references/task-schema.md` | 要加题、改题、新建维度 |
 | `references/scoring.md` | 想改判分逻辑、理解某个 verdict 的含义、调 CI 算法 |
 | `references/benchmark-basis.md` | 想知道这些维度与方法来自哪些公开基准，以及为什么不用它们的原始题 |
+| `references/hardware-fit.md` | 第 0 步：证据分级、容量四态、KV 估算、Decode/Prefill、PolyStrata 第二路径与实机优先裁决 |
 
 ## Gotchas
 

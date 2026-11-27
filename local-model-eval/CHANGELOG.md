@@ -25,7 +25,9 @@
 
 ### 变更
 
-- 报告页接入 ThemeVault 双主题：#001 夜灯 / #002 晨光。色值取自 `dudong/scripts/render_reading_page.mjs` 的成熟 token（含对比度派生与夜灯语义色回落墨色规则），不新造配色。
-- 主题切换采用运行时方案（`<html data-theme>` + 右上角图标按钮 + `localStorage` + `prefers-color-scheme`），优先级为 localStorage > 系统偏好 > 生成参数；`run` / `report` 新增 `--theme auto|chenguang|yedeng` 指定初始偏好。选此方案而非 duyuan 的构建期固化，因为报告页有逐题下钻交互、不是仅供截图的静态信息图。
-- 保持单文件、零 CDN、零外部字体；浏览器实测两套主题渲染与切换均正常。
+- 新增第 0 步「硬件适配闸门」：把用户提供的硬件顾问提示词整合进技能，形成「能不能跑 → 跑得怎么样」前后链。目标配置落在「放不下」时 STOP，避免白跑 64 题。
+- 新增 `references/hardware-fit.md`：证据五级标注（实测/规格/计算/估算/缺失，按最弱一类标注）、容量四态、KV 公式、Decode/Prefill 分开、PolyStrata + KVMem 第二路径、实机优先于参考文档、报告六段信息架构、夜灯主题与品牌署名、交付自检。
+- 新增 `scripts/probe_hw.py` 与 `scripts/hardware.py`：前者用标准库探测 GPU/CPU/RAM 并逐项标来源，失败写「缺失」不猜；后者算模型规模×量化×上下文四态矩阵，出单文件 HTML。CLI 增加 `probe-hw` / `hardware` 两个子命令。
+- 硬件报告固定 ThemeVault #001 夜灯色值 + B站·宝藏二哥AIA 署名（顶部/title/author/底部）；三维独立筛选、四态图例、点行拆分、可折叠计算依据、打印与窄屏适配、零外部资源。与能力评测报告的双主题无署名各按各规格，互不混用。
+- 关键纪律：MoE 只描述 FFN、不阻断标准注意力的 KV 公式；非标准注意力（MLA/滑窗）必须显式给 `attention` 字段才不硬套。无依据时写「暂无法可靠估算」，不编造 Token/s。
 - README「启动本地服务」段补 AI Vault 推荐（https://ergeaia.github.io/aivault-site/），说明其本地引擎管理与 Skill/Prompt/MCP 统一分发能力；「看报告」段补主题说明。

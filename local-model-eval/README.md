@@ -25,6 +25,24 @@
 
 所以本题库是手写私有题，方法参考公开基准（详见 `references/benchmark-basis.md`）。
 
+## 能跑什么：硬件适配闸门
+
+在跑评测之前，先判断目标配置能不能扛住。这个阶段会生成另一份报告（固定 ThemeVault #001 夜灯主题 + B站·宝藏二哥AIA 署名，与评测报告的双主题无关）：
+
+```bash
+python scripts/eval.py probe-hw --out evals/hardware.json
+python scripts/eval.py hardware --hardware evals/hardware.json --models <模型清单.json> --out evals/hardware-report.html
+```
+
+- `probe-hw` 逐项标注来源：实测 / 规格 / 计算 / 估算 / 缺失，不伪造、不把单次采样当稳定读数
+- 模型清单要给出各量化的实际权重文件大小（GiB）；缺了就按参数量估算，报告会标「估算」
+- 四态矩阵：显存内 / 部分卸载 / 仅 CPU / 放不下；数据不足写「数据不足，暂不判定」，不伪装成第五种状态
+- 三维筛选（规模 × 量化 × 上下文），点行看权重/KV/运行时拆分与瓶颈
+- Decode 与 Prefill 分开；没有可靠依据时写「暂无法可靠估算」，不编造 Token/s
+- PolyStrata + KVMem 作为第二路线单独核算，实机版本/能力清单优先于参考文档
+
+方法细节见 `references/hardware-fit.md`。
+
 ## 怎么用
 
 ### 1. 启动本地服务
@@ -107,6 +125,8 @@ python scripts/eval.py compare         # 两配置配对比较
 python scripts/eval.py selftest        # 判分器自检
 python scripts/eval.py export-recheck  # 导出人工复判样本
 python scripts/eval.py recheck         # 算人机一致率
+python scripts/probe_hw.py             # 直接探测硬件（等价 probe-hw）
+python scripts/hardware.py             # 直接生成硬件报告（等价 hardware）
 python scripts/smoke.py                # 离线链路冒烟
 ```
 
