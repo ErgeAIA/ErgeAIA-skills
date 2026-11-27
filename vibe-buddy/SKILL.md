@@ -26,7 +26,7 @@ Core Task：
 
 把项目的协作状态当成**可审计的文本资产**：规则留在 `AGENTS.md`，过程记录留在 `docs/agents/`，会话交接留在 `docs/handoff/`。
 
-1. **不覆盖** —— 已有文件只追加；需要新文件时先扫描目录再取名，永不重写既有内容。**唯一例外是受控迁移**（CLAUDE.md → AGENTS.md）：迁移允许重组目标契约，但必须完整读取源、逐条四态处置并留痕、先写目标、验证目标、最后才删源——不是放开重写，是可追溯的重组。
+1. **不覆盖** —— 已有文件只追加；需要新文件时先扫描目录再取名，永不重写既有内容。**唯一例外是受控迁移**（CLAUDE.md → AGENTS.md）：迁移允许重组目标契约，但必须完整读取源、逐条五态处置并留痕、先写目标、验证目标、最后才删源——不是放开重写，是可追溯的重组。
 2. **不猜测** —— 读不到的事实写占位符，绝不编造版本号、路径、命令、结论。
 3. **不越界** —— 只**写**协作契约与过程文档区（路径见下方产物布局）及**可选**的项目根 `CHANGELOG.md`（仅 `vibe-sync`，且文件已存在时追加），不改项目其他文件；唯一的删除动作是受控迁移完成后删除源 `CLAUDE.md`（闸门见 `references/init-agents-md.md`）；**读**可及项目内任意文件与白名单只读命令；不发布。
 4. **不静默** —— 删除或改写必须留下「旧值 → 处置 → 新值」的可见记录。
@@ -49,12 +49,11 @@ Core Task：
 
 - 🔴 **自审闸 · 唯一的前置停顿**：识别触发后先输出一次自审（≤4 行），再动手——① 本轮将写的产物清单；② 每项依据（哪条事实触发它）；③ 是否触及高风险（覆盖既有文件 / 删除源文件 / CLAUDE 迁移 / 写白名单外路径）；④ 显式跳过的产物与原因码。**无高风险 → 连续执行到完，中途不再停**；有高风险 → 只针对那一件事停一次。🛑 本技能的「停」= 只输出文字、不碰任何文件。
 - 🛑 **STOP · 目标类型前置判定（仅 `vibe-audit`）**：执行前先判目标。命中「含 `SKILL.md` 且 frontmatter 有 `name`」→ 停止自审，只输出转交说明（目标路径 / 已观测 frontmatter 字段 / 是否含 `scripts/` / 判定依据一句话）并指向 skill-workshop。无法判定 → 停下问用户，不猜、不自审。
-- **写入前声明**：操作类型 / 目标路径 / 是否覆盖 / 风险等级；**并入自审一次说完**，不逐文件重复声明。
-- **高风险才逐项确认**：覆盖既有文件、删除源文件、`CLAUDE.md` 迁移、跨白名单写入——这四类必须拿到用户点头；**其余动作不再按触发词逐个确认**。「同步并交接」这类组合意图可以一次说完：自审里列全，通过后串行执行。
+- **写入前声明并入自审**：操作类型 / 目标路径 / 是否覆盖 / 风险等级一次说完，不逐文件重复声明。**只有高风险四类**（覆盖既有文件、删除源文件、`CLAUDE.md` 迁移、跨白名单写入）必须拿到用户点头，其余动作不按触发词逐个确认；「同步并交接」这类组合意图在自审里列全，通过后串行执行。
 - 🛑 **STOP · 前置缺失即停**：如 `vibe-sync` 找不到 `docs/agents/` 时引导先跑 `vibe-init`，绝不代建。
 - **接管不由本技能触发**：新会话的「读项目档案 + 复述现状」是目标项目 `AGENTS.md` 的 `Permissions` 义务，每次会话自动生效。听到「接管 / 接手 / 继续上次」这类措辞时不必触发本技能——那条义务已经在跑。
 - **终端命令白名单**：默认不运行命令。`vibe-init` 可做 Git 仓库检测与初始化、codegraph 检测与建索引；`vibe-sync`、`vibe-handoff`、`vibe-distill` 与 `vibe-audit` 可做只读 Git 核对（各自允许的子集见白名单）。构建、测试、依赖安装、`git add` / `commit` / `push` 一律不做；白名单单一真源见 `references/command-policy.md`。
-- **产物必须脱敏**：密钥、token、凭据、连接串、个人隐私一律不落盘；无法脱敏则拒绝写入。
+- **产物必须脱敏（单一真源）**：密钥、token、凭据、连接串、个人隐私一律不写入任何产物；发现即替换为占位符，无法安全脱敏则拒绝写入并说明原因。命令输出的截断与脱敏细则见 `references/command-policy.md`，各工作流只引用本条，不复述。
 - **不重复已有产物**：规格、计划、决策、提交、diff 已有的内容，用路径引用。
 - **契约区与事实区**：`AGENTS.md` 的契约区（Permissions / Conventions / References / 章节结构）只由 `vibe-init` 写，任何改动都必须在 `docs/agents/agents-changelog.md` 留一行；事实区（Toolchain / Commands 表数据）可由 `vibe-sync` 回填，属填事实不必留痕。
 - 🔴 **CHECKPOINT · AGENTS.md 唯一源**：`AGENTS.md` 是唯一项目级协作契约源。`vibe-init` 按五状态机（A–E，见 `references/init-agents-md.md`）执行，任何路径都**不创建、不维护、不镜像 `CLAUDE.md`**；旧 `CLAUDE.md` 走受控迁移并入 `AGENTS.md`，安全闸全过后才删除源文件，迁移失败则保留源并如实报告。
@@ -72,10 +71,11 @@ Core Task：
 | `project-progress.md` | 有可核实的改动 | `no-change`（纯问答、未动文件） |
 | `decision-log.md` | 出现口径变更、取舍、被否方案 | `no-decision` |
 | `debug-log.md` | 定位到根因 | `no-root-cause`（只有现象） |
-| `experience/` | 同一做法有**第二条事实源**支撑 | `single-occurrence` / `already-covered:<条目>` |
+| `experience/` | 同一做法有**第二条事实源**支撑 | `single-occurrence` / `covered-by:<条目>` |
 | `docs/handoff/` | 换窗口、换 agent、上下文将满 | `same-session`（同一会话继续） |
 | `README.md` | 入口 / 命令 / 能力边界发生结构性变化 | `no-surface-change`（**默认跳过**） |
 | `CHANGELOG.md` | 发版时由 `changelog-manager` 归档 | `release-only`（**收尾流程一律不写**） |
+| `archive/` | 任一产物超 `workflow-protocol.md` P10 阈值 | `no-threshold-hit`（未超阈值） |
 
 **依据优先级**：项目 `AGENTS.md` 的收尾义务 > 本表 > 各 references 的默认动作。项目契约要求写而本表判跳过的，按项目契约写。
 
@@ -90,29 +90,31 @@ Core Task：
 | AGENTS.md 变更记录，只在契约改动时写 | `<project>/docs/agents/agents-changelog.md` | `vibe-init` 独占 |
 | 初始化执行报告，只追加 | `<project>/docs/agents/init-report.md` | `vibe-init` 独占 |
 | 项目概览（可选，按需自建） | `<project>/docs/agents/project-overview.md` | `vibe-init` |
-| 可复用经验库，按领域分目录 | `<project>/docs/agents/experience/` | `vibe-init` 建空目录；内容由 `vibe-distill` 写 |
-| 蒸馏台账（人读 / 机读） | `experience/changelog.md`（一行一条）· `experience/.distill-index.json`（去重键） | `vibe-distill` 同轮写两份，缺一视为未完成 |
+| 超阈值产物的归档落点 | `<project>/docs/agents/archive/` | `vibe-sync` 首次归档时建；`vibe-handoff` / `vibe-audit` 各自目录另有 `archive/` |
+| 可复用经验库，按领域分目录 | `<project>/docs/agents/experience/` | `vibe-init` 建空目录；内容与两份台账（`changelog.md` / `.distill-index.json`）由 `vibe-distill` 写 |
 | 会话交接文档，带 frontmatter | `<project>/docs/handoff/handoff-YYYY-MM-DD[-slug].md` | `vibe-handoff` |
-| 项目审计报告，只追加 | `<project>/docs/agents/audit/audit-YYYY-MM-DD[-slug].md` | `vibe-audit`；目录缺失时由 `vibe-audit` 首次执行时建（含 `.gitkeep`） |
-| 变更日志 | `<project>/CHANGELOG.md` | `vibe-init` 经 `changelog-manager +init` 建骨架；`vibe-sync` 只按既有格式追加 |
-| 忽略规则 | `<project>/.gitignore` | 唯一写者 `git-manager`；`vibe-init` 只检测、委托与验收 |
-| 项目说明 | `<project>/README.md` | 唯一写者 `shuxu`；`vibe-init` 只产证据包并委托 |
+| 项目审计报告，只追加 | `<project>/docs/agents/audit/audit-YYYY-MM-DD[-slug].md` | `vibe-audit`；目录缺失时首次执行建（含 `.gitkeep`） |
+| 仓库三件：变更日志 / 忽略规则 / 项目说明 | `<project>/CHANGELOG.md` · `.gitignore` · `README.md` | 唯一写者分别为 `changelog-manager` / `git-manager` / `shuxu`；`vibe-init` 只检测、委托与验收，`vibe-sync` 只按既有格式追加 CHANGELOG |
 
-`vibe-init` 不创建、不维护、不生成指针、不复制镜像 `CLAUDE.md`；项目已有 `CLAUDE.md` 时按受控迁移并入 `AGENTS.md` 后删除源文件（状态机与迁移细则见 `references/init-agents-md.md`）。
+`vibe-init` 任何路径都不创建、不维护、不镜像 `CLAUDE.md`（见上「CHECKPOINT · AGENTS.md 唯一源」）。
 
 ## 何时读 references
 
+- 要判定该读什么、该写哪里、算不算完成 → `references/workflow-protocol.md`（触发顺序 / 事实源 / 变更集 / 终止回复 / 原因码 / 归档阈值 / 分级）
 - 要建 `AGENTS.md`、判定初始化状态（A–E）、执行 CLAUDE 迁移、补齐缺失文档 → `references/init-agents-md.md`
 - 要执行 `AGENTS.md` 的生成规范本身（句式契约、黑名单、自检门） → `references/agents-md-generator.md`
-- 要走 Git 检查与 Codegraph 集成 → `references/init-env-checks.md`（判定表与失败处理）
+- 要走 Git 检查与 Codegraph 集成 → `references/init-env-checks.md`
 - 要运行任何终端命令前 → `references/command-policy.md`（白名单与各触发词允许的子集）
-- 要落地 `docs/agents/` 各文档 → `assets/docs/project-progress.md` 等五份模板（原样复制，只换 `<工程标识>` 与 `updated`）
+- 要落地过程文档与经验库 → `assets/docs/` 五份模板、`assets/experience/` 两份模板（原样复制，只换 `<工程标识>` / `<域标识>` 与 `updated`）
 - 要沉淀进度、决策与调试记录 → `references/sync-progress.md`
 - 要生成交接文档 → `references/handoff-context.md`
 - 要蒸馏可复用经验 → `references/distill-experience.md`
 - 要审查开发类项目的代码质量、架构与技术栈 → `references/audit-project.md`
-- 要落地经验库 → `assets/experience/` 下 `README.md` 与 `changelog.md` 两份模板（首次蒸馏时原样复制，只换 `<域标识>`、`<工程标识>` 与 `updated`）
 - 改过 description 要回归触发 → `references/trigger-test-set.md`
+
+## 本文件写入闸
+
+入口每次调用全量进上下文，新增内容前过三道闸：① **约束行为吗**——删掉这行，AI 执行下一个任务会不会做错？不会 → 归 `references/` 或 README；② **优先进 reference**——操作明细、清单、长流程下沉，本文件只留义务与指针；③ **行数 ≤185**——要加长就先压缩或下沉同等篇幅。判据复用 `agents-md-generator.md` §6b 的 N1–N6。
 
 ## 失败模式与兜底
 
@@ -120,12 +122,9 @@ Core Task：
 |---|---|---|
 | 前置文件缺失（如无 `docs/agents/` 却要 sync） | 回复缺失项，引导先跑 `vibe-init` | 用户坚持从零建立 → 转 `vibe-init`，不就地代建 |
 | `vibe-init` 遇到已有文档 | 普通路径只补缺失项，已存在的文件一字不动；受控迁移（状态 C / D）按迁移契约执行 | 内容冲突且无法判定 → 停下请用户裁决 |
-| CLAUDE → AGENTS 迁移中断（读取、整理或写入任一步失败） | 停止迁移，按已完成部分留痕 | 保留 `CLAUDE.md` 原样，终止回复「迁移未完成，原 CLAUDE.md 保留」 |
-| `AGENTS.md` 迁移写入后实读验证失败 | 修复缺项并复验 | 仍失败 → 禁止删除 `CLAUDE.md`，报告失败原因与已留痕部分 |
-| `AGENTS.md` 与 `CLAUDE.md` 规则冲突 | 以代码 / 配置 / 实际项目状态为事实证据裁决 | 相同适用条件且证据不足 → 停下问用户，未裁决前不删 `CLAUDE.md` |
-| `CLAUDE.md` 删除前置闸未全过 | 补齐缺项后复闸 | 禁止删除，终止回复「迁移未完成，原 CLAUDE.md 保留」 |
-| AGENTS 唯一源校验失败 | 按缺项修复（补迁移记录 / 补契约内容） | 无法修复 → 终止回复列明未过项，不宣称完成 |
+| CLAUDE 迁移与唯一源校验的五种失败 | 见 `references/init-agents-md.md` 的「失败处理」节 | 同上 |
 | 同日已有同名交接文档 | 加语义后缀（`handoff-YYYY-MM-DD-<slug>.md`） | 后缀仍冲突 → 加两位序号（`-02`），不回头打扰用户 |
+| `vibe-audit` 的四类失败（Skill 项目 / 类型不明 / 证据读不到 / 报告撞名） | 见 `references/audit-project.md` 的「失败处理」节 | 同上 |
 | 本次会话无可交接内容 | 明说「没有可交接的实质进展」，不生成空文档 | 用户坚持 → 只写有对话依据的条目，宁缺勿造 |
 | 关键事实采集不到（项目定位、命令、权限边界） | 停下问用户，不猜、不编造 | 用户未答 → 写占位并在终止回复列为待确认项 |
 | 白名单命令失败（`git init` / `codegraph init`） | 记「失败 + 原因」，继续后续步骤 | 仍失败 → 不自动重试，在报告建议里提示手动执行 |
@@ -140,27 +139,19 @@ Core Task：
 | 存量 AGENTS.md 反复积灰 | 增量维护时必扫全文，逐段过 §6b 六类，迁出后由产物自带反杂音义务行防复发 | 一次扫不干净 → 在终止回复列出未过项与保留理由，不宣称已清干净 |
 | 委托技能不可用或未执行 | 标「待补」并写明缺什么，不代写 | 用户坚持 → 拒绝代写，说明归属 |
 | 新忽略规则命中已追踪文件 | 列出 `git ls-files -ci --exclude-standard` 结果，不自动 untrack | 用户要求 untrack → 转 `git-manager` 并显式确认 |
-| `shuxu` 动笔前 CHECKPOINT 未过（可见性/语言不明） | 只交证据包，README 标「待补」 | 硬做 → 拒绝，缺事实不生成 |
-| 参考文件缺失或读不通 | 报告缺失路径，停止执行 | 用户要求硬做 → 拒绝，缺规则不做 |
-| `vibe-audit` 目标为 Skill 项目 | 只输出转交说明并指向 skill-workshop | 用户坚持本技能内审 → 拒绝，说明标尺不适用 |
-| `vibe-audit` 目标类型无法判定 | 停下问用户，不猜 | 用户未答 → 不执行，列为待确认项 |
-| 审计证据读不到（文件不存在 / 行号对不上） | 该条标「证据不足」，不写入断言 | 全篇无法取证 → 中止，只输出已取证部分 |
-| 审计报告当日已有同名文件 | 加语义后缀（`audit-YYYY-MM-DD-<slug>.md`） | 后缀仍冲突 → 加两位序号（`-02`） |
+| `shuxu` 动笔前 CHECKPOINT 未过 / 参考文件缺失 | 前者只交证据包并标「待补」；后者报告缺失路径并停止 | 硬做 → 拒绝，缺事实或规则不生成 |
 
 ## Gotchas
 
-- `AGENTS.md` 是**规则契约**，不承载进度与待办；进度写 `docs/agents/project-progress.md`。
-- `AGENTS.md` 是**每会话自动注入**的 system prompt，进来的每行都花上下文——「看着有用但删了也不会让 AI 做错」的段落就是杂音，判据是 §6b 的 N1–N6，不是读起来顺不顺。
-- `docs/agents/` 的**进度 / 决策 / 调试**三份只追加；决策冲突时把旧条目改标 `superseded`，不删除历史条目。
-- `AGENTS.md` 是项目级**唯一协作契约源**；`CLAUDE.md` 迁移完成后不得继续作为项目级协作契约存在，也不得靠新建空 `CLAUDE.md` / 指针文件解决兼容问题。
+- `AGENTS.md` 是**规则契约**，不承载进度与待办（进度写 `docs/agents/project-progress.md`）；它是每会话自动注入的 system prompt，进来的每行都花上下文——「看着有用但删了也不会让 AI 做错」的段落就是杂音，判据是 §6b 的 N1–N6。
+- `docs/agents/` 的**进度 / 决策 / 调试**三份只追加；决策冲突时把旧条目改标 `superseded`，不删除历史条目。它是**过程档案区**不是人类文档区，人类项目文档（README、设计稿）不放这里。
+- `CLAUDE.md` 迁移完成后不得继续作为项目级协作契约存在，也不得靠新建空 `CLAUDE.md` / 指针文件解决兼容问题。
 - 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。
-- `docs/agents/` 是**过程档案区**不是人类文档区；人类项目文档（README、设计稿）不放这里。
 - 过程文档的 frontmatter `updated` 必须随每次修改同步改当日；漏改等于让 `updated` 说谎。
 - `vibe-init` 对半程项目**只补齐缺失文档**，绝不重写已有文件——哪怕内容看起来过时；受控迁移（CLAUDE → AGENTS）是唯一例外，且必须可追溯。
 - 不新增 `AGENTS.md` 章节：文档义务写进固定的 `Permissions` 与 `Conventions`，不另起段落。
 - `docs/agents/experience/` 是**可移植产物**，不是项目过程档案：**正文可改写**（错的规则留着会持续误导），历史靠 `changelog.md` 保追溯；`docs/agents/` 其余三份则严格**只追加**。
-- 经验条目**五要素缺一不可**（主张 / 适用 / Why / How / 反例）。写不出反例说明还没想清楚，不入库。
-- 经验库的主题名用领域名（`ui` / `frontend` / `motion` / …），不另造词——外送汇总时它就是分域依据。
+- 经验条目**五要素缺一不可**（主张 / 适用 / Why / How / 反例）；写不出反例说明还没想清楚，不入库。主题名用领域名（`ui` / `frontend` / `motion` / …），不另造词——外送汇总时它就是分域依据。
 
 ## 反例黑名单（已知会犯错的写法）
 
@@ -173,12 +164,10 @@ Core Task：
 
 ## 非目标
 
-- 不做任务拆解、排期、待办追踪。
-- 不把模糊需求转译成 PRD 或结构化指令。
+- 不做任务拆解、排期、待办追踪；不把模糊需求转译成 PRD 或结构化指令。
 - 不写代码、不重构、不运行构建与测试命令；Git 仅限白名单内的仓库检测、初始化与只读核对。
 - 不代写 `README.md` / `CHANGELOG.md` / `.gitignore`：分别归 shuxu / changelog-manager / git-manager，本技能只检测、委托与验收。
-- 不管理规格与变更的生命周期。
-- 不做对外发布，不代发内容。
+- 不管理规格与变更的生命周期；不做对外发布，不代发内容。
 - 不管理 Agent 自身的记忆：运行时记忆目录、跨项目共享的个人记忆库与外部知识库都不读写；也不把经验条目写入任何外部仓库或目录，外送由用户另行触发。本技能只服务**当前这一个项目**。
 - 不提供「接管汇报」触发词：那是目标项目 `AGENTS.md` 的义务，不是本技能的入口。
 - 不评审 Skill 项目（归 skill-workshop）。

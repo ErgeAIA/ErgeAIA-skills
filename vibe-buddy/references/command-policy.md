@@ -8,6 +8,8 @@ consumed-by: references/init-env-checks.md、references/sync-progress.md、refer
 
 # 命令策略
 
+公共段（写入唯一性 / 高风险四类 / 失败处理）见 `references/workflow-protocol.md`；本文件是终端命令白名单的单一真源。
+
 ## 默认
 
 本技能默认不运行终端命令。只有白名单内的命令可执行，且必须落在**当前触发词允许的子集**内；子集外的命令即使安全也不跑。

@@ -6,6 +6,26 @@
 
 ## [Unreleased]
 
+### 新增
+
+- `references/workflow-protocol.md`：全部工作流的公共协议（触发与前置顺序、事实源优先级、写入落点唯一性、高风险四类、变更集三要素、终止回复、完成判据两栏、委托契约、失败处理、14 个原因码枚举、档案增长阈值、任务三档分级）。六份 reference 各加一行指针，公共段不再各写一遍。
+- 档案增长边界：6 个只追加产物（进度 / 决策 / 调试 / 契约变更 / 初始化报告 / 蒸馏台账）与 2 个目录型产物（`docs/handoff/`、`docs/agents/audit/`）超阈值时先归档再写；归档只追加、总条目守恒、编号取「活跃 + 归档」最大值。此前无任何上限，本仓 `project-progress.md` 已长到 2072 行 / 585KB，超出单次读取上限，使「会话开始先读三件套」的义务物理上不可执行。
+- `SKILL.md` 本文件写入闸三条（约束行为吗 / 优先进 reference / 行数 ≤185）。
+
+### 变更
+
+- `SKILL.md` 由 196 行压到 185 行：5 条 CLAUDE 迁移失败模式移到 `references/init-agents-md.md` 的「失败处理」节，4 条审查失败模式移到 `references/audit-project.md`，原位各留一行指针；产物布局表合并同类行；非目标与 Gotchas 去重。
+- 脱敏收敛为 `SKILL.md` 单一真源，`handoff-context.md` / `audit-project.md` 改为引用；`sync-progress.md` 补上此前缺失的脱敏条（它是过程档案的主要写入者，最易夹带凭据）。
+- 五态处置定义收敛到 `agents-md-generator.md` §2b，`init-agents-md.md` 只留处置步骤与指针。
+- 原因码统一：`already-covered:<条目>` 并入 `covered-by:<条目>`，新增 `no-threshold-hit`。
+- 归档阈值只在 `workflow-protocol.md` P10 定义，`sync-progress` / `handoff-context` / `audit-project` / `init-agents-md` / `agents-md-generator` 不再复述具体数字。
+
+### 修复
+
+- `assets/experience/changelog.md` 的追加格式原写「唯一真源 = `references/distill-experience.md`」，但该模板会被原样复制进目标项目，那里没有这个文件。改为模板自带完整规格（区间三写法 / 原因码 / 双台账一致性 / 修订留痕），目标项目可独立执行。
+- 同一类问题在前一轮 P0 中也出现过：`assets/docs/project-progress.md` 与 `agents-md-generator.md` 的 Conventions 行一度改成指向 `workflow-protocol.md`，已恢复具体阈值。新增自检门「模板自包含」——模板类文件不得出现 `references/*.md` / `workflow-protocol` / `SKILL.md`。
+- `README.md` 的「与相邻技能的边界」明确为非目标的人读导航，规则本体归 `SKILL.md`，消除两处不同步。
+
 ---
 
 ## v1.10.0 (2026-11-16)

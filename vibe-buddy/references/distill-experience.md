@@ -17,6 +17,8 @@ writes-to:
 
 # distill · 把开发过程蒸馏成可复用经验
 
+公共段（触发顺序 / 事实源 / 变更集三要素 / 终止回复 / 完成判据 / 原因码 / 归档阈值）见 `references/workflow-protocol.md`，本文件只写专有段。
+
 ## 目标
 
 把**本项目开发过程中反复成立的做法**，从一次性的记录里提炼成**按主题组织的可复用经验**：让本项目下一次不必重踩，也让这些结论能离开本项目被复用。
@@ -157,7 +159,7 @@ writes-to:
 | `single-occurrence` | 只发生一次，够不上"反复成立" |
 | `no-fact-source` | 有做法但指不到事实源 |
 | `project-param` | 只对本项目成立，属 🟢 参数而非经验 |
-| `covered-by:<条目号>` | 已被既有条目覆盖 |
+| `covered-by:<条目号>` | 已被既有条目覆盖（原因码全表见 `workflow-protocol.md` P9） |
 
 `changelog.md` 是**人读台账，一行一条**（机读去重看 `.distill-index.json`）：
 

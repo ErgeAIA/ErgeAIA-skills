@@ -31,6 +31,8 @@ writes-to:
 
 # init · 建立协作契约与过程文档
 
+公共段（触发顺序 / 事实源 / 写入唯一性 / 高风险四类 / 终止回复 / 完成判据 / 委托契约 / 原因码）见 `references/workflow-protocol.md`，本文件只写专有段。
+
 ## 目标
 
 让一个从未见过本项目的 agent，读完 `AGENTS.md` 就知道：能做什么、用什么命令、遵守什么约定、去哪看进度与决策，以及**每完成一次任务必须同步哪些文档**。
@@ -53,6 +55,7 @@ writes-to:
     │   ├── agents-changelog.md      # 层 C：AGENTS.md 变更记录
     │   ├── init-report.md           # 本次初始化执行报告
     │   ├── project-overview.md      # 可选，层 B
+    │   ├── archive/                 # 超阈值归档落点（首次归档时建）
     │   └── experience/              # 可复用经验库（仅建空目录，内容由 vibe-distill 首次蒸馏时建）
     └── handoff/                     # 交接文档
 ````
@@ -150,15 +153,15 @@ writes-to:
 ## 决策保全（状态 B / C / D / E 必做）
 
 1. 摘录既有契约文件全部条目；**无契约文件时**，摘录代码、提交、配置中可识别的现存约定，形成既有约定清单。
-2. 逐条四态处置：`keep` 原样继承 / `update` 以代码现状为准改写 / `drop` 删除 / `merge` 合并去重；**有效规则写错位置**的按第 5 条的 `relocate` 迁出。
+2. 逐条五态处置：`keep` 原样继承 / `update` 以代码现状为准改写 / `drop` 删除 / `merge` 合并去重 / `relocate` 迁出。**五态定义、去处表与冲突裁决阶梯的唯一真源是 `references/agents-md-generator.md` §2b**，本文件不复述。
 3. 每一条 `update`、`drop` 与 `relocate` 写入 `docs/agents/agents-changelog.md`，一行一条 `<旧值> → 处置 → <新值/去处/原因>`，**禁止静默丢失**。
 4. 旧位置残留（如项目根 `references/` 下的旧决策或变更日志）：内容合并进 `docs/agents/` 的新落点，旧文件按 `drop` 处理并留痕，**禁止新旧两处并存**。
-5. **`relocate`（第五态）：** 段落本身有效、只是不属于 `AGENTS.md`（杂音 N1–N5），按 `references/agents-md-generator.md` §6b 迁往该类归宿：原文进新落点、原处改指针、留痕写 `agents-changelog.md`。**`relocate` 不等于 `drop`**——只有确认无执行价值才 drop；判断不了归属的按第 6 条列为待确认，**不得留在 `AGENTS.md` 里等以后再说**。
+5. **`relocate` 不等于 `drop`**：段落本身有效、只是不属于 `AGENTS.md` 的，按 §6b 迁往该类归宿（原文进新落点、原处留指针、留痕写 `agents-changelog.md`）；只有确认无执行价值才 drop；判断不了归属的按第 6 条列为待确认，**不得留在 `AGENTS.md` 里等以后再说**。
 6. 处置不下的条目标记为待确认交给用户裁决，不自行删除。
 7. **源文件未被 git 跟踪时必须先留档**：`git status` 显示为未跟踪（`??`）的既有契约，一旦处置就无法从版本历史回溯。此时先把原文完整存一份到 `docs/agents/` 下（推荐并入 `agents-changelog.md` 的存档小节），再执行 `drop` / `update` / `relocate`；**禁止在无留档的情况下丢弃未跟踪文件的内容**。
-8. **既有档案不是六节结构时，允许按 `merge` 重组**：「已初始化优化」的「禁止整体重写」指的是**不得在没有处置记录的情况下换掉契约**，不是不能调整章节。既有档案若为项目自建的多节结构，逐条四态处置后重组为六节是**允许的**，前提是每条处置都在 `agents-changelog.md` 留痕。
+8. **既有档案不是六节结构时，允许按 `merge` 重组**：「已初始化优化」的「禁止整体重写」指的是**不得在没有处置记录的情况下换掉契约**，不是不能调整章节。既有档案若为项目自建的多节结构，逐条处置后重组为六节是**允许的**，前提是每条处置都在 `agents-changelog.md` 留痕。
 
-**全新初始化**跳过四态处置，但仍建 `docs/agents/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
+**全新初始化**跳过五态处置，但仍建 `docs/agents/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
 
 ### 存量杂音扫描（增量维护路径必做）
 
@@ -181,9 +184,10 @@ writes-to:
 | `docs/agents/decision-log.md` | 开发决策（`DEC-NNN`，优先级高于 PRD），随开发持续更新 | `vibe-sync` |
 | `docs/agents/debug-log.md` | bug 记录，编号 `BUG-NNN` 递增 | `vibe-sync` |
 | `docs/agents/agents-changelog.md` | AGENTS.md 变更记录，**只在 AGENTS.md 改动时更新** | `vibe-init` 独占 |
-| `docs/agents/init-report.md` | 初始化执行记录，只追加 | `vibe-init` 独占 |
+| `docs/agents/init-report.md` | 初始化执行记录，只追加；活跃有节数上限 | `vibe-init` 独占 |
+| `docs/agents/archive/` | 超阈值产物的归档落点，首次归档时由 `vibe-sync` 建（含 `.gitkeep`）；阈值见 `Conventions` 的「档案超阈值须归档」一行 | `vibe-sync` |
 | `docs/agents/experience/` | 可复用经验库，按领域分目录；初始化只建空目录，内容由首次蒸馏时按 `assets/experience/` 模板建立 | `vibe-distill` |
-| `docs/handoff/` | 交接文档，命名 `handoff-YYYY-MM-DD-*.md` | `vibe-handoff` |
+| `docs/handoff/` | 交接文档，命名 `handoff-YYYY-MM-DD-*.md`；活跃有份数上限 | `vibe-handoff` |
 
 **只追加**（下表各文件的「当前状态」可变块除外）：`decision-log` / `debug-log` / `init-report` / `agents-changelog` 的历史条目永不删除或改写，决策冲突时把旧条目标 `superseded`；`project-progress.md` 的「当前状态」块按可变区覆盖、进展条目只追加；`experience/` 是**可移植产物**——正文可改写（错的规则留着会持续误导），历史靠其 `changelog.md` 追溯。
 
@@ -260,7 +264,7 @@ writes-to:
 
 ### 迁移保全规则
 
-- 旧 `CLAUDE.md` 中每条有效规则必须落入**五种处置之一**：`keep` / `merge` / `update` → 进入 `AGENTS.md`（`update` 须以代码现状为准改写并在层 C 留痕）；`relocate` → 迁往 §6b 规定的归宿文件、原处留指针；`drop` → 在 `agents-changelog.md` 记录原因。**不得出现「既不进 AGENTS.md、也无 relocate / drop 记录」的规则。**（与 `references/agents-md-generator.md` §2b 同一套处置，不另立分类。）
+- 旧 `CLAUDE.md` 中每条有效规则必须落入**五种处置之一**，**不得出现「既不进 `AGENTS.md`、也无 `relocate` / `drop` 记录」的规则**。五态定义与去处表见 `references/agents-md-generator.md` §2b，本文件不另立分类。
 - 待确认条目写入终止回复交用户裁决；未裁决前源文件保留。
 - 源文件未被 git 跟踪时，先按决策保全的留档规则把原文存入 `agents-changelog.md` 存档小节，再执行处置。
 - 迁移记录若早于「建立过程文档」步骤落盘：先按 §4b 模板建立 `docs/agents/agents-changelog.md`，再写迁移条目——**处置留痕必须先于源文件删除**。
@@ -330,7 +334,7 @@ writes-to:
 | 仓库卫生 | `CHANGELOG.md` 检测与委托 | `<project>/CHANGELOG.md` | 完成 / 已存在跳过 / 待补 | 含 `[Unreleased]`，无版本号节 |
 | 仓库卫生 | `README.md` 检测与委托 | `<project>/README.md` | 完成 / 已存在跳过 / 待补 | — |
 | 状态识别 | 三信号查表 | — | 完成 | 判定为 <模式> |
-| 决策保全 | 既有约定四态处置 | `docs/agents/agents-changelog.md` | 完成 / 跳过 | N 条 |
+| 决策保全 | 既有约定五态处置 | `docs/agents/agents-changelog.md` | 完成 / 跳过 | N 条 |
 | 契约生成 | 生成或增量维护 | `AGENTS.md` | 完成 | N 行；杂音扫描命中 M 段（迁出 / 删除） |
 | 过程文档 | 复制模板、补齐缺口 | `docs/agents/*` | 完成 | 新建 X / 跳过 Y |
 | 契约迁移 | `CLAUDE.md` → `AGENTS.md`（状态 C / D） | 源 `<project>/CLAUDE.md` → `AGENTS.md` | 完成 / 跳过 / 失败（保留源） | keep N / update N / merge N / drop N / relocate N；冲突待确认 N |
@@ -351,6 +355,16 @@ writes-to:
 - 命令输出只留结论，长输出截断，含密钥或敏感路径时脱敏
 - 「建议」小节可为空，但不写空泛客套
 - 本文件**不列入 `AGENTS.md` 的 `References`**：它是执行留痕，不承担日常上下文职责（依 §6 写入闸「删掉此行 Agent 会犯错吗」判定）
+
+## 失败处理
+
+| 触发条件 | 一线修复 | 仍失败兜底 |
+|---|---|---|
+| CLAUDE → AGENTS 迁移中断（读取、整理或写入任一步失败） | 停止迁移，按已完成部分留痕 | 保留 `CLAUDE.md` 原样，终止回复「迁移未完成，原 CLAUDE.md 保留」 |
+| `AGENTS.md` 迁移写入后实读验证失败 | 修复缺项并复验 | 仍失败 → 禁止删除 `CLAUDE.md`，报告失败原因与已留痕部分 |
+| `AGENTS.md` 与 `CLAUDE.md` 规则冲突 | 以代码 / 配置 / 实际项目状态为事实证据裁决 | 相同适用条件且证据不足 → 停下问用户，未裁决前不删 `CLAUDE.md` |
+| `CLAUDE.md` 删除前置闸未全过 | 补齐缺项后复闸 | 禁止删除，终止回复「迁移未完成，原 CLAUDE.md 保留」 |
+| AGENTS 唯一源校验失败 | 按缺项修复（补迁移记录 / 补契约内容） | 无法修复 → 终止回复列明未过项，不宣称完成 |
 
 ## 终止回复
 

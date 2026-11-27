@@ -88,12 +88,12 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 ## 3 决策保全（半程合成/已初始化优化必做）
 
 1. 摘录全部既有来源：标准契约文件（含 `CLAUDE.md`——存在时按 §2b 迁移处置，不长期保留）、**agent 目录内的规则文件**、项目文档中的硬约束、代码与提交中可识别的现存约定 → 既有约定清单
-2. 逐条四态处置：keep 原样继承 / update 以代码现状为准改写 / drop 删除 / merge 合并去重
+2. 逐条五态处置：keep 原样继承 / update 以代码现状为准改写 / drop 删除 / merge 合并去重 / relocate 迁出（去处见 §2b）
 3. 已在别处维护的规则可 **keep 原地保留 + 在 `AGENTS.md` 加指针**，不必搬进 `AGENTS.md` 复述（依 §6 写入闸去重条）；但 A 层须有一行义务把它纳入生效链
 4. 铁律：update 与 drop 必须写入层 C 变更日志 `docs/agents/agents-changelog.md`（旧值 → 处置 → 新值/原因），禁止静默丢失
 5. 旧位置残留：旧日志类文件（如项目根 `references/` 下的决策或变更日志）内容合并进新落点，旧文件按 drop 处理并留痕；禁止新旧两处并存
 
-全新初始化跳过四态处置，但仍建 `docs/agents/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
+全新初始化跳过五态处置，但仍建 `docs/agents/agents-changelog.md` 并写一行兜底：`<无旧约定> → 全新初始化 → 直建当前 AGENTS.md`。
 
 ## 4 证据采集（只收非可推断事实）
 
@@ -114,14 +114,15 @@ AGENTS.md 每行必须且仅能命中五种句式之一，越界行删除或改�
 ````text
 <project>/docs/
 ├── agents/
-│   ├── project-progress.md     # 进度，每次会话更新
-│   ├── decision-log.md         # 开发决策，优先级高于 PRD
-│   ├── debug-log.md            # bug 记录
+│   ├── project-progress.md     # 进度，每次会话更新；活跃 ≤300 行
+│   ├── decision-log.md         # 开发决策，优先级高于 PRD；活跃 ≤200 条
+│   ├── debug-log.md            # bug 记录；活跃 ≤100 条
 │   ├── agents-changelog.md     # AGENTS.md 约定处置，仅初始化/维护时写
-│   ├── init-report.md          # 初始化执行报告，每次 init 追加一节
+│   ├── init-report.md          # 初始化执行报告，每次 init 追加一节；保留最近 3 节
 │   ├── project-overview.md     # 可选，层 B
+│   ├── archive/                # 超阈值时由 vibe-sync 首次归档时建（含 .gitkeep）
 │   └── experience/             # 可复用经验库，按领域分目录（仅建空目录，内容由 vibe-distill 建）
-└── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md
+└── handoff/                    # 交接文档，handoff-YYYY-MM-DD-*.md；活跃 ≤30 份
 ````
 
 各文档按 `assets/docs/` 下同名模板原样复制，替换 `<工程标识>` 并把 `updated` 改为当日：
@@ -195,6 +196,7 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 | 改 docs/agents 或 handoff 须同步 updated | 改完立刻把 frontmatter updated 改为当日 |
 | 改 AGENTS.md 须留一行变更记录 | 在 docs/agents/agents-changelog.md 追加「旧值 → 处置 → 去处」，无记录视为静默丢失 |
 | 经验库按领域分目录 | 可复用经验落 docs/agents/experience/<领域>/；正文可改写、历史靠 changelog.md，与 docs/agents 其余三份的「只追加」不同 |
+| 档案超阈值须归档 | 进度 >300 行、决策 >200 条、bug >100 条、handoff >30 份、audit >20 份时，先归档到 docs/agents/archive/ 再写新条目；归档只追加，归档+活跃条数守恒，编号取两者最大值 |
 | AGENTS.md 杂音归宿 | 变更日志 → CHANGELOG.md（无则 decision-log.md）；人读说明 → README.md（无则不写）；决策叙事与踩坑 → decision-log.md 与 debug-log.md；执行流水 → init-report.md 与 project-progress.md |
 | 仓库文档归属 | README 生成或优化 → shuxu；CHANGELOG 建立、改结构、归档版本 → changelog-manager，日常只按既有格式追加 `[Unreleased]`；.gitignore 新增或修正 → git-manager；其他角色只报告缺口，不代写 |
 
@@ -262,6 +264,8 @@ YOU MUST 每次只推进一个阶段，完成即停，等用户验证
 - §6b 判定的每个杂音命中项都能说出归宿；说不出归宿的判为**不可写入**，不得留在本文件
 - `Permissions` 的**义务类别**必须与 §5 逐类对齐：接管义务 / 文档义务 / 常驻纪律 / **反杂音义务**，加上 `IMPORTANT` 与 `禁止`，**缺类不算通过**。增量维护（半程合成 / 已初始化优化）时**必须逐类比对**——只核句式、黑名单与行数会漏掉整类缺失，这正是一份缺了接管义务的产物仍能通过其余全部检查的原因
 - §4b 各文档已按模板落地且未覆盖既有文件
+- **模板自包含**：`assets/docs/` 与 `assets/experience/` 下的文件会被原样复制进目标项目，其中不得出现 `references/*.md`、`workflow-protocol`、`SKILL.md` 等技能内部路径——目标项目没有这些文件，指针必断。规则要写全，不写「见某技能文档」
+- 增量维护时已核「是否触发归档」：某产物超阈值而本轮未归档 → 终止回复写明未归档项与原因，不得静默继续
 - `AGENTS.md` 本次若有改动，`docs/agents/agents-changelog.md` 必须有对应行
 - 发生过 §2b 迁移时：每条处置计数与 `agents-changelog.md` 一致、无悬空规则；`AGENTS.md` 已实读验证通过后才删源，未删源则终止回复写明原因
 
