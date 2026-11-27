@@ -3,7 +3,7 @@ name: vibe-buddy
 description: "固化项目协作契约、进度与跨会话交接，产出开发项目只读审查、档案体检与 EARS 需求澄清结论。Use when 用户说初始化项目、生成 AGENTS.md、同步进度、把踩的坑记下来、写交接文档、经验蒸馏、审查项目、审这次改动、只看安全、发版前检查、体检档案、需求澄清、写成需求、EARS 或收尾，或直呼 vibe- 命令。"
 metadata:
   author: ErgeAIA
-  version: "1.11.0"
+  version: "1.12.0"
 ---
 
 # vibe-buddy

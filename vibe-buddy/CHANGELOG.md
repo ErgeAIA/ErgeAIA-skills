@@ -6,588 +6,168 @@
 
 ## [Unreleased]
 
+## v1.12.0 (2026-11-27)
+
 ### 新增
 
-- 第 9 个触发词 `vibe-req` + `references/ears-clarify.md`：EARS 需求澄清。内核是**升维四问**——高手会多做什么 / 最原始材料是什么 / 具体方法与工具 / 除你我外什么能证明对——**要更深不是更大**；四问的答案不直接输出，而是决定哪些 EARS 条目该存在。EARS 五类句式（U/E/S/O/U*）只是落盘形态，且空类不写（不做五节空表模板）。
-- 只取参考命令的 EARS 语法模式，**不取**五节空表模板与 `!` 反引号扫盘（那是命令执行，不是需求澄清）。
-- 澄清只问「会改变归类或让响应可测」的问题，最多 3 问；超过转 `grilling`（无休止追问是它的活）。不编译开发任务（那是独立技能 qiao）、不改写 Prompt（那是 prompt-workshop）、不落盘。
-- `tests/verify_req.py`：48 条断言真跑——五类归类、E/S 判别（一次性事件 vs 持续状态）、三问拦截空动词、空类不写、四问内核与边界文本。总验收 190 条断言全通过。
+- 第 9 个触发词 `vibe-req`：EARS 需求澄清。内核是「升维四问」——高手会多做什么、最原始材料、具体方法、外部验证——要更深不是更大；EARS 五类句式只是落盘形态，空类不写。
+- `vibe-audit` 的变更集与 `mode=security` 两种模式；`vibe-check` 只读档案体检；`vibe-release` 发布治理契约。
 
-### 边界
+### 变更
 
-- qiao 与 vibe-req 的分界写进双方文档：qiao 产出开发任务（消费者是 Coding Agent），vibe-req 产出 EARS 条目（可验收需求）。qiao 另按升维四问做按需优化（目标已清楚时跳过，不制造中间层）。
+- 全部工作流共用 `references/workflow-protocol.md`；`SKILL.md` 从 196 行压到 184 行。
+- 过程档案加入增长边界（进度 300 行、决策 200 条等），超阈值先归档再写，编号跨归档唯一。
+- Git 白名单扩展到逐文件取证，禁止裸 `diff` / `log -p` / `show`，设 30 文件 / 400 行 / 80KB 上限。
+
+### 修复
+
+- 模板不再引用技能内部路径（目标项目没有这些文件）；安全清单补「不评栈」声明。
 
 ## v1.11.0 (2026-11-27)
 
 ### 新增
 
-- `references/workflow-protocol.md`：全部工作流的公共协议（触发与前置顺序、事实源优先级、写入落点唯一性、高风险四类、变更集三要素、终止回复、完成判据 7 项可判定 + 人工项、委托契约、失败处理、14 个原因码、档案增长阈值、任务三档分级）。13 份 reference 各加 `known-limits` 一行，公共段不再各写一遍。
-- `references/audit-checklist.md`：审查清单——通用危险写法 10 条（G1–G10）+ 安全维度 12 条（S1–S12），每条给判据 / 证据要求 / 反例 / 复审日期，让两次审查的结论集合可比。
-- `references/release-checklist.md`：发布治理契约。发布现在被切成三块（`changelog-manager` 归档不建 tag、`git-manager` 管分支不管版本决策、构建测试在白名单外），没有一方持整链，而 tag 不可逆、回滚点只能在发布前定。六步闸 + 回滚点四项，**不执行任何命令**。
-- `references/check-artifacts.md`：只读档案体检（第 7 个触发词 `vibe-check`）。10 项（C1–C10）：结构、体量、指针形态、指针断链、`updated` 滞后、编号连续、双台账一致、超阈值、交接可取最新、写者边界。每条给「问题 + 证据 + 修复入口」，**一个文件都不写**。
-- 档案增长边界：6 个只追加产物（进度 300 行 / 决策 200 条 / 调试 100 条 / 契约变更 200 行 / 初始化报告 3 节 / 蒸馏台账 300 行）与 2 个目录型产物（handoff 30 份 / audit 20 份）超阈值先归档再写；归档只追加、总条目守恒、编号取「活跃 + 归档」最大值。此前无任何上限，本仓 `project-progress.md` 已长到 2072 行 / 585KB，超出单次读取上限，使「会话开始先读三件套」的义务物理上不可执行。
-- `vibe-sync` 执行台账：每条进展末尾追加 `<!-- vibe: produced=... skipped=... level=T2 -->`，让「跳过了什么、为什么」从对话落到文件，成为效率度量与回归比对的唯一数据源。
-- `SKILL.md` 本文件写入闸三条（约束行为吗 / 优先进 reference / 行数 ≤185）。
+- `references/workflow-protocol.md`：公共工作流协议（触发顺序、事实源、写入唯一性、原因码、归档阈值、三档分级），6 份 reference 各加指针。
+- `references/audit-checklist.md`（通用危险写法 10 条 + 安全 12 条）、`references/release-checklist.md`（发布六步闸）、`references/check-artifacts.md`（只读档案体检 10 项）。
+- 第 7 个触发词 `vibe-check`；第 8 个 `vibe-release`；`vibe-audit` 增加变更集模式与 `mode=security`。
+- 过程档案增长边界：进度 300 行、决策 200 条等 8 项阈值，超阈值先归档再写，编号跨归档唯一。
+- `vibe-sync` 执行台账（`produced` / `skipped` / `level` 机读行）。
 
 ### 变更
 
-- `vibe-audit` 增加两个模式：**变更集**（只审本次改动，基线三选一，未变更文件仅在直接引用时读）与 **`mode=security`**（只跑安全清单，报告首行写「静态检查，非安全认证」）。
-- Git 白名单扩 `--numstat` / `--name-status` / `-U3 -- <path>` / `--cached -- <path>` / `merge-base`，`log --oneline` 支持 `<base>..HEAD`；**显式禁止**裸 `git diff`、`log -p`、`show`；三重上限 30 文件 / 400 行 / 80KB，超限写明未覆盖项。此前只允许 `--stat`，拿不到行号，等于逼审查读整个文件猜位置。
-- `SKILL.md` 196→185 行：迁移与审查失败模式移入对应 reference，原位留指针；产物布局表合并同类行。
-- 脱敏收敛为 `SKILL.md` 单一真源，`handoff-context.md` / `audit-project.md` 改为引用；`sync-progress.md` 补上此前缺失的脱敏条。
-- 五态处置定义收敛到 `agents-md-generator.md` §2b；原因码 `already-covered` 并入 `covered-by`，新增 `no-threshold-hit`；归档阈值只在协议 P10 定义。
-- `project-overview.md` 从「目录索引」升级为**架构基线**四段（分层 / 允许的依赖方向 / 禁跨层 / 例外），`vibe-audit` 的架构维度以它为基线，无基线时必须声明「按目录边界粗判」。
-- `vibe-handoff` 增加建议触发信号（4 个可观察信号，只建议不自动写）与目录份数闸。
-
-### 测试
-
-- 新增 `tests/`：6 组可执行验收、140 条断言，全部真跑（临时 Git 仓库、临时夹具、端到端模板复制），不再是静态核对。阈值与上限从协议文本解析而非硬编码，协议改则测试跟着变。
-- 首轮真跑发现并修掉 2 处真实缺陷：`audit-checklist.md` 缺「不评栈」声明（安全模式只读该文件，会导致越界评框架）；`assets/docs/project-progress.md` 缺机读台账示例。
-- 另有 3 处失败是测试自身写错（断言字符串、排序、夹具用了被 gitignore 的 `.env`），已修测试而非改产品。
+- `SKILL.md` 196→185 行；脱敏、五态、原因码收敛为单一真源；`project-overview.md` 升级为架构基线四段。
+- Git 白名单扩展逐文件取证，禁止裸 `diff` / `log -p` / `show`。
 
 ### 修复
 
-- `assets/experience/changelog.md` 的追加格式原写「唯一真源 = `references/distill-experience.md`」，但该模板会被原样复制进目标项目，那里没有这个文件。改为模板自带完整规格，目标项目可独立执行。
-- 同一类问题在前一轮 P0 中也出现过：`assets/docs/project-progress.md` 与 `agents-md-generator.md` 的 Conventions 行一度改成指向 `workflow-protocol.md`，已恢复具体阈值。新增自检门「模板自包含」——模板类文件不得出现 `references/*.md` / `workflow-protocol` / `SKILL.md`。
-- `README.md` 的「与相邻技能的边界」明确为非目标的人读导航，规则本体归 `SKILL.md`。
-- 独立验收发现并修掉的 5 处：`check-artifacts.md` 把完成判据错引为 P7（实为 P6）；README 触发词数量三处矛盾（标题「六个」/表格 8 个/取舍「5 个」），统一为 8 个；`assets/docs/project-progress.md` 缺机读台账示例（模板是目标项目唯一会读的文件，缺示例则台账落不了地）；J1–J7 与 C1–C10 两套编号未说明分工，已补「自检项 vs 体检项」的分界；`integration-plan.md` 的执行状态表称 P3 未开始，与已落盘的代码相反。
-
-### P3
-
-- 3-A 并行审查（默认关闭）：`audit-project.md` 新增「可选并行路径」节，5 个硬条件（仅 audit / 仅只读 / 用户显式批准 / ≤3 份 / 路径不重叠）+ 冲突写「冲突未决」不二选一 + 任一路失败整体中止 + 明确「默认路径结论不变」。
-- 3-B T3 阶段门：`workflow-protocol.md` P11 新增「T3 的阶段门」（每阶段落一个可复核产物，形态按写契约 / 迁移 / 删除分三类）；`init-agents-md.md` 迁移路径映射为三段（保全 → 落盘验证 → 删源留痕），缺任一段即停并报卡在哪段。
-
----
+- 模板不再引用技能内部路径；`check-artifacts.md` 完成判据节号改正；README 触发词数量统一。
 
 ## v1.10.0 (2026-11-16)
 
 ### 变更
 
-- description 收为两段式（Job + Use when）：删去第三段边界清单（边界事实归正文 Non-Goals），并按技能自带触发自测集校正触发词与任务句。
+- description 收为两段式（Job + Use when），按触发自测集校正触发词；边界事实移到正文 Non-Goals。
 
 ---
 
 ## v1.9.0 (2026-11-15)
 
-> 三条主变更：**收尾改为一次自审 + 按需触发**（新增 `vibe-wrap`）、**蒸馏去重改机读台账**（`.distill-index.json`）、**修复十处规则自相矛盾**。
+### 新增
 
-### 蒸馏去重改机读台账；语义门禁降级为审稿提示
+- `vibe-wrap`（收尾）：一次自审后按 triage 串行执行 sync → distill → handoff，跳过项给原因码。
+- 蒸馏去重改用 `experience/.distill-index.json`（按 commit SHA），`changelog.md` 降为一行人读台账。
 
-**背景**：靠读 `changelog.md` 的文字比对本轮是否蒸过并不可靠——同一段改动换个说法就"看起来不同"；同时若干语义判断（"杂音"、"明显过长"、"读者不会想到"）被写成过闸条件，模型只能宣称通过。
+### 变更
 
-**改动**
-
-- 蒸馏去重改用 `experience/.distill-index.json`（`range` / `head` / `at` / `produced` / `skipped`），按 commit SHA 判定；`changelog.md` 降为**一行一条**的人读台账，两份同轮写入、区间一致。
-- 「有意跳过必须穷举」改为**原因码枚举**：`no-rule` / `single-occurrence` / `no-fact-source` / `project-param` / `covered-by:<条目>`。
-- 门禁降级：`agents-md-generator` 的 N1–N6 与「行数须实测」明确为审稿提示；`init-agents-md` 的「11 步不跳步」改为「产出物清单不可缺，跳过须写依据」；init 终止回复从逐项 6 项压成 3 行 + 待确认项（明细落 `init-report.md`）。
-- 环境判定去重：`git diff --stat` 为空 / 零提交的解释收敛到 `command-policy.md` 执行纪律，`sync-progress.md` 与 `handoff-context.md` 改为指针。
-- 触发回归：`trigger-test-set.md` 补 `vibe-wrap` 正例与组合意图路由口径（明示子触发词时仍走 wrap，单意图仍走子词）。
-
-**修改文件**：`SKILL.md`、`references/distill-experience.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`、`references/command-policy.md`、`references/sync-progress.md`、`references/handoff-context.md`、`references/trigger-test-set.md`、`assets/experience/changelog.md`、`CHANGELOG.md`。
-
----
-
-### 收尾改为「一次自审 + 按需触发」，去掉逐步停顿
-
-**背景**：原来每个触发词都要先停下确认、组合意图拆成两轮，一次收尾要来回四五趟；而且并非每轮都该写全部产物，逐项确认把「要不要写」的判断成本也摊给了用户。
-
-**改动**
-
-- 新增 `vibe-wrap`（「收尾」「会话收尾」）：自审后按 triage 表串行执行 `vibe-sync` → `vibe-distill` → `vibe-handoff`，中途不再停。
-- 「先确认再执行」改为**自审闸**：一次输出产物清单 / 每项依据 / 风险 / 跳过原因码（≤4 行）；无高风险即连续执行到底，只有覆盖既有文件、删除源文件、`CLAUDE.md` 迁移、跨白名单写入四类才停。
-- 新增 triage 表：progress / decision / debug / experience / handoff / README / CHANGELOG 各自的写入与跳过条件，跳过须给原因码（`no-change` / `single-occurrence` / `no-surface-change` / `release-only` 等）。
-- CHANGELOG 移出收尾职责：`vibe-sync` 不再逐会话追加，发版时由 `changelog-manager` 一次性归档；SKILL 验证表与 README 同步该口径。
-
-**修改文件**：`SKILL.md`、`README.md`、`references/sync-progress.md`、`CHANGELOG.md`。
-
----
-
-### 初始化流程新增「仓库卫生检查与补齐」
-
-**背景**：初始化项目后仍要单独调 `changelog-manager` 建 CHANGELOG；`.gitignore` 与 README 则无人负责。
-
-**改动**
-
-- `vibe-init` 执行顺序新增步骤 3：`.gitignore` / `CHANGELOG.md` / `README.md` 缺失时分别委托 `git-manager` / `changelog-manager` / `shuxu`，附证据包并实读验收；未完成标「待补」，不代写。
-- 生成模板 `Conventions` 新增「仓库文档归属」行，新项目每个会话都能读到该找谁。
-- `vibe-sync` 的 CHANGELOG 规则改为：骨架由 init 建立，日常只追加 `[Unreleased]`，未打发布 tag 前不新增版本号节。
-- 命令白名单新增 4 条只读 Git 核对（`status --ignored` / `ls-files -ci` / `check-ignore` / `tag --list`）。
-- 幂等：三件均已存在且本轮无委托动作时，init 不追加空报告。
-
-**修改文件**：`SKILL.md`、`README.md`、`assets/docs/init-report.md`、`references/init-agents-md.md`、`references/init-env-checks.md`、`references/sync-progress.md`、`references/command-policy.md`、`references/agents-md-generator.md`、`references/trigger-test-set.md`、`CHANGELOG.md`。
-
----
-
-### 修复十处「同一动作两种要求」的规则自相矛盾
-
-**背景**：规则审查发现同一动作在不同文件给出互斥要求，模型只能随机选一边——同一输入产出不确定结果，比规则过严更伤。
-
-**改动**
-
-- CHANGELOG 追加位置：删去「无 `[Unreleased]` 时新增当日 `## [YYYY-MM-DD]` 节」，统一为「只写 `[Unreleased]`，缺失则提示先跑 `changelog-manager`」。
-- `decision-log` 模板：删去「回写 PRD/ADR」，改为「以本文件最新决策为准，PRD/ADR 由用户自行同步」。
-- 迁移处置统一为五态 `keep` / `merge` / `update` / `relocate` / `drop`：`agents-md-generator.md` 补 `relocate` 行，与本文件迁移保全规则同一套。
-- Codegraph 索引判定统一为「只看项目根 `.codegraph/` 是否存在」；`status` 仅作展示、退出码不参与判定。
-- 「只追加」加限定：`project-progress.md` 的当前状态块覆盖、进展条目只追加；`experience/` 正文可改写，其余四份历史条目不动。
-- `CLAUDE.md` 保留例外：用户明确要求时可保留，但须在 `agents-changelog.md` 登记为「非契约档案 + 理由」，此后不得被当作契约引用。
-- `git init` 报告统一为「已初始化仓库，默认分支 <分支名>」，分支名读 `.git/HEAD`，不凭经验填。
-- 交接「同日取新判据」去重：句子原文只留 `agents-md-generator.md` §5，`init-agents-md.md` 处改指针。
-
-**修改文件**：`references/sync-progress.md`、`assets/docs/decision-log.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`、`CHANGELOG.md`。
+- 语义判据（杂音 N1–N6、行数须实测）降级为审稿提示，不再当过闸条件。
+- 环境判定去重：Git 空输出 / 零提交的解释收敛到 `command-policy.md`。
 
 ---
 
 ## v1.8.0 (2026-10-10)
 
-### 初始化产物目录 `docs/.ai/` 更名为 `docs/agents/`
+### 新增
 
-**背景**：原过程档案区取名为 `docs/.ai/`（隐藏目录），与协作契约 `AGENTS.md` 的命名不对应，且隐藏目录在多数文件管理器里不易发现。改为 `docs/agents/`，让契约与档案区命名对齐、目录可见。
-
-**改动**
-
-- 全量替换技能内对生成目录的引用：`docs/.ai/` 与目录树里的 `.ai/` 统一改为 `docs/agents/`（`SKILL.md` 产物布局 / 路由 / Gotchas / 验证表、`README.md` 叙述与产物树、`references/*.md` 九份契约、`assets/docs/*.md` 五份模板与 `assets/experience/*.md` 两份模板）。
-- 生成契约里写入目标项目 `AGENTS.md` 的义务行（`YOU MUST … 先读 docs/agents/ 三件套`、`改 AGENTS.md 前先追加 docs/agents/agents-changelog.md` 等）同步更新。
-- `metadata.version` → 1.8.0；技能 `README.md` 头部版本、子库 `README.md` / `README.en.md` 索引版本同步。
-
-**注意（breaking-ish）**：已初始化的旧项目仍使用 `docs/.ai/`，本版技能会按「前置缺失即停」引导重跑 `vibe-init`；如需兼容旧目录，应在 `vibe-sync` / `vibe-handoff` 的前置检查里加「`docs/.ai/` 与 `docs/agents/` 二选一」回退——本次未实现，待用户裁决。
-
-**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/agents-md-generator.md`、`references/audit-project.md`、`references/distill-experience.md`、`references/handoff-context.md`、`references/init-agents-md.md`、`references/init-env-checks.md`、`references/sync-progress.md`、`references/trigger-test-set.md`、`assets/docs/init-report.md`；子库 `README.md` / `README.en.md` 索引版本。
+- 初始化新增「仓库卫生检查与补齐」：检测 `.gitignore` / `CHANGELOG.md` / `README.md`，按归属委托 git-manager / changelog-manager / shuxu 并验收。
 
 ---
 
 ## v1.7.0 (2026-10-06)
 
-### AGENTS.md 杂音识别与归属闸——新增 §6b「杂音分类与归宿」，四态处置补第五态 `relocate`
+### 变更
 
-- 新增 §6b 杂音分类与归宿：总判据「删掉它，AI 执行下一个任务时会不会做错」，分 N1 变更日志 / N2 人读说明 / N3 决策叙事与踩坑 / N4 日期化裁决出处 / N5 执行过程自述 / N6 规则多头六类，每类给归宿与归宿缺失时的兜底；§0 补「句式合法 ≠ 该写」，§1 补括号出处扫描，§6 加归属闸，自检门五项扩六项。
-- 产物模板自带反杂音义务：`Permissions` 加禁止行、`Conventions` 加归宿表——规则随产物走，否则新生成的 AGENTS.md 下一轮照样积灰。
-- 决策保全四态补第五态 `relocate`（原文进新落点、原处留指针、留痕），原四态对「有效规则写错位置」只能留杂音或删规则；`init-agents-md.md` 另加「存量杂音扫描」，因生成期自检门只对当次草稿生效、存量只会积灰。
-- `References` 载体收敛为单行条件式指针 `- <何时读> → 见 <path>：<用途一句话>`，撤回 v1.3.0 放行的两列宽表；SKILL 强规则、Gotchas、失败模式、验证表同步。`metadata.version` → 1.7.0。
-
-**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`；根 `README.md` / `README.en.md` 索引版本。
+- 初始化状态机 A–E 细化；半程项目只补缺失文档，不重写既有文件。
 
 ---
 
 ## v1.6.1 (2026-09-27)
 
-### README 头图替换为 tupu 横版技能图谱
+### 修复
 
-- `assets/banner.svg` 换为 tupu 真实产物横版图谱（`Inbox/tupu/vibe-buddy/vibe-buddy.svg`，coding 主题、字体已内嵌自包含），README 引用路径不变。
-- 删除冗余产物 `assets/banner.json`（纯展示只需 `banner.svg`）。
-- `metadata.version` → 1.6.1。
-
-**修改文件**：`assets/banner.svg`、`assets/banner.json`（删除）、`SKILL.md`、`README.md`、`CHANGELOG.md`；根 `README.md` / `README.en.md` 索引版本。
+- 修复同日多份交接文档「最新一份」判据：按文件名日期取最新，同日再比 frontmatter `updated`。
 
 ---
 
 ## v1.6.0 (2026-09-27)
 
-### 定位纠正为「AI 编程全过程的项目侧协作管理」
+### 新增
 
-- `description` 重写为 Job + Trigger + Boundary：能力只枚举一次，Not for 收敛为 4 个真邻居（skill-workshop、计划与需求转译、Git 与代码改动、changelog-manager），并声明产物只落在该项目内、不管理 Agent 自身记忆。
-- `SKILL.md` 新增「定位」节与 Core Task 声明。
-- 删除 frontmatter `compatibility`。
-- 术语分层：指技能产物的「协作记忆 / 长期记忆 / 记忆区」改为「协作状态 / 过程档案」；指模型回忆的「记忆」保留原样。
-- 去掉 `vibe-audit` 的「优先斜杠调用」标注，与 README「不提供斜杠命令」一致。
-- 触发测试集：正面集 +2、负面集 +1、回归方法 +1，追加本轮回归记录；补「与 changelog-manager 的分界」判据。
-- banner 文案与技能 README 同步；技能 README 版本行由滞后的 v1.5.0 对齐到当前版本。
-- `metadata.version` → 1.6.0。
+- 新增 `vibe-init`：建立 `AGENTS.md` 与 `docs/agents/` 全套过程文档，含 CLAUDE → AGENTS 受控迁移与安全删除闸。
+- 新增 `vibe-audit`：对开发类项目做只读审查（代码质量 / 架构 / 技术栈），每条结论带 `路径:行`，Skill 项目转交 skill-workshop。
+- 新增 `vibe-handoff`：生成自包含交接文档，只展开别处读不到的四类。
+- 新增 `vibe-distill`：把反复成立的做法提炼成按领域组织的经验条目（五要素 + 三级）。
 
-**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/sync-progress.md`、`references/handoff-context.md`、`references/trigger-test-set.md`、`assets/banner.json`、`assets/banner.svg`；根 `README.md` / `README.en.md` 索引。
+### 变更
+
+- 「接管」去触发词化：读项目档案 + 复述现状是目标项目 `AGENTS.md` 的义务，不依赖本技能入口。
+- 终端命令改白名单制：默认不跑命令，只放开 Git 检测 / 初始化与 codegraph 检测 / 建索引。
 
 ---
 
 ## v1.5.1 (2026-09-26)
 
-### description 按 Trigger+Job+Boundary 重写
+### 修复
 
-- 去内部路径与命令清单；Trigger 先行，Not for 保持原分工。
+- 修复决策编号与调试编号取法：读最大编号加一，三位补齐。
+
+---
 
 ## v1.5.0 (2026-09-25)
 
-### AGENTS.md 唯一源：停止新建 CLAUDE.md，新增 CLAUDE → AGENTS 受控迁移（breaking change）
+### 新增
 
-**背景**：原模型是「AGENTS.md 为主 + 可选 CLAUDE.md 指针镜像」。当前 Claude Code 已支持 `AGENTS.md`，但其默认读取行为是项目存在 `CLAUDE.md` 时优先读 `CLAUDE.md`、不存在才回退 `AGENTS.md`（另提供同时读取两者的配置模式）——只要 `CLAUDE.md` 还在，`AGENTS.md` 就当不上唯一源。据此把初始化行为模型升级为：**`AGENTS.md` = 唯一项目级协作契约源；`CLAUDE.md` = 不再由本技能创建、维护或作为镜像指针**。
-
-**改动**
-
-- **初始化状态机 A–E**（`references/init-agents-md.md`）：A 全新项目（建 AGENTS.md，不建 CLAUDE.md）/ B 只有 AGENTS.md（增量维护）/ C 只有 CLAUDE.md（受控迁移）/ D AGENTS + CLAUDE 并存（合并迁移）/ E AGENTS + `.claude/`（`.claude/` 只是决策保全输入，不因此创建 CLAUDE.md）。mode 行仍只填三值之一，不新增第四值。
-- **CLAUDE 受控迁移**：状态 C 十一步、状态 D 十四步执行顺序；四态处置（keep / update / merge / drop）沿用决策保全；逐条检查 Claude 专属语法、Claude 专属工具说明与过时规则（按 drop 留痕）。
-- **冲突裁决阶梯**（`references/agents-md-generator.md` 新增 §2b）：裁决依据是事实不是文件名——代码 / 配置 / 实际项目状态为证据；事实明确 → update、意图一致 → merge、明显过时 → drop、适用条件不同 → 并存、同条件无法裁决 → 停下问用户。不写「AGENTS 永远覆盖 CLAUDE」。
-- **安全删除闸**：`AGENTS.md` 创建/更新成功 + 重新实读通过 + 逐条处置无悬空规则 + `agents-changelog.md` 迁移记录已写入，四项全过才删源；任一失败禁止删除，终止回复写明「迁移未完成，原 CLAUDE.md 保留」。严禁先删 CLAUDE.md 再建 AGENTS.md。
-- **AGENTS 唯一源校验**（执行顺序步骤 7）：实读 `AGENTS.md`（非仅存在性检测）+ 项目根无新建 `CLAUDE.md` + 迁移留痕核对；替代旧「CLAUDE.md 镜像」步骤。
-- **删除旧镜像模型**：`SKILL.md` 产物布局「Claude Code 镜像」行、Gotchas「CLAUDE.md 是指针」、`init-agents-md.md` 指针模板与镜像节、README 产物树与取舍表行、init-report 模板「镜像指针建立」行全部移除，换为唯一源表述。
-- **核心原则对齐**：「不覆盖 / 禁止整体重写」与迁移的冲突以**受控重组例外**消解——普通维护 = 增量；迁移 = 可重组但必须可追溯（完整读源、逐条留痕、先写目标、验证、后删源）。「不越界」纳入唯一的删除动作（迁移完成后删源）。
-- **触发回归**：description 能力句补「把旧 CLAUDE.md 迁移并入」、触发句补「把 CLAUDE.md 迁移整理成 AGENTS.md」；正面集 +4、负面/边界集 +1（用户明确要求保留 Claude 专属 CLAUDE.md → 按用户意图处置，默认 vibe-init 仍单源）、回归方法 +1。干跑推演见 `references/trigger-test-set.md` 回归记录。
-- `metadata.version` → 1.5.0。
-
-**设计取舍**
-
-- 不把「Claude Code 2.1.277 起支持 AGENTS.md」的版本号写进任何规则——实现逻辑只建立在「当前 Claude Code 已支持 AGENTS.md、默认存在 CLAUDE.md 时优先读它」这个事实上，版本号只留在本变更说明里，避免把产品版本硬编码成流程条件。
-- 迁移不做成机械重命名也不保留指针：指针仍会在维护后漂移，且并存时运行时读取歧义；删除源文件是收敛到单源的必要动作，用安全闸 + 未跟踪源先留档（决策保全既有规则）兜住不可逆风险。
-- `.cursorrules` / `GEMINI.md` 等其他第三方规则文件不在本闸处置范围：其内容照旧走决策保全读取与处置，本轮只收敛 CLAUDE 语义。
-
-**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/init-agents-md.md`、`references/agents-md-generator.md`、`references/trigger-test-set.md`、`assets/docs/init-report.md`；根 `README.md` / `README.en.md` 索引版本。
+- 新增 `vibe-sync`：沉淀进度 / 决策 / 调试记录，按需回填 `AGENTS.md` 事实区。
+- 过程文档加入客观事实源：Git 只读核对 > 最新交接 > 既有过程文档 > 会话上下文，冲突以客观源为准。
 
 ---
 
 ## v1.4.1 (2026-09-24)
 
-### compatibility 去与 description/body 的重复
+### 修复
 
-**背景**：评估 `compatibility` 时发现它与 `description`（产物落点 AGENTS.md / docs/.ai/）及正文 `产物布局` 表（CHANGELOG 仅已存在时追加）重复陈述同一事实，存在漂移风险。按本仓 skill-workshop 方法论（删除优先 + DRY）去重。
-
-**改动**
-- `SKILL.md` frontmatter `compatibility`：删去产物路径落点枚举（AGENTS.md、docs/.ai/、docs/handoff/）与 CHANGELOG 子句（已分别在 `description` 与 `产物布局` 表表达）；保留约束独有信息——无网络/无依赖、命令白名单机制（init 做 Git/codegraph、其余 vibe-* 只读 Git 核对）、不写入技能仓库。
-- `metadata.version` → 1.4.1。
-- 根 `README.md` / `README.en.md` 索引版本 → 1.4.1。
-
-**修改文件**：`SKILL.md`、`CHANGELOG.md`、根 `README.md` / `README.en.md`。
+- 修复「契约区与事实区」自相矛盾：`AGENTS.md` 契约区只由 init 写，事实区由 sync 回填。
 
 ---
 
 ## v1.4.0 (2026-09-24)
 
-### description 去堆词 + 移除人类专属「参考」节
+### 新增
 
-**背景**：原 `description` 存在关键词堆砌——job/trigger/not-for 三层重复枚举（"审查前端后端 Web" 与 "审查项目与技术栈" 同义重复；vibe-* 命令名与动作名两遍列出），且 SKILL 正文末的 `## 参考` 只指向 README/CHANGELOG（人类文档），与 AI 执行无关。
-
-**改动**
-- `SKILL.md` frontmatter `description`：删去同义重复（"前端后端 Web"/"项目与技术栈"、"更新日志"子句并入"同步进度"）与冗余 not-for 项（面向人类文档写作/规格管理与翻译已归"对应技能"），改为 Trigger+Job+Boundary 单一表述；仍 ≤1024、双引号、无尖括号。
-- `SKILL.md`：删除 `## 参考` 节（人类文档指针，AI 执行不需要）。
-- `metadata.version` → 1.4.0。
-- 根 `README.md` / `README.en.md` 索引版本 → 1.4.0。
-
-**修改文件**：`SKILL.md`、`CHANGELOG.md`、根 `README.md` / `README.en.md`。
+- 新增 `references/command-policy.md`：终端命令白名单单一真源，按触发词声明允许子集。
 
 ---
 
 ## v1.3.0 (2026-09-24)
 
-### References 改为条件式指针（修复「缺何时读」的渐进式披露半成品）
+### 新增
 
-**背景**：多个项目（含 ThemeVault）由 `vibe-init` 生成的 `AGENTS.md` 里，`## References` 只有一排 `见 <path>` 裸指针——AI 知道「有这些文件」，却不知道什么任务该打开哪一个、不打开会不会做错，指引链断在中间。根因在生成规范侧：`References` 被定成纯指针，「用途/何时读」寄放到从未落地的 `Conventions`；`§0` 句式契约又把条件式指针挤出合法句式；`§7` 自检门不拦无条件指针。生成物因此只能是裸列表（依据 2026-09-24 的 References 渐进式披露缺陷审查报告）。
+- 过程文档统一 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），每次修改须同步 `updated`。
+- 新增 `docs/agents/init-report.md`：初始化执行报告，只追加。
 
-**改动**
+### 变更
 
-- `references/agents-md-generator.md §0`：句式四选一 → **五选一**，新增「条件式指针 `- <触发条件> → 见 <path/章节>`」；`References` 节**只许**此句式。`§1` 黑名单改写口径同步为句式 1-5。
-- `§5 填充规则`：废除「`References` 只写 `见 <path>`、用途说明放 `Conventions`」，改为「条件式指针；触发条件按**使用场景**登记，不按目录罗列；禁止裸指针 / 长说明 / 教程体 / 多列宽表」。
-- `§5 模板 ## References`：换成条件式指针骨架（项目自带文档按场景占位 + 过程文档六条）。
-- `§7 自检门`：句式核对改五选一；另核对新增「`References` 每条含触发条件，裸 `见 <path>` / 无触发条件 / 人读宽表 → 不通过」。
-- `§8 坏行 → 好行`：补 References 对照例（`见 docs/INDEX.json` → `- 报编号取色 / 查对比度 → 见 docs/INDEX.json`）。
-- `references/init-agents-md.md`：义务表 `References` 行改条件式指针；保证层级补「`References` 负责发现 + 调度，把读取变成强制义务仍归 `Permissions`」。
-- `SKILL.md`：`vibe-init` 验证行补「`References` 每条为条件式指针（含触发条件）」；`metadata.version` → 1.3.0。
-- `README.md`：设计取舍新增「`References` 每条必须带『何时读』」一行；版本改 1.3.0。根 `README.md` / `README.en.md` 索引同步。
-
-**设计取舍**
-
-- CHANGELOG v1.0.0 的「用途说明归 `Conventions`」**部分废除**：通用维护动作仍留 `Conventions` 表，「何时读某文件」改由 `References` 条件式指针承担——两处各存一份必然漂移。
-- 「`References` 不承担强制力」**保留**：强制 = `Permissions` 的 `前先读`；调度 = `References` 的 `何时 → 路径`，两者不互相替代。
-- 不放宽到人读宽表：`AGENTS.md` 是 AI 契约，人读说明仍归各项目 README。
-
-**修改文件**：`SKILL.md`、`README.md`、`CHANGELOG.md`、`references/agents-md-generator.md`、`references/init-agents-md.md`；根 `README.md` / `README.en.md` 索引版本。
+- 模板外置到 `assets/docs/`，消除模板与规范两处漂移。
 
 ---
 
 ## v1.2.0 (2026-09-13)
 
-### vibe-sync 增加「更新日志」能力
+### 新增
 
-**背景**：原 vibe-sync 只写 `docs/.ai/` 进度/决策/调试与 AGENTS 事实区，项目根 `CHANGELOG.md` 无同步入口。
-
-**改动**
-
-- **产物布局**新增可选行：`<project>/CHANGELOG.md`，写入者 `vibe-sync`；**仅文件已存在时追加**，不代建（完整规范归 changelog-manager / 用户自建）。
-- **核心原则「不越界」**显式纳入已存在的根 `CHANGELOG.md` 为追加例外。
-- **路由 / description / compatibility** 补「更新日志」意图词。
-- **`references/sync-progress.md`**：新增「写入规则 · CHANGELOG.md」——只收用户可见变更、格式跟随既有文件、追加 Unreleased 或当日节、不改历史；与 progress 分工写明；写入范围与「不顺手改」条款同步。
-- **失败模式**：无 CHANGELOG 却要写 → 不创建、提示；用户坚持代建须书面确认。
-- **验证表** vibe-sync 行：有 CHANGELOG 且有可见变更时须追加，否则明示跳过。
-- `metadata.version` → 1.2.0。
-
-**设计取舍**：不做成第二个 changelog-manager——只做「已有文件的增量追加」；避免与 Keep a Changelog 全规范技能抢职责。
+- 新增 `vibe-init` 的 Git 检查（只读检测，无仓库则初始化）与 Codegraph 集成（已装且无索引才建索引）。
 
 ---
 
 ## v1.1.0 (2026-09-13)
 
-### 新增触发词 `vibe-audit`（只读审查开发类项目）
+### 新增
 
-**定位**：并入第 5 个触发词，对前端 / 后端 / Web 开发类项目做只读审查（代码质量、架构、技术栈），产出带 `路径:行` 证据的审计报告。**不评审 Skill 项目**（转交 skill-workshop）。
-
-**四项裁决**（用户 2026-09-13）：范围含代码质量；报告落点 `docs/.ai/audit/`；Skill 项目转 skill-workshop、vibe-buddy 只针对开发类项目；并入第 5 触发词而非独立技能。
-
-**改动清单**
-
-- `SKILL.md`：路由表新增审查行；核心原则第 5 条「只读层」；STOP 目标类型前置判定；产物布局新增 audit 落点；白名单叙述纳入 vibe-audit；失败模式表 +4；验证表 +1；非目标 +2（不评审 Skill、审计不产待办）；references 索引 +1；`compatibility` 同步；`description` 扩审查锚点并点名 skill-workshop；`metadata.version` → 1.1.0。
-- 新建 `references/audit-project.md`：目标类型判定 / 审查范围（不动栈）/ 事实源 / 证据绑定 / 报告五段结构 / 命名落盘 / 硬性约束 / 终止回复。**`docs/.ai/audit/` 由首次 `vibe-audit` 自建**（含 `.gitkeep`），非 `vibe-init` 预建。
-- `references/command-policy.md`：5 条只读 Git 命令（`rev-parse`×2 / `status` / `log` / `diff --stat`）对 `vibe-audit` 开放；`consumed-by` 补 `audit-project.md`。
-- `references/trigger-test-set.md`：正面集补审查类输入；负面集补 Skill 审计转交；路由校验补 audit 行。
-- `README.md`：触发词表 4→5；产物树补 `audit/`；设计取舍改写「触发词数量」条；相邻边界补 skill-workshop。
-
-**设计取舍**
-
-- **并入而非独立技能**：路由确认、前置检查、脱敏、一次一触发词、白名单纪律均可复用；独立技能会重复整套安全壳。
-- **只读层不改写四条核心原则**：只追加第 5 条，声明写入纪律仅约束报告落点；`不覆盖 / 不静默` 对报告本身仍生效。
-- **audit 目录首次运行时建**（用户裁决）：与 init 预建 `experience/` 不同；`docs/.ai/` 本身仍缺失即停、引导 `vibe-init`。
-- **Skill 判定信号取可观测项**：`SKILL.md` + frontmatter `name`；无法判定即停，不猜。
-
-**修改文件**：`SKILL.md`、`README.md`、`VERSION.md`、`references/audit-project.md`（新）、`references/command-policy.md`、`references/trigger-test-set.md`；根 `README.md` / `README.en.md` 索引版本。
+- 新增 `vibe-distill` 的经验分层（🔴 红线 / 🟡 倾向 / 🟢 参数）与双台账（`changelog.md` + `.distill-index.json`）。
 
 ---
 
 ## v1.0.0 (2026-09-10)
 
-### 初始版本
+### 新增
 
-**定位**：通用的项目 AI 协作记忆管理技能，读写项目根 `AGENTS.md`、`docs/.ai/` 与 `docs/handoff/`，不绑定任何 IDE 或运行时。
-
-**四个触发词**
-
-| 触发词 | 职责 |
-|---|---|
-| `vibe-init` | 建立协作契约与过程文档；半程项目只补缺失项 |
-| `vibe-sync` | 记录流水事实：进度、决策、调试 |
-| `vibe-handoff` | 生成自包含交接文档 |
-| `vibe-distill` | 提炼可复用经验，落 `docs/.ai/experience/` |
-
-产物路径与写入者以 `SKILL.md` 的「产物布局」表为唯一真源；本表不再列产物，避免同一事实两处存放。
-
-接手（接管）**不是触发词**：由目标项目 `AGENTS.md` 的 `Permissions` 义务承担，每会话自动生效。
-
-**过程文档模型**
-
-- `docs/.ai/project-progress.md`：进度，每次会话更新；任务开始时先读它。
-- `docs/.ai/decision-log.md`：开发决策（`DEC-NNN` 三位，优先级高于 PRD，冲突时旧条目标 `superseded`），**随开发持续更新**。
-- `docs/.ai/debug-log.md`：bug 记录；编号 `BUG-NNN`（三位）递增，含现象/根因/修复/验证限制/教训。
-- `docs/.ai/agents-changelog.md`：AGENTS.md 变更记录（一行一条 `旧值 → 处置 → 新值/去处/原因`），**只在 AGENTS.md 变更时写入**，每次变更必留一行。
-- **保证层级（写义务时按此判断效力）**：A 层 = `AGENTS.md` 被运行时自动注入，每会话必读，**唯一能覆盖「AI 未调用本技能」这个前提的层**；B 层 = 本技能被调用时生效（自检门、终止回复）；C 层 = 文件被打开才读到（过程文档模板内的自述说明），**不构成保证**。据此，AGENTS.md 的 `Permissions` 写 `YOU MUST 改 AGENTS.md 前先读、改后追加 docs/.ai/agents-changelog.md` 与 `禁止不记录就改动 AGENTS.md 的约定`，`Conventions` 写「改 AGENTS.md 须留变更记录，无记录视为静默丢失」。`References` 只负责让文件被发现，不承担强制力。契约改动只走 `vibe-init`，其他触发词对 `AGENTS.md` 只读。
-- `docs/handoff/`：交接文档，命名 `handoff-YYYY-MM-DD-*.md`。
-- 模板外置在 `assets/docs/`（`project-progress.md` / `decision-log.md` / `debug-log.md` / `agents-changelog.md`），初始化时原样复制，只替换 `<工程标识>` 并把 `updated` 改为当日；§4b 不再内联骨架，消除模板与规范两处漂移。
-- 所有过程文档带 YAML frontmatter（`title` / `type` / `project` / `updated` / `description`），**每次修改须把 `updated` 同步为当日**。
-- 全部**只追加**，历史条目永不删除或改写。`decision-log.md` 与 `agents-changelog.md` 职责分离：前者随开发更新，后者只在改 AGENTS.md 时更新。
-
-**初始化流程三新增（Git 检查 / 初始化报告 / Codegraph 集成）**
-
-- **Git 检查**：`git rev-parse --is-inside-work-tree` 只读检测，无仓库则 `git init`；不做 `add` / `commit` / `push`。
-- **初始化报告**：新增模板 `assets/docs/init-report.md` → `docs/.ai/init-report.md`，每次初始化追加一节，逐条记录实际操作（结果取值 完成 / 跳过 / 未执行 / 失败，禁止虚报），含可扩展的条目类型表与「建议」小节；不列入 `AGENTS.md` 的 `References`。
-- **Codegraph 集成**：新增 `references/init-env-checks.md`。判定链为 `codegraph --version`（是否安装）→ `codegraph status`（本项目是否已建索引）→ 已装且无索引且有代码则 `codegraph init`；未安装时在报告「建议」写明用途、安装命令 `npx @colbymchenry/codegraph` 与初始化命令 `codegraph init`。不代做 `codegraph install` / `uninstall`（会改写各 agent 配置，含 `AGENTS.md` 标记区块）。
-- **终端命令规则改为白名单制**：原「全程不运行终端命令」硬规则与新增功能冲突，改为只放开 5 条命令（3 条只读检测 + `git init` + `codegraph init`），其余仍禁止；命令失败不阻塞流程，记入报告继续。
-- init 契约新增十步「执行顺序」表，明确 Git 检查在状态识别之前、报告在终止回复之前。
-- **三新增功能的干跑修复**（空目录 / 已有仓库 / 未装 codegraph / 父仓库子目录 四环境）：
-  - Git 检查区分「本项目即仓库根」与「位于父仓库内」，后者不建嵌套仓库，报告写实际根路径并记录 `git init` 的默认分支名
-  - 索引检测限定**只认项目根下的 `.codegraph/`**：codegraph 会向上取最近索引，祖先目录的索引属父项目，不算本项目已有索引
-  - 补「项目有代码」判据（复用生成规范 §2 的既有代码信号），否则跳过分支无法执行
-  - 未安装建议补三类内容：`npx` 执行第三方安装器的风险提示、安装器会改写 `AGENTS.md`／`CLAUDE.md` 的留痕提醒、`.codegraph/` 加入 `.gitignore` 的忽略建议
-  - 报告明确「只列本次实际涉及的步骤行」，避免每次生成一堆「未执行」噪音行；条目类型表降级为可选清单
-  - `codegraph status` 降级为补充信息，退出码不参与判定；记录实际耗时
-
-**真实试跑（指定目录实跑整条流程）修复**
-
-在真实目录上真实执行了一次完整 init，暴露 5 处：
-
-- **「既有契约」信号定义太窄**：原只列根目录 AGENTS.md / CLAUDE.md / .cursorrules，漏掉 **agent 目录内的规则文件**（实测有 `.claude/task-focus.md`、`.codex/redline.md`）→ 信号拆为「标准契约」与「非标准规则文件」两行，后者存在即判半程合成；模式判定表改为两列，语义唯一。
-- **采集清单未提示隐藏项**：常见列目录工具默认不显示点目录，导致漏查 `.claude/`、`.codex/`、`.zcode/` → 清单显式点名这些目录，并写明「隐藏项必须逐个查，不能只看列目录工具的默认输出」；前置检查同步补一行。
-- **决策保全来源不全**：原只写「既有契约文件」，未含 agent 目录规则文件与项目文档硬约束 → 补齐三类来源；并明确「已在别处维护的规则可 keep 原地保留 + 在 `AGENTS.md` 加指针，不搬进正文复述」。
-- **「行数」无口径**：数组式行计数跳过空行（实测 69）与总行数（实测 82）差 13 行 → 定为**含空行的总行数**，且必须实测。
-- **报告数字靠估算**：首版写「76 行」而实际 82，违反「禁止虚报」→ 报告规则加「所有数字（行数、条数、份数）必须实测读取，禁止估算」。
-
-**vibe-sync 复核修复**
-
-- **契约区与事实区划界（原为自相矛盾）**：sync 原写「不修改 `AGENTS.md`」，但初始化报告却建议「Toolchain 与 Commands 由 `vibe-sync` 回填」——两处打架。现明确：契约区（Permissions / Conventions / References / 章节结构）只由 `vibe-init` 写且须留痕；事实区（Toolchain 与 Commands 表数据）由 `vibe-sync` 回填、不必留痕。
-- **不代改 PRD / ADR**：原规则要求决策冲突时「回写 PRD/ADR」，但两者都在本技能边界之外 → 改为「在终止回复提示用户回写，本技能只写 `decision-log.md`」。
-- **补 `updated` 同步**：`AGENTS.md` 的 Conventions 要求「改 `docs/.ai` 须同步 `updated`」，sync 的执行规则却未落实 → 补入两处写入规则。
-- **定死进展块语义**：原只写「更新顶部 `last_updated`」，但模板字段是「最后更新」，且「新增保留历史」与「单数字段名」语义冲突 → 定为：可变区（分支/阶段/代码/工具链/下一步/本阶段禁止）直接覆盖；进展为追加区，每次在旧「最后更新」之前新增一条，旧条保留。
-- **补验证来源**：sync 不代跑命令 → 验证结果只取本次实际执行过的输出，由用户在会话中提供，禁止推测。
-- **补决策编号取法**（读文件取最大编号加一）与「新条目置顶」。
-- 术语修正：`last_updated` → frontmatter `updated` + 正文「最后更新」；路由表述去掉 sync 行的「bug 经验」（该归 `vibe-distill`）；`compatibility` 与「非目标」同步白名单口径。
-
-**vibe-sync 补客观事实源与压缩降级**
-
-- **原状态**：sync 完全依赖上下文记忆，`reads-from` 只有三个文档，全文不含 git；`git log` 也不在白名单里。会话压缩后按「记忆」写进度，会静默失真。
-- **新增事实源与核对顺序**：写任何一条前按可信度取事实——① `git log` / `git status` / `git diff --stat`（仅 Git 仓库内）② `docs/handoff/` 最新交接文档 ③ 既有 `project-progress.md` 与 `decision-log.md` ④ 本次上下文（仅作补充）。上下文与 ①–③ 冲突时**以客观源为准**并把冲突记入备注；git 输出只用于核对，**不搬进文档**，需引用时写 commit hash。
-- **新增「上下文被压缩过时」降级路径**：先重建再落笔；只写能核实的，覆盖不到的标 `待确认`；完全无法重建则明说「本次进展无法核实」，不写条目、不用「大概/可能」凑数；发现比本次会话更新的交接文档 → 停下问用户，不覆盖。
-- **命令白名单抽为技能级单一真源**：新增 `references/command-policy.md`，按触发词声明允许子集；`vibe-sync` 新增只读的 `git status` / `git log --oneline -n N` / `git diff --stat`。`init-env-checks.md` 移除重复的白名单表，只留判定逻辑。
-
-**vibe-sync 真跑（真实项目）修复**
-
-在真实项目上执行了一次完整 sync（前置检查 → 事实源取材 → 增量判定），结果为「无可同步的稳定增量」——该项目自初始化后确实零改动。据此暴露并修复：
-
-- **`git diff --stat` 被当成「改动规模」是错的（实跑复现）**：它**不显示未跟踪文件**。实测 `git status --short` 有 7 条 `??`，`git diff --stat` 却完全为空 → 改以 `git status --short` 为未提交改动的主力，`git diff --stat` 只覆盖**已跟踪**文件，并补一条判据「为空 ≠ 没有改动」。
-- **未覆盖「已 `git init` 但零提交」这一状态**：这是 `vibe-init` 刚跑完项目的**标准状态**（init 不替用户提交），此时 git 只能给出「全部未跟踪」。原表述易被读成「没有进展」→ 补「零提交属正常状态，不因 git 无信息就判定无可同步」。
-- **事实区回填未禁止从意图文档取材**：实跑项目的 PRD 写着「桌面壳（建议 Tauri 2）」属 P1 计划，照抄进 `Toolchain` 即把**建议**写成**已建立的事实**（P0 是 Web UI，桌面壳尚不存在）→ 显式加「禁止取自 PRD / 计划 / 设计稿；只接受锁定文件、依赖清单、配置文件原文、实跑输出」。
-- **（方法论）规则文件可能是符号链接**：实测 `.claude/task-focus.md` 等 `Length = 0`，实为 symlink 指向集中管理的规则库，内容非空。若以文件大小判定「无内容」，会误判为无既有约定而**漏掉决策保全** → 采集清单加「不得以文件大小为 0 判定其无内容，必须实际读取再判」。
-
-**handoff / resume / distill 复核修复**
-
-逐条复核剩余三个触发词，与模板、命令白名单、`SKILL.md` 交叉核对后修复：
-
-- **distill 条目格式与模板两套（硬伤）**：契约写 `### BUG-001 · 日期 · 标题` + 症状/根因/修复/**预防规则**，而 `assets/docs/debug-log.md` 模板与全部已落盘产物用 `## BUG-NNN: 标题` + 日期/现象/根因/修复/**验证限制**/教训——层级、标题格式、字段名三处不一致，契约还缺「验证限制」→ 契约对齐模板，不再另立一套。
-- **handoff 要写「未提交改动」却没有 Git 事实源（硬伤）**：`reads-from` 只有三份文档，而内容要求里的「已完成」「未提交改动」正需要 Git 观测，原设计只能凭会话记忆填——与 `vibe-sync` 被点破的是同一类缺陷，而交接文档的全部价值恰恰在这里 → 新增事实源与取材顺序（Git → 上一份交接 → 过程文档 → 上下文），并把只读 Git 加进 `vibe-handoff` 白名单。
-- **交接文档没有 frontmatter 规范**：其余五类过程文档都带 `title/type/project/updated/description`，唯独 handoff 无规定；但 `AGENTS.md` 的 Conventions 写着「改 handoff 须同步 `updated`」——**A 层义务指向一个不存在的字段** → 补 frontmatter（`title/type/project/date/updated/supersedes/description`）。
-- **handoff「不重复已有产物」与「逐条写已完成」自相矛盾**：Git 与文档里已有的一律引用，而「未提交改动 / 下次待办 / 待确认项」恰恰无产物可引用 → 补判据「只展开尚未落入任何产物的那三类」。
-- **resume 缺 `docs/.ai/` 前置检查**：只查了 `AGENTS.md` 与交接文档，`project-progress.md` 缺失时读取顺序 2–4 全落空却无提示 → 补检查项。
-- **resume「最新一份交接文档」无判据**：同日多份 slug 时判不出来 → 定为「按文件名日期取最新；同日多份读全部并取 `updated` 最新者；仍不可判则列出全部问用户」。
-- **resume 只读不写，却看不到工作区状态**：原「只读命令也不跑」使新会话无法知道上次改动提交了没 → 开放只读 Git（`status --short` / `log --oneline -n`），汇报结构增「Git 状态」；仍不写任何文件。
-- **`compatibility` 与非目标的 Git 口径仍过时**：只写「Git 仓库检测与初始化」，漏了 `vibe-sync` 早已获得的只读核对 → 统一为「仅限白名单内的仓库检测、初始化与只读核对」。
-- **handoff 前置检查与硬规则打架**：`docs/handoff/` 不存在时原写「先创建目录」，与「前置缺失即停、绝不代建」冲突 → 改为先引导 `vibe-init`，用户坚持才建空目录并说明。
-- 杂项：`vibe-handoff` 验证行补「frontmatter 合规且 `updated` 为当日」；产物布局中交接命名补 `[-slug]`；「建议调用的技能」限定为只点名确实存在的技能。
-
-**接管去触发词化与交接工作流重构（第一性重审）**
-
-按要求对 handoff / resume 从第一性原理重审。三条结论推翻或修正了上一轮的方案：
-
-- **`vibe-resume` 彻底删除，触发词 5 → 4**。接管的全部内容 = 读五样 + 对齐汇报 + 停下；这三步里读与停是纪律，产出只有「汇报」。上一轮想保留「只读模式」的三条理由经审查全不成立：① 用户主动想接管 → A 层义务已覆盖；② `AGENTS.md` 缺失时有通路 → 但 handoff 契约本身也要求 `AGENTS.md` 存在，那条通路并不存在；③ 零副作用 → 不构成必要性。**接管的正确落点是目标项目 `AGENTS.md` 的 `Permissions` 义务**——每会话自动生效，是唯一能覆盖「AI 未调用任何技能」这个前提的层。故 `vibe-init` 新增两条义务：会话开始先读 `docs/.ai/` 三件套与 `docs/handoff/` 最新一份、先复述现状与待确认项再动手。
-- **删掉上一轮给 handoff 加的 `date` 与 `supersedes` 字段**。文件名已承载日期，再写 `date` 是同一事实两处存放；`supersedes` 更是把**我自己的旧设计当成了用户认可的事实**——与「层 C 照抄私有项目的旧目录结构」属同一类错误。frontmatter 现与其余五份过程文档完全同构，只有 `type` 不同。
-- **交接文档从「七段结构」改为「只写别处读不到的」**。接手方能自己读 `AGENTS.md`、`docs/.ai/`、git 与代码，正文因此只展开四类无处可查的内容：验证状态、下一步聚焦点、卡点与失败路径、待用户拍板项；某类没有内容就整段省略，不写「无」。旧设计（`w3-handoff` 的十节结构）把新增文件表、修改文件表、错误清单、文件上下文清单一并抄入，属复述。
-- **常驻协作纪律移入 `AGENTS.md`**（用户同意，视为早期设计可再调）：每次只推进一个阶段、完成即停等验证；不得自行宣称已修复、须由用户验证；修改既有文件用最小精确补丁、禁止整文件重写。它们每会话都要生效，写进交接文档等于在每份文档里重复一遍——来源是 `trae-dev-buddy` 的 `03-handoff-in.md` 那 7 条「后续协作规则」。
-- **失败模式与测试集同步**：删掉「触发词歧义 → 反问」条（只剩写，歧义消失）；「同日同名交接文档」的后缀再冲突改为加两位序号，不回头打扰用户；新增「本次会话无可交接内容」。触发测试集把「接管项目 / 继续上次的活」由正面集移入负面集，并新增「接管类措辞不触发率」阈值——这类措辞若触发了本技能，说明强规则没被读到。
-
-**vibe-distill 重构为「开发过程蒸馏」**
-
-旧定位（把本次会话的调试经验写进 `debug-log.md`）已被用户判定为错。新定位：**把项目开发过程中反复成立的做法蒸馏成按主题组织的可复用经验**，作为基料供外部知识系统汇总。
-
-- **记录与提炼分成两个触发词**：`vibe-sync` 只**记录**流水事实（进度 / 决策 / 调试），`vibe-distill` 只**提炼**可复用规则。`debug-log.md` 的写入因此从 distill 移交给 sync。判据：**这条经验离开这个项目还成立吗？**
-- **蒸馏的原料不是会话**，而是项目已沉淀的事实：`git log` / `decision-log` / `debug-log` / 代码实测统计；会话仅作补充。**单位是「一轮」**（一次集中的开发活动），不是一次会话。
-- **新契约** `references/distill-experience.md`（取代 `distill-lessons.md`），落 `docs/.ai/experience/`：`README.md`（索引 + 适用范围 + 使用步骤 + 🔴 速查 + 外送前置条件）+ `changelog.md`（兼台账）+ `<域>/`（主题 = 领域名）。
-- **条目五要素**：主张 / **适用** / Why / How / 反例，分 🔴 红线（照搬）/ 🟡 倾向（按语境采纳）/ 🟢 参数（换项目必须替换）。分级是**可移植性分级**，不是重要性分级。
-- **准入判据**：能离开本项目还成立、写得出反例、有事实源。**写不出反例即不入库**。
-- **防重复蒸馏不另建台账**：并入 `changelog.md`，每条记「原料区间（commit 区间）+ 覆盖主题 + 产出」；写新条目前先比对该区间是否已蒸过。未蒸馏区间随算随得，写成文件就立刻过时。
-- **冲突不自动裁决**：先比适用条件——前提不同（项目背景不同）只是适用范围不同，两条并存；前提相同才是真冲突，停下问用户。用户裁决后才按「正文可改写 + changelog 留痕」执行。
-- **经验库与 `docs/.ai/` 其余文档纪律不同**：经验库是**可移植产物**，正文可改写（错的规则留着会持续误导），历史靠 changelog；其余三份仍是严格只追加。
-- **模板新增** `assets/experience/{README,changelog}.md`；`vibe-init` 只建 `docs/.ai/experience/` 空目录，并在 `AGENTS.md` 加两条——`Permissions` 的义务「改某领域代码前先读对应 experience 目录」与 `References` 指针；内容留给首次蒸馏按模板创建。
-- 主题名**复用领域名**（`ui` / `frontend` / `motion` / …），外送汇总时它就是分域依据，不另造词（原 `design-system` 即 `ui`）。
-- **不写入外部知识系统**：本技能只在项目内产出基料，外送由用户另行触发。
-- 顺带修掉一处**校验器查不出的悬空引用**：`sync-progress.md` 的分界表仍指向已删除的 `resume-context.md` 与 `distill-lessons.md`——校验器只扫 `SKILL.md`，故一路绿灯。**删文件后必须手动全仓 grep 文件内路径。**
-
-**vibe-distill / vibe-init 真跑修复（真实项目实跑）**
-
-用户指定一个废弃的真实项目（React 19 + Vite 8 + Tailwind 4；1 个提交 + 1068 行未提交改动）作 D2 真跑对象。完整跑完 `vibe-init` → `vibe-distill`，暴露并修复 5 处：
-
-- **`distill-experience.md` 缺「前置检查」小节（契约级空白）**：init / sync / handoff 三份都有，distill 漏了；遇 `docs/.ai/` 缺失只能靠 SKILL 的通用 🛑 兜底 → 补齐四条检查项。**根因**：写新契约时没有对着同族契约逐节核对结构。
-- **「原料区间」只认已提交的 commit 区间**：真跑中本轮改动**尚未提交**（无末个 commit 可引用），且首次蒸馏**没有轮次边界** → 补三种写法（已提交 / 未提交 / 首次蒸馏）。
-- **防重复蒸馏在首次蒸馏时无事可做**：`changelog.md` 正是由首次蒸馏创建的 → 补「首次蒸馏跳过比对，直接建台账；此后每次都要比对」。
-- **条目与 `debug-log.md` 的引用方式未写**：蒸馏必然会引用已定位根因的 bug → 补「条目只留抽象规则，原始诊断留在 `debug-log.md`，用 `BUG-NNN` 指针」。
-- **init 决策保全的两处空白（真跑才暴露）**：① 源 `AGENTS.md` **未被 git 跟踪**，`drop` 即永久丢失 → 补「未跟踪源文件必须先留档到 `docs/.ai/`」；② 既有档案是**项目自建的十节结构**，而契约同时写着「六节固定」与「禁止整体重写」，两条张力 → 补「逐条四态处置后重组为六节是允许的，『禁止整体重写』约束的是不得在无处置记录的情况下换掉契约」。
-
-真跑产出（项目侧）：`AGENTS.md` 77 行六节契约、`docs/.ai/` 五份过程文档 + `experience/`（首次蒸馏出 5 条经验：ui 域 T1/T2/G1，frontend 域 R1/T3）+ `docs/handoff/`，`codegraph init` 建索引 21 文件 / 242 节点。
-
-**vibe-distill 复蒸验证（第二次真跑）**
-
-在同项目上跑第二次 `vibe-distill` 验证防重复。**判定为「拒绝重复蒸」，未写任何文件**——项目自身的源码、配置与提交区间与首轮逐字一致（13 文件 / +1068 / −262；`git log` 仍只有 `55f05bc` 一条），工作区唯一增量是 `vibe-init` 自己建的 `.codegraph/`。防重复机制按设计工作。
-
-真跑暴露两处契约缺陷（已修）：
-
-- **比对没排除本技能自身的产物，防重复随时会失效**：契约只说「比对本轮原料区间」，未定义「原料」的边界。而 `git status` 里的 `?? docs/`、`?? AGENTS.md`、`?? .codegraph/` **全是本技能自己写的**——若按「`status` 有内容即为新原料」判定，每次蒸馏都会看到上一次自己刚写的文件，防重复永久失效 → 补「比对只针对项目自身，排除 `docs/.ai/`、`docs/handoff/`、`AGENTS.md`、`.codegraph/`」。
-- **台账的「原料区间」是 git 级的，表达不了语义覆盖**：复蒸时发现一个首轮**既未列产出、也未列跳过**的来源（`.trae/documents/微信小程序迁移计划.md`，其审查记录含 OKLCH 色彩空间迁移与无障碍对比度合规）——它落在区间内，因此按区间判为「已覆盖」，实际从没被评估过。根因：**git 区间只回答「代码变没变」，回答不了「这个来源看过没」** → 补三条：「『原料』要写成语义来源清单」「『有意跳过』必须穷举声明，没写 = 没看过」「复蒸判定」两行表。
-
-**description 改为以意图为主（联网核实最新最佳实践）**
-
-联网核对官方与社区源头后，上一版仍有两处偏离最新实践，已改：
-
-- **触发词裸清单 → 意图句**：原「触发词：vibe-init、vibe-sync、vibe-handoff、vibe-distill，以及初始化项目、同步进度、交接上下文、经验蒸馏」是裸词表。据 **agentskills.io「Optimizing skill descriptions」**（四原则之一：**聚焦用户意图而非实现细节**）与 **Anthropic 官方最佳实践**（写法为「功能句 + `Use when…` 触发句」，官方正例的关键词**嵌在 `Use when…` 句内**，非裸列）改为：「当用户要初始化项目、同步进度、写交接文档或做经验蒸馏时使用本技能，包括直接说 vibe-init、vibe-sync、vibe-handoff、vibe-distill 的情形」。
-- **边界收敛**：8 类 → 7 个更粗的类别词。原因是 agentskills.io 明确警告：技能适用范围宽时「**不要**把每一种可能的应用都列进描述」——`overly long descriptions bloat the agent's context across many skills`。
-- **字符数 329 → 272**（实测）。**硬约束复核**：官方只有「非空、≤1024 字符、无 XML 标签」三条，**未给建议字数区间**；本技能的 200–400 区间是仓库自设软约束，272 落在区间内。
-- **两条口径校正（据官方原文）**：① 官方要求 description **始终第三人称**——现行写法为无主语祈使句，合规；② **「Pushy 句式」在 Anthropic 官方页面无出处**，它出自 agentskills.io（原文 `Err on the side of being pushy`）。此前把 Pushy 当官方要求记，属来源误标。
-
-**干跑推演**：正面集 **16/17** 字面或近字面命中，1 条降为语义命中——按阈值 ≥90% 达标，**故不加回同义词**（逐条补失败查询关键词正是 agentskills.io 点名的 overfitting）。负面集 **11/11** 不触发。
-
-**遗留**：真实触发率仍未复测；建议升级为官方评测协议（20 条评测集、负样本用近邻混淆项、60/40 train 与 validation 划分、每条跑 3 次、≤5 轮、按 validation 通过率选版本）。
-
-**description 重写为三段式（对齐最佳实践）**
-
-按 `skill-workshop` 的 T 系列判定链（`frontmatter-style-guide.md` §9 字段联锁规则 + `intent-calibration.md` 三维触发矩阵 + W7 Step 6 反模式扫描）与本仓库 §2.2 硬规范逐项核对后重写：
-
-| 项 | 改前 | 改后 |
-|---|---|---|
-| 结构 | 一长句，功能与触发混在同段 | **三段式**：能力 / 触发锚点 / Pushy + 边界 |
-| 开头 | 「当用户要为…时」（条件从句） | **祈使句**：「管理项目的 AI 协作记忆：…」 |
-| 触发短语 | **13 条**（W7 6.1 命中：>3 条清单应下沉测试集） | **8 条**（4 个触发词 + 4 个中文锚点），变体留在测试集 |
-| 边界 | 5 类，**未说交给谁** | **8 类，并点名交接口**（计划类、需求转译类、写作类、Git 类技能） |
-| 违规符号 | 含 `/`（`docs/.ai/`、`docs/handoff/`，违反 §2.2 符号硬规范） | **`/` `>` `\|` `()` 零命中**；`-` 仅剩 4 次，全在触发词名内部（无法去除） |
-| 字符数 | 309 | **329**（实测，仍在 200–400 区间） |
-
-**回归（结果记入 `references/trigger-test-set.md` 的「回归记录」）**：正面集 **17/17** 仍可判定命中；推演中发现 3 条由「字面命中」降级为「语义命中」（「更新到项目进度里」「把踩的坑记下来」「bug 定位到根因记录一下」）→ 能力句把「调试记录」改为口语原词「**踩坑记录**」后回到字面覆盖。负面集 **11/11** 不触发，但推演**暴露原描述边界漏圈 3 条**（写 README、提交 Git 改动、翻译 AGENTS.md）→ 边界与交接口同步补齐。
-
-**取舍说明**：字符数微增——触发堆砌减少 5 条，边界覆盖增加 3 类。**触发短语由穷举改为锚点后，靠语义兜底的输入增多**，真实触发率需在带技能索引的运行时复测（已列为风险项）。
-
-**自检门补一条：`Permissions` 义务类别须与 §5 逐类对齐**
-
-真跑某真实项目的验收核对当场暴露一处空洞：§7 自检门（五项 + 另核对四条）里**没有任何一条检查「`Permissions` 的义务集合是否与 §5 一致」**——只查句式四选一、黑名单、写入闸、行数、标题语言、`mode` 单值、`References` / `Permissions` 路径存在、§4b 已落地未覆盖、changelog 有对应行。后果：**一份缺了接管义务的 `AGENTS.md` 能通过全部自检门**——这正是上一轮 F1 未被发现的原因，真跑时靠的是**手工比对**才补上。
-
-→ 另核对新增一条：「`Permissions` 的**义务类别**必须与 §5 逐类对齐：接管义务 / 文档义务 / 常驻纪律，加上 `IMPORTANT` 与 `禁止`，**缺类不算通过**」，并写明增量维护时须逐类比对。
-
-**至此 F1 才算修完**：句子已收敛到 §5（单一真源）＋增量维护路径上也有了可比对的检查项，不再依赖执行者记得手工比对。
-
-**vibe-init 真跑（真实项目，含白名单命令干跑）**
-
-先对白名单**全部命令**做干跑（临时沙箱，跑完即删），再对一个真实项目目录真实执行一次 `vibe-init`（模式 = 已初始化优化）。干跑暴露 2 处契约缺口，已修：
-
-- **零提交仓库里 `git log` 会失败（干跑实测）**：返回 `exit=128` 并报 `fatal: your current branch 'main' does not have any commits yet`。契约只写「零提交是正常状态」，没说这个命令**会报错**——执行者会按执行纪律「任何一条失败都不中断后续步骤」把它记成「失败」，而它是正常状态；且生成规范 §2 的「既有代码」信号正靠 `git log` 有无提交判定，误读会连带判错模式 → 在生成规范 §2、`init-env-checks.md` 失败处理表、`command-policy.md` 执行纪律三处统一为「零提交时 `git log` 返回 128 属正常状态，判『无提交』」。
-- **`git init` 的输出不含分支名（干跑实测）**：实测输出只有 `Initialized empty Git repository in ...`，而契约要求报告写「已初始化仓库，默认分支 <分支名>」——照输出取不到该值，只能编造（违反「禁止虚报」）→ 补「分支名读 `<project>/.git/HEAD` 的 `ref: refs/heads/<名称>`，**不得凭经验填 `main` / `master`**」。
-
-干跑同时**确认契约无误**的三处：`codegraph status` 在无索引时**同样返回 exit=0**（故「退出码不参与判定」是对的）；子目录内 `show-toplevel` 返回父仓库根（「位于父仓库内」分支可执行）；`codegraph init` 二次执行输出 `Already initialized` 且不重建（幂等成立）。
-
-**真跑结果（真实项目）**：`git init`（默认分支 `main`，实测读 `.git/HEAD`）→ 增量维护 `AGENTS.md` **82 → 93 行**（仅 `Permissions` +8、`Conventions` +3、`References` +2/−1；六节结构与既有 27 行项目约定一字未动）→ 新建 `docs/.ai/agents-changelog.md`(152 行)、`init-report.md` 与空目录 `docs/.ai/experience/`（含 `.gitkeep`）→ 旧位置残留 `references/decision-log.md` 内容**逐字存档后删除**（含随之空置的 `references/` 目录），禁止新旧两处并存。
-
-**顺带印证一条既有规则**：行数首测用 `Get-Content | Measure-Object -Line` 得 81 行，那是**数组式计数（跳过空行）**；按契约口径（含空行的总行数）重测为 **93 行**，差 12 行——§7 自检门第 4 条为何强制该口径，本次实测复现。
-
-**评审后确定性修复（skill-workshop 深度评审，2026-09-10）**
-
-用 `skill-workshop` 走完整评审链（W1 → W2/W3 → W7 → W4 → W5 → W6），产出 8 段报告；按报告里「确定性修复」清单一次性落地 6 处：
-
-- **`AGENTS.md` 产物模板补齐 A 层义务（P0，真源冲突）**：`references/init-agents-md.md` 要求的接管义务与常驻纪律，在它实际照抄的 `references/agents-md-generator.md` §5 模板里**一条都没有**——模板 `Permissions` 只有 6 行（缺「会话开始先读 `docs/.ai/` 三件套与 `docs/handoff/` 最新一份」「先复述现状与待确认项，再动手」「改某领域代码前先读 `experience/<领域>/`」与三条常驻纪律），`Conventions` 少 2 行，`References` 缺 `docs/.ai/experience/`。**后果**：`vibe-init` 按 §5 填空生成的 `AGENTS.md` 不带接管义务，而 A 层是本技能唯一能覆盖「AI 未调用任何技能」的层——上一轮删掉 `vibe-resume` 换来的收益会归零。现以 §5 为**句子原文唯一真源**并补齐；`init-agents-md.md` 的义务清单改为**只登记类别、不复制句子、不记条数**（条数本身是漂移源头）。
-- **`vibe-distill` 的事实源漏 `project-progress.md`（本轮评审新发现）**：契约以「一轮」为单位，但「本轮从哪里开始」没有客观来源——git 只回答「改了哪些提交」，回答不了轮次边界；而 `vibe-sync` 每次写进 `project-progress.md` 的「最后更新」条目正是轮次落点。补入事实源表首行、`reads-from` 与前置检查，并写明「轮次边界取自 `project-progress.md`」。否则台账的「原料」失去可比性，防重复蒸馏随之失效。
-- **`VERSION.md` 顶部触发词表去副本化**：原表列「职责 + 产物」两列，而 `vibe-distill` 行仍写旧定位（「沉淀 bug 根因与预防规则」→ `debug-log.md`，该职责早已移交 `vibe-sync`），`vibe-sync` 行又漏 `debug-log.md`。现删「产物」列、职责改用与 `SKILL.md` 同口径的一句话，并注明产物以 `SKILL.md`「产物布局」表为唯一真源——同一事实不再两处存放。**校验器不读 `VERSION.md` 内容，这类过时只能靠人工核对发现。**
-- **经验库台账字段统一**：`assets/experience/changelog.md` 模板的 frontmatter 与契约「落盘结构」写「事实源」，而条目格式与模板注释写「有意跳过」——同一条目的字段两套名。现统一为「原料 / 覆盖主题 / 产出 / 有意跳过」，并定 `references/distill-experience.md` 的「防重复蒸馏」节为字段定义唯一真源；模板注释补三种「原料」写法与「有意跳过必须穷举声明，没写等于没看过」。
-- **`README.md` 交接命名补 `[-slug]`**：原写 `handoff-YYYY-MM-DD.md`，与 `SKILL.md`、`handoff-context.md`、`VERSION.md` 的 `[-slug]` 不一致。
-- **`agents-md-generator.md` §4b 补 `docs/.ai/experience/.gitkeep`**：原只规定 `docs/handoff/` 用 `.gitkeep` 占位，而 `init-agents-md.md` 的 `writes-to` 含 `experience/.gitkeep`——空目录不被 Git 追踪，用户提交后目录消失，首次蒸馏又要重建。
-
-**评审同时确认的（未改）**：`spec` / `validate` / `consistency` 三项机器校验 PASS；`routing-check` 的 FAIL 属**工具误用**（其 `WORKFLOW_FILES` 硬编码了 skill-workshop 自身的 9 个工作流，对纯运行型技能必然全部报缺）；`checklist` 的 M5 / V2 / V3 / V5 为关键词未匹配（实质由 `SKILL.md` 的 CHECKPOINT 与验证表、生成规范 §7 自检门承载），**不为迁就扫描器而改写措辞**。
-
-**仍待用户裁决（本次未动）**：`D1`「不覆盖」是否需要护栏（评审倾向不加脚本、改补真跑回归项）；`description` 的 13 个触发短语是否精简；经验条目编号「主题内递增」与总索引速查表的跨域重号问题。
-
-**干跑（三场景）修复**
-
-对「全新空白项目 / 半程项目 / 已初始化优化」各干跑一遍，暴露并修复：
-
-- 模板硬编码 `先读 PRD` → 空白项目无 PRD，产物会带一条指向不存在文件的强制指令；改为占位 `<项目文档，如 PRD.md>`，并规定占位文档不存在时整项删除。
-- 层 B `project-overview.md` 号称可选却**无模板、无建立条件**，实际不可执行 → 明确为「无模板、按需自建」并给触发条件。
-- `<工程标识>` 无来源定义（4 个模板都要用）→ 定义取法：用户指定 → 依赖清单 name → 项目根目录名。
-- 全新初始化是否建 `agents-changelog.md` 前后矛盾（§3 说跳过、模板说要写兜底行）→ 统一为「总是建，写一行兜底」。
-- 旧位置残留无规则（如项目根 `references/` 下的旧日志）→ 内容并入 `docs/.ai/`，旧文件按 `drop` 处理并留痕，禁止两处并存。
-- 证据采集漏「运行时痕迹检测」（`.claude/` 等）却依赖它决定是否建 `CLAUDE.md` → 补入采集清单。
-- 关键事实采不到时的兜底缺失 → 补「停下问用户；未答则写占位并列入待确认项」。
-- `mode` 行变更未定义是否算一次契约改动 → 明确算改动，须留痕。
-- 自检门只管 `References` 路径，不管 `Permissions` → 扩为两条路径全覆盖。
-
-**状态识别（初始态 vs 开发中）**
-
-- 旧判据「决策负载低/高」不可观测、无法判定，已废除。
-- 改用三个可观测信号查表定模式：既有契约（AGENTS.md / CLAUDE.md / .cursorrules）、既有代码（源码目录 / 依赖清单 / 锁定文件 / 有提交）、既有项目文档（PRD / CONTEXT / 设计稿）。任一为「有」即排除全新初始化。
-- 信号矛盾或无法查证 → 停下问用户，不自行归类。判据真源在生成规范 §2，init 契约只留动作列，避免两处漂移。
-
-**AGENTS.md 契约强化**
-
-- 章节固定不增删；产物头部写 `<!-- mode: 全新初始化|半程合成|已初始化优化 -->` 注明路由模式。
-- 文档义务落在既有两节：`Permissions` 写 `YOU MUST 每次会话更新 docs/.ai/project-progress.md`；`Conventions` 写会话文档体系、bug 追加、交接命名、改文档须同步 `updated` 四条表格行。
-- `References` 只写 `见 <path>` 纯指针，用途说明归 `Conventions`。
-- 生成规范新增 §4b「项目文档结构生成」，承载目录结构与各文档骨架（单一真源）。
-- 生成规范内的模板用 4 反引号围栏承载，避免嵌套代码块渲染异常。
-
-**核心契约**
-
-- 不覆盖（只追加 / 命名递增或加语义后缀）、不猜测（读不到写占位符）、不越界（只**写**契约与过程文档区，读可及项目内任意文件）、不静默（删除或改写留可见记录）。
-- 先确认再执行；写入前声明操作类型 / 路径 / 是否覆盖 / 风险等级；一次只走一个触发词。
-- 全程不运行终端命令；产物强制脱敏；不重复已有产物，一律用路径引用。
-
-**设计取舍**
-
-- 触发词从早期的 9 个收敛为 5 个：合并「保存进度 + 会话压缩」（写同一文件同一位置），「记录踩坑」并入调试经验沉淀，移除低频的「知识整合」与旧「初始化后同步」入口。
-- 进度与决策不进 `AGENTS.md`：契约只承载规则，过程只承载事实。
-- 完全移除 OpenSpec 及其兼容设计（规范源三模式、优先级链）。
-- 移除状态文件与并行工作流目录：不再维护 `.workflow-state.json`；路由只保留 SKILL.md 一张决策矩阵表。
-- `CLAUDE.md` 定位为指针而非副本。
-- 交接机制继承 `handoff` 参考实现的四项契约：自包含、不重复已有产物、强制脱敏、含建议调用的技能段。
-
-**修改文件**：全部新建 —— `SKILL.md`、`README.md`、`VERSION.md`、`references/init-agents-md.md`、`references/agents-md-generator.md`、`references/sync-progress.md`、`references/handoff-context.md`、`references/resume-context.md`、`references/distill-lessons.md`、`references/trigger-test-set.md`
+- 首个版本：`vibe-init` + `vibe-sync`，建立 `AGENTS.md` 唯一契约源与 `docs/agents/` 过程文档区。

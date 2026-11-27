@@ -1,5 +1,7 @@
 # vibe-buddy
 
+> [English](README.en.md) · 中文
+
 <p align="center">
   <img src="assets/banner.svg" alt="vibe-buddy" width="100%">
 </p>
@@ -108,7 +110,7 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 
 | 取舍 | 原因 |
 |---|---|
-| 触发词为 9 个 | 早期 9 个里「保存进度 / 会话压缩」同落点、「记录踩坑」是 sync 子类、「知识整合」低频、「接管」不该是触发词——先收敛到 4。v1.1.0 纳入 `vibe-audit`（审查是旁路质检、只读、落点独立，与建/记/交/炼闭环不重叠）。v1.11.0 纳入 `vibe-check`（看档案）与 `vibe-release`（发布契约）。v1.12.0 拟纳入 `vibe-req`（EARS 需求澄清）——内核是「升维四问」，EARS 五类只是落盘形态；追问归 grilling、编译任务归 qiao，不抢两者的活 |
+| 触发词为 9 个 | 早期 9 个里「保存进度 / 会话压缩」同落点、「记录踩坑」是 sync 子类、「知识整合」低频、「接管」不该是触发词——先收敛到 4。v1.1.0 纳入 `vibe-audit`（审查是旁路质检、只读、落点独立，与建/记/交/炼闭环不重叠）。v1.11.0 纳入 `vibe-check`（看档案）与 `vibe-release`（发布契约）。v1.12.0 纳入 `vibe-req`（EARS 需求澄清）——内核是「升维四问」，EARS 五类只是落盘形态；追问归 grilling、编译任务归 qiao，不抢两者的活 |
 | 进度与决策不进 `AGENTS.md` | 契约只承载规则，过程只承载事实。混在一起会让契约每轮被改写，既不稳定也不可审计 |
 | 文档义务写进 `Permissions` 与 `Conventions` | 不写进 `AGENTS.md` 就没人执行；但不新增章节——章节固定，义务落在既有两节里，句式契约才守得住 |
 | `References` 每条必须带「何时读」 | 只列 `见 <path>` 等于只告诉 AI「有这些文件」，不说什么任务该打开哪一个——指引链断在中间。指针因此改为单行条件式 `- <何时读> → 见 <路径>：<用途一句话>`；强制读取仍归 `Permissions`，`References` 只管发现与调度。**带用途的宽表 v1.7.0 撤回**：两列宽表只说得清「这文件是什么」、说不出「何时打开」，且本质是人读导航，归项目根 `README.md` |
@@ -139,7 +141,7 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 > 非目标规则的唯一真源是 `SKILL.md` 的「非目标」节；本节只是人读导航，回答「这件事该找谁」，不重复列举理由。
 
 - **Agent 记忆**：运行时自身的记忆目录、跨项目的个人知识库都不归本技能——它只写**当前项目**内的文件，也不把经验条目外送到任何仓库。
-- **需求转译**：模糊需求 → 结构化 PRD，交给需求侧技能。
+- **需求转译**：模糊需求 → 结构化 PRD 交给需求侧技能；口语需求 → EARS 可验收条目由 `vibe-req` 承担。
 - **任务计划**：待办拆解、排期、进度追踪，交给计划类技能。
 - **Git 操作**：提交、分支、合并，交给 Git 类技能。
 - **更新日志体系**：建立、规范化、归档 `CHANGELOG.md` 交给 changelog-manager（初始化时由 `vibe-init` 触发建立）；`vibe-sync` 只把本轮**用户可见**变更追加进项目**已有**的 `CHANGELOG.md`。
@@ -153,7 +155,8 @@ vibe-buddy 管单个项目的协作档案：初始化契约、同步进度与决
 vibe-buddy/
 ├── SKILL.md                              # 入口：路由与共用契约
 ├── README.md                             # 本文件
-├── CHANGELOG.md                            # 版本演进
+├── CHANGELOG.md                            # 版本演进（中文）
+├── CHANGELOG.en.md                         # 版本演进（英文）
 ├── assets/
 │   ├── docs/                             # 过程文档模板，初始化时原样复制
 │   │   ├── project-progress.md
@@ -183,26 +186,4 @@ vibe-buddy/
 
 ## 版本
 
-当前版本：**v1.11.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
-
-## 验收（可复跑）
-
-`tests/` 下有 7 组可执行验收，共 190 条断言，全部是「真跑」而非静态核对：
-
-| 组 | 验什么 | 断言数 |
-|---|---|---|
-| `verify_archive.py` | 归档守恒、编号跨归档唯一、handoff 最新一份判据、目录份数闸 | 21 |
-| `verify_git_forensics.py` | 真实 Git 仓库的 `--numstat` / `--name-status` / 三重上限降级 / 密钥文件跳过 / 裸 diff 无边界 | 27 |
-| `verify_check.py` | 造 7 类缺陷档案，验证 C1–C10 逐项命中；再造健康档案验证零误报；体检零写入 | 16 |
-| `verify_release_security.py` | 六步闸「前置不通过即停」、SemVer 依据、回滚点四项；安全模式 3 类命中 + token 占位 | 25 |
-| `verify_e2e_templates.py` | 把 7 份模板复制进空项目，验证零内部引用、零断链、frontmatter 可解析、可提交 | 13 |
-| `verify_triggers.py` | 9 个触发词的路由与验证行、description 意图词覆盖、负面集边界、E1–E12 用例齐全 | 40 |
-| `verify_req.py` | EARS 五类归类、E/S 判别、三问拦截空动词、空类不写、升维四问内核与边界 | 48 |
-
-跑法：
-
-```bash
-cd vibe-buddy/tests && uv run --no-project python run_all.py
-```
-
-全部通过时退出码 0。阈值与上限**从协议文本解析**而非硬编码——协议改了，测试自动跟着变。
+当前版本：**v1.12.0**，详见 [CHANGELOG.md](CHANGELOG.md) / [CHANGELOG.en.md](CHANGELOG.en.md)。
