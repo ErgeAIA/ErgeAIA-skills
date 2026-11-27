@@ -28,6 +28,8 @@ metadata:
 
 严格按序执行。每步有产物，产物不全不进下一步。
 
+标记语义：**🛑 STOP** = 阻断并交还用户，等用户操作后才继续；**🔴 CHECKPOINT** = 自检或向用户确认后再继续，不必然中断。
+
 ### 第 1 步：确认服务与运行时事实
 
 ```bash
@@ -66,9 +68,7 @@ python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/resul
 
 ### 第 4 步：看分数前先看边界
 
-🔴 **CHECKPOINT**：向用户报告各维分数、n 与区间之前，先确认自己已读完报告里「这些数字不代表什么」一节。读不完就不报分数。
-
-报告里「这些数字不代表什么」一节必须读完再解读。每维的测量边界写在 `references/measurement-contract.md`。
+🔴 **CHECKPOINT**：向用户报告分数前先读完「这些数字不代表什么」一节。每维测量边界在 `references/measurement-contract.md`。
 
 **判读规则**：
 - 两次运行的差异小于置信区间宽度 → 不构成有效差异，不要说「A 比 B 强」
@@ -79,7 +79,7 @@ python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/resul
 
 ### 第 5 步（可选但强烈建议）：负对照
 
-🔴 **CHECKPOINT**：跑负对照前先向用户确认「弱配置」具体指什么（Q2_K / 更小模型 / temperature=2.0 三选一），并保证它与主配置只差这一个变量。两处同时变就无法归因，这一步白跑。
+🔴 **CHECKPOINT**：跑负对照前先确认「弱配置」只改了一个变量（Q2_K / 更小模型 / temperature=2.0 三选一）。两处同时变就无法归因，这一步白跑。
 
 证明这套题真的测得出差异：
 
