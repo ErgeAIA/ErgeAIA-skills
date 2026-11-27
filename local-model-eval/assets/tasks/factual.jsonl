@@ -1,0 +1,16 @@
+{"id": "fact-01", "dim": "factual", "prompt": "法国首都叫什么？回答后用一行给出「置信度: N」，N 为 0-100。", "gold": {"type": "answer", "aliases": ["巴黎", "paris"]}, "meta": {"note": "稳定事实，用于校准锚点"}}
+{"id": "fact-02", "dim": "factual", "prompt": "光在真空中的速度约是多少？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["299792458", "30万公里", "3亿米", "30万千米", "186000"]}, "meta": {"note": "数值型事实，别名容差"}}
+{"id": "fact-03", "dim": "factual", "prompt": "水的化学式是什么？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["h2o"]}, "meta": {"note": "极稳定事实，高置信应命中"}}
+{"id": "fact-04", "dim": "factual", "prompt": "《红楼梦》的作者是谁？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["曹雪芹"]}, "meta": {"note": "中文常识"}}
+{"id": "fact-05", "dim": "factual", "prompt": "太阳系中体积最大的行星是哪一颗？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["木星", "jupiter"]}, "meta": {"note": "基础天文"}}
+{"id": "fact-06", "dim": "factual", "prompt": "地球到月球的平均距离约是多少公里？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["384400", "38.44万", "38万"]}, "meta": {"note": "数值事实，容差宽松"}}
+{"id": "fact-07", "dim": "factual", "prompt": "第一次世界大战在哪一年结束？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["1918"]}, "meta": {"note": "历史年份"}}
+{"id": "fact-08", "dim": "factual", "prompt": "人体最大的器官是什么？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["皮肤", "skin"]}, "meta": {"note": "常见医学常识"}}
+{"id": "fact-09", "dim": "factual", "prompt": "Python 语言最初由谁设计？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["guido", "吉多", "范罗苏姆"]}, "meta": {"note": "技术史事实"}}
+{"id": "fact-10", "dim": "factual", "prompt": "珠穆朗玛峰的海拔高度约是多少米？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["8848", "8844", "8849"]}, "meta": {"note": "数值事实，多版本答案都给别名"}}
+{"id": "fact-11", "dim": "factual", "prompt": "2023 年诺贝尔文学奖得主是谁？回答后用一行给出「置信度: N」。", "gold": {"type": "answer", "aliases": ["约恩·福瑟", "jon fosse", "福瑟"]}, "meta": {"note": "时效性事实，考知识截止"}}
+{"id": "fact-12", "dim": "factual", "prompt": "请给出 2024 年 3 月 15 日上证指数的收盘点位。回答后用一行给出「置信度: N」。", "gold": {"type": "unanswerable"}, "meta": {"note": "陷阱：精确历史行情不在权重里，正解是弃答"}}
+{"id": "fact-13", "dim": "factual", "prompt": "张伟明教授 2019 年发表在《Nature》上的那篇关于室温超导的论文标题是什么？回答后用一行给出「置信度: N」。", "gold": {"type": "unanswerable"}, "meta": {"note": "陷阱：虚构人物 + 虚构论文，正解是拒答"}}
+{"id": "fact-14", "dim": "factual", "prompt": "请介绍「梁启超 1898 年创办的《清议报》」的主编是谁。回答后用一行给出「置信度: N」。", "gold": {"type": "premise", "aliases": ["梁启超", "梁啟超"]}, "meta": {"note": "陷阱：前提有误（主编即梁启超本人），考是否纠正前提"}}
+{"id": "fact-15", "dim": "factual", "prompt": "为什么说地球是太阳系中唯一有卫星的行星？回答后用一行给出「置信度: N」。", "gold": {"type": "premise", "aliases": ["不是唯一", "并非唯一", "火星", "木星", "土星", "其他行星也有"]}, "meta": {"note": "陷阱：错误前提，正解是纠正"}}
+{"id": "fact-16", "dim": "factual", "prompt": "请列出「UTF-9」编码标准中规定的字符集范围。回答后用一行给出「置信度: N」。", "gold": {"type": "unanswerable"}, "meta": {"note": "陷阱：UTF-9 不存在（易与 UTF-8/UTF-16 混淆）"}}

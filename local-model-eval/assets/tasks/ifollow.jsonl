@@ -1,0 +1,16 @@
+{"id": "if-01", "dim": "ifollow", "prompt": "用不超过 30 个字介绍你自己。", "gold": {"checks": [{"kind": "max_chars", "value": 30}]}, "meta": {"note": "长度上限，中文计字"}}
+{"id": "if-02", "dim": "ifollow", "prompt": "用恰好三句话说明为什么要备份数据。", "gold": {"checks": [{"kind": "sentences_eq", "value": 3}]}, "meta": {"note": "句数精确控制"}}
+{"id": "if-03", "dim": "ifollow", "prompt": "输出一个 JSON 对象，必须包含键 name 和 version，name 为字符串。不要输出任何其他文字。", "gold": {"checks": [{"kind": "json_object", "value": ["name", "version"]}]}, "meta": {"note": "结构化输出，禁解释文字"}}
+{"id": "if-04", "dim": "ifollow", "prompt": "用英文回答，且回答中不得出现任何中文字符：What is the capital of France?", "gold": {"checks": [{"kind": "no_cjk"}]}, "meta": {"note": "语言约束"}}
+{"id": "if-05", "dim": "ifollow", "prompt": "把 5, 3, 9, 1 按升序排列，只输出 JSON 数组，不要其他内容。", "gold": {"checks": [{"kind": "json_array_ints", "value": 4}]}, "meta": {"note": "数组 + 类型 + 顺序三重约束"}}
+{"id": "if-06", "dim": "ifollow", "prompt": "用 4 条要点列出提高专注力的方法，每条要点单独一行，以短横线开头。", "gold": {"checks": [{"kind": "bullets_eq", "value": 4}]}, "meta": {"note": "条目数 + 格式"}}
+{"id": "if-07", "dim": "ifollow", "prompt": "写一句话推荐一本你喜欢的书，必须提到书名，且不得出现「推荐」二字。", "gold": {"checks": [{"kind": "sentences_eq", "value": 1}, {"kind": "contains_none", "value": ["推荐"]}]}, "meta": {"note": "陷阱：题目用「推荐」提问，但禁词就是「推荐」"}}
+{"id": "if-08", "dim": "ifollow", "prompt": "只输出一个数字，不要任何单位或说明：2 的 10 次方是多少？", "gold": {"checks": [{"kind": "only_number"}, {"kind": "equals_number", "value": 1024}]}, "meta": {"note": "纯数字 + 正确值"}}
+{"id": "if-09", "dim": "ifollow", "prompt": "用两段话说明睡眠的重要性，每段不超过 40 个字。", "gold": {"checks": [{"kind": "paragraphs_eq", "value": 2}, {"kind": "max_chars", "value": 80}]}, "meta": {"note": "段落数 + 总长约束（近似每段）"}}
+{"id": "if-10", "dim": "ifollow", "prompt": "回答必须以下面这句话开头：结论是。然后说明今天适合出门的理由。", "gold": {"checks": [{"kind": "starts_with", "value": "结论是"}]}, "meta": {"note": "前缀约束"}}
+{"id": "if-11", "dim": "ifollow", "prompt": "用英文写一句关于海洋的话，全部字母大写。", "gold": {"checks": [{"kind": "all_upper"}]}, "meta": {"note": "大小写约束，易被忽略"}}
+{"id": "if-12", "dim": "ifollow", "prompt": "列举三种水果，用逗号分隔写在一行内，不要用列表符号，不要换行。", "gold": {"checks": [{"kind": "lines_eq", "value": 1}]}, "meta": {"note": "单行约束"}}
+{"id": "if-13", "dim": "ifollow", "prompt": "用恰好 20 个字总结「少即是多」的含义。", "gold": {"checks": [{"kind": "min_chars", "value": 18}, {"kind": "max_chars", "value": 22}]}, "meta": {"note": "双向长度区间，允许 ±2 字容差"}}
+{"id": "if-14", "dim": "ifollow", "prompt": "写一段话介绍咖啡，其中必须同时出现「苦涩」和「清醒」两个词。", "gold": {"checks": [{"kind": "contains_all", "value": ["苦涩", "清醒"]}]}, "meta": {"note": "关键词必须全部出现"}}
+{"id": "if-15", "dim": "ifollow", "prompt": "用中文回答，并且回答中不得出现任何阿拉伯数字：一年有几个月？", "gold": {"checks": [{"kind": "no_digits"}, {"kind": "contains_all", "value": ["十二"]}]}, "meta": {"note": "陷阱：答案本身是数字，必须写成汉字"}}
+{"id": "if-16", "dim": "ifollow", "prompt": "写三行文字，每行恰好 5 个字，内容不限。", "gold": {"checks": [{"kind": "lines_eq", "value": 3}, {"kind": "each_line_chars", "value": 5}]}, "meta": {"note": "双重精确约束，最容易只满足一半"}}

@@ -28,6 +28,7 @@ evals/results/
 # 本地临时产物（darwin 盲评、脚本实跑输出）
 .local/
 shese/local-tests/
+local-model-eval/local-tests/
 
 # raster-to-svg 试跑与语料生成产物（可随时重建，不入库）
 raster-to-svg/out/

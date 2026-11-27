@@ -1,0 +1,16 @@
+{"id": "math-01", "dim": "math", "prompt": "小明买了 3 支笔，每支 12.5 元，他付了 50 元。应找回多少元？只给出最终数值。", "gold": {"type": "number", "value": 12.5}, "meta": {"note": "基础多步算术"}}
+{"id": "math-02", "dim": "math", "prompt": "一件商品原价 240 元，涨价 15% 后的价格是多少元？只给出最终数值。", "gold": {"type": "number", "value": 276}, "meta": {"note": "百分比增长"}}
+{"id": "math-03", "dim": "math", "prompt": "一辆车 2.5 小时行驶 120 公里，平均速度是多少公里每小时？只给出最终数值。", "gold": {"type": "number", "value": 48}, "meta": {"note": "速率"}}
+{"id": "math-04", "dim": "math", "prompt": "一箱饮料有 24 瓶，每瓶 0.55 升。这箱饮料共多少升？只给出最终数值。", "gold": {"type": "number", "value": 13.2}, "meta": {"note": "小数乘法"}}
+{"id": "math-05", "dim": "math", "prompt": "某学生四次测验成绩分别是 85、92、78、90，平均分是多少？只给出最终数值。", "gold": {"type": "number", "value": 86.25}, "meta": {"note": "平均值，需保留小数"}}
+{"id": "math-06", "dim": "math", "prompt": "把 360 元按 2:3:4 分给三个人，分得最多的那份是多少元？只给出最终数值。", "gold": {"type": "number", "value": 160}, "meta": {"note": "比例分配"}}
+{"id": "math-07", "dim": "math", "prompt": "一件 200 元的衣服先打八折，再减 20 元。最终价格是多少元？只给出最终数值。", "gold": {"type": "number", "value": 140}, "meta": {"note": "连续折扣，易错点为顺序"}}
+{"id": "math-08", "dim": "math", "prompt": "甲单独完成一项工作需要 6 天，乙单独完成需要 12 天。两人合作需要多少天？只给出最终数值。", "gold": {"type": "number", "value": 4}, "meta": {"note": "工程问题，调和"}}
+{"id": "math-09", "dim": "math", "prompt": "解方程 3x + 7 = 22，x 等于多少？只给出最终数值。", "gold": {"type": "number", "value": 5}, "meta": {"note": "一元一次方程"}}
+{"id": "math-10", "dim": "math", "prompt": "半径为 7 的圆，取 π = 22/7，面积是多少？只给出最终数值。", "gold": {"type": "number", "value": 154}, "meta": {"note": "面积公式 + 指定 π 值"}}
+{"id": "math-11", "dim": "math", "prompt": "1000 元存入银行，年利率 10%，按年复利计算，两年后本息合计多少元？只给出最终数值。", "gold": {"type": "number", "value": 1210}, "meta": {"note": "复利，易错点为单利 1200"}}
+{"id": "math-12", "dim": "math", "prompt": "数列 2, 6, 12, 20, 30 的下一项是多少？只给出最终数值。", "gold": {"type": "number", "value": 42}, "meta": {"note": "二阶差分数列"}}
+{"id": "math-13", "dim": "math", "prompt": "笼子里有鸡和兔共 35 只，脚共 94 只。兔有多少只？只给出最终数值。", "gold": {"type": "number", "value": 12}, "meta": {"note": "鸡兔同笼"}}
+{"id": "math-14", "dim": "math", "prompt": "一个水池容量 2.4 立方米，每分钟注水 0.15 立方米。注满需要多少分钟？只给出最终数值。", "gold": {"type": "number", "value": 16}, "meta": {"note": "除法，小数"}}
+{"id": "math-15", "dim": "math", "prompt": "某商店昨天卖出的苹果是今天的 3 倍，今天卖出 40 箱。前天卖出多少箱？只给出最终数值。", "gold": {"type": "insufficient"}, "meta": {"note": "陷阱：前天数据未给出，正解是拒答而非计算"}}
+{"id": "math-16", "dim": "math", "prompt": "一个长方体的长是 5 厘米，宽是 3 厘米，体积是多少立方厘米？只给出最终数值。", "gold": {"type": "insufficient"}, "meta": {"note": "陷阱：缺高，正解是指出信息不足"}}
