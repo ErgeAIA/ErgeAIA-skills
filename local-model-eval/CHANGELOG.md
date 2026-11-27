@@ -4,9 +4,14 @@
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-27
+
+文档结构调整版，无功能与产物变化。
+
 ### Changed
 
-- **结构修正**：硬件适配原本被编号为「第 0 步」，读起来像能力评测的必经前置。它实际是独立工作流（原本以独立提示词完成），与评测无依赖关系。现改为并列的「工作流 A：能力评测 / 工作流 B：硬件适配」，SKILL.md 与 README 同步调整，并明确 A 可不跑 B 单独完成。
+- **硬件适配改为独立工作流**：原编号为「第 0 步」，读起来像能力评测的必经前置；实际它是以独立提示词完成、集成进技能的另一条工作流，与评测无依赖。现改为并列的「工作流 A：能力评测 / 工作流 B：硬件适配」，明确 A 可不跑 B 单独完成。
+- 「何时使用」按两条工作流分开列触发场景；`references/hardware-fit.md` 首段补定位说明；新增 Gotcha 防止再把它排成 A 的前置。
 
 ## [1.0.1] - 2026-11-27
 
@@ -54,5 +59,6 @@
 - 缺 chat 模板时 `run` 直接失败退出，与「探测失败不降级」的 HARD 声明对齐；此前只告警仍继续跑。
 - 版本声明加冒号，使四处版本对齐机检真正生效。
 
+[1.0.2]: https://github.com/ErgeAIA/ErgeAIA-skills/releases/tag/v1.0.2
 [1.0.1]: https://github.com/ErgeAIA/ErgeAIA-skills/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ErgeAIA/ErgeAIA-skills/releases/tag/v1.0.0
