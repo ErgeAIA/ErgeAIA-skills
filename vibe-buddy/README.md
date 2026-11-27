@@ -181,3 +181,24 @@ vibe-buddy/
 ## 版本
 
 当前版本：**v1.11.0**，详见 [CHANGELOG.md](CHANGELOG.md)。
+
+## 验收（可复跑）
+
+`tests/` 下有 6 组可执行验收，共 140 条断言，全部是「真跑」而非静态核对：
+
+| 组 | 验什么 | 断言数 |
+|---|---|---|
+| `verify_archive.py` | 归档守恒、编号跨归档唯一、handoff 最新一份判据、目录份数闸 | 21 |
+| `verify_git_forensics.py` | 真实 Git 仓库的 `--numstat` / `--name-status` / 三重上限降级 / 密钥文件跳过 / 裸 diff 无边界 | 27 |
+| `verify_check.py` | 造 7 类缺陷档案，验证 C1–C10 逐项命中；再造健康档案验证零误报；体检零写入 | 16 |
+| `verify_release_security.py` | 六步闸「前置不通过即停」、SemVer 依据、回滚点四项；安全模式 3 类命中 + token 占位 | 25 |
+| `verify_e2e_templates.py` | 把 7 份模板复制进空项目，验证零内部引用、零断链、frontmatter 可解析、可提交 | 13 |
+| `verify_triggers.py` | 8 个触发词的路由与验证行、description 意图词覆盖、负面集边界、E1–E10 用例齐全 | 38 |
+
+跑法：
+
+```bash
+cd vibe-buddy/tests && uv run --no-project python run_all.py
+```
+
+全部通过时退出码 0。阈值与上限**从协议文本解析**而非硬编码——协议改了，测试自动跟着变。
