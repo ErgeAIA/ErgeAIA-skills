@@ -12,6 +12,7 @@ SUITES = [
     ("发布六步闸 + 安全模式", "verify_release_security.py"),
     ("端到端模板初始化", "verify_e2e_templates.py"),
     ("触发集干跑（路由/description/用例）", "verify_triggers.py"),
+    ("vibe-req EARS 归类（五类/E-S判别/三问）", "verify_req.py"),
 ]
 
 results = []

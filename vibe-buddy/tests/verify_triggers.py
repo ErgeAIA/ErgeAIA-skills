@@ -18,7 +18,7 @@ SKILL = (Path(__file__).resolve().parent.parent / "SKILL.md").read_text(encoding
 TS = (Path(__file__).resolve().parent.parent / "references/trigger-test-set.md").read_text(encoding="utf-8")
 
 # 1. 八个触发词在 SKILL 中都有路由行与验证行
-VIBE = ["vibe-init", "vibe-sync", "vibe-handoff", "vibe-distill", "vibe-audit", "vibe-check", "vibe-release", "vibe-wrap"]
+VIBE = ["vibe-init", "vibe-sync", "vibe-handoff", "vibe-distill", "vibe-audit", "vibe-check", "vibe-release", "vibe-req", "vibe-wrap"]
 route_sec = SKILL.split("## 产物布局")[0]
 for v in VIBE:
     check(f"{v} 有路由行", v in route_sec)
@@ -46,7 +46,7 @@ check("模糊场景要求问一句", "问一句查档案还是查代码" in TS)
 
 # 6. 执行维度用例 E1–E10 齐全
 es = sorted(set(re.findall(r"\| (E\d+) \|", TS)), key=lambda x: int(x[1:]))
-check("执行用例 E1–E10 齐全", es == [f"E{i}" for i in range(1, 11)], str(es))
+check("执行用例 E1–E12 齐全", es == [f"E{i}" for i in range(1, 13)], str(es))
 
 # 7. 每个 E 用例都有断言列（3 列以上）
 rows = [l for l in TS.split("\n") if re.match(r"\| E\d+ \|", l)]

@@ -1,6 +1,6 @@
 ---
 name: vibe-buddy
-description: "固化项目协作契约、进度与跨会话交接，产出开发项目只读审查报告与档案体检结论。Use when 用户说初始化项目、生成 AGENTS.md、同步进度、把踩的坑记下来、写交接文档、经验蒸馏、审查项目、审这次改动、只看安全、发版前检查、体检档案或收尾，或直呼 vibe- 命令。"
+description: "固化项目协作契约、进度与跨会话交接，产出开发项目只读审查、档案体检与 EARS 需求澄清结论。Use when 用户说初始化项目、生成 AGENTS.md、同步进度、把踩的坑记下来、写交接文档、经验蒸馏、审查项目、审这次改动、只看安全、发版前检查、体检档案、需求澄清、写成需求、EARS 或收尾，或直呼 vibe- 命令。"
 metadata:
   author: ErgeAIA
   version: "1.11.0"
@@ -44,10 +44,11 @@ Core Task：
 | 一轮开发告一段落，要把其中反复成立的做法提炼成可复用经验 | 「经验蒸馏」「提炼可复用经验」「vibe-distill」 | `references/distill-experience.md` |
 | 审查开发类项目的代码质量、架构与技术栈，并要不动栈的优化方向；含「只审本次改动」与「只看安全」两种模式 | 「审查项目」「审查技术栈」「审这次改动」「只看安全」「vibe-audit」 | `references/audit-project.md` + `references/audit-checklist.md` |
 | 发版前检查、定版本依据、记发布记录与回滚点 | 「准备发版」「发版前检查」「这次发布记一下」「vibe-release」 | `references/release-checklist.md`（**只持契约，不执行命令**） |
+| 把口语需求归类成可验收的 EARS 条目 | 「需求澄清」「写成需求」「EARS」「vibe-req」 | `references/ears-clarify.md`（**只问改变归类的问题，不追问、不产出任务**） |
 | 只想看协作档案健不健康：`updated` 过期、编号断裂、台账不一致、产物超阈值 | 「体检」「检查项目档案」「文档是不是过期了」「vibe-check」 | `references/check-artifacts.md`（**只读，不写任何文件**） |
 | 一轮开发结束要收尾（同步进度 + 总结经验 + 留交接 + 文档同步） | 「收尾」「会话收尾」「vibe-wrap」 | 先自审，再按下方 triage 表**串行执行** `vibe-sync` → `vibe-distill` → `vibe-handoff`，中途不停 |
 
-**对象分流（防抢）**：`vibe-check` 看**档案**，`vibe-audit` 看**代码**。用户只说「检查一下这个项目」时**问一句**查档案还是查代码，不自行归类。含 `SKILL.md` 的项目要审质量 → 转 skill-workshop。
+**对象分流（防抢）**：`vibe-check` 看**档案**，`vibe-audit` 看**代码**，`vibe-req` 把**口语需求归类成 EARS 条目**——追问是 `grilling` 的活，编译任务归 `qiao`。用户只说「检查一下这个项目」时**问一句**查档案还是查代码，不自行归类。含 `SKILL.md` 的项目要审质量 → 转 skill-workshop。
 
 ### @步骤2: 强规则摘要
 
@@ -112,8 +113,7 @@ Core Task：
 - 要生成交接文档 → `references/handoff-context.md`
 - 要蒸馏可复用经验 → `references/distill-experience.md`
 - 要审查开发类项目（全项目 / 变更集 / 只看安全） → `references/audit-project.md` + `references/audit-checklist.md`
-- 要发版前检查、定版本依据、记发布与回滚点 → `references/release-checklist.md`
-- 要做只读档案体检 → `references/check-artifacts.md`
+- 要发版前检查、定版本依据、记发布与回滚点 → `references/release-checklist.md`；只读档案体检 → `references/check-artifacts.md`；口语需求归类成 EARS 条目 → `references/ears-clarify.md`
 - 改过 description 要回归触发 → `references/trigger-test-set.md`
 
 ## 本文件写入闸
@@ -139,17 +139,16 @@ Core Task：
 | 待写内容含密钥 / 凭据 / 隐私 | 脱敏为占位符后写入 | 无法安全脱敏 → 拒绝写入并说明原因 |
 | 项目无 `CHANGELOG.md` 却要写更新日志 | 不创建文件；引导先跑 `vibe-init`（由它交 `changelog-manager +init` 建骨架） | 用户要求就地建 → 转 `changelog-manager`，本技能不代写 |
 | 杂音命中但归宿文件不存在 | 按 `agents-md-generator.md` §6b 兜底：变更日志回落 `docs/agents/decision-log.md`，人读说明不写并列待确认项 | 仍说不清归属 → 列为待确认交用户裁决，**不得留在 `AGENTS.md` 里等以后再说** |
-| 存量 AGENTS.md 反复积灰 | 增量维护时必扫全文，逐段过 §6b 六类，迁出后由产物自带反杂音义务行防复发 | 一次扫不干净 → 在终止回复列出未过项与保留理由，不宣称已清干净 |
-| 委托技能不可用或未执行 | 标「待补」并写明缺什么，不代写 | 用户坚持 → 拒绝代写，说明归属 |
-| 新忽略规则命中已追踪文件 | 列出 `git ls-files -ci --exclude-standard` 结果，不自动 untrack | 用户要求 untrack → 转 `git-manager` 并显式确认 |
-| `shuxu` 动笔前 CHECKPOINT 未过 / 参考文件缺失 | 前者只交证据包并标「待补」；后者报告缺失路径并停止 | 硬做 → 拒绝，缺事实或规则不生成 |
+| 委托技能不可用或未执行 / 新忽略规则命中已追踪文件 | 前者标「待补」写明缺什么，不代写；后者列出 `git ls-files -ci --exclude-standard` 结果，不自动 untrack | 用户坚持代写 → 拒绝；要求 untrack → 转 `git-manager` 并显式确认 |
+| `shuxu` 动笔前 CHECKPOINT 未过 / 参考文件缺失 / 存量 AGENTS.md 积灰 | 前两者交证据包或报缺失路径并停止；积灰时增量维护必扫全文、逐段过 §6b 六类并迁出 | 硬做 → 拒绝；扫不干净 → 列未过项与保留理由，不宣称已清干净 |
 
 ## Gotchas
 
 - `AGENTS.md` 是**规则契约**，不承载进度与待办（进度写 `docs/agents/project-progress.md`）；它是每会话自动注入的 system prompt，进来的每行都花上下文——「看着有用但删了也不会让 AI 做错」的段落就是杂音，判据是 §6b 的 N1–N6。
 - `docs/agents/` 的**进度 / 决策 / 调试**三份只追加；决策冲突时把旧条目改标 `superseded`，不删除历史条目。它是**过程档案区**不是人类文档区，人类项目文档（README、设计稿）不放这里。
 - `CLAUDE.md` 迁移完成后不得继续作为项目级协作契约存在，也不得靠新建空 `CLAUDE.md` / 指针文件解决兼容问题。
-- 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。过程文档的 frontmatter `updated` 必须随每次修改同步改当日；漏改等于让 `updated` 说谎。`vibe-init` 对半程项目**只补齐缺失文档**，绝不重写已有文件（受控迁移是唯一例外，且必须可追溯）；不新增 `AGENTS.md` 章节，文档义务写进固定的 `Permissions` 与 `Conventions`。
+- 交接文档写给**另一个 agent**：能从 `git log`、diff、规格文档里读到的，写路径，不复述。过程文档的 frontmatter `updated` 必须随每次修改同步改当日；漏改等于让 `updated` 说谎。
+- `vibe-init` 对半程项目**只补齐缺失文档**，绝不重写已有文件（受控迁移是唯一例外，且必须可追溯）；不新增 `AGENTS.md` 章节，文档义务写进固定的 `Permissions` 与 `Conventions`。
 - `docs/agents/experience/` 是**可移植产物**，不是项目过程档案：**正文可改写**（错的规则留着会持续误导），历史靠 `changelog.md` 保追溯；`docs/agents/` 其余三份则严格**只追加**。经验条目**五要素缺一不可**（主张 / 适用 / Why / How / 反例），写不出反例说明还没想清楚；主题名用领域名（`ui` / `frontend` / `motion` / …），不另造词——外送汇总时它就是分域依据。
 
 ## 反例黑名单（已知会犯错的写法）
@@ -163,13 +162,12 @@ Core Task：
 
 ## 非目标
 
-- 不做任务拆解、排期、待办追踪；不把模糊需求转译成 PRD 或结构化指令。
-- 不写代码、不重构、不运行构建与测试命令；Git 仅限白名单内的仓库检测、初始化与只读核对。
+- 不做任务拆解、排期、待办追踪；不把模糊需求转译成 PRD（`vibe-req` 只做 EARS 归类，不做 PRD 或排期）。不写代码、不重构、不运行构建与测试命令；Git 仅限白名单内的仓库检测、初始化与只读核对。
 - 不代写 `README.md` / `CHANGELOG.md` / `.gitignore`：分别归 shuxu / changelog-manager / git-manager，本技能只检测、委托与验收。
 - 不管理规格与变更的生命周期；不做对外发布，不代发内容；**发布只持契约与记录，不执行 commit / tag / push**。
 - 不管理 Agent 自身的记忆：运行时记忆目录、跨项目共享的个人记忆库与外部知识库都不读写；也不把经验条目写入任何外部仓库或目录，外送由用户另行触发。本技能只服务**当前这一个项目**。
 - 不提供「接管汇报」触发词（那是目标项目 `AGENTS.md` 的义务）；不评审 Skill 项目（归 skill-workshop）。
-- 审计与体检不产出待办、排期与整改清单；只给问题 + 证据 + 方向（体检另给修复入口）。
+- 审计与体检不产出待办、排期与整改清单；只给问题 + 证据 + 方向（体检另给修复入口）。`vibe-req` 不做无休止追问（那是 grilling）、不编译开发任务（那是 qiao）。
 
 ## 验证
 
@@ -183,3 +181,4 @@ Core Task：
 | `vibe-audit` | 每条结论带 `路径:行` 或明写「证据不足」；报告落入 `docs/agents/audit/` 且 `updated` 为当日；未改动被审项目任何文件；Skill 项目已转交而非自审；变更集模式写明基线与未覆盖项；`mode=security` 首行写「静态检查，非安全认证」 |
 | `vibe-check` | 逐项给出通过 / 问题 / 证据不足三态；每条问题带 `路径:行` 与修复入口（该跑哪个触发词）；**写入文件数 = 0**；不产待办 |
 | `vibe-release` | 六步闸按需分段执行；前置不通过即停且逐条给证据；版本依据可追溯到 `[Unreleased]` 分类；回滚点四项齐全；**0 次写 CHANGELOG、0 次 commit、0 次 tag** |
+| `vibe-req` | 每条需求前缀 `U`/`E`/`S`/`O`/`U*` 且句式完整；每条过三问（触发可见 / 响应具体 / 能判定通过）；空类不写；**不追问超过 3 问**（转 grilling）、**不产出开发任务**（那是 qiao）、**不落盘**（除非用户给路径） |

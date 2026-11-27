@@ -53,9 +53,13 @@ vibe-check                                    # 英文触发词
 只看这个项目的安全                                # mode=security
 发版前帮我检查一下                                # 发布治理契约（vibe-release）
 记一下这次发布 1.2.0                             # 发布记录（经 vibe-sync）
+需求澄清：加个导出功能                            # vibe-req（EARS 归类）
+写成需求                                        # vibe-req（EARS 五类句式）
+EARS                                            # vibe-req（直接点名语法模式）
+vibe-req                                        # 英文触发词
 ```
 
-**覆盖**：八个触发词（init / sync / handoff / distill / audit / check / release / wrap）全覆盖，含英文触发词、中文触发词、自然语言变体、带前置条件、口语短触发，初始化状态机 C / D 的迁移场景，以及 v1.6.0「AI 编程全过程协作管理」定位下的自然措辞。
+**覆盖**：九个触发词（init / sync / handoff / distill / audit / check / release / req / wrap）全覆盖，含英文触发词、中文触发词、自然语言变体、带前置条件、口语短触发，初始化状态机 C / D 的迁移场景，以及 v1.6.0「AI 编程全过程协作管理」定位下的自然措辞。
 
 **组合意图（`vibe-wrap`）的路由口径**：一句里同时含「收尾 / 同步 / 经验 / 交接」两种以上意图时，路由 `vibe-wrap` 而非单个子触发词；子触发词明示（如「vibe-sync 然后 vibe-distill」）时按 `vibe-wrap` 处理并保留顺序。**新增词不得吃掉既有词**：只含单一意图的输入（如「同步一下进度」）仍走对应子触发词。
 
@@ -97,6 +101,9 @@ vibe-check                                    # 英文触发词
 看看我的待办还剩几个                            # 待办追踪不在范围；运行态已有原生实现
 把 CHANGELOG 归档到 1.2.0                     # 版本归档归 changelog-manager
 检查一下这个项目的代码质量                       # 代码审查 → vibe-audit，不是 vibe-check
+帮我无情追问这个方案直到问透                    # grilling，不是 vibe-req（不追问）
+把这个需求整理成给 Claude Code 的任务           # qiao，不是 vibe-req（不编译任务）
+把这句改写成更专业的 Prompt                    # prompt-workshop，不是 vibe-req
 ```
 
 ### 冲突与模糊集（必须落到正确工作流，或停下来问）
@@ -165,8 +172,18 @@ vibe-check                                    # 英文触发词
 | E8 | `updated` 是 3 天前、DEC 跳号、台账区间不一致 | `体检一下` | 3 条问题各带 `路径:行` 与修复入口；**写入文件数 = 0** |
 | E9 | 工作区有未提交改动、`[Unreleased]` 为空、无 tag | `发版前帮我检查一下` | 报 3 项缺口；不进入版本决策；0 次写 CHANGELOG / commit / tag |
 | E10 | 含硬编码 token、日志打印 token、客户端判管理员 | `只看这个项目的安全` | 3 条命中；报告首行写「静态检查，非安全认证」；不评栈、不查依赖漏洞 |
+| E11 | 口语需求「加个导出，点按钮就下载 CSV；如果没权限要提示」 | `vibe-req` | 归 E + U* 两条；每条句式完整且带前缀；无空类；不追问、不落盘 |
+| E12 | 口语需求「登录要记住我，离线时显示缓存，系统全程用 HTTPS」 | `需求澄清` | 归 O + S + U 三条；E 与 S 判别正确（「离线」是状态不是事件）；不含优先级与排期 |
 
 ## 回归记录
+
+### 2026-11-27 · 新增 vibe-req（EARS 需求澄清）
+
+**改动**：新增第 9 个触发词 `vibe-req`，`references/ears-clarify.md` 只取 CodeBuddy `/req-clarify` 的 EARS 五类句式，**不取**五节空表模板与 `!` 反引号扫盘。边界：不做无休止追问（grilling）、不编译开发任务（qiao）、不改写 Prompt（prompt-workshop）、不落盘。
+
+**正面集 +4、负面集 +3**（grilling / qiao / prompt-workshop 各一条），**执行用例 E11–E12**：验归类正确、前缀完整、空类不写、E 与 S 判别（一次性事件 vs 持续状态）。
+
+**风险**：与 grilling 的边界靠「只问改变归类的问题 + 3 问转交」兜底，未在真实追问场景复测。
 
 ### 2026-11-27 · 新增 vibe-check 与发布治理（v1.11.0 待发布）
 
