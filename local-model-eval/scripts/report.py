@@ -50,22 +50,56 @@ def load_jsonl(path: str) -> list[dict]:
 
 
 CSS = """
-:root{
+/* ThemeVault #002 晨光 erge/light（默认）· #001 夜灯 erge/dark
+   色值取自 dudong/scripts/render_reading_page.mjs 的成熟 token，含对比度派生。
+   两套 token 同时内联，切换只改 <html data-theme>，不重新请求任何资源。 */
+:root, :root[data-theme="chenguang"]{
+  color-scheme:light;
+  --bg:#FAF1E9; --surface:#FBE8DD; --surface-2:#F1E4D9; --card:#FFFFFF;
+  --text:#171614; --muted:#55524C; --dim:#706E69;
+  --border:#E2DDD3; --border-strong:#D6CFC2;
+  --accent:#B84A14; --accent-2:#FF6A2B; --accent-fg:#171614; --accent-soft:#FBE8DD;
+  --ok:#257552; --ok-fill:#2E8A5F; --ok-on:#1F5E42;
+  --warn:#8A6410; --warn-fill:#B2820B; --warn-on:#6B4F0C;
+  --danger:#C2382E; --danger-fill:#E0564A; --danger-on:#9B2C24;
+  --info:#4353B8; --info-fill:#6478D9; --info-on:#354497;
+  --shadow:0 1px 2px rgba(23,22,20,.04),0 8px 24px rgba(23,22,20,.05);
+}
+:root[data-theme="yedeng"]{
+  color-scheme:dark;
   --bg:#16120E; --surface:#201A15; --surface-2:#2C2620; --card:#241F1B;
   --text:#EDE4D8; --muted:#C0B7A9; --dim:#A39D93;
   --border:#3A342D; --border-strong:#4A4339;
-  --accent:#F2570F; --accent-2:#FFB380; --accent-fg:#171614;
-  --ok:#257552; --ok-fill:#2E8A5F; --warn:#8A6410; --warn-fill:#B2820B;
-  --danger:#C2382E; --danger-fill:#E0564A; --info:#4353B8; --info-fill:#6478D9;
-  --ok-on:#a9d8c0; --warn-on:#e2c27a; --danger-on:#f0a49c; --info-on:#a8b6f0;
+  --accent:#FFB380; --accent-2:#F2570F; --accent-fg:#171614; --accent-soft:#33251C;
+  --ok:#257552; --ok-fill:#2E8A5F; --ok-on:#a9d8c0;
+  --warn:#8A6410; --warn-fill:#B2820B; --warn-on:#e2c27a;
+  --danger:#C2382E; --danger-fill:#E0564A; --danger-on:#f0a49c;
+  --info:#4353B8; --info-fill:#6478D9; --info-on:#a8b6f0;
+  --shadow:0 1px 2px rgba(0,0,0,.45);
 }
+/* 夜灯下语义色压在 soft 底不达 AA 小字线，文字回落墨色，极性靠底色承载 */
+:root[data-theme="yedeng"] .tag.ok{color:var(--text)}
+:root[data-theme="yedeng"] .tag.warn{color:var(--text)}
+:root[data-theme="yedeng"] .tag.bad{color:var(--text)}
+:root[data-theme="yedeng"] .tag.info{color:var(--text)}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg); color:var(--text);
-  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
   -webkit-font-smoothing:antialiased;
 }
+.theme-toggle{
+  position:fixed;top:16px;right:16px;z-index:50;
+  width:36px;height:34px;display:grid;place-items:center;cursor:pointer;
+  background:var(--card);color:var(--muted);border:1px solid var(--border);
+  border-radius:9px;box-shadow:var(--shadow);
+}
+.theme-toggle:hover{color:var(--text);border-color:var(--border-strong)}
+.theme-toggle svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7}
+.theme-toggle .ico-sun{display:none}
+:root[data-theme="chenguang"] .theme-toggle .ico-sun{display:block}
+:root[data-theme="chenguang"] .theme-toggle .ico-moon{display:none}
 .wrap{max-width:1180px;margin:0 auto;padding:40px 24px 80px}
 header.top{border-bottom:1px solid var(--border);padding-bottom:24px;margin-bottom:32px}
 h1{font-size:26px;margin:0 0 8px;letter-spacing:-.01em;font-weight:650}
@@ -78,9 +112,9 @@ h1{font-size:26px;margin:0 0 8px;letter-spacing:-.01em;font-weight:650}
   font-variant-numeric:tabular-nums;
 }
 .chip b{color:var(--text);font-weight:600}
-.chip.ok{border-color:rgba(46,138,95,.5);color:var(--ok-on)}
-.chip.warn{border-color:rgba(178,130,11,.5);color:var(--warn-on)}
-.chip.bad{border-color:rgba(224,86,74,.5);color:var(--danger-on)}
+.chip.ok{border-color:var(--ok);color:var(--ok-on)}
+.chip.warn{border-color:var(--warn);color:var(--warn-on)}
+.chip.bad{border-color:var(--danger);color:var(--danger-on)}
 
 section{margin-bottom:44px}
 h2{font-size:17px;margin:0 0 4px;font-weight:640;letter-spacing:-.005em}
@@ -199,7 +233,8 @@ def verdict_tag(v: str) -> str:
     return f'<span class="tag {cls}">{esc(label)}</span>'
 
 
-def render(summary: dict, scores: list[dict], raws: list[dict], title: str) -> str:
+def render(summary: dict, scores: list[dict], raws: list[dict], title: str,
+           theme: str = "auto") -> str:
     dims = summary.get("dims", {})
     manifest = summary.get("manifest", {})
     cost = summary.get("cost", {})
@@ -216,10 +251,18 @@ def render(summary: dict, scores: list[dict], raws: list[dict], title: str) -> s
     )
 
     parts: list[str] = []
+    # theme 仅作为生成时的初始偏好写入 data-theme；运行期由脚本按 localStorage/系统偏好重算
+    initial = theme if theme in ("auto", "chenguang", "yedeng") else "auto"
     parts.append(f"""<!DOCTYPE html>
-<html lang="zh-CN"><head><meta charset="utf-8">
+<html lang="zh-CN" data-theme="{initial}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{esc(title)}</title><style>{CSS}</style></head><body><div class="wrap">""")
+<title>{esc(title)}</title><style>{CSS}</style></head><body>
+<button type="button" class="theme-toggle" id="theme-toggle" aria-label="切换深浅主题"
+        title="ThemeVault #001 夜灯 / #002 晨光">
+  <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+  <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+</button>
+<div class="wrap">""")
 
     # ---- header ----
     parts.append(f"""
@@ -380,18 +423,48 @@ def render(summary: dict, scores: list[dict], raws: list[dict], title: str) -> s
   </tbody></table></div>
 </section>""")
 
-    parts.append(f"""
+    parts.append("""
 <footer>
   本报告由 local-model-eval 从 scores.jsonl 直接渲染，未经过人工改写。
   判分全部程序化，无 LLM 裁判；判分器自身通过 selftest 对抗样例验证。
   单次运行的分数差异小于置信区间宽度时不构成有效差异。
 </footer>
-</div></body></html>""")
+</div>
+<script>
+(function(){
+  var KEY = 'local-model-eval-theme';
+  var START = document.documentElement.getAttribute('data-theme');
+  var ORDER = ['yedeng','chenguang'];
+  function apply(id){
+    var t = (id === 'chenguang' || id === 'yedeng') ? id : 'yedeng';
+    document.documentElement.setAttribute('data-theme', t);
+    document.getElementById('theme-toggle').setAttribute('title',
+      t === 'chenguang' ? 'ThemeVault #002 晨光（点击切夜灯）' : 'ThemeVault #001 夜灯（点击切晨光）');
+    try { localStorage.setItem(KEY, t); } catch(e) {}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch(e) {}
+  if (saved && (saved === 'chenguang' || saved === 'yedeng')) {
+    apply(saved);
+  } else if (START === 'auto' && window.matchMedia &&
+             window.matchMedia('(prefers-color-scheme: light)').matches) {
+    apply('chenguang');
+  } else {
+    apply(START);
+  }
+  document.getElementById('theme-toggle').addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    apply(ORDER[(ORDER.indexOf(cur) + 1) % ORDER.length]);
+  });
+})();
+</script>
+</body></html>""")
 
     return "".join(parts)
 
 
-def build(out_dir: str, title: str | None = None, out_path: str | None = None) -> str:
+def build(out_dir: str, title: str | None = None, out_path: str | None = None,
+          theme: str = "auto") -> str:
     summary_path = os.path.join(out_dir, "summary.json")
     scores_path = os.path.join(out_dir, "scores.jsonl")
     raw_path = os.path.join(out_dir, "raw.jsonl")
@@ -402,7 +475,7 @@ def build(out_dir: str, title: str | None = None, out_path: str | None = None) -
     scores = load_jsonl(scores_path)
     raws = load_jsonl(raw_path)
     model = summary.get("manifest", {}).get("model", "本地模型")
-    html_text = render(summary, scores, raws, title or f"{model} · 能力评测报告")
+    html_text = render(summary, scores, raws, title or f"{model} · 能力评测报告", theme=theme)
     out = out_path or os.path.join(out_dir, "report.html")
     with open(out, "w", encoding="utf-8") as fh:
         fh.write(html_text)

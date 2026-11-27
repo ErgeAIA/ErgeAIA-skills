@@ -94,7 +94,7 @@ def cmd_run(args) -> int:
 
     if not args.no_report:
         import report
-        path = report.build(args.out, args.title)
+        path = report.build(args.out, args.title, theme=args.theme)
         print(f"报告：{path}")
     return 0
 
@@ -149,7 +149,7 @@ def cmd_score(args) -> int:
 def cmd_report(args) -> int:
     import report
     try:
-        path = report.build(args.out, args.title, args.output)
+        path = report.build(args.out, args.title, args.output, theme=args.theme)
     except RuntimeError as exc:
         print(str(exc), file=sys.stderr)
         return 2
@@ -233,6 +233,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--max-tokens", type=int, default=768)
     sp.add_argument("--timeout", type=float, default=180.0)
     sp.add_argument("--title", default=None)
+    sp.add_argument("--theme", default="auto",
+                    choices=["auto", "chenguang", "yedeng"],
+                    help="报告初始主题，默认 auto 跟随系统偏好；页面内可随时切换")
     sp.add_argument("--no-report", action="store_true")
     sp.add_argument("--no-resume", action="store_true")
     sp.set_defaults(func=cmd_run)
@@ -246,6 +249,9 @@ def build_parser() -> argparse.ArgumentParser:
     sp.add_argument("--out", required=True, help="结果目录")
     sp.add_argument("--output", default=None)
     sp.add_argument("--title", default=None)
+    sp.add_argument("--theme", default="auto",
+                    choices=["auto", "chenguang", "yedeng"],
+                    help="报告初始主题，默认 auto 跟随系统偏好；页面内可随时切换")
     sp.set_defaults(func=cmd_report)
 
     sp = sub.add_parser("compare", help="两组结果配对比较")

@@ -29,7 +29,9 @@
 
 ### 1. 启动本地服务
 
-llama.cpp：
+不想手敲命令的话，可以用 **[AI Vault](https://ergeaia.github.io/aivault-site/)**（本地优先、Agent-centric 的 AI 创作者工作台）管理与启动本地引擎：它内置 llama.cpp 等本地部署方式，同时把 Skill / Prompt / MCP / 模型统一收在本地 Vault 里，可直接分发到各 Agent 的 skills 目录。数据留在本机，不依赖云服务。
+
+手工启动 llama.cpp：
 
 ```bash
 llama-server -m <model.gguf> --host 127.0.0.1 --port 8080 \
@@ -59,6 +61,8 @@ python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/resul
 ### 4. 看报告
 
 打开 `evals/results/q4km/report.html`。先读「这些数字不代表什么」一节，再看分数。
+
+报告使用你的品牌主题：**ThemeVault #001 夜灯 / #002 晨光**。右上角图标可随时切换；默认跟随系统深浅偏好，手动选择会记到 `localStorage`，下次打开保持。生成时也可用 `--theme yedeng` 或 `--theme chenguang` 固定初始主题。单文件、零外部资源，断网可开。
 
 ## 示例提示词
 

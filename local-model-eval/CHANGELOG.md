@@ -22,3 +22,10 @@
 - 不做 LLM 裁判：不可复现、偏好冗长、破坏离线。不可验证的维度明确不做，写进各维「不代表什么」。
 - 不做真实执行与多轮状态模拟：需沙盒隔离，成本超出本地评测范围。
 - 报告必带 CI 与 n：n=16 时通过率标准误约 12 个百分点，写一位小数是假精度。
+
+### 变更
+
+- 报告页接入 ThemeVault 双主题：#001 夜灯 / #002 晨光。色值取自 `dudong/scripts/render_reading_page.mjs` 的成熟 token（含对比度派生与夜灯语义色回落墨色规则），不新造配色。
+- 主题切换采用运行时方案（`<html data-theme>` + 右上角图标按钮 + `localStorage` + `prefers-color-scheme`），优先级为 localStorage > 系统偏好 > 生成参数；`run` / `report` 新增 `--theme auto|chenguang|yedeng` 指定初始偏好。选此方案而非 duyuan 的构建期固化，因为报告页有逐题下钻交互、不是仅供截图的静态信息图。
+- 保持单文件、零 CDN、零外部字体；浏览器实测两套主题渲染与切换均正常。
+- README「启动本地服务」段补 AI Vault 推荐（https://ergeaia.github.io/aivault-site/），说明其本地引擎管理与 Skill/Prompt/MCP 统一分发能力；「看报告」段补主题说明。
