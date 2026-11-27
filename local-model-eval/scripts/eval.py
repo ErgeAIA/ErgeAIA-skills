@@ -103,7 +103,9 @@ def cmd_run(args) -> int:
         print(f"后端 {info['backend']} · build {info['props'].get('build_info') or '—'}",
               file=sys.stderr)
         if info["props"].get("chat_template_present") is False:
-            print("警告：未检测到 chat 模板，llama-server 请加 --jinja", file=sys.stderr)
+            print("ERROR: 服务未加载 chat 模板。llama-server 请加 --jinja 后重启；"
+                  "无模板会让它看起来像「模型不会调工具」。", file=sys.stderr)
+            return 2
 
     dims = [d.strip() for d in args.dims.split(",")] if args.dims else None
     try:

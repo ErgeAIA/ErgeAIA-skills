@@ -84,7 +84,11 @@ def probe(base_url: str, timeout: float = 5.0) -> dict:
         out["backend"] = "openai-compatible"
         out["problems"].append("/props 不可用（非 llama.cpp 或未开启），模板与 build 信息缺失，复现性下降")
 
-    out["ok"] = bool(out["models"]) and not any("不可用（status=" in p for p in out["problems"])
+    # chat 模板是硬门槛：缺了它，工具维与对话格式都失真，不允许判 ok
+    no_template = any("chat 模板" in p for p in out["problems"])
+    out["ok"] = (bool(out["models"])
+                 and not any("不可用（status=" in p for p in out["problems"])
+                 and not no_template)
     return out
 
 

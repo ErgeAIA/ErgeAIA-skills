@@ -1,33 +1,33 @@
-# local-model-eval 版本历史
+# Changelog
+
+本文件记录 local-model-eval 的版本变更，格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 SemVer。
 
 ## [Unreleased]
 
-## v0.1.1 (2026-11-27)
+## [1.0.0] - 2026-11-27
 
-> 打磨中的开发版本。用户明确锁定此版本，第一版打磨完成前不升版；后续改动只追加到本条或 `[Unreleased]`。
+首个稳定版。四维能力评测 + 硬件适配闸门全部可用，判分器、链路、文档审查均通过。
 
-### 新增
+### Added
 
-- 首版：本地模型四维能力评测执行器。维度取数学推理、指令遵循、事实性与幻觉、工具调用，四维全部程序化判分，不引入 LLM 裁判。
-- 私有题库 64 题（每维 16），含刻意陷阱：数学的「信息不足应拒答」、指令遵循的「题目用词即禁词」、事实性的「虚构实体/不存在标准/错误前提」、工具调用的「无匹配工具应拒调」。
-- CLI 九个子命令：`probe` / `tasks` / `run` / `score` / `report` / `compare` / `selftest` / `export-recheck` / `recheck`。纯标准库、离线可跑。
-- 产物链：`raw.jsonl`（唯一事实源）→ `scores.jsonl`（判分理由）→ `summary.json`（含 CI）→ `manifest.json`（复现核对）→ `report.html`（单文件静态报告，可逐题下钻）。
-- 统计口径：均值用 bootstrap 百分位区间，比例用 Wilson 区间；事实维报幻觉率、弃答率、ECE；工具维报误调用率。
-- 配对比较用 McNemar 精确检验，不用均值差——均值差会抵消不同题上的胜负。
-- `selftest.py` 56 条对抗样例覆盖判分器各分支；`smoke.py` 用假服务验证整条链路（含续跑不重复、重判可复现、无服务时显式失败）。
+- 四维能力评测：数学推理、指令遵循、事实性与幻觉、工具调用，全部程序化判分，不引入 LLM 裁判。
+- 64 道私有题库（每维 16），含刻意陷阱：信息不足应拒答、题面用词即禁词、虚构实体与错误前提、无匹配工具应拒调。不用公开基准原题，因污染与饱和。
+- 产物链以 `raw.jsonl` 为唯一事实源，派生 `scores.jsonl` / `summary.json` / `manifest.json` / `report.html`；报告带 n、置信区间与逐题下钻。
+- 统计口径：均值 bootstrap 区间、比例 Wilson 区间；配对比较用 McNemar 精确检验，不用均值差。事实维报幻觉率、弃答率、ECE。
+- `selftest.py` 56 条判分器对抗样例；`smoke.py` 用假服务验证整条链路（续跑不重复、重判可复现、无服务显式失败）。
+- 第 0 步硬件适配闸门：探测本机 GPU/CPU/RAM 并逐项标来源，生成模型规模×量化×上下文四态矩阵；硬件报告固定 ThemeVault 夜灯与 B站·宝藏二哥AIA 署名，与能力报告的双主题无署名分开。
+- `references/hardware-fit.md`：证据分级、容量四态、KV 公式、Decode/Prefill 分开、PolyStrata 第二路径、实机优先裁决。
 
-### 设计取舍
+### Changed
 
-- 不用 GSM8K/IFEval/BFCL 原始题：已被训练数据污染，且 IFEval 在 8B 档位已饱和。参考其方法，自写私有题。
-- 不做 LLM 裁判：不可复现、偏好冗长、破坏离线。不可验证的维度明确不做，写进各维「不代表什么」。
-- 不做真实执行与多轮状态模拟：需沙盒隔离，成本超出本地评测范围。
-- 报告必带 CI 与 n：n=16 时通过率标准误约 12 个百分点，写一位小数是假精度。
+- 能力报告接入 ThemeVault #001 夜灯 / #002 晨光双主题，运行时切换 + localStorage 持久化 + 系统偏好跟随；新增 `--theme` 参数。
+- README「启动本地服务」段推荐 AI Vault 作为本地引擎与 Skill 管理工具（https://ergeaia.github.io/aivault-site/）。
 
-### 变更
+### Fixed
 
-- 新增第 0 步「硬件适配闸门」：把用户提供的硬件顾问提示词整合进技能，形成「能不能跑 → 跑得怎么样」前后链。目标配置落在「放不下」时 STOP，避免白跑 64 题。
-- 新增 `references/hardware-fit.md`：证据五级标注（实测/规格/计算/估算/缺失，按最弱一类标注）、容量四态、KV 公式、Decode/Prefill 分开、PolyStrata + KVMem 第二路径、实机优先于参考文档、报告六段信息架构、夜灯主题与品牌署名、交付自检。
-- 新增 `scripts/probe_hw.py` 与 `scripts/hardware.py`：前者用标准库探测 GPU/CPU/RAM 并逐项标来源，失败写「缺失」不猜；后者算模型规模×量化×上下文四态矩阵，出单文件 HTML。CLI 增加 `probe-hw` / `hardware` 两个子命令。
-- 硬件报告固定 ThemeVault #001 夜灯色值 + B站·宝藏二哥AIA 署名（顶部/title/author/底部）；三维独立筛选、四态图例、点行拆分、可折叠计算依据、打印与窄屏适配、零外部资源。与能力评测报告的双主题无署名各按各规格，互不混用。
-- 关键纪律：MoE 只描述 FFN、不阻断标准注意力的 KV 公式；非标准注意力（MLA/滑窗）必须显式给 `attention` 字段才不硬套。无依据时写「暂无法可靠估算」，不编造 Token/s。
-- README「启动本地服务」段补 AI Vault 推荐（https://ergeaia.github.io/aivault-site/），说明其本地引擎管理与 Skill/Prompt/MCP 统一分发能力；「看报告」段补主题说明。
+- 修正 README 的区间宽度口径：n=16 时标准误约 12pp、Wilson 区间半宽约 20pp，原写法把标准误当成区间半宽。
+- 模型清单契约补齐 `attention` / `kv_bytes` 字段：非标准注意力须显式标注，否则该模型全部落「数据不足」。
+- 缺 chat 模板时 `run` 直接失败退出，与「探测失败不降级」的 HARD 声明对齐；此前只告警仍继续跑。
+- 版本声明加冒号，使四处版本对齐机检真正生效。
+
+[1.0.0]: https://github.com/ErgeAIA/ErgeAIA-skills/releases/tag/v1.0.0

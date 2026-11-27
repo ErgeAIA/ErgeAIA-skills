@@ -3,7 +3,7 @@ name: local-model-eval
 description: "评测本地部署模型（llama.cpp、LM Studio、Ollama 等 OpenAI 兼容端点）的四维能力，按序执行题库、程序化判分并汇总为可交互 HTML 报告。Use when 用户要测本地模型能力、对比两个量化或模型、验证量化掉点、做评测报告、跑 benchmark。"
 metadata:
   author: ErgeAIA
-  version: "0.1.1"
+  version: "1.0.0"
 ---
 
 # local-model-eval
@@ -39,7 +39,7 @@ python scripts/eval.py probe-hw --out evals/hardware.json
 python scripts/eval.py hardware --hardware evals/hardware.json --models <模型清单.json> --out evals/hardware-report.html
 ```
 
-模型清单需给每个模型的 `name` / `params_b` / `layers` / `kv_heads` / `head_dim`，以及各量化的实际权重文件大小（GiB）。没有实际权重文件时按参数量估算，**报告会标「估算」**。
+模型清单需给每个模型的 `name` / `params_b` / `layers` / `kv_heads` / `head_dim` / `kv_bytes`，以及各量化的实际权重文件大小（GiB）。没有实际权重文件时按参数量估算，**报告会标「估算」**。MLA / 滑动窗口等非标准注意力必须显式给 `attention` 字段（如 `mla` / `sliding_window`）；不给就按标准注意力算 KV，但不符真实架构，**不要对这类模型硬套**。
 
 四态：显存内 / 部分卸载 / 仅 CPU / 放不下。数据不足写「数据不足，暂不判定」，**不是第五种状态**。
 
