@@ -19,21 +19,11 @@
 
 ## 怎么用
 
-### 1. 选模型（可选）
+本技能有两条**互不依赖**的工作流：A 测能力，B 判硬件。只想测正在跑的模型，直接走 A。
 
-还没定模型，或想知道机器能扛住什么，先跑硬件闸门：
+### 工作流 A：能力评测
 
-```bash
-python scripts/eval.py probe-hw --out evals/hardware.json
-python scripts/eval.py hardware --hardware evals/hardware.json \
-  --models <模型清单.json> --out evals/hardware-report.html
-```
-
-模型清单字段：`name` / `params_b` / `layers` / `kv_heads` / `head_dim` / `kv_bytes`，以及各量化的实际权重文件大小（GiB）。MLA / 滑动窗口等非标准注意力须额外给 `attention` 字段（如 `mla`），否则按标准结构算 KV，**不要对这类模型硬套**。
-
-报告给四态矩阵（显存内 / 部分卸载 / 仅 CPU / 放不下），三维筛选（规模 × 量化 × 上下文），每个数字标来源（实测 / 规格 / 计算 / 估算 / 缺失）。速度没有可靠依据时写「暂无法可靠估算」，不编造 Token/s。方法见 `references/hardware-fit.md`。
-
-### 2. 启动本地服务
+#### 1. 启动本地服务
 
 可用 [AI Vault](https://ergeaia.github.io/aivault-site/)（本地优先、Agent-centric 的 AI 创作者工作台）管理本地引擎，并把 Skill / Prompt / MCP 统一收在本地 Vault 分发到各 Agent。数据留在本机。
 
@@ -48,7 +38,7 @@ llama-server -m <model.gguf> --host 127.0.0.1 --port 8080 \
 
 LM Studio：Developer → Start Server（默认 `127.0.0.1:1234`）。
 
-### 3. 确认服务
+#### 2. 确认服务
 
 ```bash
 python scripts/eval.py probe --base-url http://127.0.0.1:8080/v1
@@ -56,7 +46,7 @@ python scripts/eval.py probe --base-url http://127.0.0.1:8080/v1
 
 需要 `ok: true` 且 `props.chat_template_present` 为 true。
 
-### 4. 跑评测
+#### 3. 跑评测
 
 ```bash
 python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/results/q4km
@@ -64,13 +54,27 @@ python scripts/eval.py run --base-url http://127.0.0.1:8080/v1 --out evals/resul
 
 默认 64 题、`temperature=0`、`seed=20260101`。中断后重跑同一命令即续跑，不重复请求。
 
-### 5. 看报告
+#### 4. 看报告
 
 打开 `evals/results/q4km/report.html`。先读「这些数字不代表什么」，再看分数。
 
 能力报告用 ThemeVault #001 夜灯 / #002 晨光，右上角图标切换，默认跟随系统偏好，手动选择记入 `localStorage`。可用 `--theme yedeng|chenguang|auto` 固定初始主题。单文件、零外部资源。
 
-**硬件报告与能力报告是不同产物**：前者固定夜灯 + B站·宝藏二哥AIA 署名，后者双主题无署名，互不混用。
+### 工作流 B：硬件适配
+
+判断这台机器能跑什么模型、什么量化、多大上下文。**与工作流 A 互不依赖**，不需要先启动服务。
+
+```bash
+python scripts/eval.py probe-hw --out evals/hardware.json
+python scripts/eval.py hardware --hardware evals/hardware.json \
+  --models <模型清单.json> --out evals/hardware-report.html
+```
+
+模型清单字段：`name` / `params_b` / `layers` / `kv_heads` / `head_dim` / `kv_bytes`，以及各量化的实际权重文件大小（GiB）。MLA / 滑动窗口等非标准注意力须额外给 `attention` 字段（如 `mla`），否则按标准结构算 KV，**不要对这类模型硬套**。
+
+报告给四态矩阵（显存内 / 部分卸载 / 仅 CPU / 放不下），三维筛选（规模 × 量化 × 上下文），每个数字标来源（实测 / 规格 / 计算 / 估算 / 缺失）。速度没有可靠依据时写「暂无法可靠估算」，不编造 Token/s。方法见 `references/hardware-fit.md`。
+
+硬件报告固定夜灯 + B站·宝藏二哥AIA 署名，与能力报告的双主题无署名是两套规格，互不混用。
 
 ## 示例提示词
 

@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **结构修正**：硬件适配原本被编号为「第 0 步」，读起来像能力评测的必经前置。它实际是独立工作流（原本以独立提示词完成），与评测无依赖关系。现改为并列的「工作流 A：能力评测 / 工作流 B：硬件适配」，SKILL.md 与 README 同步调整，并明确 A 可不跑 B 单独完成。
+
 ## [1.0.1] - 2026-11-27
 
 代码整理版，无功能变化。
@@ -35,7 +39,7 @@
 - 产物链以 `raw.jsonl` 为唯一事实源，派生 `scores.jsonl` / `summary.json` / `manifest.json` / `report.html`；报告带 n、置信区间与逐题下钻。
 - 统计口径：均值 bootstrap 区间、比例 Wilson 区间；配对比较用 McNemar 精确检验，不用均值差。事实维报幻觉率、弃答率、ECE。
 - `selftest.py` 56 条判分器对抗样例；`smoke.py` 用假服务验证整条链路（续跑不重复、重判可复现、无服务显式失败）。
-- 第 0 步硬件适配闸门：探测本机 GPU/CPU/RAM 并逐项标来源，生成模型规模×量化×上下文四态矩阵；硬件报告固定 ThemeVault 夜灯与 B站·宝藏二哥AIA 署名，与能力报告的双主题无署名分开。
+- 硬件适配工作流：探测本机 GPU/CPU/RAM 并逐项标来源，生成模型规模×量化×上下文四态矩阵；硬件报告固定 ThemeVault 夜灯与 B站·宝藏二哥AIA 署名，与能力报告的双主题无署名分开。
 - `references/hardware-fit.md`：证据分级、容量四态、KV 公式、Decode/Prefill 分开、PolyStrata 第二路径、实机优先裁决。
 
 ### Changed

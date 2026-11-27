@@ -18,36 +18,29 @@ metadata:
 
 ## 何时使用
 
+两条工作流可按需单独触发：
+
+**A 能力评测**（模型已跑起来）
+
 - 刚下载一个 GGUF，想知道它在数学、指令遵循、幻觉、工具调用上大概什么水平
 - 同一模型的 Q4_K_M 与 Q8_0 对比，判断量化掉了多少点
 - 换模型前做一次基线，换完再跑一次做配对比较
 - 需要一份能贴给别人看、每个数字都能下钻的报告
-- Not for: 训练侧评测（loss/perplexity）、纯吞吐压测（用 `llama-bench`）、需要人工主观打分的开放式创作质量
 
-## 工作步骤
+**B 硬件适配**（模型还没定，或考虑升级）
+
+- 这台机器能跑 14B 的哪个量化、多大上下文
+- 要不要加内存/换卡，加了能多跑什么
+
+Not for: 训练侧评测（loss/perplexity）、纯吞吐压测（用 `llama-bench`）、需要人工主观打分的开放式创作质量
+
+## 工作流 A：能力评测
+
+**目标**：模型已经跑起来了，测它实际能力如何。
 
 严格按序执行。每步有产物，产物不全不进下一步。
 
 标记语义：**🛑 STOP** = 阻断并交还用户，等用户操作后才继续；**🔴 CHECKPOINT** = 自检或向用户确认后再继续，不必然中断。
-
-### 第 0 步：硬件适配闸门（选型阶段）
-
-用户还没定模型，或问「这台机器能跑什么 / 要不要升级」时先做这一步。方法见 `references/hardware-fit.md`。
-
-```bash
-python scripts/eval.py probe-hw --out evals/hardware.json
-python scripts/eval.py hardware --hardware evals/hardware.json --models <模型清单.json> --out evals/hardware-report.html
-```
-
-模型清单需给每个模型的 `name` / `params_b` / `layers` / `kv_heads` / `head_dim` / `kv_bytes`，以及各量化的实际权重文件大小（GiB）。没有实际权重文件时按参数量估算，**报告会标「估算」**。MLA / 滑动窗口等非标准注意力必须显式给 `attention` 字段（如 `mla` / `sliding_window`）；不给就按标准注意力算 KV，但不符真实架构，**不要对这类模型硬套**。
-
-四态：显存内 / 部分卸载 / 仅 CPU / 放不下。数据不足写「数据不足，暂不判定」，**不是第五种状态**。
-
-- 目标配置落在「放不下」→ 🛑 **STOP**：告诉用户预计失败阶段与缺失量，先换量化或降上下文，不要直接跑第 3 步浪费时间。
-- 落在「仅 CPU」→ 🔴 **CHECKPOINT**：容量可行不代表速度实用，向用户确认是否接受慢速后再继续。
-- 硬件报告固定 ThemeVault #001 夜灯 + B站·宝藏二哥AIA 署名；**能力评测报告维持双主题无署名**，两者是不同产物。
-
-→ **verify**: 硬件报告首屏能回答「最受什么限制、能跑到哪一档」；每个数字带来源标注
 
 ### 第 1 步：确认服务与运行时事实
 
@@ -136,6 +129,27 @@ python scripts/eval.py compare --a evals/results/q4km --b evals/results/q8 --lab
 
 → **verify**: 报告 wins/ties、p 值，以及按维度的胜负分布
 
+## 工作流 B：硬件适配（独立）
+
+**目标**：判断这台机器能跑什么模型、什么量化、多大上下文，以及值不值得升级。
+
+与工作流 A 无依赖关系，**不是它的前置**：A 可以在不跑 B 的情况下独立完成。两者只在用户同时问「能跑什么」和「跑得怎么样」时才依次使用。方法见 `references/hardware-fit.md`。
+
+```bash
+python scripts/eval.py probe-hw --out evals/hardware.json
+python scripts/eval.py hardware --hardware evals/hardware.json --models <模型清单.json> --out evals/hardware-report.html
+```
+
+模型清单需给每个模型的 `name` / `params_b` / `layers` / `kv_heads` / `head_dim` / `kv_bytes`，以及各量化的实际权重文件大小（GiB）。没有实际权重文件时按参数量估算，**报告会标「估算」**。MLA / 滑动窗口等非标准注意力必须显式给 `attention` 字段（如 `mla` / `sliding_window`）；不给就按标准注意力算 KV，但不符真实架构，**不要对这类模型硬套**。
+
+四态：显存内 / 部分卸载 / 仅 CPU / 放不下。数据不足写「数据不足，暂不判定」，**不是第五种状态**。
+
+- 目标配置落在「放不下」→ 🛑 **STOP**：告诉用户预计失败阶段与缺失量，先换量化或降上下文，再决定要不要回到工作流 A。
+- 落在「仅 CPU」→ 🔴 **CHECKPOINT**：容量可行不代表速度实用，向用户确认是否接受慢速。
+- 硬件报告固定 ThemeVault #001 夜灯 + B站·宝藏二哥AIA 署名；**能力评测报告维持双主题无署名**，两者是不同产物。
+
+→ **verify**: 报告首屏能回答「最受什么限制、能跑到哪一档」；每个数字带来源标注
+
 ## 输出契约
 
 | 产物 | 内容 | 用途 |
@@ -168,10 +182,11 @@ python scripts/eval.py compare --a evals/results/q4km --b evals/results/q8 --lab
 | `references/task-schema.md` | 要加题、改题、新建维度 |
 | `references/scoring.md` | 想改判分逻辑、理解某个 verdict 的含义、调 CI 算法 |
 | `references/benchmark-basis.md` | 想知道这些维度与方法来自哪些公开基准，以及为什么不用它们的原始题 |
-| `references/hardware-fit.md` | 第 0 步：证据分级、容量四态、KV 估算、Decode/Prefill、PolyStrata 第二路径与实机优先裁决 |
+| `references/hardware-fit.md` | 工作流 B：证据分级、容量四态、KV 估算、Decode/Prefill、PolyStrata 第二路径与实机优先裁决 |
 
 ## Gotchas
 
+- **A 与 B 无依赖**。硬件适配不是能力评测的前置步骤，别把 B 塞进 A 的流程里当「第 0 步」——用户只想测一个已经跑起来的模型时，跑 B 纯属多余。
 - **llama-server 必须 `--jinja`**。默认模板不含工具调用段，不加的话工具维度全线失败，且失败原因看起来像「模型不会调工具」。
 - **`--parallel 1`**。并发会让部分实现的 logits 不稳定，同 seed 也复现不了。
 - **temperature=0 不等于逐字节可复现**。GPU 浮点非结合性会偶发翻转，标准是「同硬件同 build 下 hash 一致」，跨引擎永远不一致。
