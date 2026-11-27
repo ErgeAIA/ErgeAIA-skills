@@ -3,7 +3,7 @@ name: local-model-eval
 description: "评测本地部署模型（llama.cpp、LM Studio、Ollama 等 OpenAI 兼容端点）的四维能力，按序执行题库、程序化判分并汇总为可交互 HTML 报告。Use when 用户要测本地模型能力、对比两个量化或模型、验证量化掉点、做评测报告、跑 benchmark。"
 metadata:
   author: ErgeAIA
-  version: "1.0.0"
+  version: "0.1.1"
 ---
 
 # local-model-eval

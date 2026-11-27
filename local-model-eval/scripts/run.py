@@ -192,7 +192,7 @@ def run(base_url: str, tasks_dir: str, out_dir: str, model: str, seed: int,
         "task_count": len(tasks),
         "dims": sorted({t["dim"] for t in tasks}),
         "started_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "tool_version": "1.0.0",
+        "tool_version": "0.1.1",
     }
 
     with open(raw_path, "a", encoding="utf-8") as raw_fh:
