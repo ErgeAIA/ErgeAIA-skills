@@ -220,6 +220,7 @@ def run(base_url: str, tasks_dir: str, out_dir: str, model: str, seed: int,
 
     # 判分
     scored = []
+    task_by_id = {t["id"]: t for t in tasks}  # O(1) 索引，避免每题线性扫描题库
     with open(raw_path, encoding="utf-8") as raw_fh, \
             open(score_path, "w", encoding="utf-8") as sc_fh:
         for line in raw_fh:
@@ -227,7 +228,7 @@ def run(base_url: str, tasks_dir: str, out_dir: str, model: str, seed: int,
             if not line:
                 continue
             rec = json.loads(line)
-            task = next((t for t in tasks if t["id"] == rec["id"]), None)
+            task = task_by_id.get(rec["id"])
             if task is None:
                 continue
             if not rec.get("ok"):

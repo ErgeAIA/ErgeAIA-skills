@@ -216,7 +216,8 @@ def _check_constraint(text: str, c: dict) -> tuple[bool, str]:
     if kind == "no_latin":
         return not LATIN_RE.search(text), "含字母" if LATIN_RE.search(text) else "无字母"
     if kind == "no_digits":
-        return not re.search(r"\d", text), "含数字" if re.search(r"\d", text) else "无数字"
+        has = bool(re.search(r"\d", text))
+        return not has, "含数字" if has else "无数字"
     if kind == "all_upper":
         letters = "".join(LATIN_RE.findall(text))
         return bool(letters) and letters.isupper(), f"字母串={letters[:24]}"
