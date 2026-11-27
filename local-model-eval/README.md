@@ -2,7 +2,7 @@
 
 > 本地模型评测执行器：先判能不能跑，再判跑得怎么样。全程离线，程序化判分，报告可逐题下钻。
 
-版本：1.0.0
+版本：1.0.1
 
 ## 这是什么
 
@@ -136,8 +136,6 @@ local-model-eval/
 ├── SKILL.md                       # 执行规则与硬边界
 ├── README.md                      # 本文件
 ├── CHANGELOG.md                   # 版本历史
-├── results.tsv                    # 本技能优化记录
-├── test-prompts.json              # 验收用例
 ├── assets/tasks/                  # 四维题库 jsonl
 ├── references/
 │   ├── measurement-contract.md    # 每维测什么、怎么判、会怎么错

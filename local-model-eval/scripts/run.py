@@ -13,7 +13,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import re
+import random
 import sys
 import time
 import urllib.error
@@ -138,7 +138,6 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 
 def mean_ci(values: list[float]) -> tuple[float, float, float]:
     """均值的 bootstrap 区间（百分位法，固定种子）。"""
-    import random
     if not values:
         return (0.0, 0.0, 0.0)
     m = sum(values) / len(values)
@@ -219,29 +218,7 @@ def run(base_url: str, tasks_dir: str, out_dir: str, model: str, seed: int,
                       file=sys.stderr)
 
     # 判分
-    scored = []
-    task_by_id = {t["id"]: t for t in tasks}  # O(1) 索引，避免每题线性扫描题库
-    with open(raw_path, encoding="utf-8") as raw_fh, \
-            open(score_path, "w", encoding="utf-8") as sc_fh:
-        for line in raw_fh:
-            line = line.strip()
-            if not line:
-                continue
-            rec = json.loads(line)
-            task = task_by_id.get(rec["id"])
-            if task is None:
-                continue
-            if not rec.get("ok"):
-                result = {"id": rec["id"], "dim": rec["dim"], "score": 0.0,
-                          "reason": f"请求失败：{rec.get('error', '')[:160]}",
-                          "detail": {"verdict": "request_failed"}, "error": True}
-            else:
-                result = scorers.score_task(task, rec.get("content", ""))
-            merged = {**result, "prompt_sha256": rec.get("prompt_sha256"),
-                      "latency_ms": rec.get("latency_ms"),
-                      "usage": rec.get("usage", {})}
-            sc_fh.write(json.dumps(merged, ensure_ascii=False) + "\n")
-            scored.append(merged)
+    scored = score_raw(raw_path, score_path, tasks)
 
     summary = summarize(scored, tasks)
     summary["manifest"] = manifest
@@ -263,6 +240,37 @@ def _file_sha(path: str) -> str:
         for chunk in iter(lambda: fh.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()[:16]
+
+
+def score_raw(raw_path: str, score_path: str, tasks: list[dict]) -> list[dict]:
+    """把 raw.jsonl 判分成 scores.jsonl，返回每题结果。
+
+    `run` 与 `score` 子命令共用：判分口径只此一处，避免两份实现漂移。
+    """
+    task_by_id = {t["id"]: t for t in tasks}
+    scored: list[dict] = []
+    with open(raw_path, encoding="utf-8") as raw_fh, \
+            open(score_path, "w", encoding="utf-8") as sc_fh:
+        for line in raw_fh:
+            line = line.strip()
+            if not line:
+                continue
+            rec = json.loads(line)
+            task = task_by_id.get(rec["id"])
+            if task is None:
+                continue
+            if not rec.get("ok"):
+                result = {"id": rec["id"], "dim": rec["dim"], "score": 0.0,
+                          "reason": f"请求失败：{rec.get('error', '')[:160]}",
+                          "detail": {"verdict": "request_failed"}, "error": True}
+            else:
+                result = scorers.score_task(task, rec.get("content", ""))
+            merged = {**result, "prompt_sha256": rec.get("prompt_sha256"),
+                      "latency_ms": rec.get("latency_ms"),
+                      "usage": rec.get("usage", {})}
+            sc_fh.write(json.dumps(merged, ensure_ascii=False) + "\n")
+            scored.append(merged)
+    return scored
 
 
 def summarize(scored: list[dict], tasks: list[dict]) -> dict:

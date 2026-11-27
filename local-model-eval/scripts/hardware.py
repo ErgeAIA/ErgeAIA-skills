@@ -601,7 +601,6 @@ Decode 与 Prefill 必须分开。本机未执行负载测试，<b>没有可靠�
 
 
 def main() -> int:
-    import argparse
     ap = argparse.ArgumentParser(description="生成本地推理硬件适配报告")
     ap.add_argument("--hardware", required=True, help="probe_hw.py 产出的 hardware.json")
     ap.add_argument("--models", required=True,

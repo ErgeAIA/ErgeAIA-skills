@@ -4,13 +4,25 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-27
+
+代码整理版，无功能变化。
+
 ### Changed
 
-- 判分阶段的题库查找由每题线性扫描改为 dict 索引（`run.py`），与 `score` 子命令对齐；题库扩到 500/2000 题时查找开销从 2.7/31.9ms 降到 0.03/0.17ms。64 题规模下无实际感知差异。
+- 抽出 `run.score_raw()` 供 `run` 与 `score` 共用，消除约 25 行重复的判分循环，避免两份实现漂移。
+- 判分阶段题库查找改为 dict 索引；题库扩到 500 / 2000 题时查找开销从 2.7 / 31.9ms 降到 0.03 / 0.17ms。
+- 函数内重复的 `import`（`random` / `hashlib` / `argparse` / `json`）提到模块顶部。
+
+### Removed
+
+- 删除 `results.tsv` 与 `test-prompts.json`：darwin 优化过程的开发期记录，非使用所需；过程已留痕于 CHANGELOG。
+- 删除 `local-tests/` 临时产物与 `scripts/__pycache__/` 编译缓存。
 
 ### Fixed
 
-- 消除 `no_digits` 约束里重复的正则搜索（`scorers.py`），输出不变。
+- 删除 4 个未使用 import（`re` / `json` / `shutil` / `time`）。
+- 消除 `no_digits` 约束里重复的正则搜索。
 
 ## [1.0.0] - 2026-11-27
 
@@ -38,4 +50,5 @@
 - 缺 chat 模板时 `run` 直接失败退出，与「探测失败不降级」的 HARD 声明对齐；此前只告警仍继续跑。
 - 版本声明加冒号，使四处版本对齐机检真正生效。
 
+[1.0.1]: https://github.com/ErgeAIA/ErgeAIA-skills/releases/tag/v1.0.1
 [1.0.0]: https://github.com/ErgeAIA/ErgeAIA-skills/releases/tag/v1.0.0

@@ -19,7 +19,7 @@ A collection of production-grade Agent Skills following the official [Agent Skil
 | [moxian](moxian/) | Surface the gaps you thought you understood but never internalized — save them as sticky cognition cards | `moxian: show what I did not really get` | v0.3.0 |
 | [zuiti](zuiti/) | Civil comeback generator: sharp, profanity-free retorts — 6 styles, 3 each | `zuiti: reply to this comment for me` | v0.4.0 |
 | [raster-to-svg](raster-to-svg/) | Trace a bitmap into an editable SVG — per-contour engine choice between lines and curves, holes kept, fidelity scored by a real renderer | `trace this glyph PNG into an SVG, keep the corners sharp, and give me the vertex coordinates` | v0.1.0 |
-| [local-model-eval](local-model-eval/) | Local model evaluation: hardware-fit gate (can it run) + four-dimension capability eval (how well), programmatic scoring fully offline, drill-down reports | `eval my Qwen2.5-14B Q4_K_M across the four dimensions` | v1.0.0 |
+| [local-model-eval](local-model-eval/) | Local model evaluation: hardware-fit gate (can it run) + four-dimension capability eval (how well), programmatic scoring fully offline, drill-down reports | `eval my Qwen2.5-14B Q4_K_M across the four dimensions` | v1.0.1 |
 
 ## Getting Started
 

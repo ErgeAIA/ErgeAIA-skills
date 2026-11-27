@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+from math import comb
 
 
 def load_scores(run_dir: str) -> dict[str, dict]:
@@ -32,7 +33,6 @@ def mcnemar_exact(b: int, c: int) -> float:
         return 1.0
     k = min(b, c)
     # 双尾精确二项 p
-    from math import comb
     tail = sum(comb(n, i) for i in range(k + 1)) / (2 ** n)
     return min(1.0, 2 * tail)
 

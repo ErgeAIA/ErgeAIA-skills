@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import urllib.error
 import urllib.request
@@ -93,7 +94,6 @@ def probe(base_url: str, timeout: float = 5.0) -> dict:
 
 
 def _sha(text: str) -> str:
-    import hashlib
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 

@@ -43,7 +43,6 @@ def cmd_probe(args) -> int:
 
 
 def cmd_probe_hw(args) -> int:
-    import json
     import probe_hw
     data = probe_hw.probe()
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
@@ -141,34 +140,12 @@ def cmd_run(args) -> int:
 def cmd_score(args) -> int:
     """只重算分数，不重跑模型。判分器改过之后用这个。"""
     import run
-    import scorers
     raw_path = os.path.join(args.out, "raw.jsonl")
     if not os.path.exists(raw_path):
         print(f"缺少 {raw_path}", file=sys.stderr)
         return 2
     tasks = run.load_tasks(args.tasks_dir)
-    task_by_id = {t["id"]: t for t in tasks}
-    scored = []
-    with open(raw_path, encoding="utf-8") as raw_fh, \
-            open(os.path.join(args.out, "scores.jsonl"), "w", encoding="utf-8") as sc_fh:
-        for line in raw_fh:
-            line = line.strip()
-            if not line:
-                continue
-            rec = json.loads(line)
-            task = task_by_id.get(rec["id"])
-            if task is None:
-                continue
-            if not rec.get("ok"):
-                result = {"id": rec["id"], "dim": rec["dim"], "score": 0.0,
-                          "reason": f"请求失败：{rec.get('error', '')[:160]}",
-                          "detail": {"verdict": "request_failed"}, "error": True}
-            else:
-                result = scorers.score_task(task, rec.get("content", ""))
-            merged = {**result, "prompt_sha256": rec.get("prompt_sha256"),
-                      "latency_ms": rec.get("latency_ms"), "usage": rec.get("usage", {})}
-            sc_fh.write(json.dumps(merged, ensure_ascii=False) + "\n")
-            scored.append(merged)
+    scored = run.score_raw(raw_path, os.path.join(args.out, "scores.jsonl"), tasks)
 
     summary_path = os.path.join(args.out, "summary.json")
     old = {}
