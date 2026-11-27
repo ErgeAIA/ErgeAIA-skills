@@ -1,0 +1,2 @@
+timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
+2026-11-27T22:05	baseline	local-model-eval	-	87.4	baseline	-	独立子agent按9维rubric评分；dim4检查点设计仅4分为唯一明显短板；其余维9-10	dry_run
