@@ -19,9 +19,7 @@ known-limits: 只定义顺序与形态，不写具体动作；分级与阈值是
 
 ## P2 事实源优先级
 
-从高到低，**不得只凭会话记忆落笔**：git 客观源（白名单只读命令）> `docs/handoff/` 最新一份 > `docs/agents/` 各过程文档 > 本次会话上下文。非 Git 仓库跳过第一项、不报错；上下文与前三项冲突时**以客观源为准**并把冲突记入备注。
-
-**取材范围 ≠ 写入范围**：可取材整个仓库；可写的只有本技能产物落点（见 P3）。
+从高到低，**不得只凭会话记忆落笔**：git 客观源（白名单只读命令）> `docs/handoff/` 最新一份 > `docs/agents/` 各过程文档 > 本次会话上下文。非 Git 仓库跳过第一项；上下文与前三项冲突时**以客观源为准**并记备注。**取材范围 ≠ 写入范围**：可取材整个仓库，可写的只有 P3 落点。
 
 ## P3 写入落点唯一性
 
@@ -47,9 +45,7 @@ known-limits: 只定义顺序与形态，不写具体动作；分级与阈值是
 
 终止回复 ≤3 行 + 待确认项，**不复述产物正文**：① 落盘路径（或未写入原因）；② 统计（写了几个文件 / 各几条 / 跳过几个及原因码）；③ 待确认项（无则写「无」）。
 
-判定分两栏，不得混写。
-
-### 可判定项（逐项报，漏一项写 `skipped:<原因码>`）
+判定分两栏，不得混写。可判定项（逐项报，漏一项写 `skipped:<原因码>`）：
 
 J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一（含 `archive/`）· J4 蒸馏双台账 `range` 一致 · J5 产物未超 P10 阈值 · J6 `References` 每行含 `→ 见` 与用途短语 · J7 未覆盖既有文件（写入前实读、写入后比对未变）。
 
@@ -71,9 +67,7 @@ J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一�
 
 ## P9 原因码枚举
 
-取值必须来自本表，禁止临时造词；`<条目>` 填编号不填描述。
-
-`no-change` · `no-decision` · `no-root-cause` · `no-rule` · `single-occurrence` · `no-fact-source` · `project-param` · `covered-by:<条目>` · `same-session` · `release-only` · `no-surface-change` · `no-threshold-hit` · `evidence-insufficient` · `out-of-scope`
+取值必须来自本表，禁止临时造词；`<条目>` 填编号不填描述。`no-change` · `no-decision` · `no-root-cause` · `no-rule` · `single-occurrence` · `no-fact-source` · `project-param` · `covered-by:<条目>` · `same-session` · `release-only` · `no-surface-change` · `no-threshold-hit` · `evidence-insufficient` · `out-of-scope`
 
 ## P10 档案增长阈值
 
@@ -97,6 +91,16 @@ J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一�
 1. **先写归档、验证成功、再移出活跃**；中途失败不删原文。
 2. **编号全局唯一**：`DEC-NNN` / `BUG-NNN` 取「活跃 + 归档」的最大值加一，不能只看活跃文件。
 3. **归档不改判据**：`docs/handoff/` 归档后仍按文件名日期取最新一份，`archive/` 不参与候选。
+
+### 分片索引（强制，缺索引视为分片未完成）
+
+分片不是把旧内容搬走就算完——**搬走的条目必须能被找回**。每次分片做三件事：① 写归档段（`archive/` 对应文件，只追加）；② 更新 `archive/INDEX.md`；③ 活跃文件说明区加一行「历史条目见 `archive/INDEX.md`」。
+
+INDEX 最小格式：一张只追加的表 `| 产物 | 归档文件 | 编号区间 / 日期范围 | 条数 | 归档日期 |`。DEC/BUG 必填**编号区间**（如 `DEC-001..DEC-180`），无编号产物填日期范围。回查判定：给一个 `DEC-NNN`，先查活跃文件，查不到就按 INDEX 区间定位归档文件——能定位才算「没丢」。
+
+### 存量兼容（旧文件从未分片）
+
+归档闸原本只在**写入时**触发，存量超阈值文件（578KB progress）永远无人处理。补两条：`vibe-check` 的 C8 超限给「分片」入口而非只报；用户说「把旧档案分片 / 归档一下」时 `vibe-sync` **无需新进展也能分片**，按 P10 三纪律 + 索引要求执行，报「归档 N 条 / 活跃剩 M 条」并更新 INDEX。
 
 ## P11 任务分级
 

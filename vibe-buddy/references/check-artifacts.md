@@ -42,7 +42,7 @@ known-limits: 只读，不写任何文件；不产待办；不代跑修复；不
 | C5 | 各产物 frontmatter `updated` | 与文件内容的最新日期一致；明显滞后（如内容有 2026-11 的条目而 `updated` 是 2026-09）即报 | `vibe-sync` 改 `updated` |
 | C6 | 编号连续性 | `DEC-NNN` / `BUG-NNN` 在「活跃 + archive/」全域无跳号、无重号 | 跳号 → `vibe-sync` 补条目或说明；重号 → 先修编号 |
 | C7 | 蒸馏双台账一致 | `experience/changelog.md` 与 `.distill-index.json` 的区间集合一致 | `vibe-distill` 修台账（先修台账再蒸） |
-| C8 | 产物是否超阈值 | 按 `workflow-protocol.md` P10 的 8 项阈值逐个核；超限即报 | `vibe-sync` / `vibe-handoff` / `vibe-audit` 走归档闸 |
+| C8 | 产物是否超阈值 / 分片有无索引 | 按 `workflow-protocol.md` P10 的 8 项阈值逐个核；超限即报；已分片的文件核 `archive/INDEX.md` 是否存在且区间可回查 | 超限 → 说「分片」并指明产物（`vibe-sync` 无需新进展也能分片）；索引缺失 → 说「补 INDEX」 |
 | C9 | 交接文档可取最新 | `docs/handoff/` 有文件时，按文件名日期能唯一定出最新一份；`archive/` 未混入候选 | `vibe-handoff` 规范命名 |
 | C10 | 过程文档的写者边界 | 不该被改的文件是否被改（如 `agents-changelog.md` 出现非契约变更记录） | 只报，交用户判断 |
 
