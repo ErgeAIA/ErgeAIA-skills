@@ -1,2 +1,5 @@
 timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
-2026-11-27T22:05	baseline	local-model-eval	-	87.4	baseline	-	独立子agent按9维rubric评分；dim4检查点设计仅4分为唯一明显短板；其余维9-10	dry_run
+2026-11-27T22:05	baseline	local-model-eval	-	87.4	baseline	-	独立子agent 9维rubric；dim4检查点设计仅4分为唯一明显短板；其余维9-10	dry_run
+2026-11-27T22:12	bda1d79	local-model-eval	（绝对分仅triage）	3-0 better	keep	dim4检查点	5处补🛑STOP/🔴CHECKPOINT；paired 3judge多数决；2 slight 1 clear	paired
+2026-11-27T22:18	6d1e34f	local-model-eval	（绝对分仅triage）	3-0 better	keep	dim4检查点	精修：定义STOP/CHECKPOINT语义、去重复句、去多余用户往返；paired 3judge；2 clear 1 slight	paired
+2026-11-27T22:18	-	local-model-eval	-	-	stop	-	连续2轮slight/clear小幅提升，按HL-4见好就收；selftest 56/56 + smoke 8项全过	paired
