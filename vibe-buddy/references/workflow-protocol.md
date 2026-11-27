@@ -79,9 +79,11 @@ J1 产物存在 · J2 `updated` = 当日 · J3 `DEC/BUG` 编号连续且唯一�
 
 活跃产物超阈值时**先归档再写新条目**；归档只追加、不改写；归档前后**总条目数守恒**。
 
-| 产物 | 活跃上限 | 归档落点 | 粒度 |
+**过程文档根目录不写死**：以目标项目 `AGENTS.md` 的约定为准——`docs/agents/`（本技能初始化新建的项目）或 `docs/.ai/`（历史项目，如本仓），两者都按本表分片。下表 `docs/agents/` 只是示例根，实际根替换为项目约定的那个；归档落在**同一根下的 `archive/`**。
+
+| 产物 | 活跃上限 | 归档落点（相对过程文档根） | 粒度 |
 |---|---|---|---|
-| `project-progress.md` | ≤300 行 | `docs/agents/archive/progress-YYYY-MM.md` | 月 |
+| `project-progress.md` | ≤300 行 | `archive/progress-YYYY-MM.md` | 月 |
 | `decision-log.md` | ≤200 条 | `archive/decision-YYYY.md` | 年 |
 | `debug-log.md` | ≤100 条 | `archive/debug-YYYY.md` | 年 |
 | `agents-changelog.md` | ≤200 行 | `archive/agents-changelog-YYYY.md` | 年 |

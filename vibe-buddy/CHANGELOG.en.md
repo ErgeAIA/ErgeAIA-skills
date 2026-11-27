@@ -6,6 +6,11 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Archive paths are no longer hard-coded to `docs/agents/`: the target project's `AGENTS.md` decides (`docs/agents/` or `docs/.ai/`); archives go under `archive/` in the same root.
+- Routing and hard rules now expose an explicit "archive / shard" entry: archive before writing past a threshold and report counts in the final reply — previously archiving was hidden inside the sync contract.
+
 ## v1.12.0 (2026-11-27)
 
 ### Added

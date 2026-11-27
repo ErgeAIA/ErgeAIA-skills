@@ -124,7 +124,7 @@ known-limits: 只记录不提炼；不代跑验证命令；不代改源码与配
 
 活跃产物超过阈值时（阈值表见 `workflow-protocol.md` P10，本节不重复列数），**先归档再写新条目**，三步固定顺序：
 
-1. 把最旧的整段（progress 按月 / 其他按年）**追加**到 `docs/agents/archive/` 对应文件，保留原文与 frontmatter 日期；
+1. 把最旧的整段（progress 按月 / 其他按年）**追加**到**项目过程文档根下的 `archive/`**（根按项目 `AGENTS.md` 约定，`docs/agents/` 或 `docs/.ai/` 都适用）对应文件，保留原文与 frontmatter 日期；
 2. 实读归档文件，确认条目数增加且内容完整；
 3. 从活跃文件移出该段，再写本次新条目。
 
